@@ -1,0 +1,32 @@
+% Local node numbering of a spectral element, p = 3, GLL nodes
+\begin{tikzpicture}[scale=2.2, every node/.style={font=\small},
+                    num/.style={inner sep=1.5pt}]
+  \def\g{0.4472136}
+  % element and node lines
+  \draw[thick] (-1,-1) rectangle (1,1);
+  \foreach \c in {-\g,\g} {
+    \draw[densely dotted, black!40] (\c,-1) -- (\c,1);
+    \draw[densely dotted, black!40] (-1,\c) -- (1,\c);
+  }
+  % nodes: (xi, eta, number, label position); labels of boundary nodes
+  % point outwards, labels of interior nodes to the upper right
+  \foreach \x/\y/\n/\pos in {
+      -1/-1/1/below left, 1/-1/2/below right, 1/1/3/above right, -1/1/4/above left,
+      -\g/-1/5/below, \g/-1/6/below,
+      1/-\g/7/right, 1/\g/8/right,
+      -\g/1/9/above, \g/1/10/above,
+      -1/-\g/11/left, -1/\g/12/left,
+      -\g/-\g/13/above right, \g/-\g/14/above right,
+      -\g/\g/15/above right, \g/\g/16/above right} {
+    \node[node dot] at (\x,\y) {};
+    \node[num, \pos=2.5pt] at (\x,\y) {\n};
+  }
+  % edge labels (outside the node numbers)
+  \node at (0,-1.32) {edge 1 ($\eta=-1$)};
+  \node[rotate=90] at (1.36,0) {edge 2 ($\xi=+1$)};
+  \node at (0,1.32) {edge 3 ($\eta=+1$)};
+  \node[rotate=90] at (-1.36,0) {edge 4 ($\xi=-1$)};
+  % local coordinate axes
+  \draw[dimarrow] (-1.75,-1.55) -- (-1.3,-1.55) node[right] {$\xi$};
+  \draw[dimarrow] (-1.75,-1.55) -- (-1.75,-1.1) node[above] {$\eta$};
+\end{tikzpicture}

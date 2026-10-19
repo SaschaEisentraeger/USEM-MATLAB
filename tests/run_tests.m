@@ -8,7 +8,7 @@ function results = run_tests(varargin)
 %                                           also run tests tagged
 %                                           'KnownIssue' (expected to fail
 %                                           until the bugs listed in
-%                                           docs/known-issues.md are fixed)
+%                                           docs/chapters/known-issues.tex are fixed)
 %   results = run_tests(..., 'Coverage', true)
 %                                           write a Cobertura coverage
 %                                           report for code/subroutines

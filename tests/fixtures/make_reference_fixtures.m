@@ -3,7 +3,7 @@ function make_reference_fixtures(resultsDir)
 %
 %   make_reference_fixtures(resultsDir) reads the workspaces that
 %   call_Static.m saved to code/subroutines/Results/Static (Lee & Bathe
-%   patch tests, see literature/README.md) and stores the variables needed
+%   patch tests, see docs/chapters/input-files.tex) and stores the variables needed
 %   to repeat the analysis in tests/fixtures/reference/<case>.mat.
 %
 %   The fixtures are the input data AFTER the ABAQUS input file has been

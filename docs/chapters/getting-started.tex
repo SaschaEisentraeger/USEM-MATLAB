@@ -1,0 +1,147 @@
+\chapter{Getting started}
+\label{ch:start}
+
+\section{Requirements}
+
+\begin{xltabular}{\linewidth}{@{}P{5.2cm}L@{}}
+  \toprule
+  Product & needed for \\
+  \midrule
+  MATLAB R2018b or newer (developed and tested with R2026a) & everything \\
+  Parallel Computing Toolbox (optional) & \code{Start_Sim.m} opens a parallel
+    pool if the toolbox is available; otherwise the \code{parfor} loops run
+    serially \\
+  Symbolic Math Toolbox & \code{MMS_2D} (manufactured solutions),
+    \code{HigherOrderDisplacementField.m}, Padé helpers \\
+  Signal Processing Toolbox & \code{FFT_Signal} with \code{SignalType = 5}
+    (\code{findpeaks}) \\
+  Optimization Toolbox & \code{Global2LocalCoordinatesQuad} (\code{fsolve}), not
+    used in the main flow \\
+  Deep Learning Toolbox & \code{combvec} in the Q8 branch of \code{distort_mesh}
+    / \code{distort_single_element} \\
+  \bottomrule
+\end{xltabular}
+The test suite needs only base MATLAB.
+
+\section{Running a simulation}
+
+\begin{enumerate}
+  \item Change the MATLAB current folder to \code{code/}; all paths in
+    \code{Start_Sim.m} are relative to it.
+  \item Choose an input file in \code{Start_Sim.m} (\code{filename = ...}). The
+    ABAQUS input files in \code{code/InputFilesAbaqus} are found through the
+    MATLAB path:
+    \begin{center}
+      \begin{tabularx}{0.95\linewidth}{@{}lL@{}}
+        \toprule
+        file & test \\
+        \midrule
+        \code{PatchTestLeeQuadratic_*.inp} & Lee \& Bathe quadratic patch test
+          (pure bending); undistorted, angular, mid-edge \\
+        \code{PatchTestLeeCubic_*.inp} & Lee \& Bathe cubic patch test;
+          undistorted, angular, mid-edge \\
+        \code{PatchTestLeeCubic_Rajendran_adj.inp} & cubic test on five distorted
+          8-node elements \\
+        \bottomrule
+      \end{tabularx}
+    \end{center}
+  \item Set the parameters (\cref{sec:parameters}) and run \code{Start_Sim}:
+\begin{lstlisting}
+cd code
+Start_Sim
+\end{lstlisting}
+\end{enumerate}
+\code{Start_Sim} clears the workspace, sets \code{dbstop if error}, deletes
+\code{subroutines/Temp/*.mat}, reads the input file, lifts the mesh to degree
+$p$ and calls one of the analysis scripts (\code{call_Static},
+\code{call_Dynamic}, \code{call_Modal}, \code{call_FrequencyDomain}). They are
+scripts, not functions, so all variables stay in the base workspace.
+
+\section{Parameters in \texttt{Start\_Sim.m}}
+\label{sec:parameters}
+
+\begin{xltabular}{\linewidth}{@{}P{5.2cm}L@{}}
+  \toprule
+  variable & meaning \\
+  \midrule
+  \endhead
+  \code{filename} & ABAQUS input file (\code{.inp}, without path) \\
+  \code{analysis_type} & \code{'Static_analysis'}, \code{'Dynamic_analysis'},
+    \code{'Modal_analysis'}, \code{'FrequencyDomain_analysis'} \\
+  \code{saveWS} & save the workspace to \code{subroutines/Results/...} \\
+  \code{plot_mesh}, \code{plot_disp}, \code{plot_stress}, \code{plot_strain} & plots \\
+  \code{antype} & 1 = plane stress, 2 = plane strain \\
+  \code{p.pxi}, \code{p.peta} & polynomial degree in $\xi$ and $\eta$; if the local
+    coordinate systems of neighbouring elements are not aligned, both are set to
+    the minimum \\
+  \code{p.ndist} & node distribution (1 equidistant, 2 GLL, 3 GLC) \\
+  \code{mass_matrix} & 1 consistent, 2 nodal quadrature (GLL), 3 row-sum, 4 HRZ \\
+  \code{flag_mRHS} & dynamic analysis: one right-hand side per load case; if
+    true, only the central difference (\code{Method < 300}) or HHT-$\alpha$
+    (\code{Method >= 300}) solvers are used \\
+  \code{omega_vec}, \code{zeta_vec} & Rayleigh damping: two angular frequencies
+    [rad/s] and damping ratios \\
+  \code{numEigen}, \code{EVP_Solver.*} & modal analysis (\code{eigs} options) \\
+  \code{SignalType}, \code{ExciteParam} & time signal of time-dependent loads
+    (\cref{sec:signals}) \\
+  \code{save_var} & dynamic analysis: 0 = save only the nodes of interest (DOF 6
+    in the input file), 1 = all DOFs \\
+  \code{TimeIntegration.Method} & time integration scheme (\cref{tab:methods}) \\
+  \code{TimeIntegration.Order}, \code{.rho}, \code{.dtImp}, \code{.nInterp},
+    \code{.SolverSave} & options of the time integrators \\
+  \code{fHarmonic} & excitation frequency of the frequency-domain analysis [Hz] \\
+  \bottomrule
+\end{xltabular}
+
+\section{Output}
+
+\begin{center}
+  \begin{tabularx}{\linewidth}{@{}lL@{}}
+    \toprule
+    analysis & results file \\
+    \midrule
+    static & \code{subroutines/Results/Static/<name>_Static/<name>_ndof<N>.mat} \\
+    dynamic & \code{subroutines/Results/Dynamic/<name>_<Method>/<name>_ndof<N>_<mass>.mat} \\
+    modal & \code{subroutines/Results/Modal/<name>_Modal/<name>_ndof<N>_<mass>.mat} \\
+    frequency domain & \code{subroutines/Results/Frequency_Domain/<name>_Frequency_Domain/...} \\
+    \bottomrule
+  \end{tabularx}
+\end{center}
+These folders are excluded from version control. The most important variables
+of a saved workspace:
+\begin{center}
+  \begin{tabularx}{\linewidth}{@{}lL@{}}
+    \toprule
+    variable & content \\
+    \midrule
+    \code{Topology_Node}, \code{xCoor}, \code{yCoor} & spectral element mesh \\
+    \code{K}, \code{M}, \code{R} & stiffness, mass, damping (sparse, after the
+      Dirichlet conditions) \\
+    \code{F} & load vector \\
+    \code{u}, \code{ux}, \code{uy} & static displacements \\
+    \code{EF}, \code{U} & eigenfrequencies and mode shapes (modal analysis) \\
+    \code{t_comp}, \code{y_comp} & time and displacement history (dynamic analysis) \\
+    \bottomrule
+  \end{tabularx}
+\end{center}
+
+\section{Using the building blocks without \texttt{Start\_Sim}}
+
+The test helpers show how to use the routines directly:
+\begin{lstlisting}
+addpath(genpath('code/subroutines')); addpath('tests/helpers');
+
+% 3 x 2 mesh of 8-node elements with curved edges, lifted to p = 4
+[nodes, topo] = usemTestMesh(3, 2, 3, 2, 2);
+nodes = usemDistortMesh(nodes, topo, 'combined', 0.3);
+model = usemBuildModel(nodes, topo, 4);          % GLL nodes
+
+% unsymmetric stiffness matrix (plane stress, E = 1, nu = 0.3)
+K = usemAssemble(model, HookeMatrix2d(1, 0.3, 1));
+
+% displacement patch test with the field u = (Re z^4, -Im z^4)
+field = @(x, y) deal(real((x + 1i*y).^4), -imag((x + 1i*y).^4));
+[u, uExact, err] = usemDirichletSolve(K, model, field);   % err ~ 1e-15
+\end{lstlisting}
+\code{usemReadAbaqus(inpFile, p)} runs the input part of \code{Start_Sim.m}
+(reading and lifting to degree $p$) and returns the model as a struct.

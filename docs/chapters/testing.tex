@@ -1,0 +1,150 @@
+\chapter{Test suite}
+\label{ch:testing}
+
+The tests use the MATLAB unit test framework (\code{matlab.unittest}) and need
+only base MATLAB.
+\begin{lstlisting}
+cd tests
+run_tests                       % unit + integration tests (about 2 minutes)
+run_tests('unit')               % only tests/unit
+run_tests('integration')        % only tests/integration
+run_tests('KnownIssues', true)  % also tests tagged KnownIssue (open bugs)
+run_tests('Coverage', true)     % Cobertura coverage report of code/subroutines
+\end{lstlisting}
+From the command line or in continuous integration:
+\begin{lstlisting}[style=shell]
+matlab -batch "cd tests; run_tests"
+\end{lstlisting}
+\code{run_tests} writes \code{tests/results/junit.xml} (and \code{coverage.xml})
+and throws an error if a test fails. On GitHub Actions it also reports every
+failed test as an annotation on the run page. It temporarily switches off the
+automatic creation of a parallel pool, so the \code{parfor} loops run serially;
+pass \code{'Parallel', true} to allow a pool. Every test class puts
+\code{code/subroutines} (with subfolders, as \code{Start_Sim.m} does) and
+\code{tests/helpers} on the path with a \code{PathFixture}, so single classes can
+also be run with \code{runtests}. GitHub Actions runs the suite on every push
+(\code{.github/workflows/tests.yml}).
+
+\section{Unit tests (\texorpdfstring{\texttt{tests/unit}}{tests/unit})}
+
+\begin{xltabular}{\linewidth}{@{}P{5.0cm}L@{}}
+  \toprule
+  class & what is checked \\
+  \midrule
+  \endhead
+  \code{QuadratureTest} & Gauss--Legendre and Gauss--Lobatto rules integrate
+    polynomials of degree $2n-1$ exactly; interval mapping; symmetry \\
+  \code{NodalDistributionTest} & node distributions: ascending, symmetric,
+    endpoints; GLL nodes are roots of $P_p'$; GLC nodes are Chebyshev extrema;
+    unknown distributions are rejected \\
+  \code{ShapeFunctionsTest} & 1D/2D Lagrange functions: Kronecker property,
+    partition of unity, reproduction of polynomials and their derivatives,
+    anisotropic degrees; bilinear and serendipity functions \\
+  \code{MetricShapeFunctionsTest} & metric functions: Kronecker property;
+    completeness in $(x,y)$ on distorted elements; finite-difference
+    derivatives; equality with the parametric functions on parallelograms; frame
+    invariance (rotation, translation, scaling) and the frame dependence of
+    \code{method = 0}; skew coordinates \\
+  \code{GeometryMappingTest} & Jacobian (constant for affine maps, finite
+    differences, $\det\matr J>0$), node interpolation, element area, inverse
+    mapping \\
+  \code{MaterialTest} & Hooke matrices: symmetry, positive definiteness, Lamé
+    constants, plane stress/strain reduction against closed forms, transverse
+    isotropy and rotations \\
+  \code{ElementMatricesTest} & rigid-body modes in the right and left null space,
+    rank $n-3$, symmetry on parallelograms (identical to the classical element),
+    unsymmetry on distorted elements, constant-strain energy, rotation
+    invariance $\matr K' = \matr T\matr K\matr T^{\T}$; mass: total mass,
+    symmetry, diagonal GLL nodal quadrature, lumping and its fall-backs \\
+  \code{TopologyTest} & DOF and edge connectivity, boundary edges, number and
+    position of the high-order nodes on distorted 4- and 8-node meshes, corner
+    node numbering \\
+  \code{TimeIntegrationTest} & 20 integrators on a 2-DOF oscillator: free
+    vibration, step load, convergence order, multiple right-hand sides,
+    velocity and acceleration of the central difference method \\
+  \code{ExcitationAndDampingTest} & excitation signals and their derivatives
+    (finite differences), Rayleigh damping parameters \\
+  \bottomrule
+\end{xltabular}
+
+\section{Integration tests (\texorpdfstring{\texttt{tests/integration}}{tests/integration})}
+
+\begin{xltabular}{\linewidth}{@{}P{5.0cm}L@{}}
+  \toprule
+  class & what is checked \\
+  \midrule
+  \endhead
+  \code{PatchTest} & displacement patch tests on regular, angular, curved and
+    combined distorted meshes for $p = 1,\dots,4$, plane stress and plane strain:
+    linear fields, all harmonic fields $(\operatorname{Re} z^k, -\operatorname{Im}
+    z^k)$ with $k\le p$, and pure bending are reproduced to machine precision.
+    Control experiment: the classical symmetric element fails on the same curved
+    mesh. Fields of higher degree are not exact; exponential $p$-convergence for
+    $(e^x\cos y, -e^x\sin y)$ \\
+  \code{LeeBathePatchTest} & the Lee \& Bathe patch tests (reference data in
+    \code{tests/fixtures/reference}), repeated with the steps of
+    \code{call_Static}: the quadratic test matches the analytical pure-bending
+    solution for all meshes and $p\ge2$; the cubic test for $p = 3$ is
+    mesh-independent and matches the stored solution \\
+  \code{AbaqusInputTest} & end to end: the input files in
+    \code{code/InputFilesAbaqus} are read, lifted to degree $p$ and compared with
+    the reference models; static analysis from the input file \\
+  \code{AbaqusReaderTest} & reader robustness with modified input files: exact set
+    names (\code{Set-1} vs.\ \code{Set-10}), missing sets (error instead of an
+    endless loop), U2 + U3 in separate lines, \texttt{\%} in the file, node labels,
+    gravity, \code{*Cload} on a generated set \\
+  \code{DirichletBCTest} & homogeneous and prescribed displacements
+    (elimination), uniaxial stretch on a distorted mesh, node sets used as given \\
+  \code{LoadsTest} & body forces on element subsets, several body forces, gravity
+    with the density of each material, one or several load cases, amplitude of
+    spatially varying loads \\
+  \code{SolverTransientTest} & \code{Solver_Transient} as called by
+    \code{call_Dynamic} (input from \code{subroutines/Temp}): methods 301, 306,
+    202, 403 (undamped and damped Padé), 109 with element data (and the error
+    without), all DOFs saved with \code{save_var = 1} \\
+  \code{AdaptiveHybridExplicitTest} & adaptive hybrid explicit method:
+    second-order convergence, mass-proportional damping against the exact
+    solution, stable and accurate at twice the critical time step of the central
+    difference method (which diverges), diagonal lumped mass \\
+  \bottomrule
+\end{xltabular}
+
+\section{Helpers and fixtures}
+
+\begin{xltabular}{\linewidth}{@{}P{5.0cm}L@{}}
+  \toprule
+  file & purpose \\
+  \midrule
+  \code{helpers/usemTestMesh} & structured 4- or 8-node mesh in ABAQUS node order \\
+  \code{helpers/usemDistortMesh} & deterministic angular, curved-edge or combined
+    distortion of interior nodes \\
+  \code{helpers/usemTestElement} & single test elements (square, parallelogram,
+    trapezoid, curved, general) \\
+  \code{helpers/usemBuildModel} & wrapper of \code{pSpectralElement_NodesTopology} \\
+  \code{helpers/usemAssemble} & quiet wrapper of \code{AssemblyFEM} \\
+  \code{helpers/usemDirichletSolve} & displacement-driven patch test \\
+  \code{helpers/usemKeSymmetric} & classical (Bubnov--Galerkin) element stiffness,
+    for comparisons only \\
+  \code{helpers/usemReadAbaqus} & the input part of \code{Start_Sim.m} as a
+    function \\
+  \code{fixtures/reference/*.mat} & model data and solutions of the Lee \& Bathe
+    tests, extracted from the result workspaces that came with the code
+    (\code{make_reference_fixtures.m}) \\
+  \code{fixtures/make_abaqus_inputs.m} & reconstruction of the ABAQUS input files
+    from the fixtures \\
+  \bottomrule
+\end{xltabular}
+
+\section{Writing new tests}
+
+\begin{itemize}
+  \item Put the new class in \code{tests/unit} or \code{tests/integration} and copy
+    the \code{TestClassSetup} block (path fixtures) from an existing class.
+  \item Wrap routines that print progress (\code{AssemblyFEM}, \code{NeumannBCs},
+    integrators) in \code{evalc}, or use the helpers that already do this.
+  \item Use deterministic meshes (\code{usemDistortMesh}) or a seeded
+    \code{RandStream}.
+  \item Use only base MATLAB functions (the GitHub runner has no toolboxes).
+  \item Tag tests that document an unfixed bug with
+    \code{TestTags = {'KnownIssue'}} and describe the bug in \cref{ch:issues}.
+\end{itemize}

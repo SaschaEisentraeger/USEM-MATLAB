@@ -1,0 +1,130 @@
+\chapter{Known issues and fixed bugs}
+\label{ch:issues}
+
+Tests that document an open bug get the tag \code{KnownIssue}. They are excluded
+from the default run and fail until the bug is fixed
+(\code{run_tests('KnownIssues', true)} includes them). There are currently no
+open \code{KnownIssue} tests: the bugs found while writing the test suite are
+fixed (\cref{sec:fixed}).
+
+\section{Remaining limitations}
+
+\begin{itemize}
+  \item \textbf{Default route of the dynamic analysis.} With
+    \code{flag_mRHS = true}, \code{Solver_Transient} ignores the method code and
+    runs the central difference method (codes below 300) or HHT-$\alpha$ (300 and
+    above), see \cref{sec:dynamic}.
+  \item \textbf{ABAQUS readers} expect the structure written by ABAQUS/CAE:
+    boundary-condition data lines must contain \code{Set}; sets must be defined in
+    the assembly; node labels must be consecutive from 1; in 8-node meshes the
+    corner nodes must be numbered first. Violations of the last three raise errors
+    instead of producing wrong data or endless loops (\cref{ch:input}).
+  \item \textbf{Modal and frequency-domain analyses} only honour homogeneous
+    Dirichlet conditions; the frequency-domain analysis ignores damping.
+  \item \code{CentralDifferenceMethod_te}, \code{Solver_Transient_symrcm} and the
+    second variants of the Padé integrators (\code{PadeTimeIntegrator2},
+    \code{PadeTimeIntegrator_ND2}) are not called by the program and not tested.
+  \item \code{ShapeFunctions2D_Metric_Tria} (triangles) is unfinished ($p\le2$) and
+    not used.
+  \item The result workspaces that came with the code
+    (\code{subroutines/Results/Static}, not under version control) were partly
+    created with an earlier version of the load routines (opposite load sign in
+    the quadratic Lee \& Bathe cases). The regression tests therefore use the
+    analytical solution (\code{LeeBathePatchTest}).
+  \item \textbf{Unsymmetric matrices in dynamics.} Eigenvalues can be complex and
+    energy is not conserved, see \cref{sec:unsymmetric}.
+\end{itemize}
+
+\section{Fixed bugs}
+\label{sec:fixed}
+
+\begingroup\setlength{\tabcolsep}{4pt}
+\begin{xltabular}{\linewidth}{@{}P{1.7cm}LP{3.4cm}P{4.8cm}@{}}
+  \toprule
+  area & bug & fix & test \\
+  \midrule
+  \endhead
+  nodal distributions & Mock-Chebyshev nodes (\code{ndist = 4}) were reversed,
+    which gave indefinite stiffness matrices for $p\ge3$ & Mock and ``fake'' node
+    code removed; \code{nodal_distribution} rejects unknown distributions &
+    \code{NodalDistributionTest} \\
+  path & copies of core functions in \code{NodalDistribution/FakeNodes/src}
+    shadowed the originals & folder removed & -- \\
+  geometry & \code{Global2LocalCoordinatesQuad} failed on every call
+    (\code{InverseMapping} used $\matr N^{\T}$ instead of $\matr N$) & corrected &
+    \code{GeometryMappingTest} \\
+  mass matrix & \code{KMe_2D} integrated the unsymmetric mass with $p+1$ Gauss
+    points, \code{Me_2D} with $2p$; on distorted elements the entries differed by
+    1--10\,\% & \code{KMe_2D} uses $2p$ points & \code{ElementMatricesTest} \\
+  mass matrix & GLL nodal quadrature left round-off in the off-diagonal entries,
+    so \code{isdiag} failed and the explicit methods used a linear solver &
+    exactly diagonal & \code{AdaptiveHybridExplicitTest} \\
+  lumping & \code{lumping = 2} with equidistant or GLC nodes crashed instead of
+    falling back to HRZ / row-sum lumping & quadrature selection restructured &
+    \code{ElementMatricesTest} \\
+  sets & every node, element or material set with three entries was taken for an
+    ABAQUS \code{generate} triplet (\code{DirichletBCs_homogeneous},
+    \code{NeumannBCs}, \code{pSpectralElement_BCs}, \code{AssemblyFEM},
+    \code{Contour_plot}); e.g.\ the $p = 2$ edge set $\{2, 8, 3\}$ became
+    $\{2, 5, 8\}$ & sets used as given; the readers expand \code{generate} (also
+    for \code{*Cload}) & \code{DirichletBCTest}, \code{AbaqusReaderTest} \\
+  loads & \code{NeumannBCs(..., false)} crashed (\code{nLC} undefined); the
+    body-force loop passed all body forces at once; the gravity loop tested
+    \code{body_force(i)} & corrected & \code{LoadsTest} \\
+  loads & \code{CreateBload}/\code{CreateGravity} failed for element subsets;
+    \code{CreateGravity} used the density of material 1 everywhere & loops over
+    the element set; density per material & \code{LoadsTest} \\
+  loads & \code{SpatialLoadingFunction}: constant part of the cubic-patch-test
+    traction not scaled by the amplitude & corrected & \code{LoadsTest} \\
+  readers & \code{Read_boundary_condition_ABAQUS} looped forever if a set was
+    missing; the U2 branch never read the next line & error message; next line
+    read & \code{AbaqusReaderTest} \\
+  readers & set names matched by prefix (\code{Set-1} also matched \code{Set-10})
+    & exact matching (\code{isSetHeader}) & \code{AbaqusReaderTest} \\
+  readers & \code{Adjust_Set_names_input_file_ABAQUS} used the file content as
+    format string and a hard-coded \texttt{\textbackslash} separator &
+    \code{fprintf} with the format \texttt{'\%s'}; \code{fullfile} & \code{AbaqusReaderTest} \\
+  readers & node labels ignored; corner nodes of 8-node meshes silently assumed
+    first & both checked & \code{AbaqusReaderTest}, \code{TopologyTest} \\
+  readers & \code{GRAV} with three direction components gave NaN;
+    \code{Read_step_ABAQUS} overwrote all step times with 0 & corrected &
+    \code{AbaqusReaderTest} \\
+  time integration & \code{rho_BatheMethod} (306) could not run (\code{Fdt} vs.\
+    \code{F_dt}) & corrected & \code{TimeIntegrationTest}, \code{SolverTransientTest} \\
+  time integration & \code{KimMethod2Stage} (202): wrong call, outputs
+    \code{[U,T]}, \code{Minv*} instead of \code{Minv.*}, time step not adjusted &
+    corrected & \code{TimeIntegrationTest}, \code{SolverTransientTest} \\
+  time integration & Padé method (403): Fortran solver missing; \code{K+K'} doubled
+    the full matrices; undefined variable with non-zero initial conditions; damped
+    solvers called \code{TimeIntgCoeff} with the Padé code instead of the order &
+    MATLAB solvers used if the Fortran solver is missing; errors corrected
+    (convergence orders verified) & \code{SolverTransientTest} \\
+  time integration & adaptive hybrid explicit method (109) could not run: written
+    for another code (cell-array topology, \code{Mg + Mg'}), element matrices never
+    provided, inconsistent damping term, $\Omega_e$ computed before the final time
+    step, operator precedence error for non-diagonal $\matr E$, oscillatory
+    criterion evaluated in floating point & rewritten from Table~1 of
+    \textcite{Soares2020novel}; element data from \code{AssemblyFEM} &
+    \code{AdaptiveHybridExplicitTest}\newline \code{SolverTransientTest} \\
+  time integration & \code{Solver_Transient}: \code{save_var = 1} stored only one
+    DOF & \code{1:numel(ActiveDoF)} & \code{SolverTransientTest} \\
+  time integration & \code{CentralDifferenceMethod} (and \code{_mRHS}): velocity and
+    acceleration stored one step late & stored at the correct time; final values
+    extrapolated & \code{TimeIntegrationTest} \\
+  modal analysis & damped case: eigenfrequencies in rad/s instead of Hz,
+    state-space eigenvectors assigned to the mode shapes; start vector of wrong
+    length & corrected & -- \\
+  dynamic analysis & \code{NOI(1:3)} failed for fewer than three nodes; the export
+    block at the end always ran & corrected; export only when possible & -- \\
+  \code{Start_Sim} & required the Parallel Computing Toolbox & pool only opened if
+    the toolbox is available & -- \\
+  mesh distortion & \code{distort_single_element} used the $x$ range twice for the
+    characteristic length & corrected & -- \\
+  \bottomrule
+\end{xltabular}
+\endgroup
+
+\code{MirbagheriMethod} (104) converges with first order. This is by design, not
+a bug: the factor $\eta = 1.025$ on the acceleration term of the Noh--Bathe
+predictor adds dissipation against spurious oscillations, and any $\eta \ne 1$
+makes the scheme first-order accurate.

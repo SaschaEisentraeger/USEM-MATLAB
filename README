@@ -1,0 +1,79 @@
+USEM - Unsymmetric spectral element method for two-dimensional elasticity
+==========================================================================
+
+MATLAB code for high-order unsymmetric (Petrov-Galerkin) spectral elements
+for linear plane elasticity: static, transient, modal and frequency-domain
+analysis.
+
+The element combines parametric test functions (Lagrange polynomials of
+degree p on Gauss-Lobatto-Legendre nodes, conforming) with metric trial
+functions (Lagrange polynomials in corotational skew coordinates, complete
+in Cartesian coordinates and frame-invariant). It reproduces every
+displacement field of total degree <= p exactly on arbitrarily distorted
+meshes (angular and curved-edge distortion) and generalizes the unsymmetric
+8-node element of Rajendran & Liew (2003) and Rajendran (2010) to arbitrary
+polynomial degree.
+
+
+DOCUMENTATION
+-------------
+
+The documentation is written in LaTeX (figures in TikZ):
+
+    docs/usem-documentation.tex      main document
+    docs/chapters/                   theory, getting started, ABAQUS input
+                                     files, code reference, analyses and time
+                                     integration, test suite, known issues,
+                                     literature
+    docs/figures/                    TikZ figures
+
+Build the PDF (TeX Live or MiKTeX with biber):
+
+    cd docs
+    latexmk -pdf usem-documentation.tex
+
+The bibliography is literature/references.bib. The literature PDFs are not
+distributed (copyright).
+
+
+QUICK START
+-----------
+
+    cd code
+    Start_Sim          % static Lee & Bathe cubic patch test on a distorted
+                       % mesh, p = 3
+
+The model is defined in an ABAQUS input file (code/InputFilesAbaqus); the
+parameters (degree, analysis type, mass matrix, time integration, ...) are set
+at the top of Start_Sim.m. Requirements: MATLAB R2018b or newer; the Parallel
+Computing Toolbox is optional (parallel element assembly).
+
+
+TESTS
+-----
+
+    cd tests
+    run_tests          % about 630 tests, roughly 2 minutes, base MATLAB only
+
+GitHub Actions runs the suite on every push (.github/workflows/tests.yml).
+
+
+REPOSITORY LAYOUT
+-----------------
+
+    code/Start_Sim.m             main script (settings, input, analysis)
+    code/InputFilesAbaqus/       example ABAQUS input files (Lee & Bathe tests)
+    code/subroutines/            element technology, assembly, boundary
+                                 conditions, solvers, time integrators, plots
+    docs/                        documentation (LaTeX)
+    tests/                       test suite (matlab.unittest)
+    literature/references.bib    bibliography
+
+
+LICENCE
+-------
+
+MIT, see LICENSE. Third-party routines keep their own licences (see the
+chapter "Code reference" of the documentation). The authors of the individual
+routines are given in the file headers (S. Duczek / S. Eisentraeger, Otto von
+Guericke University Magdeburg).

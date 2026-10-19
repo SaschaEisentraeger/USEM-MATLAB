@@ -1,0 +1,47 @@
+% Lee & Bathe (1993) quadratic patch test: plate [0,10] x [-1,1],
+% boundary conditions, load and the three meshes of code/InputFilesAbaqus
+\begin{tikzpicture}[x=0.62cm, y=0.62cm, every node/.style={font=\small}]
+  % ---- model with boundary conditions and load ----
+  \begin{scope}
+    \draw[thick, fill=black!4] (0,-1) rectangle (10,1);
+    \node[above=2pt] at (5,1) {$E=70\,\mathrm{GPa}$, $\nu=0.3$, plane stress};
+    % u_x = 0 on the left edge: rollers on a vertical wall
+    \foreach \y in {-0.5,0,0.5,1} {
+      \draw (0,\y) -- (-0.35,\y+0.17) -- (-0.35,\y-0.17) -- cycle;
+    }
+    \draw[thick] (-0.48,-0.75) -- (-0.48,1.25);
+    \node[left] at (-0.6,0.25) {$u_x=0$};
+    % u_y = 0 (and u_x = 0) at (0,-1): pin
+    \draw (0,-1) -- (-0.22,-1.42) -- (0.22,-1.42) -- cycle;
+    \draw[thick] (-0.35,-1.42) -- (0.35,-1.42);
+    \node[below] at (0,-1.45) {$u_y=0$};
+    % linearly varying pressure p = 120 y on the right edge: compression
+    % (pointing inwards) for y > 0, tension (pointing outwards) for y < 0
+    \foreach \y in {0.25,0.5,0.75,1} {
+      \draw[-{Stealth[length=1.4mm]}] (10+1.1*\y,\y) -- (10,\y);
+      \draw[-{Stealth[length=1.4mm]}] (10,-\y) -- (10+1.1*\y,-\y);
+    }
+    \draw (11.1,1) -- (10,0) -- (11.1,-1);
+    \node[right, align=left] at (11.4,0)
+      {$p=120\,y$\\(\code{PNU}, \code{SpatialLoadingFunction})};
+  \end{scope}
+  % ---- meshes (node coordinates of the input files) ----
+  \begin{scope}[shift={(0,-4.2)}]
+    \draw[thick] (0,-1) rectangle (10,1);
+    \draw[thick] (5,-1) -- (5,1);
+    \node[left] at (-0.3,0) {undistorted};
+  \end{scope}
+  \begin{scope}[shift={(0,-7.2)}]
+    \draw[thick] (0,-1) rectangle (10,1);
+    \draw[thick] (4,-1) -- (6,1);
+    \node[left] at (-0.3,0) {angular};
+  \end{scope}
+  \begin{scope}[shift={(0,-10.2)}]
+    \draw[thick] (0,-1) rectangle (10,1);
+    % parabolic edge through (5,1), (3.5,0), (5,-1): quadratic Bezier with
+    % control point (2,0), written as the equivalent cubic Bezier
+    \draw[thick] (5,1) .. controls (3,1/3) and (3,-1/3) .. (5,-1);
+    \foreach \p in {(5,1),(3.5,0),(5,-1)} \node[node dot] at \p {};
+    \node[left] at (-0.3,0) {mid-edge};
+  \end{scope}
+\end{tikzpicture}

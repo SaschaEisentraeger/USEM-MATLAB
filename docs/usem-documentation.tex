@@ -1,0 +1,103 @@
+% USEM -- unsymmetric spectral element method (2D elasticity)
+% Documentation of the MATLAB code
+%
+% Build (from this folder):  latexmk -pdf usem-documentation.tex
+% or:                        pdflatex, biber, pdflatex, pdflatex
+\documentclass[11pt,a4paper,oneside]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{etoolbox}
+\usepackage{microtype}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xltabular}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{url}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,fit,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage[backend=biber,style=authoryear,maxcitenames=2,uniquelist=false,
+            uniquename=false,doi=true,url=false,isbn=false,eprint=false,
+            dashed=false]{biblatex}
+\addbibresource{../literature/references.bib}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=green!40!black,
+            urlcolor=blue!50!black]{hyperref}
+\usepackage[nameinlink,capitalise]{cleveref}
+
+% ---------------------------------------------------------------------------
+% Notation and helpers
+% ---------------------------------------------------------------------------
+% File, function and variable names (underscores allowed, line breaks at /)
+\DeclareUrlCommand\code{\urlstyle{tt}}
+\renewcommand{\UrlBreaks}{\do\/\do\_\do\.\do\,\do\-\do\=\do\*}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\matr}[1]{\mathbf{#1}}
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\adj}{\operatorname{adj}}
+
+\lstdefinestyle{matlab}{
+  language=Matlab, basicstyle=\ttfamily\small, columns=fullflexible,
+  keepspaces=true, commentstyle=\color{green!40!black},
+  keywordstyle=\color{blue!60!black}, stringstyle=\color{purple!70!black},
+  frame=single, framesep=4pt, rulecolor=\color{black!25},
+  backgroundcolor=\color{black!3}, upquote=true, showstringspaces=false}
+\lstdefinestyle{shell}{
+  basicstyle=\ttfamily\small, columns=fullflexible, keepspaces=true,
+  frame=single, framesep=4pt, rulecolor=\color{black!25},
+  backgroundcolor=\color{black!3}, upquote=true}
+\lstset{style=matlab}
+
+% Table columns
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% Common TikZ styles
+\tikzset{
+  node dot/.style={circle, fill=black, inner sep=1.3pt},
+  box/.style={draw, rounded corners=2pt, align=center, font=\small,
+              inner sep=4pt, fill=white},
+  dimarrow/.style={-{Stealth[length=2mm]}, thin},
+}
+
+\setlist{itemsep=2pt,topsep=4pt}
+
+% Long identifiers: allow some extra stretch in paragraphs, smaller font in
+% tables
+\setlength{\emergencystretch}{3em}
+\AtBeginEnvironment{xltabular}{\small}
+\AtBeginEnvironment{tabularx}{\small}
+
+\title{\textbf{USEM}\\[4pt]
+  \large Unsymmetric spectral element method for two-dimensional elasticity\\[2pt]
+  \normalsize Documentation of the MATLAB code}
+\author{Otto von Guericke University Magdeburg}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\include{chapters/theory}
+\include{chapters/getting-started}
+\include{chapters/input-files}
+\include{chapters/code-reference}
+\include{chapters/analyses}
+\include{chapters/testing}
+\include{chapters/known-issues}
+\include{chapters/literature}
+
+\printbibliography[heading=bibintoc,title={References}]
+
+\end{document}

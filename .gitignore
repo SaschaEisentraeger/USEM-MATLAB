@@ -1,7 +1,7 @@
 # --- Literature ------------------------------------------------------------
 # Publisher-copyrighted papers and unpublished theses are NOT redistributed.
-# Only the bibliography (literature/references.bib) and the annotated
-# reading list (literature/README.md) are under version control.
+# Only the bibliography (literature/references.bib) is under version control;
+# the annotated reading list is a chapter of the documentation (docs/).
 literature/*.pdf
 *.pdf
 
@@ -12,6 +12,19 @@ code/subroutines/Temp/*
 !code/subroutines/Temp/.gitkeep
 # Temporary copy of the input file written by Adjust_Set_names_input_file_ABAQUS
 *_adjusted.inp
+
+# --- LaTeX build files (documentation) -----------------------------------
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.toc
+*.synctex.gz
 
 # --- Test output -----------------------------------------------------------
 tests/results/
