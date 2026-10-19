@@ -89,6 +89,8 @@ if strcmp(getenv('GITHUB_ACTIONS'), 'true')
     for k = 1:numel(failed)
         githubAnnotation(failed(k));
     end
+    fprintf('::notice title=Test summary::%d passed, %d failed, %d incomplete\n', ...
+        nnz([results.Passed]), nnz([results.Failed]), nnz([results.Incomplete]));
 end
 
 if any([results.Failed])
