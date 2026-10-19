@@ -3,7 +3,7 @@
 *.m        -text diff
 *.inp      -text
 *.tex      text eol=lf
-README     text eol=lf
+README.md  text eol=lf
 *.bib      text eol=lf
 *.yml      text eol=lf
 *.cff      text eol=lf
