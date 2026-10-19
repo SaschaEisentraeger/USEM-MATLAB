@@ -13,10 +13,6 @@ suite are fixed (see below). The remaining limitations are listed first.
 
 ## Remaining limitations
 
-- **Time integration method 109** (`AdaptiveHybridExplicitMethod`, Soares 2020) is not
-  available. The routine works element by element and expects element matrices, a cell-array
-  DOF topology and triangular global matrices, i.e. it was written for another code.
-  `Solver_Transient` stops with a clear error message for this method.
 - **Default route of the dynamic analysis.** With `flag_mRHS = true`, `Solver_Transient` ignores
   the method code. It runs the central difference method (codes below 300) or HHT-α (300 and
   above). See [chapter 5](05-analyses.md).
@@ -64,6 +60,8 @@ suite are fixed (see below). The remaining limitations are listed first.
 | Time integration | Padé method (403): Fortran solver missing; `K+K'` doubled the full matrices; undefined variable with non-zero initial conditions; damped solvers called `TimeIntgCoeff` with the Padé code instead of the order | MATLAB solvers used if the Fortran solver is missing; all errors corrected (verified convergence orders) | `SolverTransientTest` |
 | Time integration | `Solver_Transient`: `save_var = 1` stored only one DOF | `1:numel(ActiveDoF)` | `SolverTransientTest/allDegreesOfFreedomAreSavedOnRequest` |
 | Time integration | `CentralDifferenceMethod` (and `_mRHS`): velocity and acceleration stored one step late | Stored at the correct time; final values extrapolated | `TimeIntegrationTest/centralDifferenceVelocityAndAcceleration` |
+| Time integration | Adaptive hybrid explicit method (109) could not run: written for another code (cell-array topology, triangular matrices doubled by `Mg + Mg'`), element matrices never provided, inconsistent damping term ($\tfrac12\Delta t$ vs. $\Delta t$), $\Omega_e$ computed before the final time step, operator precedence error for non-diagonal $\mathbf E$, Eq. (7) evaluated in floating point (flags almost every DOF as oscillating) | Rewritten from Table 1 of Soares (2020) for this code (vectorized element operations, exact oscillation test); element data from `AssemblyFEM` via `call_Dynamic` | `AdaptiveHybridExplicitTest`, `SolverTransientTest` |
+| Mass matrix | GLL nodal quadrature left round-off in the off-diagonal entries, so `isdiag` failed and the explicit methods used a linear solver | Exactly diagonal (`Me_2D`, `KMe_2D`) | `AdaptiveHybridExplicitTest/lumpedMassIsDiagonal` |
 | Modal analysis | Damped case: eigenfrequencies in rad/s instead of Hz, state-space eigenvectors assigned to the mode shapes (dimension error); random start vector of wrong length | Corrected | – |
 | Dynamic analysis | `NOI(1:3)` failed for fewer than three nodes; the export block at the end ("For Jing") always ran | Corrected; export only when it is possible | – |
 | `Start_Sim` | Required the Parallel Computing Toolbox | Pool only opened if the toolbox is available | – |

@@ -66,7 +66,7 @@ literature/                annotated bibliography (README.md, references.bib); P
 
 ```matlab
 cd tests
-run_tests             % about 620 tests, roughly 2 minutes, only base MATLAB required
+run_tests             % about 630 tests, roughly 2 minutes, only base MATLAB required
 ```
 
 Among other things, the suite checks the following:

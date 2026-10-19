@@ -63,9 +63,16 @@ num_DoF = num_Nodes*2;
 disp('Assembly of the system matrices')
 disp(LineDisp)
 
-[K,M,R,dte,t_mat] = AssemblyFEM(Topology_Node,p,xCoor,yCoor,num_Elem,...
+if TimeIntegration.Method == 109 && ~flag_mRHS
+    % The adaptive hybrid explicit method also needs the element matrices
+    [K,M,R,dte,t_mat,ElemData] = AssemblyFEM(Topology_Node,p,xCoor,...
+                    yCoor,num_Elem,num_DoF,C,rho,num_mat,mass_matrix,...
+                    material_elset,alpha_Rayleigh,beta_Rayleigh,zeta,2);
+else
+    [K,M,R,dte,t_mat] = AssemblyFEM(Topology_Node,p,xCoor,yCoor,num_Elem,...
                     num_DoF,C,rho,num_mat,mass_matrix,material_elset,...
                     alpha_Rayleigh,beta_Rayleigh,zeta,2);
+end
 
 %%
 %% Boundary conditions (Dirichlet boundary conditions)
@@ -115,6 +122,10 @@ save(['.' filesep 'subroutines' filesep 'Temp' filesep 'M.mat'],'M','-v7.3')
 save(['.' filesep 'subroutines' filesep 'Temp' filesep 'R.mat'],'R','-v7.3')
 save(['.' filesep 'subroutines' filesep 'Temp' filesep 'F.mat'],'F','-v7.3')
 save(['.' filesep 'subroutines' filesep 'Temp' filesep 'F_dt.mat'],'F_dt','-v7.3')
+if exist('ElemData','var')
+    save(['.' filesep 'subroutines' filesep 'Temp' filesep 'ElemData.mat'],...
+         'ElemData','-v7.3')
+end
 
 %% Solution of the semi-discrete equation of motion
 % Active degrees of freedom

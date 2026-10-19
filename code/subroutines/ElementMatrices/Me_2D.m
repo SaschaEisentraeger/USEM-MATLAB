@@ -117,6 +117,13 @@ for i = 1:NumIP
 	M_element = M_element + rho*(N'*M)*detJ*IW(i);
 end
 
+% Nodal quadrature: the parametric and the metric shape functions are
+% interpolatory at the GLL points, so the mass matrix is diagonal; remove
+% the round-off in the off-diagonal entries
+if lumping == 2
+    M_element = diag(diag(M_element));
+end
+
 % Mass lumping procedures
 if lumping == 3
     % Row-sum method

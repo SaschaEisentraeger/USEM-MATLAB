@@ -53,7 +53,42 @@ classdef SolverTransientTest < matlab.unittest.TestCase
             tc.verifySize(U, [201 3]);
         end
 
-        function adaptiveHybridMethodReportsThatItIsUnavailable(tc)
+        function adaptiveHybridMethodUsesElementData(tc)
+            % Method 109 works element by element: call_Dynamic.m saves
+            % the element matrices to subroutines/Temp/ElemData.mat. Spring
+            % chain ground-1-2-ground (assembled: M = I, K = [2 -1; -1 2]).
+            writeInput(109, 2, 1, 1);
+            % 4 DOFs: 1, 2 active, 3, 4 grounded (constrained)
+            d = fullfile('subroutines', 'Temp');
+            S = load(fullfile(d, 'Solver_input.mat'));
+            S.num_DoF = 4;
+            S.U0 = [1; 0; 0; 0];
+            S.V0 = zeros(4, 1);
+            save(fullfile(d, 'Solver_input.mat'), '-struct', 'S');
+            K = [2 -1 -1 0; -1 2 0 -1; -1 0 1 0; 0 -1 0 1];
+            M = diag([1 1 0.5 0.5]);
+            R = zeros(4);
+            F = zeros(4, 1);
+            F_dt = struct('Neumann', F, 'K', F, 'C', F, 'M', F); %#ok<NASGU>
+            save(fullfile(d, 'K.mat'), 'K');
+            save(fullfile(d, 'M.mat'), 'M');
+            save(fullfile(d, 'R.mat'), 'R');
+            save(fullfile(d, 'F.mat'), 'F');
+            save(fullfile(d, 'F_dt.mat'), 'F_dt');
+            ElemData.Ke = {[1 -1; -1 1]; [1 -1; -1 1]; [1 -1; -1 1]};
+            ElemData.Me = {0.5*eye(2); 0.5*eye(2); 0.5*eye(2)};
+            ElemData.Topo = [3 1; 1 2; 2 4];
+            ElemData.damped = false(3, 1);
+            ElemData.alpha = 0;
+            ElemData.beta = 0; %#ok<STRNU>
+            save(fullfile(d, 'ElemData.mat'), 'ElemData');
+            [~, T, U] = evalc('Solver_Transient()');
+            Uex = 0.5*[cos(T) + cos(sqrt(3)*T), cos(T) - cos(sqrt(3)*T)];
+            tc.verifySize(U, [numel(T) 4]);
+            tc.verifyLessThan(max(abs(U(:,1:2) - Uex), [], 'all'), 2e-3);
+        end
+
+        function adaptiveHybridMethodNeedsElementData(tc)
             writeInput(109, 2, 1, 1);
             tc.verifyError(@() evalc('Solver_Transient()'), ...
                 'Solver_Transient:method109');

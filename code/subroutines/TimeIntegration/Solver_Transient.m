@@ -119,13 +119,18 @@ if ~flag_mRHS
                 num_DoF,dof_poi,ActiveDoF,ExciteParam,SignalType,dt,tsim);
     elseif TimeIntegration.Method == 109
         % Adaptive hybrid explicit method - Soares
-        % AdaptiveHybridExplicitMethod works element by element and expects
-        % element matrices, a cell array DOF topology and triangular global
-        % matrices (it was written for another code). These data are not
-        % generated here.
-        error('Solver_Transient:method109', ...
-             ['Method 109 (adaptive hybrid explicit method) is not ' ...
-              'available in this code (see docs/known-issues.md).']);
+        % The method works element by element: the element matrices are
+        % saved by call_Dynamic.m (ElemData.mat)
+        fileElem = ['.' filesep 'subroutines' filesep 'Temp' filesep ...
+                    'ElemData.mat'];
+        if ~isfile(fileElem)
+            error('Solver_Transient:method109', ...
+                 ['Method 109 needs the element matrices (%s), which ' ...
+                  'call_Dynamic.m saves for this method.'], fileElem);
+        end
+        load(fileElem,'ElemData');
+        [T,U] = AdaptiveHybridExplicitMethod(K,M,R,F,F_dt,U0,V0,num_DoF,...
+                dof_poi,ActiveDoF,ExciteParam,SignalType,dt,tsim,ElemData);
 %----------------Explicit methods - higher order accuracy-----------------%
     elseif TimeIntegration.Method == 201
         % Kim method (3rd or 4th order)

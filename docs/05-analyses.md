@@ -48,7 +48,7 @@ Time step selection inside the integrators:
 | 105 | `KimMethodExplicit` | |
 | 106, 107 | `ZhangXingMethod1`, `ZhangXingMethod2` | $\rho = 1$ and $\rho = 0$ |
 | 108 | `ExplicitGeneralizedAlphaMethod` | $\rho_b = 1$ |
-| 109 | `AdaptiveHybridExplicitMethod` | not available: `Solver_Transient` stops with an error ([known issues](known-issues.md)) |
+| 109 | `AdaptiveHybridExplicitMethod` | adaptive hybrid explicit method (Soares 2020), see [5.2.1](#521-adaptive-hybrid-explicit-method-109) |
 | 201 | `KimExplicit_ho` | order 3 or 4 |
 | 202 | `KimMethod2Stage` | two-stage explicit method |
 | 301 | `NewmarkMethod` | trapezoidal rule $\beta = 1/4$, $\gamma = 1/2$; also the fallback for unknown codes |
@@ -85,6 +85,37 @@ Common calling convention:
 
 `tests/unit/TimeIntegrationTest.m` verifies the accuracy and the convergence order of the
 schemes on a 2-DOF oscillator.
+
+### 5.2.1 Adaptive hybrid explicit method (109)
+
+Soares, D.: A novel time-marching formulation for wave propagation analysis: the adaptive
+hybrid explicit method. *CMAME* 366 (2020) 113095. The implementation follows Table 1 of the
+paper.
+
+- **Elements.** Every element $e$ gets its maximum sampling frequency
+  $\Omega_e = \omega_{\max,e}\,\Delta t$ from its own (unsymmetric) eigenproblem
+  $\mathbf K_e\boldsymbol\phi = \omega^2\mathbf M_e\boldsymbol\phi$. Elements with
+  $\Omega_e \le 2$ use the *regular* formulation (stability limit 2, one stiffness product
+  per step); elements with $2 < \Omega_e \le 4$ use the *enhanced* formulation (stability
+  limit 4, an additional correction of the displacements).
+- **Time step.** $\Delta t = 2\,\Delta t_\text{CDM}$, twice the critical time step of the
+  central difference method (`dte` from `AssemblyFEM`).
+- **Adaptive dissipation.** Numerical damping is switched on only for elements in which a DOF
+  oscillates, i.e. where its last two increments have opposite signs (Eq. 7). The parameters
+  $\alpha_e$ (Eq. 8b, capped at 3) and $\beta_e$ (Eq. 12b) put the bifurcation of the
+  amplification matrix at $\Omega_e$, so the stability limit is not reduced.
+- **Damping.** Rayleigh damping is supported; the damping ratio of Eqs. (8b) and (12b) is
+  computed from the mass-proportional part, $\zeta_e = \alpha_R\,\Delta t/2$.
+- **Requirements.** The element matrices are needed: for method 109 `call_Dynamic` requests
+  them from `AssemblyFEM` (6th output `ElemData`) and saves them to
+  `subroutines/Temp/ElemData.mat`. Set `flag_mRHS = false`, otherwise the method code is
+  ignored. Use lumped mass matrices (`mass_matrix = 2`, GLL nodal quadrature): then
+  $\mathbf E = \mathbf M + \tfrac12\Delta t\,\mathbf C$ is diagonal and no linear solver is
+  needed; consistent matrices work, but every step then solves with $\mathbf E$.
+
+`tests/integration/AdaptiveHybridExplicitTest.m` checks second-order convergence, damping,
+and stable, accurate results at twice the central-difference limit, where the central
+difference method diverges.
 
 ## 5.3 Excitation signals
 

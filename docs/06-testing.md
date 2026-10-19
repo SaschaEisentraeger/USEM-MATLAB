@@ -50,7 +50,8 @@ Every test class puts `code/subroutines` (with subfolders, as `Start_Sim.m` does
 | `DirichletBCTest` | homogeneous and prescribed displacements (elimination), uniaxial stretch on a distorted mesh, node sets used as given |
 | `AbaqusReaderTest` | reader robustness with modified input files: exact set names (`Set-1` vs. `Set-10`), missing sets (error instead of an endless loop), U2 + U3 in separate lines, `%` in the file, node labels, gravity, `*Cload` on a generated set |
 | `LoadsTest` | body forces on element subsets, several body forces, gravity with the density of each material, one or several load cases, amplitude of spatially varying loads |
-| `SolverTransientTest` | `Solver_Transient` as called by `call_Dynamic` (input from `subroutines/Temp`): methods 301, 306, 202, 403 (undamped and damped Padé), all DOFs saved with `save_var = 1`, error for method 109 |
+| `SolverTransientTest` | `Solver_Transient` as called by `call_Dynamic` (input from `subroutines/Temp`): methods 301, 306, 202, 403 (undamped and damped Padé), 109 with element data (and the error without), all DOFs saved with `save_var = 1` |
+| `AdaptiveHybridExplicitTest` | adaptive hybrid explicit method (Soares 2020): second-order convergence, mass-proportional damping against the exact solution, stable and accurate at twice the critical time step of the central difference method (which diverges), diagonal lumped mass |
 
 ## 6.3 Helpers and fixtures
 

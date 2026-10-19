@@ -43,8 +43,14 @@
 % dt:       Time increment computed from the highest numerical (element)
 %           eigenfrequency
 % t_cpu:   	Computational time for the assembly process
+% ElemData: Element data (only computed if requested; needed by the
+%           adaptive hybrid explicit method):
+%           ElemData.Ke, ElemData.Me: element stiffness and mass matrices
+%           (cell arrays), ElemData.Topo: DOF connectivity,
+%           ElemData.damped: elements with Rayleigh damping,
+%           ElemData.alpha, ElemData.beta: Rayleigh parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [K,M,R,dt,t_cpu] = AssemblyFEM(Topology_Node,p,xCoor,yCoor,...
+function [K,M,R,dt,t_cpu,ElemData] = AssemblyFEM(Topology_Node,p,xCoor,yCoor,...
           num_Elem,num_DoF,C,rho,num_mat,mass_matrix,material_sets,...
           alpha_Rayleigh,beta_Rayleigh,zeta,flag_comp)
 
@@ -206,6 +212,20 @@ end
 
 % Smallest time increment (based on highest elemental eigenfrequency)
 dt = min(dt_vec);
+
+% Element data (element-by-element time integration)
+if nargout > 5
+    ElemData.Ke = cellfun(@(v) reshape(v,ndof,ndof),Ke,'UniformOutput',false);
+    if flag_comp == 1 || flag_comp == 2
+        ElemData.Me = cellfun(@(v) reshape(v,ndof,ndof),Me,'UniformOutput',false);
+    else
+        ElemData.Me = {};
+    end
+    ElemData.Topo   = double(Topo);
+    ElemData.damped = zeta_vec ~= 0;
+    ElemData.alpha  = alpha_Rayleigh;
+    ElemData.beta   = beta_Rayleigh;
+end
 
 %%
 disp('Assembly process')

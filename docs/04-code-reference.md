@@ -73,7 +73,7 @@ Voigt notation `[11 22 33 12 23 13]` (engineering shear strains).
 
 | Routine | Purpose |
 |---|---|
-| `Assembly/AssemblyFEM(T, p, x, y, nElem, nDoF, C, rho, nMat, mass_matrix, elsets, alpha, beta, zeta, flag_comp)` | sparse global $\mathbf K$, $\mathbf M$, $\mathbf R = \alpha\mathbf M + \beta\mathbf K$ (only for elements with damping). `flag_comp`: 0 = $\mathbf K$; 1 = $\mathbf K$, $\mathbf M$; 2 = $\mathbf K$, $\mathbf M$ and the critical time step $\Delta t = 0.99\cdot 2/\omega_{\max}$ from element eigenvalues |
+| `Assembly/AssemblyFEM(T, p, x, y, nElem, nDoF, C, rho, nMat, mass_matrix, elsets, alpha, beta, zeta, flag_comp)` | sparse global $\mathbf K$, $\mathbf M$, $\mathbf R = \alpha\mathbf M + \beta\mathbf K$ (only for elements with damping). `flag_comp`: 0 = $\mathbf K$; 1 = $\mathbf K$, $\mathbf M$; 2 = $\mathbf K$, $\mathbf M$ and the critical time step $\Delta t = 0.99\cdot 2/\omega_{\max}$ from element eigenvalues. Optional 6th output `ElemData`: element matrices and DOF connectivity (adaptive hybrid explicit method) |
 | `BoundaryConditions/Dirichlet/DirichletBCs_homogeneous(bc)` | constrained DOFs `[DOF_C, NOI]` (`fixed`, `UxUy 0`, `XSYMM`/`Ux 0`, `YSYMM`/`Uy 0`; `noi` → nodes of interest) |
 | `BoundaryConditions/Dirichlet/DirichletBCs_nonhomogeneous(K, F, nDoF, bc, x, y)` | prescribed values by elimination: $\mathbf F \mathrel{-}= \mathbf K_{:,b}\bar{\mathbf u}_b$, rows and columns of $b$ set to zero, diagonal kept, $F_b = K_{bb}\bar u_b$ |
 | `BoundaryConditions/Dirichlet/DirichletBCs_nonhomogeneous_dynamic(K, C, M, ...)` | lifting of constant and time-dependent prescribed displacements; returns load parts multiplied by $s(t)$, $\dot s(t)$, $\ddot s(t)$ |
