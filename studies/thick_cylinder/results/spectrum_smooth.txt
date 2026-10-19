@@ -1,0 +1,14 @@
+alpha= 0 N=4 p=4: #sv(PM) < min sv(PP): 0 | PM: dominant k=258 (share 0.05, s_k/s_max=3.67e-02) | PP: dominant k=355 (share 0.08, s_k/s_max=5.13e-02)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 1.000 1.000 1.000 1.000 1.000 1.000 
+alpha=15 N=4 p=4: #sv(PM) < min sv(PP): 0 | PM: dominant k=457 (share 0.06, s_k/s_max=4.36e-02) | PP: dominant k=474 (share 0.03, s_k/s_max=5.42e-02)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 1.000 1.000 1.000 1.000 1.000 1.000 
+alpha=30 N=4 p=4: #sv(PM) < min sv(PP): 1 | PM: dominant k=1 (share 0.41, s_k/s_max=5.13e-06) | PP: dominant k=316 (share 0.02, s_k/s_max=2.32e-02)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 0.935 0.995 0.895 0.750 0.875 0.816 
+alpha=30 N=2 p=4: #sv(PM) < min sv(PP): 1 | PM: dominant k=6 (share 0.45, s_k/s_max=2.69e-04) | PP: dominant k=64 (share 0.06, s_k/s_max=2.10e-02)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 0.947 0.870 0.468 0.613 0.736 0.823 
+alpha=45 N=2 p=4: #sv(PM) < min sv(PP): 2 | PM: dominant k=1 (share 0.68, s_k/s_max=2.63e-07) | PP: dominant k=50 (share 0.04, s_k/s_max=3.72e-03)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 0.168 0.661 0.425 0.508 0.613 0.628 
+alpha=45 N=4 p=4: #sv(PM) < min sv(PP): 2 | PM: dominant k=4 (share 0.21, s_k/s_max=7.06e-07) | PP: dominant k=46 (share 0.02, s_k/s_max=4.04e-04)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 0.864 0.707 0.531 0.578 0.480 0.517 
+alpha=30 N=4 p=6: #sv(PM) < min sv(PP): 1 | PM: dominant k=28 (share 0.09, s_k/s_max=1.13e-06) | PP: dominant k=820 (share 0.01, s_k/s_max=1.88e-02)
+   s_k(PM)/s_k(PP), k = 1 2 5 10 20 50: 0.998 0.991 0.980 0.831 0.650 0.596 

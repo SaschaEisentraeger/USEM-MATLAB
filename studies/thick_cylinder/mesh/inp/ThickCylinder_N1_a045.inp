@@ -1,0 +1,109 @@
+*Heading
+** Job name: ThickCylinder_N1_a045 Model name: Model-1
+** Thick cylinder under internal pressure (Rajendran 2010, Sec. 5.9),
+** quarter model a = 1, b = 3, p = 1000, E = 1000, nu = 0.25, plane stress.
+** 2 x 2 CPS8 elements (1 x 1 super-elements), distortion angle alpha = 45 deg.
+** Geometry and mesh: gmsh (studies/thick_cylinder/mesh/gen_cylinder_meshes.py)
+*Preprint, echo=NO, model=NO, history=NO, contact=NO
+**
+** PARTS
+**
+*Part, name=Cylinder
+*Node
+      1, 1, 0
+      2, 2.0000000000013904, 0
+      3, 1.4142135606844759, 1.4142135640665932
+      4, 0.70710678279633199, 0.70710677957676304
+      5, 0, 2.0000000000055094
+      6, 0, 1
+      7, 3, 0
+      8, 2.1213203385698005, 2.1213203485494847
+      9, 0, 3
+     10, 1.5000000000004419, 0
+     11, 2.121320343067274, 1.1213203452519072
+     12, 1.4142135630185244, 0.91421356406486831
+     13, 0.92387953285887425, 0.38268343152593937
+     14, 0.70710678069173949, 1.1213203452533635
+     15, 0, 1.5000000000027547
+     16, 0.38268343349599426, 0.92387953204285078
+     17, 2.4999999999999303, 0
+     18, 2.7716385961956447, 1.1480503003260074
+     19, 1.4142135583518838, 1.9142135640648683
+     20, 1.148050292648497, 2.7716385993757737
+     21, 0, 2.5000000000023581
+*Element, type=CPS8
+      1, 1, 2, 3, 4, 10, 11, 12, 13
+      2, 4, 3, 5, 6, 12, 14, 15, 16
+      3, 2, 7, 8, 3, 17, 18, 19, 11
+      4, 3, 8, 9, 5, 19, 20, 21, 14
+*Nset, nset=Set-all, generate
+ 1, 21, 1
+*Elset, elset=Set-all, generate
+ 1, 4, 1
+** Section: Section-1
+*Solid Section, elset=Set-all, material=Material-1
+,
+*End Part
+**
+**
+** ASSEMBLY
+**
+*Assembly, name=Assembly
+**
+*Instance, name=Cylinder-1, part=Cylinder
+*End Instance
+**
+*Nset, nset=Set-XSYM, instance=Cylinder-1
+ 5, 6, 9, 15, 21
+*Elset, elset=Set-XSYM, instance=Cylinder-1
+ 2, 4
+*Nset, nset=Set-YSYM, instance=Cylinder-1
+ 1, 2, 7, 10, 17
+*Elset, elset=Set-YSYM, instance=Cylinder-1
+ 1, 3
+*Nset, nset=Set-OUTER, instance=Cylinder-1
+ 7, 8, 9, 18, 20
+*Elset, elset=Set-OUTER, instance=Cylinder-1
+ 3, 4
+*Nset, nset=Pressure, instance=Cylinder-1
+ 1, 4, 6, 13, 16
+*Elset, elset=Pressure, instance=Cylinder-1
+ 1, 2
+*End Assembly
+**
+** MATERIALS
+**
+*Material, name=Material-1
+*Density
+ 1.,
+*Elastic
+ 1000, 0.25
+** ----------------------------------------------------------------
+**
+** STEP: Step-1
+**
+*Step, name=Step-1, nlgeom=NO
+*Static
+1., 1., 1e-05, 1.
+**
+** BOUNDARY CONDITIONS
+**
+** Name: BC-1 Type: Displacement/Rotation
+*Boundary
+Set-XSYM, 1, 1
+** Name: BC-2 Type: Displacement/Rotation
+*Boundary
+Set-YSYM, 2, 2
+**
+** LOADS
+**
+** Name: Load-1   Type: Pressure
+*Dsload
+Pressure, P, 1000
+**
+** OUTPUT REQUESTS
+**
+*Restart, write, frequency=0
+*Output, field, variable=PRESELECT
+*Output, history, variable=PRESELECT
+*End Step

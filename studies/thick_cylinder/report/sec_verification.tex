@@ -1,0 +1,44 @@
+\section{Verification}\label{sec:verification}
+\Cref{tab:verification} summarises the cross-checks of the study routines against the
+code base (\texttt{matlab/cyl\_verify.m}, full output in \texttt{results/verification.txt}).
+The study was run with GNU Octave~8.4 (MATLAB is not available in the build environment);
+three Octave stand-ins (\texttt{matlab/octave\_compat}) replace MATLAB functions used by the
+code base (\texttt{contains}, \texttt{decomposition}, the third output of
+\texttt{unique(\dots,'stable')}). \Cref{tab:folded} lists the number of folded elements.
+
+\begin{table}[h]
+  \centering\small
+  \caption{Verification against the code base (relative differences).}
+  \label{tab:verification}
+  \begin{tabular}{@{}p{0.52\linewidth}p{0.42\linewidth}@{}}
+    \toprule
+    check & result\\
+    \midrule
+    element stiffness: \texttt{cyl\_Ke\_PM} vs \texttt{Ke\_2D}, \texttt{cyl\_Ke\_PP} vs
+      \texttt{usemKeSymmetric} ($\alpha=0^\circ,60^\circ,90^\circ$; $p=2,5,8$)
+      & $\le5.4\cdot10^{-15}$ (\PM), $\le5.7\cdot10^{-12}$ (\PP, folded elements)\\
+    global stiffness vs \texttt{AssemblyFEM} ($N=2$; $\alpha=0^\circ,60^\circ$; $p=2,4$)
+      & $\le1.1\cdot10^{-15}$\\
+    pressure load of the ABAQUS file (\texttt{NeumannBCs}/\texttt{CreatePress}) vs
+      $\int N\,\bm\sigma\bm n_h\dd s$ (Lam\'e, $N=1$, $p=2,\dots,8$)
+      & $2\cdot10^{-3}$ ($p=2$) $\to1.7\cdot10^{-11}$ ($p=8$): geometry error of the arc;
+        resultant $1000=p_ia$ in both\\
+    static solution with the code-base pipeline (\texttt{AssemblyFEM},
+      \texttt{NeumannBCs}, BCs of the ABAQUS file) vs study routines
+      & $\le2.3\cdot10^{-11}$ ($\alpha=0^\circ$), $\le4.8\cdot10^{-7}$ ($\alpha=60^\circ$,
+        round-off amplified by the conditioning)\\
+    signed area $-2\pi$ ($p=8$, all meshes) & $\le1.9\cdot10^{-14}$\\
+    exact fields (Lam\'e): $\bm b=\bm0$, $\sigma_r(a)=-p_i$, $\sigma_\theta(a)=1250$,
+      $\sigma_r(b)=0$, $u_r(a)=1.5$ & exact\\
+    polynomial patch test, \PM, $p\ge5$, $\alpha\le30^\circ$ (\cref{tab:poly})
+      & $e_n\le8\cdot10^{-9}$\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[h]
+  \centering\small
+  \caption{Folded elements ($\det\bm J\le0$ somewhere in the element) / number of elements.}
+  \label{tab:folded}
+  \input{generated/folded}
+\end{table}

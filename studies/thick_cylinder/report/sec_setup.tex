@@ -1,0 +1,113 @@
+\section{Formulation and set-up}\label{sec:setup}
+
+\subsection{Elements}\label{sec:elements}
+Both elements use the same geometry, the same nodes and the same test functions:
+Lagrange polynomials $N_i(\bxi)\in Q_p$ on the $(p+1)^2$ Gauss--Lobatto--Legendre
+(GLL) nodes of the reference square, mapped isoparametrically, $\bx(\bxi)=\sum_i
+N_i(\bxi)\,\bx_i$. They differ in the trial functions.
+\begin{itemize}
+\item \PM\ (unsymmetric spectral element of the code base, \texttt{Ke\_2D.m}):
+  the trial functions are \emph{metric} functions $M_i^e(\bx)\in
+  Q_p(\hat x,\hat y)$, defined element by element through $M_i^e(\bx_j)=\delta_{ij}$
+  in the corotational skew coordinates $(\hat x,\hat y)^{\mathsf T}=\bm
+  J_0^{-\mathsf T}(\bx-\bx_0)$ ($\bm J_0$, $\bx_0$: Jacobian and image of the element
+  centre)~\cite{Xie2016Modified}. As $(\hat x,\hat y)$ is affine in $\bx$, the
+  span of $\{M_i^e\}$ contains $P_p(\bx)$ (all polynomials of total degree $\le p$
+  in Cartesian coordinates) for \emph{every} element shape. With
+  $\bm B_L^\ast=\bm B_L\det\bm J$ (built from $\operatorname{adj}\bm J\,\nabla_{\bxi}N_i$),
+  \begin{equation}
+    \bm K^e=\int_{-1}^{1}\!\!\int_{-1}^{1}(\bm B_L^\ast)^{\mathsf T}\bm D\,\bm B_R\dd\xi\dd\eta ,
+    \label{eq:Kpm}
+  \end{equation}
+  i.e.\ the Jacobian determinant cancels and the integrand is a polynomial in
+  $\bxi$; this is the Jacobian-unlimited formulation PM-QUAD8$^\ast$ of
+  \citet{Rajendran2010technique} generalised to degree $p$ (conditions C1--C3 of
+  that paper). The trial space is non-conforming (the $M_i^e$ are not continuous
+  across element edges).
+\item \PP\ (conventional spectral element, reference): parametric functions as
+  test and trial functions, $\bm K^e=\int\bm B_L^{\mathsf T}\bm D\bm B_L\det\bm
+  J\dd\xi\dd\eta$ (\texttt{tests/helpers/usemKeSymmetric.m}).
+\end{itemize}
+The load vectors are identical for both elements (parametric test functions),
+$\bm f^e=\int N_i\,\bm b\det\bm J\dd\xi\dd\eta+\int_{\Gamma_N}N_i\,\bar{\bm t}\dd s$.
+The stiffness matrices use the default rule of \texttt{Ke\_2D.m}, $2p\times2p$
+Gauss points; loads and error integrals use $(3p+2)^2$ points. The element
+matrices of the study (\texttt{cyl\_Ke\_PM.m}, \texttt{cyl\_Ke\_PP.m}) are
+vectorised versions of \texttt{Ke\_2D.m} and \texttt{usemKeSymmetric.m}; they agree
+with them to round-off (\cref{tab:verification}).
+
+\subsection{Model and mesh (gmsh)}\label{sec:mesh}
+Thick cylinder under internal pressure (Section~5.9 of
+\citep{Rajendran2010technique}): quarter annulus $a=1\le r\le b=3$, $E=1000$,
+$\nu=0.25$, plane stress, internal pressure $p_i=1000$, symmetry conditions
+$u_x=0$ on $x=0$ and $u_y=0$ on $y=0$. The geometry (exact circular arcs, built-in
+kernel) and the structured mesh are generated with gmsh~\cite{Geuzaine2009Gmsh}
+(\texttt{mesh/gen\_cylinder\_meshes.py}): a transfinite mesh of $2N\times2N$
+eight-node quadrilaterals, i.e.\ $N\times N$ super-elements of $2\times2$ elements
+($N=1,2,4,8$; element size $h\propto1/N$). Mesh distortion follows mesh
+sequence~B of \citep[Fig.~19]{Rajendran2010technique}: in every super-element the
+mid-side nodes of the four internal edges are rotated counter-clockwise about the
+centre node by the angle $\alpha\in\{0^\circ,15^\circ,30^\circ,45^\circ,60^\circ,90^\circ\}$
+(\cref{fig:meshes}). The pattern is repeated on every super-element, so the
+\emph{relative} distortion does not decrease under refinement: the element maps are
+not asymptotically affine. For $\alpha\ge60^\circ$ (and $\alpha=45^\circ$ for $N\ge2$),
+$\det\bm J$ changes sign inside elements (folded elements, \cref{tab:folded}). Each mesh is written as
+an ABAQUS input file (corner nodes first, node and element sets, pressure
+\texttt{*Dsload}) that also runs with \texttt{code/Start\_Sim.m}.
+
+The 8-node mesh is lifted to degree $p$ by \texttt{pSpectralElement\_NodesTopology.m}.
+Element edges on $r=a$ and $r=b$ are then replaced by the exact arcs (Gordon--Hall
+blending~\cite{Gordon1973Transfinite}); interior edges remain the parabolas of the
+8-node mesh. The degree-$p$ geometry thus interpolates the circle at the GLL points;
+the signed area converges to $2\pi$ spectrally ($|A_h-2\pi|<10^{-14}$ for $p=8$) and is
+independent of $\alpha$ because folded parts cancel (\cref{tab:verification}).
+
+\begin{figure}[t]
+  \centering
+  \input{generated/fig_meshes}
+  \caption{Meshes generated with gmsh for $N=1$ ($2\times2$ elements) and $N=2$ ($4\times4$
+    elements); the internal mid-side nodes of every super-element are rotated by $\alpha$.
+    Meshes for $N=4,8$ repeat the pattern on $N^2$ super-elements.}
+  \label{fig:meshes}
+\end{figure}
+
+\subsection{Problems}\label{sec:problems}
+\begin{enumerate}
+\item \emph{Lam\'e} (non-polynomial, rational): $u_r=\frac{a^2p_i\,r}{E(b^2-a^2)}\bigl[(1-\nu)+(1+\nu)\tfrac{b^2}{r^2}\bigr]$, $u_\theta=0$
+  \cite[Eq.~(25)]{Rajendran2010technique}; symmetry conditions on the straight
+  edges, tractions on the arcs.
+\item \emph{Manufactured polynomial} field of total degree 5 ($X=x/3$, $Y=y/3$):\\
+  $u_x=\tfrac1{10}(1+X+2Y+XY-3X^2Y+X^3+2X^4Y-X^2Y^3+X^5-2Y^5)$,\\
+  $u_y=\tfrac1{10}(1-X+Y^2+2X^2Y-X^3+XY^3-3X^3Y^2+Y^5+2XY^4-X^5)$.
+\item \emph{Manufactured smooth non-polynomial} (entire) field:
+  $u_x=\tfrac1{10}\bigl(\sin3X\cos2Y+e^{XY}\bigr)$, $u_y=\tfrac1{10}\bigl(\cos2X\sin3Y+Ye^{-X}\bigr)$.
+\end{enumerate}
+For the manufactured solutions (MMS) both displacement components are prescribed on
+$x=0$ and $y=0$ (nodal values) and the tractions $\bm\sigma(\bm u)\bm n_h$ on the
+arcs. Strains, stresses and the body force $\bm b=-\operatorname{div}\bm\sigma(\bm u)$
+are derived symbolically with the operators of the MMS module of the code base
+(\texttt{MMS\_2D/differentialOperators}, as in \texttt{examples\_Elasticity.m});
+for the Lam\'e field this yields $\bm b\equiv\bm0$. On the arcs $\bm n_h$ is the
+normal of the discrete boundary, so that the discrete problem on $\Omega_h$ has
+the exact field as solution whenever it lies in the trial space (with the exact
+normal, the polynomial patch test fails at the level of the geometry error, e.g.\
+$\eE\approx3\cdot10^{-6}$ for $p=5$, $N=1$).
+
+\subsection{Error measures}\label{sec:errors}
+With the strain field of the respective trial functions (metric for \PM,
+parametric for \PP),
+\begin{equation}
+  \eE^2=\frac{\sum_e\int_{\hat\Omega}(\bm\varepsilon-\bm\varepsilon_h^e)^{\mathsf T}\bm D
+        (\bm\varepsilon-\bm\varepsilon_h^e)\det\bm J\dd\xi\dd\eta}
+       {\int_\Omega\bm\varepsilon^{\mathsf T}\bm D\bm\varepsilon\dd\Omega},
+  \qquad
+  \eL^2=\frac{\sum_e\int_{\hat\Omega}|\bm u-\bm u_h^e|^2\det\bm J\dd\xi\dd\eta}{\int_\Omega|\bm u|^2\dd\Omega},
+  \label{eq:errors}
+\end{equation}
+and the nodal error $e_n=\max_i|\bm u_h(\bx_i)-\bm u(\bx_i)|/\max_i|\bm u(\bx_i)|$.
+The signed $\det\bm J$ is used, consistent with \eqref{eq:Kpm}: on folded elements
+each element contributes with the degree of its map. For \PP\ on folded meshes the
+parametric strain is singular where $\det\bm J=0$, so $\eE$ is not meaningful there;
+$e_n$ is defined for all cases. Observed rates are $r=\log_2(e_N/e_{2N})$. For smooth
+solutions and shape-regular, asymptotically affine meshes, optimal rates are $p$
+($\eE$) and $p+1$ ($\eL$)~\cite{Ciarlet1972Interpolation}.

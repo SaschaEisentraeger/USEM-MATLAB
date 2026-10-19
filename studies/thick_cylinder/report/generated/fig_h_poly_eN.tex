@@ -1,0 +1,103 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=6 by 2, horizontal sep=1.5mm, vertical sep=8mm, yticklabels at=edge left, xticklabels at=edge bottom}, conv, width=3.90cm, height=4.6cm, ymin=1e-15, ymax=1e2]
+\nextgroupplot[title={\PM, $\alpha=0^\circ$}, ylabel={$e_n$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PM_a000.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PM_a000.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PM_a000.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PM_a000.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PM_a000.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PM_a000.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PM_a000.dat};
+\nextgroupplot[title={\PM, $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PM_a015.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PM_a015.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PM_a015.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PM_a015.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PM_a015.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PM_a015.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PM_a015.dat};
+\nextgroupplot[title={\PM, $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PM_a030.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PM_a030.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PM_a030.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PM_a030.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PM_a030.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PM_a030.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PM_a030.dat};
+\nextgroupplot[title={\PM, $\alpha=45^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PM_a045.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PM_a045.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PM_a045.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PM_a045.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PM_a045.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PM_a045.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PM_a045.dat};
+\nextgroupplot[title={\PM, $\alpha=60^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PM_a060.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PM_a060.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PM_a060.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PM_a060.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PM_a060.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PM_a060.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PM_a060.dat};
+\nextgroupplot[title={\PM, $\alpha=90^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PM_a090.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PM_a090.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PM_a090.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PM_a090.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PM_a090.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PM_a090.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PM_a090.dat};
+\nextgroupplot[title={\PP, $\alpha=0^\circ$}, ylabel={$e_n$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PP_a000.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PP_a000.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PP_a000.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PP_a000.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PP_a000.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PP_a000.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PP_a000.dat};
+\nextgroupplot[title={\PP, $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PP_a015.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PP_a015.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PP_a015.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PP_a015.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PP_a015.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PP_a015.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PP_a015.dat};
+\nextgroupplot[title={\PP, $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PP_a030.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PP_a030.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PP_a030.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PP_a030.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PP_a030.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PP_a030.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PP_a030.dat};
+\nextgroupplot[title={\PP, $\alpha=45^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PP_a045.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PP_a045.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PP_a045.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PP_a045.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PP_a045.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PP_a045.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PP_a045.dat};
+\nextgroupplot[title={\PP, $\alpha=60^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PP_a060.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PP_a060.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PP_a060.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PP_a060.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PP_a060.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PP_a060.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PP_a060.dat};
+\nextgroupplot[title={\PP, $\alpha=90^\circ$}]
+\addplot[pline=2] table[x=h, y=eN2] {\tab/h_poly_PP_a090.dat};
+\addplot[pline=3] table[x=h, y=eN3] {\tab/h_poly_PP_a090.dat};
+\addplot[pline=4] table[x=h, y=eN4] {\tab/h_poly_PP_a090.dat};
+\addplot[pline=5] table[x=h, y=eN5] {\tab/h_poly_PP_a090.dat};
+\addplot[pline=6] table[x=h, y=eN6] {\tab/h_poly_PP_a090.dat};
+\addplot[pline=7] table[x=h, y=eN7] {\tab/h_poly_PP_a090.dat};
+\addplot[pline=8] table[x=h, y=eN8] {\tab/h_poly_PP_a090.dat};
+\end{groupplot}
+\node[font=\small] at ($(group c1r2.south)!0.5!(group c6r2.south)+(0,-8mm)$) {element size $h\propto 1/N$};
+\matrix[draw=gray!50, fill=white, font=\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] at ($(group c1r1.north)!0.5!(group c6r1.north)+(0,7mm)$) { \draw[pline=2] (0,0) -- (4mm,0) node[black, right] {$p=2$}; \pgfmatrixnextcell \draw[pline=3] (0,0) -- (4mm,0) node[black, right] {$p=3$}; \pgfmatrixnextcell \draw[pline=4] (0,0) -- (4mm,0) node[black, right] {$p=4$}; \pgfmatrixnextcell \draw[pline=5] (0,0) -- (4mm,0) node[black, right] {$p=5$}; \pgfmatrixnextcell \draw[pline=6] (0,0) -- (4mm,0) node[black, right] {$p=6$}; \pgfmatrixnextcell \draw[pline=7] (0,0) -- (4mm,0) node[black, right] {$p=7$}; \pgfmatrixnextcell \draw[pline=8] (0,0) -- (4mm,0) node[black, right] {$p=8$}; \pgfmatrixnextcell  \\ };
+
+\end{tikzpicture}

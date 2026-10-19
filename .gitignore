@@ -4,6 +4,8 @@
 # the annotated reading list is a chapter of the documentation (docs/).
 literature/*.pdf
 *.pdf
+# ... except the reports of the studies (own work)
+!studies/*/report/report.pdf
 
 # --- Simulation output -----------------------------------------------------
 # Workspaces written by call_*.m (regenerate them by running Start_Sim.m).

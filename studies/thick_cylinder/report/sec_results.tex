@@ -1,0 +1,200 @@
+\section{Results}\label{sec:results}
+The complete data ($6$ angles $\times$ $4$ meshes $\times$ $7$ degrees $\times$ $2$ elements
+$\times$ $3$ problems $=1008$ solutions) are in \texttt{results/raw/study\_a*.csv}.
+Rates are given for the finest pair $N=4\to8$; ``--'' marks errors at the round-off
+level (for \PM\ and $p\ge5$: less than ten times the error of the polynomial field on
+the same mesh, which is the empirical round-off level, \cref{sec:poly}); $^\dagger$
+marks angles with folded elements on the meshes involved (\cref{tab:folded}).
+
+\subsection{Reproduction of Section 5.9 for $p=2$}\label{sec:p2}
+For $p=2$ and the meshes $N=1,2,4$ of the paper, the least-squares slopes of $\eE$
+(Lam\'e) are $1.90$, $1.95$, $1.14$, $1.57$ for \PM\ and $1.68$, $1.11$, $1.07$, $0.69$
+for \PP\ at $\alpha=0^\circ,30^\circ,45^\circ,60^\circ$
+(\citet[Fig.~20]{Rajendran2010technique}: PM-QUAD8$^\ast$ $2.1$, $1.85$, $1.42$, $1.21$;
+QUAD8 $1.9$, $0.95$, $0.94$, $0.98$). The trends agree: the conventional element drops
+to first order on distorted meshes, the unsymmetric element stays close to second order
+for $\alpha\le30^\circ$ and becomes erratic beyond. Exact agreement is not expected,
+since the present $p=2$ element is the 9-node Lagrange element with $Q_2$ metric
+functions in skew coordinates, not the 8-node serendipity element of the paper. On
+the finer pair $N=4\to8$, \PM\ ($p=2$) recovers rate $\approx2$ for all
+$\alpha\le45^\circ$ (\cref{tab:rates-lame-E,tab:rates-lame-N}).
+
+\subsection{Polynomial field: distortion immunity}\label{sec:poly}
+For $p\ge5$ the degree-5 field lies in the \PM\ trial space on every element.
+\Cref{tab:poly} shows the nodal error: on meshes with $\det\bm J>0$ and moderate
+distortion ($\alpha\le30^\circ$) it is $10^{-14}$--$10^{-8}$, i.e.\ the field is
+reproduced up to round-off on every mesh, as predicted. The round-off level, however,
+grows with $\alpha$ and $p$ and reaches $10^{-4}$ at $\alpha=45^\circ$, $p=8$. On the
+folded meshes ($\alpha\ge60^\circ$) the computed solutions for $p\ge5$ are useless
+(nodal errors up to $10^{9}$), although the method is exact in exact arithmetic. A
+dedicated test (\texttt{results/conditioning.txt}) integrates the \PM\ stiffness
+exactly ($n_q\ge p^2+p/2$ points, \cref{sec:quad}) and evaluates the residual
+$\bm K\bm u_I-\bm F$ of the exact nodal values, which vanishes in exact arithmetic: it is
+$4\cdot10^{-14}$ at $\alpha=0^\circ$, $p=5$, but $2\cdot10^{-2}$ ($\alpha=60^\circ$,
+$N=2$, $p=8$) and $49$ ($\alpha=90^\circ$, $N=1$, $p=8$), with
+$\sigma_{\min}/\sigma_{\max}(\bm K_{\PM})=10^{-15}$ against $3\cdot10^{-6}$ for \PP.
+Distortion immunity therefore holds in exact arithmetic but not in floating point once
+the metric interpolation becomes ill-conditioned (Lebesgue constants up to $5\cdot10^{12}$,
+\cref{tab:leb}). For $p<5$ the polynomial field behaves like a non-polynomial one
+(rates $2,3,4$ for $\alpha\le15^\circ$, \cref{fig:h-poly}).
+
+\begin{table}[t]
+  \centering\small
+  \caption{Polynomial field (degree 5), \PM: relative nodal error $e_n$ for $p\ge5$
+    (exact in exact arithmetic).}
+  \label{tab:poly}
+  \input{generated/poly_exact}
+\end{table}
+
+\subsection{Non-polynomial fields: convergence}\label{sec:conv}
+\Cref{fig:h-smooth,fig:h-lame} show the nodal error, \cref{fig:h-smooth-E} the energy
+error for the meshes without folded elements; the rates are collected in
+\cref{tab:rates-smooth-E,tab:rates-lame-E,tab:rates-smooth-N,tab:rates-lame-N}. Three
+regimes can be distinguished.
+\begin{enumerate}
+\item $\alpha=0^\circ$ (element maps asymptotically affine): both elements converge
+  optimally, $\eE=O(h^p)$ (smooth field: $2.00$, $2.99$, $4.00$, $4.99$, $6.00$ for
+  \PM; Lam\'e: $1.97$--$6.62$, approaching $p$ from below as the $r^{-2}$ term is
+  resolved), with almost identical errors.
+\item $\alpha=15^\circ$: \PM\ keeps the optimal rates for all $p$ (smooth: $2.00$,
+  $2.99$, $3.99$, $4.99$, $5.98$; Lam\'e: $1.97$, $2.91$, $3.90$, $4.81$, $5.83$) and
+  for $p\le6$ its error exceeds that on the undistorted mesh by only $5$--$12\,\%$
+  (smooth) and $5$--$28\,\%$ (Lam\'e) in $\eE$, and by a factor $1.5$--$4.7$ in $e_n$
+  (\cref{tab:ratio}). For $p\ge7$ the \PM\ error reaches a round-off floor of about
+  $10^{-10}$, two to three orders above the floor on the undistorted mesh. \PP\ loses half of the order: its
+  energy rates are $1.08$, $1.23$, $2.21$, $2.03$, $2.94$, $3.39$, $4.05$ (smooth) and,
+  for the polynomial field, $0.98$, $0.95$, $1.95$, $1.94$, $2.94$, $2.95$, $3.95$,
+  i.e.\ $\lfloor p/2\rfloor$. This is the approximation property of the parametric
+  space on maps that are not asymptotically affine: the mid-side node offset is
+  $O(h)$, so $\bx(\bxi)$ is quadratic with $O(1)$ relative non-affinity, and
+  $Q_p\circ\bx^{-1}$ contains $P_k(\bx)$ only for $2k\le p$ (cf.\
+  \citep{Arnold2002Approximation,Ciarlet1972Interpolation}). At $N=8$, $p=6$ the \PM\
+  error is $390$ times smaller than the \PP\ error (smooth, $\eE$).
+\item $\alpha\ge30^\circ$: \PM\ is optimal only for $p\le3$ at $30^\circ$ (and for $p=2$ at
+  $45^\circ$ for the Lam\'e field, rate $1.94$; smooth field $1.11$); for higher $p$ the convergence becomes erratic and even divergent (e.g.\
+  smooth, $\alpha=30^\circ$, $p=4$: $\eE=2.2\cdot10^{-4}$ at $N=4$ and $4.3\cdot10^{-4}$ at
+  $N=8$; $\alpha=45^\circ$, $p=8$: $\eE=3\cdot10^{-3}$ at $N=8$). On the folded meshes
+  ($\alpha\ge60^\circ$) \PM\ fails for $p\ge5$ (\cref{sec:poly}). \PP\ converges
+  monotonically at the reduced rate $\approx\lfloor p/2\rfloor$ in $\eE$ (nodal error:
+  $\approx\lfloor p/2\rfloor+1$) for all $\alpha\le45^\circ$ and all $p$ (energy
+  norm; the nodal error with one exception, $p=5$ at $45^\circ$). On the folded meshes
+  $\alpha\ge60^\circ$ its convergence is irregular for $p\le3$, but the nodal error still
+  decreases by $1.5$--$3$ orders of magnitude between $N=1$ and $N=8$ for $p\ge4$
+  (\cref{fig:h-smooth}).
+\end{enumerate}
+Under $p$-refinement on a fixed mesh (\cref{fig:p}), \PM\ converges exponentially
+for $\alpha\le15^\circ$ down to its round-off floor (reached at $p\approx6$ for $N=8$),
+like \PP\ on the undistorted mesh. At $\alpha=30^\circ$ and $45^\circ$ the \PM\ error is
+non-monotone in $p$ (smooth field, $N=8$, $\alpha=30^\circ$: $e_n$ jumps from
+$2.4\cdot10^{-6}$ at $p=3$ to $2.8\cdot10^{-5}$ at $p=4$ and grows from
+$9.4\cdot10^{-11}$ at $p=6$ to $8.0\cdot10^{-9}$ at $p=8$), while the \PP\ error decreases
+monotonically, although more slowly than on the undistorted mesh.
+
+\begin{figure}[p]
+  \centering
+  \input{generated/fig_h_smooth_eN}
+  \caption{Smooth manufactured field: nodal error $e_n$ versus element size for all
+    distortion angles, \PM\ (top) and \PP\ (bottom).}
+  \label{fig:h-smooth}
+\end{figure}
+\begin{figure}[p]
+  \centering
+  \input{generated/fig_h_lame_eN}
+  \caption{Thick cylinder (Lam\'e): nodal error $e_n$ versus element size, \PM\ (top)
+    and \PP\ (bottom).}
+  \label{fig:h-lame}
+\end{figure}
+\begin{figure}[t]
+  \centering
+  \input{generated/fig_h_eE}
+  \caption{Energy error $\eE$ on the meshes without folded elements
+    ($\alpha\le30^\circ$): smooth field (left three columns) and Lam\'e (right three
+    columns); \PM\ top, \PP\ bottom.}
+  \label{fig:h-smooth-E}
+\end{figure}
+
+\begin{table}[p]
+  \centering\small
+  \begin{minipage}[t]{0.48\linewidth}\centering
+    \captionof{table}{Rates of $\eE$, smooth field ($N=4\to8$).}\label{tab:rates-smooth-E}
+    \resizebox{\linewidth}{!}{\input{generated/rates_smooth_E}}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\centering
+    \captionof{table}{Rates of $\eE$, Lam\'e ($N=4\to8$).}\label{tab:rates-lame-E}
+    \resizebox{\linewidth}{!}{\input{generated/rates_lame_E}}
+  \end{minipage}
+
+  \vspace{4mm}
+  \begin{minipage}[t]{0.48\linewidth}\centering
+    \captionof{table}{Rates of $e_n$, smooth field ($N=4\to8$).}\label{tab:rates-smooth-N}
+    \resizebox{\linewidth}{!}{\input{generated/rates_smooth_N}}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\centering
+    \captionof{table}{Rates of $e_n$, Lam\'e ($N=4\to8$).}\label{tab:rates-lame-N}
+    \resizebox{\linewidth}{!}{\input{generated/rates_lame_N}}
+  \end{minipage}
+\end{table}
+
+\subsection{Distortion sensitivity}\label{sec:sens}
+\Cref{tab:ratio} gives the error amplification $e_n(\alpha)/e_n(0^\circ)$ on the
+finest mesh, \cref{fig:alpha} the nodal error versus $\alpha$. For a non-polynomial
+field neither element is distortion immune: the \PM\ error depends on $\alpha$. For
+$\alpha=15^\circ$ and $p\le6$ the \PM\ amplification is $1.5$--$2.7$ (smooth) and
+$3.2$--$4.7$ (Lam\'e), against $4.8$--$99$ and $61$--$2900$ for \PP. At $30^\circ$ both
+elements are amplified by similar factors ($50$--$2\cdot10^3$ for $p=3$--$6$; \PM\
+smaller for some $p$, larger for others). For $\alpha\ge45^\circ$ and $p\ge5$ the \PM\
+amplification exceeds the \PP\ amplification by one to ten orders of magnitude. (For
+$p\ge7$ the reference errors at $\alpha=0^\circ$ are at round-off level, so these columns
+underestimate the sensitivity of \PP\ and overstate that of \PM.)
+
+\begin{table}[t]
+  \centering\small
+  \caption{Distortion sensitivity on the finest mesh ($N=8$): $e_n(\alpha)/e_n(0^\circ)$,
+    smooth field (left) and Lam\'e (right).}
+  \label{tab:ratio}
+  \begin{minipage}[t]{0.48\linewidth}\centering\resizebox{\linewidth}{!}{\input{generated/ratio_smooth}}\end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\centering\resizebox{\linewidth}{!}{\input{generated/ratio_lame}}\end{minipage}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \input{generated/fig_alpha_N8}
+  \caption{Nodal error versus distortion angle on the finest mesh ($N=8$), $p=2,4,6,8$;
+    \PM\ solid, \PP\ dashed. Folded elements occur for $\alpha\ge45^\circ$.}
+  \label{fig:alpha}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \input{generated/fig_p_N8}
+  \caption{$p$-convergence of the nodal error on the finest mesh ($N=8$), $\alpha=0^\circ,
+    15^\circ, 30^\circ, 45^\circ$; \PM\ solid, \PP\ dashed.}
+  \label{fig:p}
+\end{figure}
+
+\subsection{Mechanism}\label{sec:mechanism}
+\input{sec_mechanism}
+
+\subsection{Quadrature}\label{sec:quad}
+The \PM\ integrand \eqref{eq:Kpm} is a polynomial of degree $(2p-1)(q+1)$ per direction
+for a geometry of degree $q$; exact integration needs $n_q\ge p^2+p/2$ points on the
+elements with exact arcs ($q=p$) and $n_q\ge3p-1$ on the interior elements ($q=2$).
+The default rule ($n_q=2p$) is therefore not exact. Repeating selected cases with
+$n_q=2p,3p,4p,6p$ (\texttt{results/raw/quadrature.csv}; $\alpha=0^\circ,30^\circ$, $N=1,2$,
+$p=5,8$) changes $\eE$ of the non-polynomial fields by at most $3\cdot10^{-7}$ (relative) for
+\PP\ and $0.5\,\%$ for \PM; the single exception (\PM, smooth field, $\alpha=30^\circ$,
+$N=2$, $p=8$: $39\,\%$) has an error only six times above the round-off level of that
+mesh. For the polynomial field (\PM, $p\ge5$), whose error is pure round-off, the value
+changes by up to a factor $8$. The conclusions are therefore not affected by quadrature. On folded meshes
+the results change erratically with $n_q$ (e.g.\ polynomial field, $\alpha=60^\circ$,
+$N=2$, $p=8$: $\eE=0.78$, $0.35$, $0.10$, $0.38$), consistent with the round-off
+amplification of \cref{sec:poly}, which persists with exact integration.
+
+\begin{figure}[t]
+  \centering
+  \input{generated/fig_h_poly_eN}
+  \caption{Polynomial field (degree 5): nodal error versus element size, \PM\ (top) and
+    \PP\ (bottom). \PM\ reproduces the field for $p\ge5$ up to round-off on all meshes
+    without folded elements.}
+  \label{fig:h-poly}
+\end{figure}

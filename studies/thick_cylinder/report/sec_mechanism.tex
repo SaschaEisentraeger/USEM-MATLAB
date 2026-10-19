@@ -1,0 +1,54 @@
+The diagnostics in \texttt{results/} identify where the loss originates.
+\begin{enumerate}
+\item \emph{Not the Jacobian, not quadrature.} The loss occurs on meshes with
+  $\det\bm J>0$ ($\alpha=30^\circ$) and persists with exact integration
+  (\cref{sec:quad,sec:poly}).
+\item \emph{Not consistency.} The residual of the exact nodal values,
+  $\bm r=\bm K\bm u_I-\bm F$, is \emph{smaller} for \PM\ than for \PP\ in all eleven cases
+  tested (\texttt{residual\_smooth.txt}; e.g.\ $\alpha=30^\circ$, $N=8$, $p=4$:
+  $3.0\cdot10^{-5}$ versus $3.7\cdot10^{-4}$), whereas the \PM\ nodal error is $9$ times
+  larger ($2.8\cdot10^{-5}$ versus $3.0\cdot10^{-6}$). The ratio of error to residual of
+  \PM\ grows under refinement ($0.05$ at $N=4$, $0.9$ at $N=8$).
+\item \emph{Stability of the unsymmetric operator.} With $\bm u_h-\bm u_I=-\bm K^{-1}\bm r=
+  -\sum_k\bm v_k(\bm u_k^{\mathsf T}\bm r)/\sigma_k$ (singular triplets of $\bm K$;
+  \texttt{spectrum\_smooth.txt}, smooth field), the error of \PP\ and of \PM\ for
+  $\alpha\le15^\circ$ is spread over the spectrum (largest single contribution $2$--$8\,\%$ of
+  $\|\bm u_h-\bm u_I\|^2$, from mid-spectrum modes). For $\alpha\ge30^\circ$, $p=4$, \PM\ has
+  singular values below the smallest singular value of \PP\ (down to $0.17\,\sigma_1^{\PP}$),
+  and in four of the five cases tested a single one of the lowest six triplets carries
+  $21$--$68\,\%$ of the error (the fifth, $\alpha=30^\circ$, $N=4$, $p=6$: triplet $k=28$,
+  $9\,\%$). The
+  residual of the non-conforming Petrov--Galerkin scheme is not orthogonal to these
+  low modes, unlike the Galerkin residual of \PP, so they are excited and amplified.
+\item \emph{Ill-conditioned metric interpolation.} The Lebesgue constant
+  $\Lambda_M=\max_{\bx\in\Omega^e}\sum_i|M_i^e(\bx)|$ of the metric functions (basis
+  independent) equals the GLL value on affine elements, but grows by orders of magnitude
+  with $\alpha$ and $p$ (\cref{tab:leb}): $\Lambda_M\le163$ for $\alpha=15^\circ$, $p\le6$,
+  but $1.1\cdot10^3$ ($\alpha=30^\circ$, $p=4$), $9\cdot10^5$ ($45^\circ$, $p=5$) and
+  $5\cdot10^{12}$ ($60^\circ$, $p=8$). The element condition numbers of \PM\ exceed those of
+  \PP\ by similar factors (\cref{tab:cond}). The images of the GLL nodes of strongly
+  non-affine elements come close to configurations that are not unisolvent for $Q_p$ in
+  skew coordinates (``interpolation failure'' in \citep{Rajendran2010technique}); the
+  metric trial functions then have large gradients, the bilinear form loses its stability
+  constant, and round-off is amplified (\cref{sec:poly}). All cases of the benign regime
+  of \cref{sec:conv} have $\Lambda_M\le2.5\cdot10^2$, all degraded cases
+  $\Lambda_M\ge10^3$; the converse does not hold strictly ($\alpha=30^\circ$, $p=6$:
+  $\Lambda_M=1.1\cdot10^4$, yet \PM\ is $500$ times more accurate than \PP\ at $N=8$), so
+  $\Lambda_M$ is a necessary rather than a sufficient indicator. The maximum over the mesh does not decrease under
+  refinement because the distortion is self-similar; it varies with $N$ because the
+  element shapes near the curved boundaries change.
+\end{enumerate}
+
+\begin{table}[t]
+  \centering\small
+  \begin{minipage}[t]{0.48\linewidth}\centering
+    \captionof{table}{Lebesgue constant $\Lambda_M$ of the metric interpolation, maximum over
+      the elements, $N=8$ (GLL: affine element).}\label{tab:leb}
+    \resizebox{\linewidth}{!}{\input{generated/diag_leb}}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.48\linewidth}\centering
+    \captionof{table}{Ratio of the maximum element condition numbers
+      $\sigma_{\max}/\sigma_{2n-3}$, \PM/\PP, $N=8$.}\label{tab:cond}
+    \resizebox{\linewidth}{!}{\input{generated/diag_cond}}
+  \end{minipage}
+\end{table}
