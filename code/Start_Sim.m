@@ -86,6 +86,14 @@ p.peta = 3;
 % ndist = 3: GLC-nodes (Gauss-Lobatto-Chebychev)
 p.ndist = 2;
 
+% Basis of the generalized Vandermonde matrix of the metric (trial) shape
+% functions; the shape functions are the same for every basis, only the
+% round-off differs (docs: chapter "Basis of the metric Vandermonde matrix")
+% 'lagrange':  Lagrange polynomials of the reference element (default)
+% 'legendre', 'chebyshev': orthogonal polynomials
+% 'monomial':  monomials (previous implementation, ill-conditioned for p > 8)
+p.metricBasis = 'lagrange';
+
 %% Settings for dynamic analyses
 % Mass matrix formulation
 % 1: Consistent mass matrix
