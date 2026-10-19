@@ -17,7 +17,7 @@ uExact = zeros(model.num_DoF, 1);
 uExact(1:2:end) = ux;
 uExact(2:2:end) = uy;
 
-tol = 1e-10*max(range(x), range(y));
+tol = 1e-10*max(max(x) - min(x), max(y) - min(y));
 bnd = abs(x - min(x)) < tol | abs(x - max(x)) < tol | ...
       abs(y - min(y)) < tol | abs(y - max(y)) < tol;
 bndDoF = sort([2*find(bnd)-1; 2*find(bnd)]);
