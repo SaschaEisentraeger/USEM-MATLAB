@@ -1,0 +1,36 @@
+# --- Literature ------------------------------------------------------------
+# Publisher-copyrighted papers and unpublished theses are NOT redistributed.
+# Only the bibliography (literature/references.bib) and the annotated
+# reading list (literature/README.md) are under version control.
+literature/*.pdf
+*.pdf
+
+# --- Simulation output -----------------------------------------------------
+# Workspaces written by call_*.m (regenerate them by running Start_Sim.m).
+code/subroutines/Results/
+code/subroutines/Temp/*
+!code/subroutines/Temp/.gitkeep
+# Temporary copy of the input file written by Adjust_Set_names_input_file_ABAQUS
+*_adjusted.inp
+
+# --- Test output -----------------------------------------------------------
+tests/results/
+
+# --- MATLAB ----------------------------------------------------------------
+*.asv
+*.m~
+*.mex*
+slprj/
+codegen/
+*.autosave
+.matlab/
+
+# --- Mathematica -----------------------------------------------------------
+*.nb~
+
+# --- OS / editors ----------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

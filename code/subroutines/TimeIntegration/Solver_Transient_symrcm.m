@@ -1,0 +1,315 @@
+function [T,U,t_cpu] = Solver_Transient_symrcm()
+%-------------------------------------------------------------------------%
+% Reference for different time integration methods
+% Bathe, K. J. Finite-Elemente-Methoden, Chap. 9, pp. 785ff, 
+% Springer Verlag, 2002
+%-------------------------------------------------------------------------%
+%% Load Data
+load(['.' filesep 'subroutines' filesep 'Temp' filesep ...
+      'Solver_input.mat'],'ActiveDoF','dte','dtf','ExciteParam','NOI',...
+	  'num_DoF','save_var','SignalType','t_end','TimeIntegration',...
+	  'Topology_Node','U0','V0')
+
+% Load matrices
+load(['.' filesep 'subroutines' filesep 'Temp' filesep 'K.mat'],'K')
+load(['.' filesep 'subroutines' filesep 'Temp' filesep 'M.mat'],'M')
+load(['.' filesep 'subroutines' filesep 'Temp' filesep 'R.mat'],'R')
+load(['.' filesep 'subroutines' filesep 'Temp' filesep 'F.mat'],'F')
+load(['.' filesep 'subroutines' filesep 'Temp' filesep 'F_dt.mat'],'F_dt')
+
+%% Bandwidth
+% Minimize the bandwidth of the problem
+% Bandwidth
+[i,j] = find(K+K');
+bw = max(i-j) + 1;
+% Adjust bandwidth?
+if bw > ceil(num_DoF/10)
+    flag_bw = 1;
+else
+    flag_bw = 0;
+end
+% Re-number the degrees of freedom
+if flag_bw == 0
+    % Do not change ordering
+    r = (1:size(K,1));
+    % Restore original order
+    rinv = r;
+else
+    % Minimize the bandwidth of the matrix
+    r = symrcm(K);
+    % Restore original order
+    [~,rinv] = sort(r);
+end
+
+% Stiffness, mass, and damping matrices
+K = K(r,r);
+M = M(r,r);
+R = R(r,r);
+
+% Force vectors
+F = F(r,1);
+F_dt.Neumann = F_dt.Neumann(r,1);
+F_dt.K = F_dt.K(r,1);
+F_dt.C = F_dt.C(r,1);
+F_dt.M = F_dt.M(r,1);
+
+% Initial conditions
+U0 = U0(r,1);
+V0 = V0(r,1);
+
+% Degrees of freedom of interest (results are saved)
+% Save the transient data only for the degrees of freedom corresponding to
+% the selected points of interest
+dof_poi_aux = zeros(2*numel(NOI),1);
+dof_poi_aux(1:2:end) = 2*NOI-1;
+dof_poi_aux(2:2:end) = 2*NOI;
+
+% Identify DOF for output
+idx_poi = ismember(r,dof_poi_aux);
+dof_poi = find(idx_poi ~= 0);
+
+% Check ordering
+[~,order] = ismember(r(dof_poi),dof_poi_aux);
+dof_poi = dof_poi(order);
+
+% Active/free degrees of fredom
+idx_Free = ismember(r,ActiveDoF);
+ActiveDoF = find(idx_Free ~= 0);
+
+if save_var == 1
+    % Save all degrees of freedom
+    dof_poi = 1:size(ActiveDoF,2);
+elseif save_var == 0 && isempty(dof_poi)
+    % If no node of interest has been specified, save DOFs 1 to 4
+    dof_poi = [1 2 3 4];
+    % Display a warning message in the command window
+    warning(['No nodes of interest have been defined. Therefore, the ' ...
+             'degrees of freedom DOF = [' num2str(ActiveDoF(1)) ','   ...
+             num2str(ActiveDoF(2)) ',' num2str(ActiveDoF(3)) ','     ...
+             num2str(ActiveDoF(4)) '] are saved.'])
+end
+
+% Identify DOF for output in the reduced system
+vecID = zeros(num_DoF,1);
+vecID(ActiveDoF) = 1:length(ActiveDoF);
+dof_poi = vecID(dof_poi);
+dof_poi(dof_poi == 0) = [];
+
+%% Data preparation
+% Boundary conditions
+if size(K,1) ~= numel(ActiveDoF)
+    K            = K(ActiveDoF,ActiveDoF);
+    M            = M(ActiveDoF,ActiveDoF);
+    R            = R(ActiveDoF,ActiveDoF);
+    F            = F(ActiveDoF,1);
+    F_dt.Neumann = F_dt.Neumann(ActiveDoF,1);
+    F_dt.K       = F_dt.K(ActiveDoF,1);
+    F_dt.C       = F_dt.C(ActiveDoF,1);
+    F_dt.M       = F_dt.M(ActiveDoF,1);
+    U0           = U0(ActiveDoF,1);
+    V0           = V0(ActiveDoF,1);
+end
+ 
+disp('Determine the time step size');
+% Time increments
+% (1) dtf: 	   		based on the maximum frequency in the excitation signal
+%                 	(FFT)
+% (2) dte:     		based on the highest num. eigenfrequency of each
+% 					element (conservative estimation)
+% (3) dtImp:		user prescribed value for implicit analyses
+dt = [dtf dte TimeIntegration.dtImp];
+
+% Time interval for the transient simulation
+nSTEP = 1e3;
+if t_end == 0
+    tsim = nSTEP*min(dt);
+	% Display a warning message in the command window
+    warning(['The simulation time is not specified. Therefore, ' ...
+            num2str(nSTEP) ' time steps are computed by default.'])
+else
+    tsim = t_end;
+end
+
+% Spectral radius of the amplification matrix
+rho_inf = TimeIntegration.rho;  % Applicable to method 403
+
+%% Transient solver
+% Start the measurement of the computational time
+timerVal = tic;
+
+%% Time integration
+%------------------Explicit methods - 2nd order accuracy------------------%
+if TimeIntegration.Method == 101 || TimeIntegration.Method == 601
+    % Central difference method
+    [T,U] = CentralDifferenceMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+	        ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 102
+    % Noh-Bathe method
+    [T,U] = NohBatheMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 103
+    % Soares method (explicit)
+    [T,U] = SoaresMethodExplicit(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 104
+    % Mirbagheri method
+    [T,U] = MirbagheriMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 105
+    % Kim method
+    [T,U] = KimMethodExplicit(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 106
+    % Zhang-Xing method 1
+    [T,U] = ZhangXingMethod1(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 107
+    % Zhang-Xing method 2
+    [T,U] = ZhangXingMethod2(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 108
+    % Explicit generalized alpha method
+    [T,U] = ExplicitGeneralizedAlphaMethod(K,M,R,F,F_dt,U0,V0,num_DoF,...
+            dof_poi,ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 109
+    % Load element matrices
+    load(['.' filesep 'subroutines' filesep 'Temp' filesep ...
+          'FE_Matrices.mat'],'MAT');
+    Ke = MAT.K;
+    Me = MAT.M;
+    % Adaptive hybrid explicit method - Soares
+    [T,U] = AdaptiveHybridExplicitMethod(M,R,Ke,Me,F,F_dt,Topology_Node,...
+            Rayleigh,dof_poi,ActiveDoF,ExciteParam,SignalType,dt,tsim);
+%----------------Explicit methods - higher order accuracy-----------------%
+elseif TimeIntegration.Method == 201
+    % Kim method (3rd or 4th order)
+    [T,U] = KimExplicit_ho(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim,TimeIntegration.Order);
+elseif TimeIntegration.Method == 202
+    % Kim method (4th order)
+    [T,U] = KimMethod2Stage(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim,...
+            TimeIntegration.Order);
+%------------------Implicit methods - 2nd order accuracy------------------%
+elseif TimeIntegration.Method == 301
+    % Newmark method
+    [T,U] = NewmarkMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 302
+    % HHT-alpha method
+    [T,U] = HHTAlphaMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 303
+    % Generalized-alpha method
+    [T,U] = GeneralizedAlphaMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 304
+    % Bathe-Baig method
+    [T,U] = BatheBaigMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 305
+    % beta1-beta2-Bathe method
+    [T,U] = b1b2_BatheMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 306
+    % rho-Bathe method
+    [T,U] = rho_BatheMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 307
+    % Soares method (implicit)
+    [T,U] = SoaresMethodImplicit(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 308
+    % Kim method (implicit)
+    [T,U] = KimMethodImplicit(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+            ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 309
+    % Kim method (implicit)
+    [T,U] = KimMethodImplicitCollocation(K,M,R,F,F_dt,U0,V0,num_DoF,...
+            dof_poi,ActiveDoF,ExciteParam,SignalType,dt,tsim);
+%----------------Implicit methods - higher order accuracy-----------------%
+elseif TimeIntegration.Method == 401
+    % Kim method - higher order accurate time integration scheme (based
+    % on Lagrange polynomials)
+    [T,U] = KimLagrange_ho(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim,TimeIntegration.Order);
+elseif TimeIntegration.Method == 402
+    % Soares method: order depends on the presence of numerical and or
+    % physical damping. No damping: order = 4; Only numerical damping:
+    % order = 3; Physical damping: order = 2.
+    [T,U] = SoaresMethodImplicit_ho(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
+	        ActiveDoF,ExciteParam,SignalType,dt,tsim);
+elseif TimeIntegration.Method == 403
+	% Interpolate the results
+    nInterp = TimeIntegration.nInterp;
+    % Pade-based high-order time integration scheme
+	if numel(dt) == 3
+		dtP = dt(3);
+	else
+		dtP = dt(1);
+	end
+    % Number of time steps
+    ns = ceil(round(tsim/dtP,3,'decimal'));
+	% Adjusted time increment
+    dtP = tsim/ns;
+    % Order of the Pade expansion (11, 22, 33, 44, 55)
+    if TimeIntegration.Order == 2
+        order = 11;
+    elseif TimeIntegration.Order == 4
+        order = 22;
+    elseif TimeIntegration.Order == 6
+        order = 33;
+    elseif TimeIntegration.Order == 8
+        order = 44;
+    elseif TimeIntegration.Order == 10
+        order = 55;
+    else
+        order = 11;
+    end
+    % Pre-compute the force vector for a polynomial variation of the force
+    % within a time step
+    forceHistory = ForcePadeTimeIntegration(order,SignalType,...
+                   ExciteParam,ns,dtP);
+    % Force vector
+    if SignalType == 0 || sum(F_dt.Neumann) == 0
+        F0 = F;
+    else
+        F0 = F_dt.Neumann;
+    end
+    % High-order Pade-based implicit time integrator
+    % Homogeneous Dirichlet BCs have been prescribed
+	if rho_inf == 1
+        % No amplitude decay
+      	[T,U] = PadeTimeIntegrator(order,ns,dtP,forceHistory,K,M,R,...
+                F0,U0,V0,[],dof_poi,nInterp);
+    else
+        % Numerical damping
+        order = order - 10;
+        [T,U] = PadeTimeIntegrator_ND(order,rho_inf,ns,dtP,forceHistory,...
+                K,M,R,F0,U0,V0,[],dof_poi,nInterp);
+	end
+%-------------Highly precise time integration method (HPTIM)--------------%
+elseif TimeIntegration.Method == 501
+    % HPTIM
+	[T,U] = HPTIM_Newmark(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim,TimeIntegration.Order);
+else
+    % Newmark method --> Default method if a wrong value was chosen by the
+    % user!
+    [T,U] = NewmarkMethod(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,ActiveDoF,...
+	        ExciteParam,SignalType,dt,tsim);
+end
+%-------------------------------------------------------------------------%
+%%
+
+% Switch to original numering of the segrees of freedom
+if save_var == 1
+    U = U(rinv,:);
+end
+
+% End the measurement of the computational time
+t_cpu = toc(timerVal);  
+disp(['Computational time to solve the equations of motion t_{cpu} = ' ...
+      num2str(t_cpu)]);
+
+end

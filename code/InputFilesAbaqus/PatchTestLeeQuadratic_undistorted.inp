@@ -1,0 +1,86 @@
+*Heading
+** Job name: PatchTestLeeQuadratic_undistorted Model name: Model-1
+** Lee & Bathe (1993) quadratic patch test (pure bending), undistorted mesh.
+** Plate [0,10] x [-1,1], E = 70 GPa, nu = 0.3, plane stress.
+** Spatially varying edge loads (NU) are defined in SpatialLoadingFunction.m.
+** Reconstructed from the result workspace PatchTestLeeQuadratic_undistorted_ndof12.mat.
+*Preprint, echo=NO, model=NO, history=NO, contact=NO
+**
+** PARTS
+**
+*Part, name=Plate
+*Node
+      1,            0,           -1
+      2,            5,           -1
+      3,           10,           -1
+      4,            0,            1
+      5,            5,            1
+      6,           10,            1
+*Element, type=CPS4
+1, 1, 2, 5, 4
+2, 2, 3, 6, 5
+*Nset, nset=Set-all, generate
+ 1, 6, 1
+*Elset, elset=Set-all, generate
+ 1, 2, 1
+** Section: Section-1
+*Solid Section, elset=Set-all, material=Aluminium
+1.,
+*End Part
+**
+**
+** ASSEMBLY
+**
+*Assembly, name=Assembly
+**
+*Instance, name=Plate-1, part=Plate
+*End Instance
+**
+*Nset, nset=Set-1, instance=Plate-1
+ 1, 4
+*Elset, elset=Set-1, instance=Plate-1
+ 1,
+*Nset, nset=Set-2, instance=Plate-1
+ 1
+*Nset, nset=Pressure, instance=Plate-1
+ 3, 6
+*Elset, elset=Pressure, instance=Plate-1
+ 2,
+*End Assembly
+**
+** MATERIALS
+**
+*Material, name=Aluminium
+*Density
+2700.,
+*Elastic
+ 7e+10, 0.3
+** ----------------------------------------------------------------
+**
+** STEP: Step-1
+**
+*Step, name=Step-1, nlgeom=NO
+*Static
+1., 1., 1e-05, 1.
+**
+** BOUNDARY CONDITIONS
+**
+** Name: BC-1 Type: Displacement/Rotation
+*Boundary
+Set-1, 1, 1
+** Name: BC-2 Type: Displacement/Rotation
+*Boundary
+Set-2, 2, 2
+**
+** LOADS
+**
+** Name: Load-1   Type: Pressure
+*Dsload
+Pressure, PNU, 1.
+**
+** OUTPUT REQUESTS
+**
+*Restart, write, frequency=0
+*Output, field, variable=PRESELECT
+*Output, history, variable=PRESELECT
+*End Step

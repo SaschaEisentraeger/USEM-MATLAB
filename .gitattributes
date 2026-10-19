@@ -1,0 +1,12 @@
+# Keep MATLAB sources byte-identical to the working copies (many files use
+# CRLF line endings and Latin-1 encoded umlauts).
+*.m        -text diff
+*.inp      -text
+*.md       text eol=lf
+*.bib      text eol=lf
+*.yml      text eol=lf
+*.cff      text eol=lf
+*.mat      binary
+*.pdf      binary
+*.nb       binary
+*.png      binary
