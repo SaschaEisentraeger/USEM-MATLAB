@@ -59,8 +59,8 @@ if isempty(coords)
 end
 %-----Changes-----%
 % Lchar = mean(sqrt(sum((coords - mean(coords)).^2,2)));
-Lchar = 2* max([sqrt((max(coords(:,1))-min(coords(:,1)))^2),...
-                sqrt((max(coords(:,1))-min(coords(:,1)))^2)]);
+Lchar = 2* max([max(coords(:,1))-min(coords(:,1)),...
+                max(coords(:,2))-min(coords(:,2))]);
 %-----Changes-----%
 
 % ---------------- Random displacement ----------------

@@ -34,12 +34,6 @@ for i = 1:number_of_BCs
     if strcmp(boundary_conditions(i).type,'fixed') || ...
        strcmp(boundary_conditions(i).type,'UxUy 0')
         nset = boundary_conditions(i).nset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
 
         [DOF] = CreateBoundaryConditions_Node(nset,'xy');
         
@@ -48,12 +42,6 @@ for i = 1:number_of_BCs
     elseif strcmp(boundary_conditions(i).type,'XSYMM') || ...
            strcmp(boundary_conditions(i).type,'Ux 0')
         nset = boundary_conditions(i).nset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
         
         [DOF] = CreateBoundaryConditions_Node(nset,'x');
         
@@ -62,12 +50,6 @@ for i = 1:number_of_BCs
     elseif strcmp(boundary_conditions(i).type,'YSYMM') || ...
            strcmp(boundary_conditions(i).type,'Uy 0')
         nset = boundary_conditions(i).nset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
        
     [DOF] = CreateBoundaryConditions_Node(nset,'y');
 

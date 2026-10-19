@@ -36,7 +36,7 @@ Start_Sim          % static Lee & Bathe cubic patch test on a distorted mesh, p 
 
 The model is defined in an ABAQUS input file (`code/InputFilesAbaqus`). The parameters
 (degree, analysis type, mass matrix, time integration, …) are set at the top of `Start_Sim.m`.
-`Start_Sim.m` requires the Parallel Computing Toolbox, see
+The Parallel Computing Toolbox is optional (parallel element assembly), see
 [Getting started](docs/02-getting-started.md).
 
 ## Repository layout
@@ -66,7 +66,7 @@ literature/                annotated bibliography (README.md, references.bib); P
 
 ```matlab
 cd tests
-run_tests             % about 530 tests, roughly 2 minutes, only base MATLAB required
+run_tests             % about 620 tests, roughly 2 minutes, only base MATLAB required
 ```
 
 Among other things, the suite checks the following:
@@ -78,8 +78,8 @@ Among other things, the suite checks the following:
 - reading of the ABAQUS input files;
 - accuracy and convergence order of the time integrators.
 
-Tests of known open bugs are tagged `KnownIssue` and excluded by default; see
-[docs/known-issues.md](docs/known-issues.md). GitHub Actions runs the suite on every push
+Tests of open bugs are tagged `KnownIssue` and excluded by default (there are none at the
+moment). Remaining limitations are listed in [docs/known-issues.md](docs/known-issues.md). GitHub Actions runs the suite on every push
 (`.github/workflows/tests.yml`).
 
 ## Key references

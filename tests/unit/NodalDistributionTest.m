@@ -48,7 +48,6 @@ classdef NodalDistributionTest < matlab.unittest.TestCase
             x = nodal_distribution(p, 3);
             tc.verifyEqual(x, -cos(pi*(0:p)'/p), 'AbsTol', 1e-14);
         end
-    end
 
         function unknownDistributionIsRejected(tc)
             tc.verifyError(@() nodal_distribution(3, 4), 'nodal_distribution:ndist');

@@ -5,7 +5,7 @@
 | Product | Needed for |
 |---|---|
 | MATLAB R2018b or newer (developed and tested with R2026a) | everything |
-| Parallel Computing Toolbox | `Start_Sim.m` opens a parallel pool unconditionally (lines 33–41). Without the toolbox, delete these lines; the `parfor` loops then run serially. |
+| Parallel Computing Toolbox (optional) | `Start_Sim.m` opens a parallel pool if the toolbox is available; otherwise the `parfor` loops run serially |
 | Symbolic Math Toolbox | `MMS_2D` (manufactured solutions), `HigherOrderDisplacementField.m`, Padé helpers |
 | Signal Processing Toolbox | `FFT_Signal` with `SignalType = 5` (`findpeaks`) |
 | Optimization Toolbox | `Global2LocalCoordinatesQuad` (`fsolve`), not used in the main flow |

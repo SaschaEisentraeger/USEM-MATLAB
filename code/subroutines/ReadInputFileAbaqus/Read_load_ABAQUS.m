@@ -306,7 +306,12 @@ while ftell(fid)~=end_position
         % gravity magnitude
       	gravity(counter_g).amplitude(1,1) = str2double(TEMP(ia(2)+1:ia(3)-1));
        	gravity(counter_g).amplitude(2,1) = str2double(TEMP(ia(3)+1:ia(4)-1));
-       	gravity(counter_g).amplitude(3,1) = str2double(TEMP(ia(4)+1:end));
+        % (a third component of the direction, if present, is ignored)
+        if numel(ia) > 4
+            gravity(counter_g).amplitude(3,1) = str2double(TEMP(ia(4)+1:ia(5)-1));
+        else
+            gravity(counter_g).amplitude(3,1) = str2double(TEMP(ia(4)+1:end));
+        end
 
     end
     
@@ -339,13 +344,17 @@ for i = 1:number_of_sets
         % node set name
         set_name = ['*Nset, nset=' cload(counter_c).set_name];
         while ftell(fid)~=end_position
-            if ~contains(TEMP,set_name)
+            if ~isSetHeader(TEMP,set_name)
             else
+                flag_generate = contains(TEMP,'generate');
                 while true
                     TEMP = fgetl(fid);
                     C = textscan(TEMP,'%d','Delimiter',',');
                     if isempty(C{1,1})
                         break
+                    end
+                    if flag_generate
+                        C{1,1} = (C{1,1}(1):C{1,1}(3):C{1,1}(2))';
                     end
                     cload(counter_c).nset= [cload(counter_c).nset; C{1,1}];
                 end
@@ -366,7 +375,7 @@ for i = 1:number_of_sets
         set_name_el = ['*Elset, elset=' dsload(counter_d).set_name];
         while ftell(fid)~=end_position
             % node set
-            if contains(TEMP,set_name)
+            if isSetHeader(TEMP,set_name)
                 while true
                     if contains(TEMP,'generate')
                         TEMP = fgetl(fid);
@@ -384,7 +393,7 @@ for i = 1:number_of_sets
                 end
             end
             % element set
-            if contains(TEMP,set_name_el)
+            if isSetHeader(TEMP,set_name_el)
                 while true
                     if contains(TEMP,'generate')
                         TEMP = fgetl(fid);
@@ -414,7 +423,7 @@ for i = 1:number_of_sets
         % element set name
         set_name = ['*Elset, elset=' body_force(counter_bf).set_name];
         while ftell(fid)~=end_position
-            if ~contains(TEMP,set_name)
+            if ~isSetHeader(TEMP,set_name)
             else
                 while true
                     if contains(TEMP,'generate')
@@ -444,7 +453,7 @@ for i = 1:number_of_sets
         % element set name
         set_name = ['*Elset, elset=' gravity(counter_g).set_name];
         while ftell(fid)~=end_position
-            if ~contains(TEMP,set_name)
+            if ~isSetHeader(TEMP,set_name)
             else
                 while true
                     if contains(TEMP,'generate')
@@ -487,4 +496,18 @@ end
 
 fclose('all');
 
+end
+
+
+function tf = isSetHeader(line, header)
+% True if line is the header of the set definition "header", e.g.
+% '*Nset, nset=Set-1' matches '*Nset, nset=Set-1, instance=Part-1' but not
+% '*Nset, nset=Set-10'.
+if ~ischar(line)
+    tf = false;
+    return
+end
+line = strtrim(line);
+n = numel(header);
+tf = strncmp(line, header, n) && (numel(line) == n || line(n+1) == ',');
 end

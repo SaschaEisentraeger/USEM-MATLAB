@@ -84,7 +84,7 @@ while ftell(fid)~=end_position
         	C = textscan(TEMP,'%f %f %f %f','delimiter', ',');
           	tend(counterSteps) = C{2};
         else
-            tend = 0;
+            tend(counterSteps) = 0;
     	end 
         
         TEMP = fgetl(fid);

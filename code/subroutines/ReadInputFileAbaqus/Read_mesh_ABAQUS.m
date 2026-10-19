@@ -69,8 +69,15 @@ TEMP = fgetl(fid);
 
 % Find the key word element
 while ~contains(TEMP,'*Element') && ftell(fid)~=end_position
-	C = textscan(TEMP,'%*s %f %f','delimiter', ',');
-	nodes(index,:) = [C{1,1} C{1,2}];
+	C = textscan(TEMP,'%f %f %f','delimiter', ',');
+    % The node labels are used as indices: they must be 1, 2, 3, ...
+    if C{1,1} ~= index
+        fclose(fid);
+        error('Read_mesh_ABAQUS:nodeLabels', ...
+             ['Node labels must be numbered consecutively from 1 ' ...
+              '(found label %d at position %d).'], C{1,1}, index);
+    end
+	nodes(index,:) = [C{1,2} C{1,3}];
     index = index + 1;
     TEMP = fgetl(fid);
 end

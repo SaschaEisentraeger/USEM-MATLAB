@@ -44,24 +44,24 @@ Time step selection inside the integrators:
 | 101, 601 | `CentralDifferenceMethod` | explicit, 2nd order |
 | 102 | `NohBatheMethod` | explicit, $p = 0.54$ |
 | 103 | `SoaresMethodExplicit` | |
-| 104 | `MirbagheriMethod` | first order observed in the tests ([KI-9](known-issues.md#ki-9)) |
+| 104 | `MirbagheriMethod` | Noh–Bathe with the factor $\eta = 1.025$ on the acceleration term of the predictor (dissipation against spurious oscillations); first order by design |
 | 105 | `KimMethodExplicit` | |
 | 106, 107 | `ZhangXingMethod1`, `ZhangXingMethod2` | $\rho = 1$ and $\rho = 0$ |
 | 108 | `ExplicitGeneralizedAlphaMethod` | $\rho_b = 1$ |
-| 109 | `AdaptiveHybridExplicitMethod` | not callable from `Solver_Transient` ([KI-8](known-issues.md#ki-8)) |
+| 109 | `AdaptiveHybridExplicitMethod` | not available: `Solver_Transient` stops with an error ([known issues](known-issues.md)) |
 | 201 | `KimExplicit_ho` | order 3 or 4 |
-| 202 | `KimMethod2Stage` | call broken ([KI-8](known-issues.md#ki-8)) |
+| 202 | `KimMethod2Stage` | two-stage explicit method |
 | 301 | `NewmarkMethod` | trapezoidal rule $\beta = 1/4$, $\gamma = 1/2$; also the fallback for unknown codes |
 | 302 | `HHTAlphaMethod` | $\alpha = -0.05$ |
 | 303 | `GeneralizedAlphaMethod` | $\rho_\infty = 0.8$ |
 | 304 | `BatheBaigMethod` | |
 | 305 | `b1b2_BatheMethod` | $\beta_1 = 1/3$ |
-| 306 | `rho_BatheMethod` | broken ([KI-7](known-issues.md#ki-7)) |
+| 306 | `rho_BatheMethod` | $\rho_\infty = 0$ |
 | 307 | `SoaresMethodImplicit` | |
 | 308, 309 | `KimMethodImplicit`, `KimMethodImplicitCollocation` | |
 | 401 | `KimLagrange_ho` | order 1–5 |
 | 402 | `SoaresMethodImplicit_ho` | |
-| 403 | Padé-based integrator | requires `PadeTimeIntegrator_ND_FORTRAN`, not in the repository |
+| 403 | Padé-based integrator | order `Order` = 2–10; $\rho_\infty$ = `TimeIntegration.rho` (1: `PadeTimeIntegrator`, < 1: `PadeTimeIntegrator_ND`, or the Fortran solver if it is on the path) |
 | 501 | `HPTIM_Newmark` | highly precise time integration |
 
 Common calling convention:
@@ -111,7 +111,8 @@ form for two frequencies and least squares otherwise.
 1. Assemble $\mathbf K$ and $\mathbf M$, apply homogeneous constraints.
 2. Undamped: `eigs(K_aa, M_aa, numEigen, EVP_Solver.type)`, giving $f = \sqrt{|\lambda|}/(2\pi)$
    in Hz. The full `eig` is used if `2*numEigen` exceeds the number of active DOFs.
-3. With damping: state-space form, eigenvalues in rad/s ([KI-10](known-issues.md#ki-10)).
+3. With damping: state-space form of $\lambda^2\mathbf M\mathbf u + \lambda\mathbf R\mathbf u + \mathbf K\mathbf u = \mathbf 0$,
+   giving $f = |\lambda|/(2\pi)$ in Hz and the displacement part of the eigenvectors.
 4. The first mode is plotted.
 
 Because $\mathbf K$ and $\mathbf M$ are unsymmetric on distorted meshes, eigenvalues can

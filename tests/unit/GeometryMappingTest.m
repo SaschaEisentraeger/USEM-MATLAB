@@ -66,12 +66,12 @@ classdef GeometryMappingTest < matlab.unittest.TestCase
         end
     end
 
-    methods (Test, TestTags = {'KnownIssue'})
+    methods (Test)
         function globalToLocalInvertsTheMapping(tc, shape)
-            % InverseMapping multiplies N' (instead of N) with the nodal
-            % coordinates, so every call fails with a dimension error
-            % (see docs/known-issues.md). Requires the Optimization
-            % Toolbox (fsolve).
+            % Requires the Optimization Toolbox (fsolve)
+            tc.assumeTrue(~isempty(ver('optim')) && ...
+                license('test', 'Optimization_Toolbox'), ...
+                'Optimization Toolbox not available.');
             [x, y, P] = usemTestElement(shape, 3);
             ref = [0.25 -0.6; -0.8 0.75; 0 0; 0.95 0.1];
             for k = 1:size(ref, 1)

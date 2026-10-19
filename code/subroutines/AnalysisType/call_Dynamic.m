@@ -129,7 +129,7 @@ if isempty(NOI) == 1 && save_var == 0
     NOI = unique(round(ActiveDoF/2));
     % Results of the first three active nodes are saved if nothing is
     % prescribed
-    NOI = NOI(1:3);
+    NOI = NOI(1:min(3,numel(NOI)));
 end
 
 %% Save variables for the solver
@@ -197,16 +197,19 @@ if ~TimeIntegration.SolverSave
     delete(['.' filesep 'subroutines' filesep 'Temp' filesep '*.mat'])
 end
 
-%% For Jing
-% Save the displacement results
-% Sort according to x-coordinate
-[~,idx] = sort(xCoor(NOI));
-IDsort = zeros(2*numel(idx),1);
-IDsort(1:2:end) = 2*idx-1;
-IDsort(2:2:end) = 2*idx;
-% Save only y-components of the displacement
-U = y_comp(:,IDsort(2:2:end),:);
-T = t_comp;
-save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-	  filesep name '_' IntMeth filesep name '_ndof' num2str(num_DoF)...
-	  '_Uy.mat'],'T','U','-v7.3')
+%% Export of the y-displacements of the nodes of interest (sorted by x)
+% Only possible if the results are saved and both displacement components
+% of every node of interest have been stored
+if saveWS && save_var == 0 && size(y_comp,2) == 2*numel(NOI)
+    % Sort according to x-coordinate
+    [~,idx] = sort(xCoor(NOI));
+    IDsort = zeros(2*numel(idx),1);
+    IDsort(1:2:end) = 2*idx-1;
+    IDsort(2:2:end) = 2*idx;
+    % Save only y-components of the displacement
+    U = y_comp(:,IDsort(2:2:end),:);
+    T = t_comp;
+    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
+          filesep name '_' IntMeth filesep name '_ndof' num2str(num_DoF)...
+          '_Uy.mat'],'T','U','-v7.3')
+end

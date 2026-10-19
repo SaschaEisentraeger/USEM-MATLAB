@@ -26,12 +26,13 @@ CPS8/CPE8 elements) and to start from one of the examples in
 ## 3.2 Requirements and conventions
 
 **Mesh**
-- Only the first `*Node` block is read, and only x and y. Node labels are ignored, so nodes
-  must be numbered consecutively from 1.
+- Only the first `*Node` block is read, and only x and y. Node labels must be numbered
+  consecutively from 1 (checked by the reader).
 - Element types ending in `4`/`4R` give 4-node elements, and types containing `8` give 8-node
   elements. One element type per model.
 - For 8-node meshes the **corner nodes must be numbered before the mid-side nodes**
-  (`pSpectralElement_NodesTopology` keeps nodes `1..nCorner`).
+  (`pSpectralElement_NodesTopology` keeps nodes `1..nCorner` and stops with an error
+  otherwise).
 - The element block must be followed directly by `*Nset`, `*End Part` or `*End Instance`.
 
 **Sections and materials**
@@ -43,8 +44,9 @@ CPS8/CPE8 elements) and to start from one of the examples in
 
 **Sets**
 - Sets used by boundary conditions and loads must be defined in the **assembly** (after
-  `*End Instance`), as CAE does. Otherwise the boundary condition reader never finds them and
-  loops forever ([known issues](known-issues.md#ki-6)).
+  `*End Instance`), as CAE does. Otherwise the boundary condition reader stops with the error
+  "Node set ... was not found". Set names are matched exactly (`Set-1` is not `Set-10`).
+- Node and element sets with `generate` are expanded by the readers (also for `*Cload`).
 - Boundary-condition set names must contain `Set` (`Set-1`, `_PickedSet3`, …).
 - A set on an **edge** must have a node set *and* an element set with the same name (CAE
   creates both when edges are picked). Only then can `pSpectralElement_BCs` add the

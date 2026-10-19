@@ -36,7 +36,7 @@ Start_Sim.m                         settings, parallel pool
 | `ShapeFunctions/1D/ShapeFunctions1D_SEM(p, xi, ndist)` | 1D shape functions, order `[xi=-1, xi=+1, interior]` |
 | `GeometryMapping/Jacobi_Matrix(p, [xi eta], x, y)` | $\mathbf J = [x_{,\xi}\ y_{,\xi};\ x_{,\eta}\ y_{,\eta}]$ |
 | `GeometryMapping/Local2GlobalCoordinatesQuad(p, P, [x y])` | $\mathbf x(\xi,\eta)$ |
-| `GeometryMapping/Global2LocalCoordinatesQuad` | inverse map with `fsolve` (broken, [KI-1](known-issues.md#ki-1)) |
+| `GeometryMapping/Global2LocalCoordinatesQuad` | inverse map with `fsolve` (Optimization Toolbox) |
 | `Quadrature/lgwt(n, a, b)` | Gauss–Legendre points and weights (G. von Winckel) |
 | `Quadrature/lglnodes(N)` | $N+1$ Gauss–Lobatto–Legendre points and weights (G. von Winckel) |
 | `NodalDistribution/nodal_distribution(p, ndist)` | supporting points on $[-1,1]$ |

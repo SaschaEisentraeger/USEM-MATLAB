@@ -45,6 +45,15 @@ NumElem = size(Topology_Node,1);
 % Number of corner nodes
 NumNodes = numel(unique(Topology_Node(:,1:4)));
 
+% The corner nodes are kept with their numbers, all other nodes are
+% renumbered. This requires the corner nodes to be numbered 1..NumNodes.
+CornerNodes = unique(Topology_Node(:,1:4));
+if ~isequal(double(CornerNodes(:)), (1:NumNodes)')
+    error('pSpectralElement_NodesTopology:cornerNodes', ...
+         ['The corner nodes must be numbered 1..%d (before the ' ...
+          'mid-side nodes of 8-node elements).'], NumNodes);
+end
+
 % Do not change the input data if: p_xi = p_eta = p_org = 1. 
 if pxi == p_org && peta == p_org && p_org == 1
     Topology_Node_p = Topology_Node;

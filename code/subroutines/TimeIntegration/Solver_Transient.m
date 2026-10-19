@@ -44,7 +44,7 @@ dof_poi(dof_poi == 0) = [];
 
 if save_var == 1
     % Save all degrees of freedom
-    dof_poi = 1:size(ActiveDoF,2);
+    dof_poi = 1:numel(ActiveDoF);
 elseif save_var == 0 && isempty(dof_poi)
     % If no node of interest has been specified, save DOFs 1 to 4
     dof_poi = [1 2 3 4];
@@ -118,15 +118,14 @@ if ~flag_mRHS
         [T,U] = ExplicitGeneralizedAlphaMethod(K,M,R,F,F_dt,U0,V0,...
                 num_DoF,dof_poi,ActiveDoF,ExciteParam,SignalType,dt,tsim);
     elseif TimeIntegration.Method == 109
-        % Load element matrices
-        load(['.' filesep 'subroutines' filesep 'Temp' filesep ...
-              'FE_Matrices.mat'],'MAT');
-        Ke = MAT.K;
-        Me = MAT.M;
         % Adaptive hybrid explicit method - Soares
-        [T,U] = AdaptiveHybridExplicitMethod(M,R,Ke,Me,F,F_dt,...
-                Topology_Node,Rayleigh,dof_poi,ActiveDoF,ExciteParam,...
-                SignalType,dt,tsim);
+        % AdaptiveHybridExplicitMethod works element by element and expects
+        % element matrices, a cell array DOF topology and triangular global
+        % matrices (it was written for another code). These data are not
+        % generated here.
+        error('Solver_Transient:method109', ...
+             ['Method 109 (adaptive hybrid explicit method) is not ' ...
+              'available in this code (see docs/known-issues.md).']);
 %----------------Explicit methods - higher order accuracy-----------------%
     elseif TimeIntegration.Method == 201
         % Kim method (3rd or 4th order)
@@ -136,8 +135,7 @@ if ~flag_mRHS
     elseif TimeIntegration.Method == 202
         % Kim method (4th order)
         [T,U] = KimMethod2Stage(K,M,R,F,F_dt,U0,V0,num_DoF,dof_poi,...
-                ActiveDoF,ExciteParam,SignalType,dt,tsim,...
-                TimeIntegration.Order);
+                ActiveDoF,ExciteParam,SignalType,dt,tsim);
 %------------------Implicit methods - 2nd order accuracy------------------%
     elseif TimeIntegration.Method == 301
         % Newmark method
@@ -219,11 +217,17 @@ if ~flag_mRHS
         % force within a time step
         forceHistory = ForcePadeTimeIntegration(order,SignalType,...
                        ExciteParam,ns,dtP);
-        % Matrices are saved as triangular matrices --> convert to a
-        % symmetric matrix
-        K0 = K + K';
-        M0 = M + M';
-        C0 = R + R';
+        % Matrices saved as triangular matrices are converted to full
+        % matrices (the unsymmetric matrices of this code are full)
+        if (istriu(K) || istril(K)) && ~isscalar(K)
+            K0 = K + K';
+            M0 = M + M';
+            C0 = R + R';
+        else
+            K0 = K;
+            M0 = M;
+            C0 = R;
+        end
         % Force vector
         if SignalType == 0 && sum(F_dt.Neumann) == 0
             F0 = F;
@@ -232,23 +236,26 @@ if ~flag_mRHS
         else
             F0 = F_dt.Neumann;
         end
-% % %         % High-order Pade-based implicit time integrator
-% % %         % Homogeneous Dirichlet BCs have been prescribed
-% % %     	if rho_inf == 1
-% % %             % No amplitude decay
-% % %           	[T,U] = PadeTimeIntegrator(order,ns,dtP,forceHistory,K0,M0,...
-% % %                     C0,F0,U0,V0,[],dof_poi,nInterp);
-% % %         else
+        % High-order Pade-based implicit time integrator
+        % Homogeneous Dirichlet BCs have been prescribed
+    	if rho_inf == 1
+            % No amplitude decay
+          	[T,U] = PadeTimeIntegrator(order,ns,dtP,forceHistory,K0,M0,...
+                    C0,F0,U0,V0,[],dof_poi,nInterp);
+        else
             % Numerical damping
             order = order - 10;
-% % %             % Matlab-solver
-% % %             [T,U] = PadeTimeIntegrator_ND(order,rho_inf,ns,dtP,...
-% % %                     forceHistory,K0,M0,C0,F0,U0,V0,[],dof_poi,nInterp);
-            % Fortran-solver
-            [T,U,~,~,~,~,~,~,tF] = PadeTimeIntegrator_ND_FORTRAN(order,...
-                                   rho_inf,ns,dtP,forceHistory,K0,M0,C0,...
-                                   F0,U0,V0,[],dof_poi,nInterp);
-% % %     	end
+            if exist('PadeTimeIntegrator_ND_FORTRAN','file')
+                % Fortran-solver (not part of the repository)
+                [T,U] = PadeTimeIntegrator_ND_FORTRAN(order,rho_inf,ns,...
+                        dtP,forceHistory,K0,M0,C0,F0,U0,V0,[],dof_poi,...
+                        nInterp);
+            else
+                % Matlab-solver
+                [T,U] = PadeTimeIntegrator_ND(order,rho_inf,ns,dtP,...
+                        forceHistory,K0,M0,C0,F0,U0,V0,[],dof_poi,nInterp);
+            end
+    	end
 %-------------Highly precise time integration method (HPTIM)--------------%
     elseif TimeIntegration.Method == 501
         % HPTIM

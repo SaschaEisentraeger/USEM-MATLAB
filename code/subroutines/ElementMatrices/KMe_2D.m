@@ -73,24 +73,27 @@ IPKg = Local2GlobalCoordinatesQuad(p,IPK,[xCoor,yCoor]);
 % Element mass matrix
 M_element = zeros(ndof,ndof);
 
+% Nodal quadrature is only used for spectral elements on GLL points (only
+% in this case the nodal quadrature achieves optimal results)
+if lumping == 2 && ndist == 1
+    % Use the HRZ-method for elements with equidistant points
+    lumping = 4;
+elseif lumping == 2 && ndist == 3
+    % Use the row-sum method for elements with GLC points
+    lumping = 3;
+end
+
 if lumping == 2
-    if ndist == 1
-        % Use the HRZ-method for elements with equidistant points
-        lumping = 4;
-    elseif ndist == 2
-        % Nodal quadrature for spectral elements on GLL points (only in
-        % this case the nodal quadrature achieves optimal results)
-        % Gauss-Lobatto points (numerical integration)
-        [xiM,wxiM,~]   = lglnodes(pxi);
-        [etaM,wetaM,~] = lglnodes(peta);
-    elseif ndist == 3
-        % Use the row-sum method for elements with GLC points
-        lumping = 3;
-    end
+    % Gauss-Lobatto points (numerical integration)
+    [xiM,wxiM,~]   = lglnodes(pxi);
+    [etaM,wetaM,~] = lglnodes(peta);
 else
-    % Gauss-Legendre points (numerical integration)
-    [xiM,wxiM]   = lgwt(pxi+1,-1,1);
-    [etaM,wetaM] = lgwt(peta+1,-1,1);
+    % Gauss-Legendre points (numerical integration): 2p points per
+    % direction as in Me_2D. On distorted elements the metric shape
+    % functions are not polynomials of degree p in (xi,eta), so p+1 points
+    % would under-integrate the unsymmetric mass matrix.
+    [xiM,wxiM]   = lgwt(2*pxi,-1,1);
+    [etaM,wetaM] = lgwt(2*peta,-1,1);
 end
 
 % Identity matrix

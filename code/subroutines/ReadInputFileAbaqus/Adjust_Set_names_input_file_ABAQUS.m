@@ -51,10 +51,11 @@ end
 if isempty(pathstr)
     fout = fopen([name '_adjusted' ext],'w');
 else
-    fout = fopen([pathstr '\' name '_adjusted' ext],'w');
+    fout = fopen(fullfile(pathstr,[name '_adjusted' ext]),'w');
 end
 
-fprintf(fout,ContNew);
+% '%s': the file content must not be interpreted as a format string
+fprintf(fout,'%s',ContNew);
 
 % Close File
 fclose('all');

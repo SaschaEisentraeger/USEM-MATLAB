@@ -91,6 +91,16 @@ classdef TopologyTest < matlab.unittest.TestCase
             end
         end
 
+        function cornerNodesMustBeNumberedFirst(tc)
+            % 8-node element whose mid-side nodes are numbered between
+            % the corner nodes
+            x = [0 1 2 2 2 1 0 0]'; y = [0 0 0 1 2 2 2 1]';
+            P.pxi = 2; P.peta = 2; P.ndist = 2;
+            tc.verifyError(@() pSpectralElement_NodesTopology( ...
+                [1 3 5 7 2 4 6 8], x, y, P, 2), ...
+                'pSpectralElement_NodesTopology:cornerNodes');
+        end
+
         function linearMeshIsUnchangedForPOne(tc)
             [nodes, topo] = usemTestMesh(2, 2, 2, 2, 1);
             model = usemBuildModel(nodes, topo, 1);

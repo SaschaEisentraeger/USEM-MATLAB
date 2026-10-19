@@ -55,12 +55,11 @@ classdef DirichletBCTest < matlab.unittest.TestCase
         end
     end
 
-    methods (Test, TestTags = {'KnownIssue'})
+    methods (Test)
         function threeNodeSetIsNotMistakenForGenerateTriplet(tc)
-            % DirichletBCs_homogeneous treats ANY node set with three
-            % entries [a; b; c] as an ABAQUS "generate" triplet a:c:b if
-            % that range ends at b. The set {2, 8, 3} (e.g. an edge of a
-            % p = 2 element) is turned into {2, 5, 8}.
+            % Node sets are used as they are; "generate" sets are expanded
+            % by the reader. A set {2, 8, 3} (e.g. an edge of a p = 2
+            % element) used to be turned into the range 2:3:8.
             bc = struct('set_name', 'edge', 'amplitude', [], 'type', 'Ux 0', ...
                         'nset', [2; 8; 3], 'elset', [], 'step_name', 'Step-1');
             [~, fixed] = evalc('DirichletBCs_homogeneous(bc)');

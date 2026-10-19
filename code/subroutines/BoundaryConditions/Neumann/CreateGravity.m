@@ -44,8 +44,11 @@ if isempty(elset)
     elset = (1:nElem);
 end
 
+% Number of loaded elements (the loops below run over the element set)
+nElem = numel(elset);
+
 % Number of different materials
-NoMat = numel(mat);
+NoMat = numel(mat.elset);
 
 % Initialize the system load vector
 F_mech = zeros(num_DoF,1);

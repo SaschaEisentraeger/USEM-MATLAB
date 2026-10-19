@@ -158,25 +158,28 @@ classdef ElementMatricesTest < matlab.unittest.TestCase
         end
     end
 
-    methods (Test, TestTags = {'KnownIssue'})
+    methods (Test)
         function nodalQuadratureFallsBackForNonGLLNodes(tc, p)
-            % lumping = 2 with ndist = 1 or 3 is documented to fall back to
-            % HRZ / row-sum lumping, but the quadrature points are never
-            % defined in that branch (see docs/known-issues.md).
+            % lumping = 2 with ndist = 1 (equidistant) falls back to HRZ
+            % lumping, with ndist = 3 (GLC) to row-sum lumping.
             [x, y, P] = usemTestElement('trapezoid', p, 1);
             M = Me_2D(P, 1, x, y, 2);
-            tc.verifyTrue(isdiag(M));
+            tc.verifyEqual(M, Me_2D(P, 1, x, y, 4));
+            [~, M2] = KMe_2D(P, tc.C, 1, x, y, 2);
+            tc.verifyTrue(isdiag(M2));
+            [x, y, P] = usemTestElement('trapezoid', p, 3);
+            M = Me_2D(P, 1, x, y, 2);
+            tc.verifyEqual(M, Me_2D(P, 1, x, y, 3));
             [~, M2] = KMe_2D(P, tc.C, 1, x, y, 2);
             tc.verifyTrue(isdiag(M2));
         end
 
         function combinedRoutineMatchesSeparateMassOnDistortedElements(tc, distorted)
             % KMe_2D (used by the dynamic, modal and frequency-domain
-            % analyses) integrates the unsymmetric mass matrix with p+1
-            % Gauss points per direction, Me_2D with 2p. On distorted
+            % analyses) and Me_2D integrate the unsymmetric mass matrix
+            % with the same 2p Gauss points per direction. On distorted
             % elements the metric functions are not polynomials of degree
-            % p in (xi, eta), so p+1 points under-integrate N'*M*detJ
-            % (see docs/known-issues.md).
+            % p in (xi, eta), so fewer points would under-integrate it.
             [x, y, P] = usemTestElement(distorted, 3);
             [~, M2] = KMe_2D(P, tc.C, 2.5, x, y, 1);
             M = Me_2D(P, 2.5, x, y, 1);

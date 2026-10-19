@@ -423,7 +423,7 @@ acc = dsp;  % accelerations
 dM = decomposition(M);
 Fb = (dM\F);
 
-[pcoe,qcoe,rs,cf] = TimeIntgCoeff(11,rho_infinity);
+[pcoe,qcoe,rs,cf] = TimeIntgCoeff(1,rho_infinity);
 r = rs(1);
 Kd = sparse((r*r)*M + r*C + K);
 dKd = decomposition(Kd);
@@ -446,7 +446,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -537,7 +537,7 @@ acc = dsp;  % accelerations
 dM = decomposition(M);
 Fb = (dM\F);
 
-[pcoe,qcoe,rs,cf] = TimeIntgCoeff(22,rho_infinity);
+[pcoe,qcoe,rs,cf] = TimeIntgCoeff(2,rho_infinity);
 r = rs(1);
 Kd = sparse((r*r)*M + r*C + K);
 [L,U,p,q] = lu(Kd,'vector');
@@ -562,7 +562,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -659,7 +659,7 @@ acc = dsp;  % accelerations
 dM = decomposition(M);
 Fb = (dM\F);
 
-[pcoe, qcoe, rs, cf] = TimeIntgCoeff(33,rho_infinity);
+[pcoe, qcoe, rs, cf] = TimeIntgCoeff(3,rho_infinity);
 
 r1 = real(rs(1));
 Kd1 = sparse((r1*r1)*M + r1*C + K);
@@ -691,7 +691,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -795,7 +795,7 @@ acc = dsp;  % accelerations
 dM = decomposition(M);
 Fb = (dM\F);
 
-[pcoe, qcoe, rs, cf] = TimeIntgCoeff(44,rho_infinity);
+[pcoe, qcoe, rs, cf] = TimeIntgCoeff(4,rho_infinity);
 
 r1 = rs(1);
 Kd1 = sparse((r1*r1)*M + r1*C + K);
@@ -829,7 +829,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -940,7 +940,7 @@ acc = dsp;  % accelerations
 dM = decomposition(M);
 Fb = (dM\F);
 
-[pcoe, qcoe, rs, cf] = TimeIntgCoeff(55,rho_infinity);
+[pcoe, qcoe, rs, cf] = TimeIntgCoeff(5,rho_infinity);
 
 r1 = real(rs(1));
 Kd1 = sparse((r1*r1)*M + r1*C + K);
@@ -980,7 +980,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);

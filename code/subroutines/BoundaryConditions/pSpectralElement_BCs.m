@@ -55,20 +55,8 @@ for i = 1:number_of_ds
         
     % Node set for the ith boundary condition
 	nset = boundary_conditions(i).nset;
-	if size(nset,1) == 3
-        nset1 = (nset(1):nset(3):nset(2))';
-        if nset1(end) == nset(2)
-            nset = nset1;
-        end
-	end
     % Element set for the ith boundary condition
     elset = boundary_conditions(i).elset;
-	if size(elset,1) == 3
-        elset1 = (elset(1):elset(3):elset(2))';
-        if elset1(end) == elset(2)
-           	elset = elset1;
-        end
-	end
     
     if ~isempty(elset)
         % Matrix containing the nodes for an element edge
@@ -141,20 +129,8 @@ number_of_ds = size(dsload,1);
 for i = 1:number_of_ds
     % Node set for the ith distributed load
 	nset = dsload(i).nset;
-	if size(nset,1) == 3
-        nset1 = (nset(1):nset(3):nset(2))';
-        if nset1(end) == nset(2)
-            nset = nset1;
-        end
-	end
     % Element set for the ith distributed load
     elset = dsload(i).elset;
-	if size(elset,1) == 3
-        elset1 = (elset(1):elset(3):elset(2))';
-        if elset1(end) == elset(2)
-           	elset = elset1;
-        end
-	end
     % Matrix containing the nodes for an element edge
     pl.pxi  = 1;
     pl.peta = 1;

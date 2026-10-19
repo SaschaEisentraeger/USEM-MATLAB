@@ -124,13 +124,8 @@ NP = zeros(NumElem,1);
 for i = 1:NumElem
     % Material data - Elasticity matrix
     for klm = 1:num_mat
-        if size(material_elset{klm},1) == 3
-            val_Elset = (material_elset{klm}(1): ...
-                         material_elset{klm}(3): ...
-                         material_elset{klm}(2))';
-        else
-            val_Elset = material_elset{klm};
-        end
+        % Element sets are expanded by the reader (incl. generate)
+        val_Elset = material_elset{klm};
         val =  (val_Elset == i);
         if sum(val) == 1
             break;

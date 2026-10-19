@@ -50,7 +50,7 @@ if Ident == 1
     LoadVal = Amp*120*y;
 elseif Ident == 2
     % Traction load
-    LoadVal = -Amp*6*y.^2 + 6;
+    LoadVal = Amp*(6 - 6*y.^2);
 end
 %
 %-------------------------------------------------------------------------%

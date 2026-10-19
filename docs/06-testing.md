@@ -7,7 +7,7 @@ cd tests
 run_tests                       % unit + integration tests (about 2 minutes)
 run_tests('unit')               % only tests/unit
 run_tests('integration')        % only tests/integration
-run_tests('KnownIssues', true)  % also the tests of open bugs (they fail)
+run_tests('KnownIssues', true)  % also tests tagged KnownIssue (open bugs; none at the moment)
 run_tests('Coverage', true)     % Cobertura coverage report of code/subroutines
 ```
 
@@ -37,7 +37,7 @@ Every test class puts `code/subroutines` (with subfolders, as `Start_Sim.m` does
 | `MaterialTest` | Hooke matrices: symmetry, positive definiteness, Lamé constants, plane stress/strain reduction against closed forms, transverse isotropy and rotations |
 | `ElementMatricesTest` | **rigid-body modes in the right and left null space**, rank $n-3$, symmetry on parallelograms (identical to the classical element), unsymmetry on distorted elements, constant-strain energy, rotation invariance $\mathbf K' = \mathbf T\mathbf K\mathbf T^{\mathsf T}$; mass: total mass, symmetry, diagonal GLL nodal quadrature, lumping |
 | `TopologyTest` | DOF and edge connectivity, boundary edges, number and position of the high-order nodes on distorted 4- and 8-node meshes |
-| `TimeIntegrationTest` | 18 integrators on a 2-DOF oscillator: free vibration, step load, **convergence order**, multiple right-hand sides |
+| `TimeIntegrationTest` | 20 integrators on a 2-DOF oscillator: free vibration, step load, **convergence order**, multiple right-hand sides, velocity and acceleration of the central difference method |
 | `ExcitationAndDampingTest` | excitation signals and their derivatives (finite differences), Rayleigh damping parameters |
 
 ## 6.2 Integration tests (`tests/integration`)
@@ -47,7 +47,10 @@ Every test class puts `code/subroutines` (with subfolders, as `Start_Sim.m` does
 | `PatchTest` | displacement patch tests on regular, angular, curved and combined distorted meshes for $p = 1\dots4$, plane stress and plane strain: linear fields, all harmonic fields $(\operatorname{Re} z^k, -\operatorname{Im} z^k)$ with $k\le p$, and pure bending are reproduced **to machine precision**. Control experiment: the classical symmetric element fails on the same curved mesh. Also checks that fields of higher degree are not exact, and exponential p-convergence for $(e^x\cos y, -e^x\sin y)$. |
 | `LeeBathePatchTest` | the Lee & Bathe patch tests (reference data in `tests/fixtures/reference`), repeated with the steps of `call_Static`: the quadratic test matches the analytical pure-bending solution for all meshes and $p\ge2$; the cubic test for $p = 3$ is mesh-independent and matches the stored solution |
 | `AbaqusInputTest` | end to end: the input files in `code/InputFilesAbaqus` are read, lifted to degree $p$ (`pSpectralElement_*`) and compared with the reference models; static analysis from the input file |
-| `DirichletBCTest` | homogeneous and prescribed displacements (elimination), uniaxial stretch on a distorted mesh |
+| `DirichletBCTest` | homogeneous and prescribed displacements (elimination), uniaxial stretch on a distorted mesh, node sets used as given |
+| `AbaqusReaderTest` | reader robustness with modified input files: exact set names (`Set-1` vs. `Set-10`), missing sets (error instead of an endless loop), U2 + U3 in separate lines, `%` in the file, node labels, gravity, `*Cload` on a generated set |
+| `LoadsTest` | body forces on element subsets, several body forces, gravity with the density of each material, one or several load cases, amplitude of spatially varying loads |
+| `SolverTransientTest` | `Solver_Transient` as called by `call_Dynamic` (input from `subroutines/Temp`): methods 301, 306, 202, 403 (undamped and damped Padé), all DOFs saved with `save_var = 1`, error for method 109 |
 
 ## 6.3 Helpers and fixtures
 

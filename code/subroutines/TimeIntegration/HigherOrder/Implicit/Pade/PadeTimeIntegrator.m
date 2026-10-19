@@ -382,7 +382,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -490,7 +490,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -616,7 +616,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -755,7 +755,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -908,7 +908,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);
@@ -1076,7 +1076,7 @@ if nnzIC ~= 0
     vel(:,1) = v0(pDOF);
 	
 	% Initial acceleration --> normalized with dt^2
-	fn = ft(1,:)*[1 (-0.5).^(1:npt-1)]'; % force at t=0
+	fn = ft(1,:)*[1 (-0.5).^(1:size(ft,2)-1)]'; % force at t=0
     acc(:,1) = Ax1(pDOF) + fn*Fb(pDOF);
 else
 	x = zeros(2*ndof,1);

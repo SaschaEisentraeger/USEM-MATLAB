@@ -29,15 +29,18 @@ addpath(path1,path2);
 % 'preferences' in the command window and go to Parallel Computing Toolbox
 % --> Cluster Profile Manager
 %-------------------------------------------------------------------------%
-% Check existing parallel pool
-PoolData = gcp('nocreate');
-if isempty(PoolData)
-    % Number of physical cores available
-    NCores = feature('numcores');
-    % Control maximum number of computational threads
-    maxNumCompThreads(NCores);
-    % Start the parallel pool
-    poolobj = parpool(NCores);
+% Without the Parallel Computing Toolbox the parfor loops run serially
+if ~isempty(ver('parallel')) && license('test','Distrib_Computing_Toolbox')
+    % Check existing parallel pool
+    PoolData = gcp('nocreate');
+    if isempty(PoolData)
+        % Number of physical cores available
+        NCores = feature('numcores');
+        % Control maximum number of computational threads
+        maxNumCompThreads(NCores);
+        % Start the parallel pool
+        poolobj = parpool(NCores);
+    end
 end
 
 %% Abaqus Input File

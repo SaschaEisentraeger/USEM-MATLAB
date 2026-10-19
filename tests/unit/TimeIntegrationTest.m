@@ -10,15 +10,16 @@ classdef TimeIntegrationTest < matlab.unittest.TestCase
     %                            dtmax, tsim, ...)
 
     properties (TestParameter)
-        % handle, extra arguments, observed order of accuracy on this
-        % problem (Mirbagheri: first order observed, see
-        % docs/known-issues.md; rho-Bathe: see the KnownIssue test)
+        % handle, extra arguments, order of accuracy on this problem
+        % (Mirbagheri: first order by design, the factor eta = 1.025 on
+        % the acceleration term of the predictor adds dissipation)
         scheme = struct( ...
             'Newmark',            {{@NewmarkMethod,                {}, 2}}, ...
             'HHTAlpha',           {{@HHTAlphaMethod,               {}, 2}}, ...
             'GeneralizedAlpha',   {{@GeneralizedAlphaMethod,       {}, 2}}, ...
             'BatheBaig',          {{@BatheBaigMethod,              {}, 2}}, ...
             'b1b2Bathe',          {{@b1b2_BatheMethod,             {}, 2}}, ...
+            'rhoBathe',           {{@rho_BatheMethod,              {}, 2}}, ...
             'KimImplicit',        {{@KimMethodImplicit,            {}, 2}}, ...
             'KimCollocation',     {{@KimMethodImplicitCollocation, {}, 2}}, ...
             'CentralDifference',  {{@CentralDifferenceMethod,      {false}, 2}}, ...
@@ -30,6 +31,7 @@ classdef TimeIntegrationTest < matlab.unittest.TestCase
             'ZhangXing2',         {{@ZhangXingMethod2,             {}, 2}}, ...
             'ExplicitGenAlpha',   {{@ExplicitGeneralizedAlphaMethod, {}, 2}}, ...
             'KimExplicitHO3',     {{@KimExplicit_ho,               {3}, 3}}, ...
+            'KimTwoStage',        {{@KimMethod2Stage,              {}, 2}}, ...
             'KimLagrangeHO3',     {{@KimLagrange_ho,               {3}, 3}});
     end
 
@@ -117,25 +119,20 @@ classdef TimeIntegrationTest < matlab.unittest.TestCase
                 end
             end
         end
-    end
 
-    methods (Test, TestTags = {'KnownIssue'})
-        function rhoBatheMethodRuns(tc)
-            % rho_BatheMethod names its 5th argument Fdt but uses F_dt
-            % (method 306, see docs/known-issues.md).
-            [T, U] = integrate(tc, {@rho_BatheMethod, {}, 2}, 0.01, [0; 0], [1; 0]);
+        function centralDifferenceVelocityAndAcceleration(tc)
+            % V(k,:) and A(k,:) must belong to the time T(k) (they used to
+            % be shifted by one step)
+            dt = 0.01;
+            dtmax = dt*[1.5 1.7 1];
+            [~, T, U, V, A] = evalc(['CentralDifferenceMethod(tc.K, tc.M, zeros(2), ' ...
+                '[0;0], zeros(2,1), [1;0], zeros(2,1), 2, [1 2], [1;2], ' ...
+                'tc.tsim, 0, dtmax, tc.tsim, false)']);
+            Vex = 0.5*[-sin(T) - sqrt(3)*sin(sqrt(3)*T), -sin(T) + sqrt(3)*sin(sqrt(3)*T)];
+            Aex = 0.5*[-cos(T) - 3*cos(sqrt(3)*T), -cos(T) + 3*cos(sqrt(3)*T)];
             tc.verifyLessThan(max(abs(U(:) - reshape(exactFree(T), [], 1))), 1e-3);
-        end
-
-        function mirbagheriMethodIsSecondOrder(tc)
-            % Observed convergence rate ~1 on the free-vibration problem.
-            dt = [0.02 0.01];
-            e = zeros(size(dt));
-            for k = 1:2
-                [T, U] = integrate(tc, {@MirbagheriMethod, {}, 2}, dt(k), [0; 0], [1; 0]);
-                e(k) = max(abs(U(:) - reshape(exactFree(T), [], 1)));
-            end
-            tc.verifyGreaterThan(log2(e(1)/e(2)), 1.7);
+            tc.verifyLessThan(max(abs(V(:) - Vex(:))), 2e-3);
+            tc.verifyLessThan(max(abs(A(:) - Aex(:))), 5e-3);
         end
     end
 end

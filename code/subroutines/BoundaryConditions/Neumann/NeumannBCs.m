@@ -39,8 +39,6 @@ function [F,F_dt] = NeumannBCs(p,cload,dsload,body_force,gravity,mat,...
 % Check for multiple load cases (right-hand sides)
 if ~exist('flag_mRHS','var')
     flag_mRHS = false;
-    % Only one load case is considered
-    nLC = 1;
 end
 
 % Number of different loads that are applied to the system
@@ -73,6 +71,9 @@ end
 if flag_mRHS
     nLC = number_of_cloads + number_of_dsloads + ...
           number_of_body_forces + number_of_gravities;
+else
+    % Only one load case is considered
+    nLC = 1;
 end
 
 % Initialize force vector
@@ -86,12 +87,6 @@ for i = 1:number_of_cloads
     % apply a force in x-direction
     if strcmp(cload(i).type,'f_x') || strcmp(cload(i).type,'f_x_dt')
         nset = cload(i).nset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
         nset = nset(nset <= num_Nodes);
         
         [F_mech] = CreateForce(nset,num_DoF,cload(i).amplitude,'x');
@@ -112,12 +107,6 @@ for i = 1:number_of_cloads
     % apply a force in y-direction
     elseif strcmp(cload(i).type,'f_y') || strcmp(cload(i).type,'f_y_dt')
         nset = cload(i).nset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
         nset = nset(nset <= num_Nodes);
         
         [F_mech] = CreateForce(nset,num_DoF,cload(i).amplitude,'y');
@@ -145,18 +134,6 @@ for i = 1:number_of_dsloads
     if contains(dsload(i).type,'Pressure')
         nset = dsload(i).nset;
         elset = dsload(i).elset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
-        if size(elset,1) == 3
-            elset1 = (elset(1):elset(3):elset(2))';
-            if elset1(end) == elset(2)
-                elset = elset1;
-            end
-        end
         [NSET] = BC_Edge_sub(p,Topology_Node,nset,elset);
         
         % Uniform or spatially varying pressure distribution
@@ -189,18 +166,6 @@ for i = 1:number_of_dsloads
     elseif contains(dsload(i).type,'Traction')
         nset = dsload(i).nset;
         elset = dsload(i).elset;
-        if size(nset,1) == 3
-            nset1 = (nset(1):nset(3):nset(2))';
-            if nset1(end) == nset(2)
-                nset = nset1;
-            end
-        end
-        if size(elset,1) == 3
-            elset1 = (elset(1):elset(3):elset(2))';
-            if elset1(end) == elset(2)
-                elset = elset1;
-            end
-        end
         [NSET] = BC_Edge_sub(p,Topology_Node,nset,elset);
 
         % Uniform or spatially varying surface traction
@@ -237,7 +202,7 @@ end
 for i = 1:number_of_body_forces
     counterLC = counterLC + 1;
     [F_mech] = CreateBload(p,xCoor,yCoor,num_DoF,Topology_Node,...
-	           body_force);
+	           body_force(i));
     
 	if flag_mRHS
 		if strcmp(body_force(i).type,'Body_force')
@@ -258,15 +223,15 @@ end
 for i = 1:number_of_gravities
     counterLC = counterLC + 1;
     [F_mech] = CreateGravity(p,xCoor,yCoor,num_DoF,Topology_Node,...
-	           gravity,mat);
+	           gravity(i),mat);
 	if flag_mRHS
-		if strcmp(body_force(i).type,'Body_force')
+		if strcmp(gravity(i).type,'Body_force')
 			F(1:num_DoF,counterLC) = F_mech;
 		else
 			F_dt(1:num_DoF,counterLC) = F_mech;
 		end
 	else
-		if strcmp(body_force(i).type,'Body_force')
+		if strcmp(gravity(i).type,'Body_force')
 			F(1:num_DoF,1) = F(1:num_DoF,1) + F_mech;
 		else
 			F_dt(1:num_DoF,1) = F_dt(1:num_DoF,1) + F_mech;

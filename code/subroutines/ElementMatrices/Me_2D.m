@@ -36,10 +36,11 @@
 %-------------------------------------------------------------------------%
 function [M_element] = Me_2D(p,rho,xCoor,yCoor,lumping,nIPxi,nIPeta)
 
+% Polynomial degrees in xi and eta
+pxi = p.pxi;
+peta = p.peta;
+
 if nargin == 5
-    % Polynomial degrees in xi and eta
-    pxi = p.pxi;
-    peta = p.peta;
     % Number of integration points
     d = 2;
     nIPxi = d*pxi;
@@ -59,22 +60,20 @@ ndof = 2*numel(xCoor);
 % Element mass matrix
 M_element = zeros(ndof,ndof);
 
+% Nodal quadrature is only used for spectral elements on GLL points (only
+% in this case the nodal quadrature achieves optimal results)
+if lumping == 2 && ndist == 1
+    % Use the HRZ-method for elements with equidistant points
+    lumping = 4;
+elseif lumping == 2 && ndist == 3
+    % Use the row-sum method for elements with GLC points
+    lumping = 3;
+end
+
 if lumping == 2
-    if ndist == 1
-        % Use the HRZ-method for elements with equidistant points
-        lumping = 4;
-    elseif ndist == 2
-		nIPxi = pxi;
-		nIPeta = peta;
-        % Nodal quadrature for spectral elements on GLL points (only in
-        % this case the nodal quadrature achieves optimal results)
-        % Gauss-Lobatto points (numerical integration)
-        [xi,wxi,~]   = lglnodes(nIPxi);
-        [eta,weta,~] = lglnodes(nIPeta);
-    elseif ndist == 3
-        % Use the row-sum method for elements with GLC points
-        lumping = 3;
-    end
+    % Gauss-Lobatto points (numerical integration)
+    [xi,wxi,~]   = lglnodes(pxi);
+    [eta,weta,~] = lglnodes(peta);
 else
     % Gauss-Legendre points (numerical integration)
     [xi,wxi]   = lgwt(nIPxi,-1,1);

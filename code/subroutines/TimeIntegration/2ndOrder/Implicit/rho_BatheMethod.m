@@ -53,7 +53,7 @@
 % Newmark and rho_infinity-Bathe Schemes, Computers & Structures,
 % Elsevier BV, 2019, 225, 106079
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [T,U,V,A] = rho_BatheMethod(K,M,C,F,Fdt,U0,V0,NumDoF,DOFsave,...
+function [T,U,V,A] = rho_BatheMethod(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
                      ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
 % (De-)activate the waitbar

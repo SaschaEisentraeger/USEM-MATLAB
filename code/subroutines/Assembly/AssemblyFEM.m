@@ -95,13 +95,8 @@ disp('Prepare element data')
 for i = 1:num_Elem
      % Material properties of the finite element
     for klm = 1:num_mat
-        if size(material_sets{klm},1) == 3
-            val_Elset = (material_sets{klm}(1): ...
-                         material_sets{klm}(3): ...
-                         material_sets{klm}(2))';
-        else
-            val_Elset = material_sets{klm};
-        end
+        % Element sets are expanded by the reader (incl. generate)
+        val_Elset = material_sets{klm};
         val = (val_Elset == i);
         if sum(val) == 1
             break;

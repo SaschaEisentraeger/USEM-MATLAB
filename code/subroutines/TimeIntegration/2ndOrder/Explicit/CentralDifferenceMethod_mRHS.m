@@ -178,16 +178,19 @@ for i = 1:NumTimeStep
 	% Displacement
     x1 = dKeff\Ft;
 	
-	% Velocity
+	% Velocity at t_n (central difference)
 	xd1 = 1/(2*dt)*(x1 - xm1);
-	
-	% Acceleration
+
+	% Acceleration at t_n
 	xdd1 = 1/dt^2*(x1 - 2*x0 + xm1);
-    
-    % Save variables
+
+    % Save variables: displacement at t_{n+1}, velocity and acceleration
+    % at t_n (the initial values at t_0 are kept)
     uvec(i+1,:,:) = x1(DOFsave,:);
-    vvec(i+1,:,:) = xd1(DOFsave,:);
-    avec(i+1,:,:) = xdd1(DOFsave,:);
+    if i > 1
+        vvec(i,:,:) = xd1(DOFsave,:);
+        avec(i,:,:) = xdd1(DOFsave,:);
+    end
     
 	if nUAll > 0
         if mod(i,nSave) == 0
@@ -215,6 +218,16 @@ end
 if flag_wb
 	% Delete the waitbar
 	close(h)
+end
+
+% Velocity and acceleration at the final time (linear extrapolation, the
+% central differences would require the displacement at t_{N+1})
+if NumTimeStep > 1
+    vvec(end,:,:) = 2*vvec(end-1,:,:) - vvec(end-2,:,:);
+    avec(end,:,:) = 2*avec(end-1,:,:) - avec(end-2,:,:);
+else
+    vvec(end,:,:) = vvec(1,:,:);
+    avec(end,:,:) = avec(1,:,:);
 end
 
 % Results

@@ -34,6 +34,6 @@ function F = InverseMapping(Coor,x,y,P,p)
 N = ShapeFunctions2D_SEM(Coor(:,1),Coor(:,2),p)';
 
 % Residuum
-F = [N'*x-P(:,1), N'*y-P(:,2)];
+F = [N*x-P(:,1), N*y-P(:,2)];
 
 end

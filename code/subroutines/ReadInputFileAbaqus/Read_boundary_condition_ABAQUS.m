@@ -202,6 +202,7 @@ while counter_bc ~= 0
                          str2double(TEMP(ia(3)+1:ie(1)))];
                     end
                 end
+                TEMP = fgetl(fid);
             end
             
             if isempty(boundary_conditions(counter_bc).amplitude)
@@ -333,9 +334,10 @@ while counter_bc ~= counter_bounndary_conditions + 1
  	set_name = ['*Nset, nset=' boundary_conditions(counter_bc).set_name];
     % element set name
 	set_name_el = ['*Elset, elset=' boundary_conditions(counter_bc).set_name];
+    counter_old = counter_bc;
   	while ftell(fid)~=end_position || contains(TEMP,'*End Assembly')
         % node set
-        if contains(TEMP,set_name)
+        if isSetHeader(TEMP,set_name)
             while true
                 if contains(TEMP,'generate')
                     TEMP = fgetl(fid);
@@ -354,7 +356,7 @@ while counter_bc ~= counter_bounndary_conditions + 1
             counter_bc = counter_bc + 1;
         end
         % element set
-        if contains(TEMP,set_name_el)
+        if isSetHeader(TEMP,set_name_el)
             while true
                 if contains(TEMP,'generate')
                     TEMP = fgetl(fid);
@@ -373,6 +375,14 @@ while counter_bc ~= counter_bounndary_conditions + 1
             break;
         end 
       	TEMP = fgetl(fid);
+    end
+    % The node set must exist (otherwise this loop would never end)
+    if counter_bc == counter_old
+        fclose(fid);
+        error('Read_boundary_condition_ABAQUS:setNotFound', ...
+             ['Node set "%s" of a boundary condition was not found. ' ...
+              'Define the set in the assembly (after *End Instance).'], ...
+              boundary_conditions(counter_bc).set_name);
     end
 end
 
@@ -402,4 +412,18 @@ for i = 1:NumberOfBoundaryConditions
     end
 end
 
+end
+
+
+function tf = isSetHeader(line, header)
+% True if line is the header of the set definition "header", e.g.
+% '*Nset, nset=Set-1' matches '*Nset, nset=Set-1, instance=Part-1' but not
+% '*Nset, nset=Set-10'.
+if ~ischar(line)
+    tf = false;
+    return
+end
+line = strtrim(line);
+n = numel(header);
+tf = strncmp(line, header, n) && (numel(line) == n || line(n+1) == ',');
 end

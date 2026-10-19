@@ -121,7 +121,7 @@ if nnz(R) == 0 || isempty(R)
 	% Initial start vector
 	if EVP_Solver.v0 == true
 		% Assign random values
-		EVP_Solver.v0 = randn(num_DoF,1);
+		EVP_Solver.v0 = randn(numel(ActiveDoF),1);
 	else
 		% Remove field from struct
 		EVP_Solver = rmfield(EVP_Solver,'v0');
@@ -149,7 +149,10 @@ else
 	B = [sparse(nDOFA,nDOFA)   , speye(nDOFA);        ...
          M(ActiveDoF,ActiveDoF), R(ActiveDoF,ActiveDoF)];
 	[MS,EV] = eigs(A,-B,numEigen,'smallestabs');
-	EF = abs(diag(EV));
+    % lambda^2*M*u + lambda*R*u + K*u = 0 with the eigenvector [lambda*u; u]:
+    % keep the displacement part and convert |lambda| (rad/s) to Hz
+	EF = abs(diag(EV))/(2*pi);
+    MS = MS(nDOFA+1:end,:);
 end
 % Sort eigenfrequencies and mode shapes
 [EF,IdxSort] = sort(EF);
@@ -166,7 +169,8 @@ disp(LineDisp)
 
 % Mode shape
 NumberEV = 1;
-u = U(:,NumberEV);
+% (eigenvectors of the unsymmetric or damped problem can be complex)
+u = real(U(:,NumberEV));
 ux = u(1:2:end);
 uy = u(2:2:end);
 

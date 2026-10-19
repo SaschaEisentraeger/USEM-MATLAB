@@ -170,8 +170,9 @@ where $\mathbf N$ holds the parametric and $\mathbf M$ the metric functions.
 | 3 | row-sum lumping |
 | 4 | HRZ lumping (diagonal scaling) |
 
-`Me_2D` uses $2p$ Gauss points per direction, `KMe_2D` $p+1$ (see
-[known issues](known-issues.md#ki-2)).
+Both `Me_2D` and `KMe_2D` use $2p$ Gauss points per direction. On distorted elements the
+metric functions are not polynomials of degree $p$ in $(\xi,\eta)$, so fewer points would
+under-integrate the mass matrix.
 
 **Loads.** Edge loads (pressure, traction) and body loads are integrated with the
 *parametric* (test) functions (`CreatePress`, `CreateTraction`, `CreateBload`,

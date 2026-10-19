@@ -1,126 +1,74 @@
-# Known issues
+# Known issues and fixed bugs
 
-The issues below were found while writing the documentation and the test suite. The
-scientific code was **not** changed. Issues marked *(test)* have a test with the tag
-`KnownIssue`. These tests fail until the issue is fixed and are excluded from the default
-run:
+Tests that document an open bug get the tag `KnownIssue`. They are excluded from the default
+run and fail until the bug is fixed:
 
 ```matlab
 cd tests
 run_tests('KnownIssues', true)   % include them
 ```
 
-After fixing an issue, remove the `KnownIssue` tag from its test.
+There are currently **no open `KnownIssue` tests**. The bugs found while writing the test
+suite are fixed (see below). The remaining limitations are listed first.
 
-## Element technology
+## Remaining limitations
 
-<a id="ki-1"></a>
-**KI-1 `Global2LocalCoordinatesQuad` always fails** *(test: `GeometryMappingTest/globalToLocalInvertsTheMapping`)*
-- `InverseMapping` computes `N'*x` with an already transposed `N`, which is a dimension
-  error. The routine is not used by the main program.
-- Fix: `F = [N*x - P(:,1), N*y - P(:,2)]`.
+- **Time integration method 109** (`AdaptiveHybridExplicitMethod`, Soares 2020) is not
+  available. The routine works element by element and expects element matrices, a cell-array
+  DOF topology and triangular global matrices, i.e. it was written for another code.
+  `Solver_Transient` stops with a clear error message for this method.
+- **Default route of the dynamic analysis.** With `flag_mRHS = true`, `Solver_Transient` ignores
+  the method code. It runs the central difference method (codes below 300) or HHT-α (300 and
+  above). See [chapter 5](05-analyses.md).
+- **ABAQUS readers** expect the structure written by ABAQUS/CAE:
+  - boundary-condition data lines must contain `Set`;
+  - sets must be defined in the assembly;
+  - node labels must be consecutive from 1;
+  - in 8-node meshes the corner nodes must be numbered first.
 
-<a id="ki-2"></a>
-**KI-2 Different mass-matrix quadrature in `KMe_2D` and `Me_2D`** *(test: `ElementMatricesTest/combinedRoutineMatchesSeparateMassOnDistortedElements`)*
-- `KMe_2D` integrates the consistent mass with $p+1$ Gauss points per direction, `Me_2D` with
-  $2p$. The dynamic, modal and frequency-domain analyses use `KMe_2D`.
-- On distorted elements the metric functions are not polynomials of degree $p$ in
-  $(\xi,\eta)$, so $p+1$ points under-integrate $\mathbf N^{\mathsf T}\mathbf M\det\mathbf J$.
-  The entries differ by 1–10 %; the total mass is exact in both.
-- Decide which rule is intended.
+  Violations of the last three now raise errors instead of producing wrong data or endless
+  loops. See [chapter 3](03-input-files.md).
+- **Modal and frequency-domain analyses** only honour homogeneous Dirichlet conditions. The
+  frequency-domain analysis ignores damping.
+- `CentralDifferenceMethod_te`, `Solver_Transient_symrcm` and the second variants of the Padé
+  integrators (`PadeTimeIntegrator2`, `PadeTimeIntegrator_ND2`) are not called by the program
+  and are not tested.
+- `ShapeFunctions2D_Metric_Tria` (triangles) is unfinished ($p\le2$) and not used.
+- The result workspaces that came with the code (`subroutines/Results/Static`, not under version
+  control) were partly created with an earlier version of the load routines (opposite load sign
+  in the quadratic Lee & Bathe cases). The regression tests therefore use the analytical
+  solution (`LeeBathePatchTest`).
+- **Unsymmetric matrices in dynamics.** Eigenvalues can be complex, and energy is not
+  conserved; see [chapter 1](01-theory.md#16-practical-implications-of-unsymmetric-matrices).
 
-<a id="ki-3"></a>
-**KI-3 Nodal-quadrature lumping with non-GLL nodes crashes** *(test: `ElementMatricesTest/nodalQuadratureFallsBackForNonGLLNodes`)*
-- `lumping = 2` with `ndist = 1` or `3` is supposed to fall back to HRZ or row-sum lumping.
-  The branch sets the new lumping flag but never defines the quadrature points
-  (`Me_2D` line 85, `KMe_2D`), giving "Unrecognized function or variable 'xi'".
-- In `Me_2D`, `pxi`/`peta` are also undefined when the quadrature orders are passed as
-  arguments.
+## Fixed bugs
 
-## Boundary conditions and loads
+| Area | Bug | Fix | Test |
+|---|---|---|---|
+| Nodal distributions | Mock-Chebyshev nodes (`ndist = 4`) were reversed, which gave indefinite stiffness matrices for $p\ge3$ | Mock and "fake" node code removed; `nodal_distribution` rejects unknown distributions | `NodalDistributionTest` |
+| Path | Copies of core functions in `NodalDistribution/FakeNodes/src` shadowed the originals | Folder removed | – |
+| Geometry | `Global2LocalCoordinatesQuad` failed on every call (`InverseMapping` used `N'` instead of `N`) | Corrected | `GeometryMappingTest/globalToLocalInvertsTheMapping` |
+| Mass matrix | `KMe_2D` (dynamic, modal, frequency analyses) integrated the unsymmetric mass with $p+1$ Gauss points, `Me_2D` with $2p$; on distorted elements the entries differed by 1–10 % | `KMe_2D` uses $2p$ points | `ElementMatricesTest/combinedRoutineMatchesSeparateMassOnDistortedElements` |
+| Lumping | `lumping = 2` with equidistant or GLC nodes crashed instead of falling back to HRZ / row-sum lumping | Quadrature selection restructured (`Me_2D`, `KMe_2D`) | `ElementMatricesTest/nodalQuadratureFallsBackForNonGLLNodes` |
+| Sets | Every node, element or material set with three entries was taken for an ABAQUS `generate` triplet (`DirichletBCs_homogeneous`, `NeumannBCs`, `pSpectralElement_BCs`, `AssemblyFEM`, `Contour_plot`); e.g. the $p = 2$ edge set {2, 8, 3} became {2, 5, 8}, and a material on three elements got the wrong elements | Sets are used as given; the readers expand `generate` (now also for `*Cload`) | `DirichletBCTest`, `AbaqusReaderTest/concentratedLoadOnGeneratedSet` |
+| Loads | `NeumannBCs(..., false)` crashed (`nLC` undefined); the body-force loop passed all body forces at once; the gravity loop tested `body_force(i)` | Corrected | `LoadsTest` |
+| Loads | `CreateBload`/`CreateGravity` failed for element subsets; `CreateGravity` used the density of material 1 everywhere | Loops run over the element set; density per material | `LoadsTest` |
+| Loads | `SpatialLoadingFunction`: constant part of the cubic-patch-test traction not scaled by the amplitude | Corrected | `LoadsTest/spatialLoadIsScaledByAmplitude` |
+| Readers | `Read_boundary_condition_ABAQUS` looped forever if a set was missing; the U2 branch never read the next line | Error message; next line read | `AbaqusReaderTest` |
+| Readers | Set names matched by prefix (`Set-1` also matched `Set-10`) | Exact matching (`isSetHeader`) in all readers | `AbaqusReaderTest/setNamesAreMatchedExactly` |
+| Readers | `Adjust_Set_names_input_file_ABAQUS` used the file content as format string (`%`, `\`) and a hard-coded `\` separator | `fprintf(fout,'%s',...)`, `fullfile` | `AbaqusReaderTest/percentSignsAreCopiedLiterally` |
+| Readers | Node labels ignored; corner nodes of 8-node meshes silently assumed first | Both checked, with error messages | `AbaqusReaderTest`, `TopologyTest/cornerNodesMustBeNumberedFirst` |
+| Readers | `GRAV` with three direction components gave NaN; `Read_step_ABAQUS` overwrote all step times with 0 | Corrected | `AbaqusReaderTest/gravityWithThreeComponents` |
+| Time integration | `rho_BatheMethod` (306) could not run (`Fdt` vs. `F_dt`) | Corrected | `TimeIntegrationTest`, `SolverTransientTest` |
+| Time integration | `KimMethod2Stage` (202): wrong call, outputs `[U,T]`, `Minv*` instead of `Minv.*`, time step not adjusted to the simulation time | Corrected | `TimeIntegrationTest`, `SolverTransientTest` |
+| Time integration | Padé method (403): Fortran solver missing; `K+K'` doubled the full matrices; undefined variable with non-zero initial conditions; damped solvers called `TimeIntgCoeff` with the Padé code instead of the order | MATLAB solvers used if the Fortran solver is missing; all errors corrected (verified convergence orders) | `SolverTransientTest` |
+| Time integration | `Solver_Transient`: `save_var = 1` stored only one DOF | `1:numel(ActiveDoF)` | `SolverTransientTest/allDegreesOfFreedomAreSavedOnRequest` |
+| Time integration | `CentralDifferenceMethod` (and `_mRHS`): velocity and acceleration stored one step late | Stored at the correct time; final values extrapolated | `TimeIntegrationTest/centralDifferenceVelocityAndAcceleration` |
+| Modal analysis | Damped case: eigenfrequencies in rad/s instead of Hz, state-space eigenvectors assigned to the mode shapes (dimension error); random start vector of wrong length | Corrected | – |
+| Dynamic analysis | `NOI(1:3)` failed for fewer than three nodes; the export block at the end ("For Jing") always ran | Corrected; export only when it is possible | – |
+| `Start_Sim` | Required the Parallel Computing Toolbox | Pool only opened if the toolbox is available | – |
+| Mesh distortion | `distort_single_element` used the $x$ range twice for the characteristic length | Corrected | – |
 
-<a id="ki-4"></a>
-**KI-4 Three-node sets are mistaken for "generate" triplets** *(test: `DirichletBCTest/threeNodeSetIsNotMistakenForGenerateTriplet`)*
-- `DirichletBCs_homogeneous` interprets every node set with three entries `[a; b; c]` as
-  `a:c:b` if that range ends at `b`. For example, `{2, 8, 3}` becomes `{2, 5, 8}`. Edge sets of
-  $p = 2$ elements have three nodes, so wrong DOFs can be constrained.
-- Fix: expand `generate` sets in the reader only (it already does that).
-
-<a id="ki-5"></a>
-**KI-5 Loads (`NeumannBCs`, `Create*`)**
-- `NeumannBCs(..., flag_mRHS)` with `flag_mRHS = false` passed explicitly leaves `nLC`
-  undefined.
-- The body-force loop passes the whole `body_force` array to `CreateBload` instead of
-  `body_force(i)`.
-- The gravity loop tests `body_force(i).type` (error if there is no body force).
-- `CreateBload` and `CreateGravity` index `elset(i)` with the element number, so they fail
-  for element subsets.
-- `CreateGravity` always uses the density of material 1.
-- `SpatialLoadingFunction`: the constant `+6` in the traction of the cubic patch test is not
-  scaled by the amplitude.
-
-## Input files
-
-<a id="ki-6"></a>
-**KI-6 ABAQUS readers**
-- `Read_boundary_condition_ABAQUS` loops forever when a boundary-condition set is not found.
-  This happens, for example, when the sets are defined inside the part (before
-  `*End Instance`) and are therefore not renamed to `PickedSet-`. The `Uy` branch
-  (line ~192) can also loop without reading a new line.
-- Boundary conditions are only counted if their data line contains `Set`.
-- `Adjust_Set_names_input_file_ABAQUS` writes the file with `fprintf(fout, ContNew)`, which
-  treats `%` and `\` in the input as format characters. Use `fprintf(fout, '%s', ContNew)`.
-  It also uses a hard-coded `'\'` separator.
-- `Read_mesh_ABAQUS` ignores node and element labels (they must be consecutive from 1).
-  For 8-node meshes, `pSpectralElement_NodesTopology` additionally assumes that the corner
-  nodes are numbered first.
-- `Read_step_ABAQUS` overwrites the whole `tend` vector with 0 for non-dynamic steps.
-- `Read_load_ABAQUS`: a `GRAV` line with three components gives NaN; `*Cload` sets do not
-  support `generate`.
-- The ABAQUS input files that `Start_Sim.m` refers to were missing. They were reconstructed
-  in `code/InputFilesAbaqus` (see [chapter 3](03-input-files.md)).
-
-## Time integration and analysis drivers
-
-<a id="ki-7"></a>
-**KI-7 `rho_BatheMethod` (code 306) cannot run** *(test: `TimeIntegrationTest/rhoBatheMethodRuns`)*
-- The 5th argument is named `Fdt`, but the body uses `F_dt`.
-
-<a id="ki-8"></a>
-**KI-8 `Solver_Transient`**
-- Line 47: `dof_poi = 1:size(ActiveDoF,2)` is always `1`, because `ActiveDoF` is a column. So
-  `save_var = 1` stores a single DOF.
-- Method 109: `FE_Matrices.mat` is never written, `Rayleigh` is undefined and the argument
-  list does not match `AdaptiveHybridExplicitMethod`.
-- Method 202: passes one argument too many to `KimMethod2Stage`, whose outputs are declared
-  as `[U, T]`.
-- Method 403: `PadeTimeIntegrator_ND_FORTRAN` is not in the repository, and `K + K'`,
-  `M + M'`, `C + C'` double the full (not triangular) matrices while `F` is not doubled.
-- With `flag_mRHS = true` (the default) the method code is ignored (see [chapter 5](05-analyses.md)).
-
-<a id="ki-9"></a>
-**KI-9 `MirbagheriMethod` (code 104) converges with first order** *(test: `TimeIntegrationTest/mirbagheriMethodIsSecondOrder`)*
-- On the 2-DOF free-vibration problem, the error halves (instead of quartering) when $\Delta t$
-  is halved. Compare with the published scheme.
-
-<a id="ki-10"></a>
-**KI-10 Modal analysis with damping and start vector**
-- `call_Modal`: the damped (state-space) branch returns `EF` in rad/s instead of Hz, and
-  assigns the $2n$-row eigenvectors to `U(ActiveDoF,:)` (dimension error).
-- `EVP_Solver.v0 = true` creates a start vector of length `num_DoF` instead of
-  `numel(ActiveDoF)`.
-
-<a id="ki-11"></a>
-**KI-11 Further observations**
-- `CentralDifferenceMethod`: the stored velocity and acceleration of step $n+1$ are the
-  values at $t_n$ (one step shifted).
-- `call_Dynamic`: `NOI(1:3)` fails for fewer than three active nodes, and the post-processing
-  block at the end ("For Jing") always runs.
-- `Start_Sim` requires the Parallel Computing Toolbox (unconditional `parpool`).
-- The result workspaces that came with the code (`subroutines/Results/Static`) were partly
-  created with an earlier version of the load routines. The quadratic Lee & Bathe cases have
-  the opposite load sign, and some $p\ge3$ runs had a uniform tension load. Only the cubic
-  cases agree with the current code. The regression tests therefore check the analytical
-  solution instead (`LeeBathePatchTest`).
-- `distort_single_element` computes the characteristic length from the $x$ range twice.
-- `Contour_plot` computes `ylim` from the $x$ extent.
+`MirbagheriMethod` (104) converges with first order. This is by design, not a bug: the factor
+$\eta = 1.025$ on the acceleration term of the Noh–Bathe predictor adds dissipation against
+spurious oscillations, and any $\eta \ne 1$ makes the scheme first-order accurate.

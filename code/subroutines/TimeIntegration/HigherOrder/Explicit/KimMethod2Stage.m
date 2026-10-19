@@ -39,7 +39,7 @@
 %               degree of freedom in each time step)
 % T:            Time vector
 %-------------------------------------------------------------------------%
-function [U,T] = KimMethod2Stage(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
+function [T,U] = KimMethod2Stage(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
                  ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
 % (De-)activate the waitbar
@@ -62,6 +62,9 @@ if flag_wb
 	% Less updates of the waitbar (avoid slowing the simulation down)
 	nUpdate = ceil(NumTimeStep/1000);
 end
+
+% Adjust the time increment to the simulation time
+dt = tsim/NumTimeStep;
 
 fprintf('Time step size used: %6.3e\n\n',dt);
 
@@ -166,7 +169,7 @@ for i = 1:NumTimeStep
     x13   = x0+p*dt*xd0+(p*dt)^2*xdd0/2;
     xd13  = xd0+p*dt*xdd0;
 	if flag_diag
-		xdd13 = Minv*(F_t_pdt - K*x13 - C*xd13);
+		xdd13 = Minv.*(F_t_pdt - K*x13 - C*xd13);
 	else
 		xdd13 = dM\(F_t_pdt - K*x13 - C*xd13);
 	end
@@ -175,7 +178,7 @@ for i = 1:NumTimeStep
     xm1  = x0+dt*xd0+(dt^2)*((3*p-1)*xdd0/(3*p)+xdd13/(3*p))/2;
     xmd1 = xd0+dt*((2*p-1)*xdd0/(2*p)-xdd13/(2*p));
 	if flag_diag
-		xdd1 = Minv*(F_t_dt - K*xm1 - C*xmd1);
+		xdd1 = Minv.*(F_t_dt - K*xm1 - C*xmd1);
 	else
 		xdd1 = dM\(F_t_dt - K*xm1 - C*xmd1);
 	end
