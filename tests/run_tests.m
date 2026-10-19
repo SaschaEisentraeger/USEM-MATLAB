@@ -66,6 +66,7 @@ if ~opt.KnownIssues
 end
 
 runner = TestRunner.withTextOutput;
+runner.addPlugin(matlab.unittest.plugins.DiagnosticsRecordingPlugin);
 runner.addPlugin(XMLPlugin.producingJUnitFormat(fullfile(outDir, 'junit.xml')));
 if opt.Coverage
     runner.addPlugin(CodeCoveragePlugin.forFolder( ...
@@ -86,9 +87,7 @@ fprintf('\n%d passed, %d failed, %d incomplete (%.1f s)\n', ...
 % On GitHub Actions, report every failure as an annotation (visible on the
 % run page without downloading the log)
 if strcmp(getenv('GITHUB_ACTIONS'), 'true')
-    for k = 1:numel(failed)
-        githubAnnotation(failed(k));
-    end
+    githubAnnotations(failed);
     fprintf('::notice title=Test summary::%d passed, %d failed, %d incomplete\n', ...
         nnz([results.Passed]), nnz([results.Failed]), nnz([results.Incomplete]));
 end
@@ -99,13 +98,27 @@ end
 
 end
 
-function githubAnnotation(result)
-% Print a workflow command ::error title=...::message for a failed test
-msg = '';
-if isfield(result.Details, 'DiagnosticRecord') && ~isempty(result.Details.DiagnosticRecord)
-    msg = result.Details.DiagnosticRecord(1).Report;
+function githubAnnotations(failed)
+% Report failures as GitHub workflow annotations. GitHub shows at most 10
+% error annotations per step, so the names of all failed tests go into one
+% annotation and the diagnostics of the first failure of each test class
+% into the others.
+if isempty(failed)
+    return
 end
-msg = msg(1:min(end, 3000));
 esc = @(s) strrep(strrep(strrep(s, '%', '%25'), sprintf('\r'), ''), newline, '%0A');
-fprintf('::error title=%s::%s\n', esc(result.Name), esc(msg));
+names = {failed.Name};
+fprintf('::error title=Failed tests::%s\n', esc(strjoin(names, newline)));
+classes = regexprep(names, '/.*$', '');
+[~, first] = unique(classes, 'stable');
+for k = first(1:min(end, 9))'
+    msg = '';
+    rec = failed(k).Details.DiagnosticRecord;
+    if ~isempty(rec)
+        msg = rec(1).Report;
+    end
+    msg = msg(1:min(end, 4000));
+    title = strrep(strrep(names{k}, ',', ' '), ':', ' ');
+    fprintf('::error title=%s::%s\n', esc(title), esc(msg));
+end
 end
