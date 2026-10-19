@@ -102,3 +102,8 @@ The full bibliography is in [literature/references.bib](literature/references.bi
 See the file headers for the authors of the individual routines (S. Duczek / S. Eisenträger,
 Otto von Guericke University Magdeburg). Third-party code and its licences are listed in
 [docs/04-code-reference.md](docs/04-code-reference.md#48-third-party-code).
+
+## License
+
+MIT, see [LICENSE](LICENSE). Third-party routines keep their own licences, see
+[docs/04-code-reference.md](docs/04-code-reference.md#48-third-party-code).
