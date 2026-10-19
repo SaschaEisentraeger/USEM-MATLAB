@@ -17,9 +17,8 @@ jobs:
           release: latest
 
       - name: Run test suite
-        # TEMPORARY while diagnosing the first CI failure: report problems as
-        # annotations without failing the run.
-        continue-on-error: true
+        # run_tests reports failed tests as annotations on the run page;
+        # errors outside the tests are reported by the catch block.
         uses: matlab-actions/run-command@v2
         with:
           command: >-
