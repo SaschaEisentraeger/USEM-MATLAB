@@ -221,9 +221,17 @@ metric / metric; ATF = analytical trial functions.
     and nodal quadrature the unsymmetric mass matrix is nevertheless diagonal,
     because both the parametric and the metric functions are interpolatory at the
     quadrature points.
-  \item \textbf{Open questions.} Element-level stability (conditioning of the metric
-    Vandermonde matrix, discrete inf-sup constant) on strongly distorted high-order
-    elements; energy-consistent time integration for unsymmetric spectral elements;
+  \item \textbf{Conditioning of the metric Vandermonde matrix}
+    (\cref{ch:metric-basis}). Monomials make $\matr V$ exponentially
+    ill-conditioned already on affine elements \parencite{Gautschi1988Lower}; the
+    Lagrange basis of the reference element removes this part. The remaining,
+    basis-independent growth on distorted elements is that of the Lebesgue constant
+    of $Q_p(s,t)$-interpolation on the mapped nodes.
+  \item \textbf{Open questions.} Element-level stability (discrete inf-sup
+    constant; the exponential growth of the Lebesgue constant of $Q_p(s,t)$ on
+    distorted elements, and whether a trial space $P_p(x,y)\oplus$ parametric
+    complement avoids it, \cref{sec:metric-basis-outlook}) on strongly distorted
+    high-order elements; energy-consistent time integration for unsymmetric spectral elements;
     a convergence theory for these variationally inconsistent schemes; extension to
     triangles (\code{ShapeFunctions2D_Metric_Tria} is an unfinished start), 3D and
     axisymmetry.

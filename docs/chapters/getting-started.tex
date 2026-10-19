@@ -75,6 +75,10 @@ scripts, not functions, so all variables stay in the base workspace.
     coordinate systems of neighbouring elements are not aligned, both are set to
     the minimum \\
   \code{p.ndist} & node distribution (1 equidistant, 2 GLL, 3 GLC) \\
+  \code{p.metricBasis} & optional: basis of the metric Vandermonde matrix,
+    \code{'lagrange'} (default), \code{'legendre'}, \code{'chebyshev'},
+    \code{'monomial'} (previous implementation); does not change the shape
+    functions, only their round-off (\cref{ch:metric-basis}) \\
   \code{mass_matrix} & 1 consistent, 2 nodal quadrature (GLL), 3 row-sum, 4 HRZ \\
   \code{flag_mRHS} & dynamic analysis: one right-hand side per load case; if
     true, only the central difference (\code{Method < 300}) or HHT-$\alpha$

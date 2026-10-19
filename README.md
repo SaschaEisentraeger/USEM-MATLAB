@@ -50,6 +50,7 @@ The documentation is written in LaTeX with TikZ figures (`docs/`):
 | Chapter | Content |
 |---|---|
 | Theory | Petrov–Galerkin weak form, test and trial spaces, skew coordinates, element matrices |
+| Metric basis | basis of the metric Vandermonde matrix: conditioning, Lagrange basis (default), Lebesgue constant of $Q_p(s,t)$ |
 | Getting started | requirements, running a simulation, parameters, output |
 | ABAQUS input files | supported keywords, conventions, data structures, Lee & Bathe example |
 | Code reference | all routines by module, third-party code |
@@ -69,7 +70,7 @@ latexmk -pdf usem-documentation.tex
 
 ```matlab
 cd tests
-run_tests          % about 630 tests, roughly 2 minutes, base MATLAB only
+run_tests          % about 800 tests, roughly 2 minutes, base MATLAB only
 ```
 
 The suite checks, among other things, the completeness and frame invariance of the metric
@@ -87,6 +88,7 @@ code/
   subroutines/             element technology, assembly, BCs, solvers, plots, ...
 docs/                      documentation (LaTeX, TikZ figures)
 tests/                     test suite (matlab.unittest)
+studies/metric_basis/      study of the basis of the metric Vandermonde matrix
 literature/references.bib  bibliography (the PDFs are not distributed)
 ```
 

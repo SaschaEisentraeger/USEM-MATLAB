@@ -26,6 +26,7 @@
 \usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,fit,backgrounds}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
 \usepackage[backend=biber,style=authoryear,maxcitenames=2,uniquelist=false,
             uniquename=false,doi=true,url=false,isbn=false,eprint=false,
             dashed=false]{biblatex}
@@ -90,6 +91,7 @@
 \tableofcontents
 
 \include{chapters/theory}
+\include{chapters/metric-basis}
 \include{chapters/getting-started}
 \include{chapters/input-files}
 \include{chapters/code-reference}

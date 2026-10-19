@@ -45,6 +45,12 @@ also be run with \code{runtests}. GitHub Actions runs the suite on every push
     derivatives; equality with the parametric functions on parallelograms; frame
     invariance (rotation, translation, scaling) and the frame dependence of
     \code{method = 0}; skew coordinates \\
+  \code{MetricBasisTest} & bases of the metric Vandermonde matrix: derivatives,
+    span, closed-form values, Lagrange basis equals the parametric 1D functions;
+    metric functions independent of the basis and frame invariant for every basis;
+    $\matr V$ is a permutation matrix on affine elements up to $p=16$, metric =
+    parametric and $\matr K_e$ symmetric at high $p$; Kronecker property on a
+    curved element at $p=12$ \\
   \code{GeometryMappingTest} & Jacobian (constant for affine maps, finite
     differences, $\det\matr J>0$), node interpolation, element area, inverse
     mapping \\

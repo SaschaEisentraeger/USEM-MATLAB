@@ -134,13 +134,20 @@ interpolatory at the element nodes $(x_k, y_k)$ in physical space:
     \end{equation}
     $(s,t)$ is an affine, non-dimensional coordinate system that moves and
     rotates with the element; for a parallelogram it coincides with $(\xi,\eta)$.
-  \item \textbf{Basis.} $\phi_k(s,t) = s^a t^b$ with $0\le a\le p_\xi$ and
-    $0\le b\le p_\eta$ (tensor-product space $Q_p$).
+  \item \textbf{Basis.} $\phi_k(s,t) = \ell_a(\tilde s)\,\ell_b(\tilde t)$ with
+    $0\le a\le p_\xi$ and $0\le b\le p_\eta$ (tensor-product space $Q_p$), where
+    $\ell_a$ are the 1D Lagrange polynomials through the reference nodes and
+    $(\tilde s,\tilde t)$ are the skew coordinates mapped from the bounding box of
+    the element nodes onto $[-1,1]^2$. The space, and hence the shape functions,
+    is the same as for the monomials $s^a t^b$ of the original formulation; only
+    the conditioning of $\matr V$ differs (\cref{ch:metric-basis}).
   \item \textbf{Interpolation.} With the generalized Vandermonde matrix
     $V_{kl} = \phi_k(s_l,t_l)$ at the nodes,
     $\vect M(\vect x) = \matr V^{-1}\bm\phi\bigl(s(\vect x),t(\vect x)\bigr)$, so
     that $M_j(\vect x_k)=\delta_{jk}$.
-  \item \textbf{Derivatives.} $\nabla_{\vect x} M = \matr J_0^{-1}\nabla_{(s,t)}M$.
+  \item \textbf{Derivatives.} $\nabla_{\vect x} M = \matr J_0^{-1}\nabla_{(s,t)}M$,
+    with $\partial/\partial s = r_s^{-1}\,\partial/\partial\tilde s$ (half width
+    $r_s$ of the bounding box), likewise for $t$.
 \end{enumerate}
 Properties (all covered by \code{tests/unit/MetricShapeFunctionsTest.m}):
 \begin{itemize}

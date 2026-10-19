@@ -1,0 +1,447 @@
+\chapter{Basis of the metric Vandermonde matrix}
+\label{ch:metric-basis}
+
+% Line colours of the plots in this chapter (monomial, Legendre, Chebyshev,
+% Lagrange, ...)
+\pgfplotscreateplotcyclelist{metricbasis}{%
+  red\\blue\\black\\green!50!black\\orange\\violet\\}
+
+The metric (trial) shape functions are obtained from a generalized Vandermonde
+matrix (\cref{ch:theory}). The original implementation used monomials
+$s^a t^b$ in skew coordinates. This chapter examines whether a Vandermonde
+matrix built from other polynomials is advantageous, explains why the Lagrange
+basis of the reference element was chosen as the new default, and documents a
+limitation that no choice of basis can remove. The numbers are produced by
+\code{studies/metric_basis/study_metric_basis.m} and
+\code{studies/metric_basis/probe_hybrid_space.m} (MATLAB or GNU Octave); the
+tests are in \code{tests/unit/MetricBasisTest.m}. The data in
+\code{docs/figures/data/metric-basis-*.dat} were computed with GNU Octave~8.4
+(IEEE double precision, LAPACK LU); values at round-off level can differ in the
+last digits in MATLAB.
+
+\section{Setting and basis invariance}
+
+Let $\{\vect x_k\}_{k=1}^{n}$, $n=(p_\xi+1)(p_\eta+1)$, be the element nodes,
+$(s_k,t_k)$ their skew coordinates, and $\{\phi_c\}_{c=1}^{n}$ a basis of
+$Q_p(s,t)$. With $V_{ck}=\phi_c(\vect x_k)$ and $P_{cq}=\phi_c(\vect x_q)$ at the
+query points, the code computes $\matr N=\matr V^{-1}\matr P$,
+$N_{lq}=M_l(\vect x_q)$.
+
+\paragraph{Proposition 1 (basis invariance).} If $\matr V$ is non-singular, the
+metric shape functions are the unique functions $M_l\in Q_p(s,t)$ with
+$M_l(\vect x_k)=\delta_{lk}$; they do not depend on the basis.
+
+\emph{Proof.} For another basis $\bm\psi=\matr C\bm\phi$ with $\matr C$
+non-singular, $\matr V_\psi=\matr C\matr V_\phi$ and $\matr P_\psi=\matr
+C\matr P_\phi$, hence $\matr V_\psi^{-1}\matr P_\psi=\matr V_\phi^{-1}\matr
+P_\phi$. \hfill$\square$
+
+Consequently, completeness, frame invariance and distortion immunity
+(\cref{ch:theory}) are unaffected by the basis, and so is unisolvence
+(singularity of $\matr V$ is a property of the node set and the space). The basis
+only changes the floating-point error. For LU with partial pivoting the computed
+solution of $\matr V\matr N=\matr P$ satisfies the classical bound
+$\|\hat{\matr N}-\matr N\|/\|\matr N\|\lesssim c_n\,\kappa(\matr V)\,u$ with unit
+round-off $u\approx1.1\times10^{-16}$ \parencite{Higham2002Accuracy}, so
+$\kappa(\matr V)$ is the quantity to minimize.
+
+\section{Candidate bases}
+
+\code{PolynomialBasis1D(s, n, basis, ndist)} provides, with values and first
+derivatives,
+\begin{center}
+  \begin{tabularx}{\linewidth}{@{}lL@{}}
+    \toprule
+    \code{basis} & $\phi_a(s)$, $a=0,\dots,n$ \\
+    \midrule
+    \code{'monomial'} & $s^a$ (original implementation) \\
+    \code{'legendre'} & Legendre polynomials $P_a(s)$, three-term recurrence \\
+    \code{'chebyshev'} & Chebyshev polynomials $T_a(s)$, three-term recurrence \\
+    \code{'lagrange'} & Lagrange polynomials $\ell_a(s)$ through the 1D reference
+      nodes \code{nodal_distribution(n, ndist)}, product formula (no division by
+      $s-s_m$, so query points may coincide with nodes) \\
+    \bottomrule
+  \end{tabularx}
+\end{center}
+The 2D basis is the tensor product $\phi_a(\tilde s)\phi_b(\tilde t)$. The
+Legendre, Chebyshev and Lagrange bases are defined on $[-1,1]$, but on distorted
+elements the skew coordinates of the nodes leave $[-1,1]^2$ (up to $|s|=1.27$ for
+the trapezoid of \code{usemTestElement}), where these polynomials grow like
+$|T_p(s)|=\cosh(p\,\operatorname{arcosh}|s|)$; $T_{16}(1.27)\approx4\times10^4$.
+For these bases \code{ShapeFunctions2D_Metric} therefore maps the bounding box of
+the nodes in $(s,t)$ affinely onto $[-1,1]^2$,
+\begin{equation}
+  \tilde s = (s-c_s)/r_s,\qquad \tilde t=(t-c_t)/r_t ,
+\end{equation}
+with centre $c$ and half width $r$ of the box. The map is affine and computed from
+frame-invariant quantities, so $Q_p$ and frame invariance are preserved, and it is
+the identity for parallelograms. The monomial branch is left unscaled, so
+\code{p.metricBasis = 'monomial'} reproduces the previous implementation.
+
+\section{Analysis}
+
+\paragraph{Affine elements.} For a parallelogram $(s_k,t_k)$ are the reference
+nodes, which form a tensor grid, so $\matr V$ is a column permutation of
+$\matr V_t\otimes\matr V_s$ (1D Vandermonde matrices) and
+$\kappa_2(\matr V)=\kappa_2(\matr V_s)\,\kappa_2(\matr V_t)$. For monomials on
+real nodes symmetric about the origin, $\kappa(\matr V_s)$ grows at least
+exponentially \parencite{Gautschi1988Lower}; the 2D condition number is the
+square of the 1D one. For the Lagrange basis on the same reference nodes
+$\phi_c(\vect x_k)=\delta_{ck}$ up to the ordering, i.e.\ $\matr V$ is a
+permutation matrix, $\kappa(\matr V)=1$, and $\matr N=\matr V^{-1}\matr P$ is
+obtained without amplification of round-off: metric and parametric functions
+agree to round-off and $\matr K_e$ is symmetric to round-off for every $p$.
+
+\paragraph{Proposition 2 (distorted elements, Lagrange basis).} Let
+$\hat{\vect s}_d$ be the reference nodes in the scaled skew coordinates, so that
+$\phi_c(\hat{\vect s}_d)=\delta_{cd}$, and let
+$\lambda_M(\vect s)=\sum_l|M_l(\vect s)|$ and
+$\lambda_{\mathrm{ref}}(\vect s)=\sum_c|\phi_c(\vect s)|$ be the Lebesgue
+functions of the metric and of the reference interpolation. Then
+\begin{equation}
+  (\matr V^{-1})_{ld}=M_l(\hat{\vect s}_d),\qquad
+  \kappa_1(\matr V)=\max_k\lambda_{\mathrm{ref}}(\tilde{\vect s}_k)\;
+                    \max_d\lambda_M(\hat{\vect s}_d).
+  \label{eq:kappa-lagrange}
+\end{equation}
+\emph{Proof.} Evaluating $\matr N=\matr V^{-1}\matr P$ at the query points
+$\hat{\vect s}_d$ gives $\matr P=\matr I$, hence the first identity. The 1-norm is
+the maximum column sum: $\|\matr V\|_1=\max_k\sum_c|\phi_c(\tilde{\vect s}_k)|$ and
+$\|\matr V^{-1}\|_1=\max_d\sum_l|M_l(\hat{\vect s}_d)|$. \hfill$\square$
+
+With the bounding-box scaling all $\tilde{\vect s}_k\in[-1,1]^2$, so the first
+factor is bounded by the Lebesgue constant of the reference tensor grid
+($\le 6.1$ for GLL nodes and $p\le16$), and $\kappa_1(\matr V)$ is essentially
+the Lebesgue function of the metric interpolation at the reference nodes. The
+Lebesgue constant $\Lambda_M=\max_{\vect x\in\Omega_e}\lambda_M(\vect x)$ is a
+property of the space and the node set, not of the basis: it is the factor by
+which the metric interpolant amplifies perturbations of nodal values (e.g.\ the
+round-off of a computed displacement field), and it enters the interpolation
+error, $\|u-\mathcal I_M u\|_\infty\le(1+\Lambda_M)\inf_{q\in Q_p}\|u-q\|_\infty$.
+\Cref{eq:kappa-lagrange} therefore states that the Lagrange basis adds no
+ill-conditioning beyond that inherent in the interpolation problem (up to the
+factor $\lambda_{\mathrm{ref}}$ and the difference between $\lambda_M$ at the
+reference nodes and on the element). Orthogonal bases have no such identity but
+behave similarly in practice (\cref{sec:metric-basis-results}); for them
+$\kappa(\matr V)>1$ also on affine elements.
+
+\section{Numerical results}
+\label{sec:metric-basis-results}
+
+\paragraph{Test cases.} The four elements of \code{usemTestElement}
+(parallelogram; trapezoid with straight edges; 8-node element with two curved
+edges; angular and curved-edge distortion combined), GLL nodes, $p=1,\dots,16$.
+Measured quantities (\code{study_metric_basis.m}):
+\begin{itemize}
+  \item $\kappa_2(\matr V)$;
+  \item $e_\delta=\max_{l,k}|M_l(\vect x_k)-\delta_{lk}|$, the error of the
+    computed shape functions for worst-case (unit) nodal data;
+  \item $e_P$, $e_{\nabla P}$: errors of the reproduction of all monomials of
+    total degree $\le p$ in normalized Cartesian coordinates and of their scaled
+    gradients at the $(2p)^2$ Gauss points of \code{Ke_2D};
+  \item $\Lambda_M$, $\Lambda_N$: Lebesgue constants of the metric and of the
+    parametric interpolation on a $(4p+9)^2$ grid in the element;
+  \item $\|\matr K_e-\matr K_e^{\T}\|_F/\|\matr K_e\|_F$ on the parallelogram;
+  \item at mesh level ($3\times2$ mesh, angular and curved-edge distortion $0.3$,
+    \code{tests/integration/PatchTest.m}): the harmonic patch test of degree $p$
+    and the field $\vect u=(e^x\cos y,\,-e^x\sin y)$.
+\end{itemize}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}
+    \begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.6cm,
+        vertical sep=2.0cm}, width=0.47\linewidth, height=0.36\linewidth,
+        ymode=log, grid=major, xlabel={$p$}, ylabel={$\kappa_2(\matr V)$},
+        ymin=0.5, ymax=1e16, xmin=1, xmax=16, cycle list name=metricbasis,
+        every axis plot/.append style={mark size=1.4pt}]
+      \nextgroupplot[title={parallelogram},
+        legend to name=leg:metricbasis, legend columns=4,
+        legend style={font=\footnotesize}]
+      \addplot+[mark=*] table[x=p, y=kappa_mon]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[mark=square*] table[x=p, y=kappa_leg]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[mark=triangle*] table[x=p, y=kappa_che]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[mark=diamond*] table[x=p, y=kappa_lag]{figures/data/metric-basis-parallelogram.dat};
+      \legend{monomial, Legendre, Chebyshev, Lagrange}
+      \nextgroupplot[title={trapezoid}]
+      \addplot+[mark=*] table[x=p, y=kappa_mon]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=square*] table[x=p, y=kappa_leg]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=triangle*] table[x=p, y=kappa_che]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=diamond*] table[x=p, y=kappa_lag]{figures/data/metric-basis-trapezoid.dat};
+      \nextgroupplot[title={curved}]
+      \addplot+[mark=*] table[x=p, y=kappa_mon]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=square*] table[x=p, y=kappa_leg]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=triangle*] table[x=p, y=kappa_che]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=diamond*] table[x=p, y=kappa_lag]{figures/data/metric-basis-curved.dat};
+      \nextgroupplot[title={general}]
+      \addplot+[mark=*] table[x=p, y=kappa_mon]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=square*] table[x=p, y=kappa_leg]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=triangle*] table[x=p, y=kappa_che]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=diamond*] table[x=p, y=kappa_lag]{figures/data/metric-basis-general.dat};
+    \end{groupplot}
+  \end{tikzpicture}\\[2pt]
+  \ref{leg:metricbasis}
+  \caption{Condition number of the metric Vandermonde matrix (bounding-box
+    scaling for the Legendre, Chebyshev and Lagrange bases).}
+  \label{fig:metric-basis-kappa}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}
+    \begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.6cm,
+        vertical sep=2.0cm}, width=0.47\linewidth, height=0.36\linewidth,
+        ymode=log, grid=major, xlabel={$p$}, ylabel={$e_\delta$},
+        ymin=1e-17, ymax=1, xmin=1, xmax=16, cycle list name=metricbasis,
+        every axis plot/.append style={mark size=1.4pt},
+        unbounded coords=discard]
+      \nextgroupplot[title={parallelogram}]
+      \addplot+[mark=*] table[x=p, y=eKron_mon]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[mark=square*] table[x=p, y=eKron_leg]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eKron_che]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[mark=diamond*] table[x=p, y=eKron_lag]{figures/data/metric-basis-parallelogram.dat};
+      \nextgroupplot[title={trapezoid}]
+      \addplot+[mark=*] table[x=p, y=eKron_mon]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=square*] table[x=p, y=eKron_leg]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eKron_che]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=diamond*] table[x=p, y=eKron_lag]{figures/data/metric-basis-trapezoid.dat};
+      \nextgroupplot[title={curved}]
+      \addplot+[mark=*] table[x=p, y=eKron_mon]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=square*] table[x=p, y=eKron_leg]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eKron_che]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=diamond*] table[x=p, y=eKron_lag]{figures/data/metric-basis-curved.dat};
+      \nextgroupplot[title={general}]
+      \addplot+[mark=*] table[x=p, y=eKron_mon]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=square*] table[x=p, y=eKron_leg]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eKron_che]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=diamond*] table[x=p, y=eKron_lag]{figures/data/metric-basis-general.dat};
+    \end{groupplot}
+  \end{tikzpicture}\\[2pt]
+  \ref{leg:metricbasis}
+  \caption{Error of the Kronecker property of the computed metric shape functions
+    (exact zeros are omitted; the Lagrange basis on the parallelogram gives
+    $e_\delta\le10^{-28}$, below the plotted range).}
+  \label{fig:metric-basis-kron}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}
+    \begin{groupplot}[group style={group size=2 by 1, horizontal sep=1.8cm},
+        width=0.47\linewidth, height=0.38\linewidth, ymode=log, grid=major,
+        xlabel={$p$}, xmin=1, xmax=16, cycle list name=metricbasis,
+        every axis plot/.append style={mark size=1.4pt}]
+      \nextgroupplot[ylabel={Lebesgue constant}, ymax=1e15,
+        legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west}]
+      \addplot+[mark=*] table[x=p, y=LebM]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=square*] table[x=p, y=LebM]{figures/data/metric-basis-general.dat};
+      \addplot+[mark=triangle*] table[x=p, y=LebM]{figures/data/metric-basis-curved.dat};
+      \addplot+[mark=diamond*] table[x=p, y=LebM]{figures/data/metric-basis-parallelogram.dat};
+      \addplot+[black, dashed, mark=none] table[x=p, y=LebN]{figures/data/metric-basis-general.dat};
+      \legend{$\Lambda_M$ trapezoid, $\Lambda_M$ general, $\Lambda_M$ curved,
+              $\Lambda_M$ parallelogram, $\Lambda_N$}
+      \nextgroupplot[ylabel={$e_P$ (trapezoid)}, ymin=1e-17,
+        legend style={font=\scriptsize, at={(0.98,0.02)}, anchor=south east}]
+      \addplot+[mark=*] table[x=p, y=eRep_mon]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=square*] table[x=p, y=eRep_leg]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eRep_che]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[mark=diamond*] table[x=p, y=eRep_lag]{figures/data/metric-basis-trapezoid.dat};
+      \addplot+[black, dashed, mark=none] table[x=p, y expr=1.1e-16*\thisrow{LebM}]{figures/data/metric-basis-trapezoid.dat};
+      \legend{monomial, Legendre, Chebyshev, Lagrange, $u\,\Lambda_M$}
+    \end{groupplot}
+  \end{tikzpicture}
+  \caption{Left: Lebesgue constants of the metric ($\Lambda_M$) and parametric
+    ($\Lambda_N$) interpolation; $\Lambda_M=\Lambda_N$ on the parallelogram.
+    Right: reproduction error of the polynomials of total degree $\le p$ on the
+    trapezoid; it is independent of the basis and follows $u\Lambda_M$.}
+  \label{fig:metric-basis-leb}
+\end{figure}
+
+\paragraph{Conditioning (\cref{fig:metric-basis-kappa}).} With monomials
+$\kappa_2(\matr V)$ grows exponentially already on the parallelogram,
+from $2.9\times10^2$ ($p=4$) over $2.9\times10^5$ ($p=8$) to
+$3.5\times10^{11}$ ($p=16$), a factor of about $5.7$ per degree, close to
+$(1+\sqrt2)^2\approx5.8$, i.e.\ about $(1+\sqrt2)^{p}$ for each of the two 1D
+factors. On the parallelogram the Lagrange basis gives $\kappa_2=1$ for every
+$p$, Chebyshev $\approx2.6$, Legendre grows linearly ($55$ at $p=16$). On the
+distorted elements all three alternatives are within a factor of $3$ of one
+another; their gain over the monomials is a factor $6$--$13$ at $p=4$ and
+$1$--$5\times10^4$ at $p=16$ (trapezoid
+$5.0\times10^{15}\to3.8$--$8.6\times10^{11}$, curved
+$1.4\times10^{13}\to3.1$--$4.8\times10^{8}$, general
+$9.0\times10^{14}\to0.9$--$2.0\times10^{11}$). Without the bounding-box scaling
+the alternatives lose more than three orders of magnitude on the trapezoid
+($\kappa_2=2.2\times10^{15}$ instead of $8.6\times10^{11}$ for the Lagrange basis
+at $p=16$).
+
+\paragraph{Accuracy of the shape functions (\cref{fig:metric-basis-kron}).}
+$e_\delta$ follows $\kappa_2(\matr V)\,u$. On the parallelogram the monomials give
+$e_\delta=2.0\times10^{-12}$ ($p=8$), $2.4\times10^{-9}$ ($p=12$) and
+$1.1\times10^{-6}$ ($p=16$); with the Lagrange basis $e_\delta\le10^{-28}$. On
+the distorted elements at $p=16$ the monomials give $3.0\times10^{-2}$
+(trapezoid), $4.9\times10^{-5}$ (curved), $6.5\times10^{-4}$ (general), the
+Lagrange basis $7.1\times10^{-6}$, $6.0\times10^{-9}$, $1.8\times10^{-6}$; the
+Legendre basis is equally good. For $p\le6$ all bases give
+$e_\delta<5\times10^{-13}$.
+
+\paragraph{Polynomial reproduction (\cref{fig:metric-basis-leb}, right).} The
+reproduction errors $e_P$ and $e_{\nabla P}$ are practically the same for all
+bases, also for the monomials, and follow $u\Lambda_M$ (trapezoid, $p=16$:
+$e_P\approx2\times10^{-9}$, $e_{\nabla P}\approx1$--$3\times10^{-8}$). The reason:
+for nodal data $\vect f=\matr V^{\T}\vect c$ of a function in the space, the
+first-order error of the computed interpolant is
+$\vect c^{\T}\delta\matr V\,\matr N$ with the backward error $\delta\matr V$ of the
+LU factorization, $|\vect c^{\T}\delta\matr V\matr N|\lesssim
+u\,\|\vect c\|\,\|\matr V\|\,\Lambda_M$, and $\|\vect c\|\|\matr V\|$ is moderate
+for low-degree polynomials in every basis. For generic nodal data (e.g.\ unit
+vectors, as in $e_\delta$, or round-off-contaminated or oscillatory fields)
+$\|\vect c\|$ can be as large as $\|\matr V^{-1}\|\,\|\vect f\|$, and the error
+is $\mathcal O(\kappa(\matr V)\,u)$. The element matrices are built from the
+individual functions $M_l$ and $\nabla M_l$, not from reproduced polynomials,
+which is why the asymmetry of $\matr K_e$ on the parallelogram follows $e_\delta$:
+\begin{center}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    $p$ & 4 & 6 & 8 & 10 & 12 & 16 \\
+    \midrule
+    monomial & $2.2\times10^{-15}$ & $8.4\times10^{-14}$ & $4.2\times10^{-12}$ &
+      $1.3\times10^{-10}$ & $2.9\times10^{-9}$ & $2.0\times10^{-6}$ \\
+    Lagrange & $1.6\times10^{-15}$ & $2.0\times10^{-15}$ & $4.6\times10^{-15}$ &
+      $1.5\times10^{-14}$ & $1.5\times10^{-14}$ & $3.4\times10^{-14}$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+($\|\matr K_e-\matr K_e^{\T}\|_F/\|\matr K_e\|_F$; in exact arithmetic $0$.)
+
+\paragraph{Mesh level.} On the distorted $3\times2$ test mesh the basis makes
+no practical difference up to $p=12$ (all four bases):
+\begin{center}
+  \small\setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lcccccc@{}}
+    \toprule
+    $p$ & 2 & 4 & 6 & 8 & 10 & 12 \\
+    \midrule
+    patch, monomial & $2.5\times10^{-16}$ & $6.6\times10^{-16}$ &
+      $1.0\times10^{-14}$ & $2.6\times10^{-14}$ & $8.3\times10^{-13}$ &
+      $1.4\times10^{-13}$ \\
+    patch, Lagrange & $2.5\times10^{-16}$ & $8.6\times10^{-16}$ &
+      $1.6\times10^{-14}$ & $3.1\times10^{-14}$ & $3.3\times10^{-13}$ &
+      $3.3\times10^{-13}$ \\
+    $e^x\cos y$, monomial & $4.9\times10^{-3}$ & $2.8\times10^{-5}$ &
+      $2.0\times10^{-7}$ & $3.3\times10^{-10}$ & $1.9\times10^{-11}$ &
+      $1.1\times10^{-11}$ \\
+    $e^x\cos y$, Lagrange & $4.9\times10^{-3}$ & $2.8\times10^{-5}$ &
+      $2.0\times10^{-7}$ & $3.3\times10^{-10}$ & $2.1\times10^{-11}$ &
+      $1.7\times10^{-11}$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+(maximum relative nodal error; Legendre and Chebyshev lie in the same ranges,
+\code{docs/figures/data/metric-basis-mesh.dat}). Both quantities are of the
+reproduction type: the exact solutions are polynomials or smooth fields with
+rapidly decaying coefficients, so, as explained above, they are insensitive to
+$\kappa(\matr V)$. The monomial basis thus did not spoil static results in the
+range $p\le12$ used so far; the gain of the new basis lies in the accuracy of the
+individual shape functions and element matrices (symmetry on affine elements,
+Kronecker property used by the GLL nodal-quadrature mass matrix, generic nodal
+data such as eigenvectors or wave fields), and it becomes decisive for $p\gtrsim12$
+($e_\delta$ of the monomials $\ge2\times10^{-9}$ on every test element, up to
+$3\times10^{-2}$ at $p=16$).
+
+\paragraph{Cost.} All bases are evaluated with vectorized recurrences or
+products; the Lagrange basis costs $\mathcal O(p^2)$ instead of $\mathcal O(p)$
+operations per 1D function and point. Measured in GNU Octave, a call of
+\code{ShapeFunctions2D_Metric} with the $(2p)^2$ Gauss points takes
+$0.5$--$1.9$ times as long as with monomials (no systematic trend with $p$);
+the solve with the $(p+1)^2\times(p+1)^2$ matrix and the evaluation of the
+parametric functions dominate the element routines in either case.
+
+\section{Choice and implementation}
+
+\begin{itemize}
+  \item \textbf{Default: Lagrange basis of the reference element in
+    bounding-box scaled skew coordinates} (\code{p.metricBasis = 'lagrange'}). It
+    is the only candidate that is exact on affine elements ($\matr V$ a
+    permutation matrix, so metric and parametric functions coincide to
+    round-off and $\matr K_e$ is symmetric to round-off for all $p$), it has the
+    interpretation of Proposition~2, and on distorted elements it is as accurate as
+    the orthogonal bases. It uses the node distribution \code{p.ndist} of the
+    element, so that $\matr V$ is a permutation matrix for every distribution.
+  \item \code{'legendre'} and \code{'chebyshev'} are retained for comparison;
+    they are marginally better conditioned on the distorted test elements
+    ($\le$ factor 3) and not exact on affine ones.
+  \item \code{'monomial'} reproduces the previous implementation (no scaling). It
+    is adequate for $p\lesssim6$ ($e_\delta<5\times10^{-13}$) and should not be used
+    for $p\gtrsim10$.
+  \item \code{method = 0} (dimensional global coordinates,
+    \cite{Rajendran2003novel}) always uses monomials; the reference interval has
+    no meaning there.
+  \item Nothing changes for the existing tests and results within round-off:
+    the full test suite (patch tests, Lee \& Bathe benchmarks, element matrices,
+    time integrators) passes unchanged.
+\end{itemize}
+
+\section{Limitation and outlook: the Lebesgue constant of
+\texorpdfstring{$Q_p(s,t)$}{Qp(s,t)}}
+\label{sec:metric-basis-outlook}
+
+\Cref{fig:metric-basis-leb} shows that the Lebesgue constant $\Lambda_M$ of the
+metric interpolation grows exponentially with $p$ on distorted elements, while
+that of the parametric interpolation, $\Lambda_N$, grows only logarithmically
+($\Lambda_N\approx6.1$ at $p=16$). This is a property of the space $Q_p(s,t)$
+on the mapped node set and is independent of the basis
+(Proposition~1). Its consequences:
+\begin{itemize}
+  \item \textbf{Round-off floor.} Perturbations of nodal values are amplified by
+    up to $\Lambda_M$, and by \cref{eq:kappa-lagrange} the shape functions carry
+    errors of order $\Lambda_M u$ even with the best basis. On the trapezoid of
+    \code{usemTestElement} ($|s|\le1.27$), $\Lambda_M\approx8\times10^2$ at $p=8$
+    and $4\times10^7$ at $p=16$.
+  \item \textbf{Approximation.} For fields outside the trial space the
+    interpolation error bound contains the factor $1+\Lambda_M$. Whether the
+    Petrov--Galerkin solution inherits this depends on the discrete inf-sup
+    constant, which is not analysed here; the mesh-level results in
+    \cref{sec:metric-basis-results} show no deterioration up to $p=12$ on the
+    mildly distorted test mesh.
+\end{itemize}
+The growth is not a consequence of Cartesian completeness. The hybrid space
+\begin{equation}
+  T_p = P_p(x,y)\;\oplus\;\operatorname{span}\{L_a(\xi)L_b(\eta):\ a,b\le p,\
+  a+b>p\}
+\end{equation}
+has the same dimension $(p+1)^2$, contains $P_p(x,y)$ (so Rajendran's
+completeness condition and the patch tests are unaffected) and is frame invariant,
+but its high-order complement is written in the parametric coordinates, in which
+the nodes form a tensor grid. \code{probe_hybrid_space.m} gives a Lebesgue constant
+close to the parametric one on all distorted test elements
+(\cref{fig:metric-basis-hybrid}): at $p=16$, $6.0$ instead of $4.0\times10^7$
+(trapezoid), $6.1$ instead of $5.5\times10^4$ (curved) and $8.5$ instead of
+$6.7\times10^6$ (general). On affine elements $T_p=Q_p$. Using $T_p$ would change the
+element, not only its numerics: the trial functions are no longer polynomials in
+$(x,y)$, their evaluation needs the parametric coordinates of the query points
+(available in all element routines, which evaluate at mapped Gauss points), and
+accuracy, stability and the dynamic behaviour would have to be re-assessed. It is
+therefore not implemented; it is the most promising follow-up of this study.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}
+    \begin{semilogyaxis}[width=0.62\linewidth, height=0.42\linewidth,
+        xlabel={$p$}, ylabel={Lebesgue constant}, grid=major, ymax=1e12,
+        legend style={font=\footnotesize, at={(0.02,0.98)}, anchor=north west},
+        cycle list name=metricbasis]
+      \addplot+[mark=square*] table[x=p, y=LebQ_trapezoid]{figures/data/metric-basis-hybrid.dat};
+      \addplot+[mark=triangle*] table[x=p, y=LebQ_general]{figures/data/metric-basis-hybrid.dat};
+      \addplot+[mark=o] table[x=p, y=LebQ_curved]{figures/data/metric-basis-hybrid.dat};
+      \addplot+[mark=square, dashed] table[x=p, y=LebH_trapezoid]{figures/data/metric-basis-hybrid.dat};
+      \addplot+[mark=triangle, dashed] table[x=p, y=LebH_general]{figures/data/metric-basis-hybrid.dat};
+      \addplot+[mark=x, dashed] table[x=p, y=LebH_curved]{figures/data/metric-basis-hybrid.dat};
+      \legend{{$Q_p(s,t)$ trapezoid}, {$Q_p(s,t)$ general}, {$Q_p(s,t)$ curved},
+              $T_p$ trapezoid, $T_p$ general, $T_p$ curved}
+    \end{semilogyaxis}
+  \end{tikzpicture}
+  \caption{Lebesgue constant of the metric interpolation in $Q_p(s,t)$ (current
+    element) and in the hybrid space $T_p$ (outlook) on the distorted test
+    elements.}
+  \label{fig:metric-basis-hybrid}
+\end{figure}
