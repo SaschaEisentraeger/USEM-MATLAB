@@ -83,8 +83,27 @@ fprintf('\n%d passed, %d failed, %d incomplete (%.1f s)\n', ...
     nnz([results.Passed]), nnz([results.Failed]), ...
     nnz([results.Incomplete]), sum([results.Duration]));
 
+% On GitHub Actions, report every failure as an annotation (visible on the
+% run page without downloading the log)
+if strcmp(getenv('GITHUB_ACTIONS'), 'true')
+    for k = 1:numel(failed)
+        githubAnnotation(failed(k));
+    end
+end
+
 if any([results.Failed])
     error('run_tests:failed', '%d test(s) failed.', nnz([results.Failed]));
 end
 
+end
+
+function githubAnnotation(result)
+% Print a workflow command ::error title=...::message for a failed test
+msg = '';
+if isfield(result.Details, 'DiagnosticRecord') && ~isempty(result.Details.DiagnosticRecord)
+    msg = result.Details.DiagnosticRecord(1).Report;
+end
+msg = msg(1:min(end, 3000));
+esc = @(s) strrep(strrep(strrep(s, '%', '%25'), sprintf('\r'), ''), newline, '%0A');
+fprintf('::error title=%s::%s\n', esc(result.Name), esc(msg));
 end
