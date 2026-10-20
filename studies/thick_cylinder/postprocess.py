@@ -8,12 +8,14 @@ Reads results/raw/study_aXXX.csv (written by matlab/run_study.m) and writes
   results/tables/diag_N<N>.dat                     metric-function diagnostics
   results/tables/rates.csv                         observed convergence rates
   report/generated/*.tex                           LaTeX tables for the report
+and, from results/raw/interp_aXXX.csv (matlab/run_interpolation_study.m), the
+ratio of discretization to interpolation error (report/generated/interp_ratio_*.tex).
 
 Rates are computed from consecutive meshes, r = log(e_N/e_2N)/log(2) (the
 element size scales with 1/N). A rate is only reported if both errors are
-above FLOOR and, for the PM element with p >= 5, above ROUNDOFF_FACTOR times
-the error of the polynomial field on the same mesh (empirical round-off
-level), otherwise '--'.
+above FLOOR and, for the unsymmetric elements (PM, PH) with p >= 5, above
+ROUNDOFF_FACTOR times the error of the polynomial field on the same mesh
+(empirical round-off level), otherwise '--'.
 """
 import csv
 import glob
@@ -276,8 +278,50 @@ def main():
     print(f"{len(rows)} rows, alphas {alphas}, N {Ns}, p {ps}")
 
 
+def interp_table(problem="smooth", N=8, alphas=(15, 30), ps=range(2, 9)):
+    """e_E(discrete solution)/e_E(interpolant of the exact field) in the same
+    trial space; '--' if the interpolation error is below the round-off level
+    (FLOOR, and for PM/PH with p >= 5 ROUNDOFF_FACTOR times the error of the
+    polynomial field on the same mesh), 'rej.' if the element was rejected."""
+    def read(name):
+        with open(os.path.join(RAW, name)) as fh:
+            return {(r["problem"], r["form"], int(r["N"]), int(r["p"])): float(r["energy"])
+                    for r in csv.DictReader(fh)}
+    names = {"PM": "\\PM\\ (unsymmetric, skew coordinates)", "PH": "\\PH\\ (unsymmetric, hybrid space)",
+             "PP": "\\PP\\ (conventional)"}
+    ps = list(ps)
+    L = ["\\begin{tabular}{l" + "r" * len(ps) + "}", "\\toprule",
+         "& \\multicolumn{" + str(len(ps)) + "}{c}{$p$}\\\\", "\\cmidrule(lr){2-" + str(len(ps) + 1) + "}",
+         " & " + " & ".join(str(p) for p in ps) + "\\\\", "\\midrule"]
+    for fo in FORMS:
+        L.append("\\multicolumn{" + str(len(ps) + 1) + "}{l}{" + names[fo] + "}\\\\")
+        for a in alphas:
+            I = read(f"interp_a{a:03d}.csv")
+            D = read(f"study_a{a:03d}.csv")
+            cells = []
+            for p in ps:
+                ei, ed = I[(problem, fo, N, p)], D[(problem, fo, N, p)]
+                floor = FLOOR["energy"]
+                if fo != "PP" and p >= 5:
+                    floor = max(floor, ROUNDOFF_FACTOR * D[("poly", fo, N, p)])
+                if math.isnan(ed) or math.isnan(ei):
+                    cells.append("rej.")
+                elif ei < floor:
+                    cells.append("--")
+                else:
+                    cells.append(f"{ed / ei:.2f}" if ed / ei < 100 else sci(ed / ei))
+            dag = "$^\\dagger$" if a >= 45 else ""
+            L.append(f"$\\alpha={a}^\\circ${dag} & " + " & ".join(cells) + "\\\\")
+        L.append("\\midrule" if fo != "PP" else "\\bottomrule")
+    L.append("\\end{tabular}")
+    with open(os.path.join(GEN, f"interp_ratio_{problem}.tex"), "w") as fh:
+        fh.write("\n".join(L) + "\n")
+
+
 if __name__ == "__main__":
     main()
+    interp_table("smooth")
+    interp_table("lame")
 
 
 # ---------------------------------------------------------------------------

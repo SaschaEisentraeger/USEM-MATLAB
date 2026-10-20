@@ -1,7 +1,7 @@
 \section{Formulation and set-up}\label{sec:setup}
 
 \subsection{Elements}\label{sec:elements}
-Both elements use the same geometry, the same nodes and the same test functions:
+The three elements use the same geometry, the same nodes and the same test functions:
 Lagrange polynomials $N_i(\bxi)\in Q_p$ on the $(p+1)^2$ Gauss--Lobatto--Legendre
 (GLL) nodes of the reference square, mapped isoparametrically, $\bx(\bxi)=\sum_i
 N_i(\bxi)\,\bx_i$. They differ in the trial functions.
@@ -23,18 +23,38 @@ N_i(\bxi)\,\bx_i$. They differ in the trial functions.
   $\bxi$; this is the Jacobian-unlimited formulation PM-QUAD8$^\ast$ of
   \citet{Rajendran2010technique} generalised to degree $p$ (conditions C1--C3 of
   that paper). The trial space is non-conforming (the $M_i^e$ are not continuous
-  across element edges).
+  across element edges). The code base solves for the $M_i^e$ in the Lagrange basis on the
+  GLL points of the bounding box of the skew node coordinates
+  (\texttt{p.metricBasis = 'lagrange'}, default); this changes the conditioning $\kappa(\bm V)$
+  of the interpolation matrix, not the trial space, so all errors are those of the monomial
+  basis up to round-off.
+\item \PH\ (unsymmetric spectral element with hybrid trial space,
+  \texttt{p.metricMethod = 2}): same test functions, Jacobian cancellation and
+  \eqref{eq:Kpm}, but the trial functions span
+  \begin{equation}
+    T_p^e=P_p(\hat x,\hat y)\oplus\operatorname{span}\{L_a(\xi)L_b(\eta):\ a,b\le p,\ a+b>p\}
+    \label{eq:hybrid}
+  \end{equation}
+  ($L_a$: Legendre polynomials), i.e.\ metric polynomials only for the complete space
+  $P_p(\bx)$, which guarantees completeness and polynomial exactness, and parametric
+  functions for the remaining $(p+1)^2-\tfrac12(p+1)(p+2)$ functions. $\dim T_p^e=(p+1)^2$; on
+  bilinear elements $T_p^e=Q_p(\bxi)$, and on affine elements $T_p^e=Q_p(\bx)$
+  (\texttt{docs}, chapter on the metric basis). The strains of the complement need
+  $\bm J^{-1}$, so \PH\ is undefined where $\det\bm J=0$ at a quadrature point (not encountered
+  here).
 \item \PP\ (conventional spectral element, reference): parametric functions as
   test and trial functions, $\bm K^e=\int\bm B_L^{\mathsf T}\bm D\bm B_L\det\bm
   J\dd\xi\dd\eta$ (\texttt{tests/helpers/usemKeSymmetric.m}).
 \end{itemize}
-The load vectors are identical for both elements (parametric test functions),
+The load vectors are identical for the three elements (parametric test functions),
 $\bm f^e=\int N_i\,\bm b\det\bm J\dd\xi\dd\eta+\int_{\Gamma_N}N_i\,\bar{\bm t}\dd s$.
 The stiffness matrices use the default rule of \texttt{Ke\_2D.m}, $2p\times2p$
 Gauss points; loads and error integrals use $(3p+2)^2$ points. The element
 matrices of the study (\texttt{cyl\_Ke\_PM.m}, \texttt{cyl\_Ke\_PP.m}) are
 vectorised versions of \texttt{Ke\_2D.m} and \texttt{usemKeSymmetric.m}; they agree
-with them to round-off (\cref{tab:verification}).
+with them to round-off (\cref{tab:verification}). \texttt{ShapeFunctions2D\_Metric} stops with an
+error when the interpolation matrix of an element is singular to working precision
+($\mathrm{rcond}<\varepsilon$, both unsymmetric elements); such cases are marked ``rej.''.
 
 \subsection{Model and mesh (gmsh)}\label{sec:mesh}
 Thick cylinder under internal pressure (Section~5.9 of
@@ -94,7 +114,7 @@ normal, the polynomial patch test fails at the level of the geometry error, e.g.
 $\eE\approx3\cdot10^{-6}$ for $p=5$, $N=1$).
 
 \subsection{Error measures}\label{sec:errors}
-With the strain field of the respective trial functions (metric for \PM,
+With the strain field of the respective trial functions (metric for \PM, hybrid for \PH,
 parametric for \PP),
 \begin{equation}
   \eE^2=\frac{\sum_e\int_{\hat\Omega}(\bm\varepsilon-\bm\varepsilon_h^e)^{\mathsf T}\bm D
