@@ -79,6 +79,8 @@ scripts, not functions, so all variables stay in the base workspace.
     \code{'lagrange'} (default), \code{'legendre'}, \code{'chebyshev'},
     \code{'monomial'} (previous implementation); does not change the shape
     functions, only their round-off (\cref{ch:metric-basis}) \\
+  \code{p.metricMethod} & trial space of the metric functions: 1 = $Q_p$ in skew
+    coordinates (default), 2 = hybrid space (\cref{sec:metric-hybrid}) \\
   \code{mass_matrix} & 1 consistent, 2 nodal quadrature (GLL), 3 row-sum, 4 HRZ \\
   \code{flag_mRHS} & dynamic analysis: one right-hand side per load case; if
     true, only the central difference (\code{Method < 300}) or HHT-$\alpha$

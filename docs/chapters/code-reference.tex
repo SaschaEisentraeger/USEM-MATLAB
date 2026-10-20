@@ -31,11 +31,15 @@ header) operate on the base workspace.
   \code{ShapeFunctions/2D/ShapeFunctions2D_SEM(xi, eta, p)} & parametric (test)
     shape functions and $\partial/\partial\xi$, $\partial/\partial\eta$;
     \code{[nNodes x nPoints]} arrays \\
-  \code{ShapeFunctions/2D/ShapeFunctions2D_Metric(xQ, yQ, xN, yN, p [, method])} &
+  \code{ShapeFunctions/2D/ShapeFunctions2D_Metric(xQ, yQ, xN, yN, p [, method, xiQ])} &
     metric (trial) shape functions and $\partial/\partial x$, $\partial/\partial y$;
-    \code{method} 1 = skew coordinates (default), 0 = global coordinates; basis of
-    the Vandermonde matrix from \code{p.metricBasis} (default \code{'lagrange'},
+    \code{method} 1 = $Q_p$ in skew coordinates (default), 0 = global coordinates,
+    2 = hybrid space (\cref{sec:metric-hybrid}; \code{xiQ}: local coordinates of the
+    query points); empty \code{method}: \code{p.metricMethod}; basis of the
+    Vandermonde matrix from \code{p.metricBasis} (default \code{'lagrange'},
     \cref{ch:metric-basis}); optional 4th output $\matr V$ \\
+  \code{ShapeFunctions/2D/ReferenceNodes2D(p)} & local coordinates of the element
+    nodes in the order of \code{ShapeFunctions2D_SEM} \\
   \code{ShapeFunctions/2D/CorotationalSkewCoordinates(xQ, yQ, xN, yN, p)} & skew
     coordinates $(s,t)$ and $\matr J_0$ \\
   \code{ShapeFunctions/2D/ShapeFunctions2D_4nodes}, \code{_8nodes} & bilinear and
@@ -49,6 +53,8 @@ header) operate on the base workspace.
   \code{ShapeFunctions/1D/PolynomialBasis1D(s, n, basis, ndist)} & 1D bases
     (monomial, Legendre, Chebyshev, Lagrange on the reference nodes) and their
     derivatives, vectorized \\
+  \code{GeometryMapping/Global2LocalNewton(xQ, yQ, xN, yN, p)} & inverse mapping
+    $\vect x\mapsto(\xi,\eta)$ by Newton's method, vectorized, no toolbox \\
   \code{GeometryMapping/Jacobi_Matrix(p, [xi eta], x, y)} &
     $\matr J = [x_{,\xi}\ y_{,\xi};\ x_{,\eta}\ y_{,\eta}]$ \\
   \code{GeometryMapping/Local2GlobalCoordinatesQuad(p, P, [x y])} &

@@ -70,7 +70,7 @@ latexmk -pdf usem-documentation.tex
 
 ```matlab
 cd tests
-run_tests          % about 800 tests, roughly 2 minutes, base MATLAB only
+run_tests          % about 1000 tests, roughly 2 minutes, base MATLAB only
 ```
 
 The suite checks, among other things, the completeness and frame invariance of the metric

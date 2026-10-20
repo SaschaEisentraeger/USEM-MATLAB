@@ -163,6 +163,11 @@ Properties (all covered by \code{tests/unit/MetricShapeFunctionsTest.m}):
     functions coincide, so the element is the classical spectral element and
     $\matr K_e$ is symmetric.
 \end{itemize}
+\code{method = 2} (or \code{p.metricMethod = 2}) replaces $Q_p(s,t)$ by the hybrid
+space $P_p(x,y)\oplus\operatorname{span}\{L_a(\xi)L_b(\eta): a+b>p\}$
+(\cref{sec:metric-hybrid}), which has the same properties, equals the parametric
+space on all straight-edged elements and avoids the exponential growth of the
+Lebesgue constant of $Q_p(s,t)$ on distorted elements.
 
 \section{Element matrices}
 

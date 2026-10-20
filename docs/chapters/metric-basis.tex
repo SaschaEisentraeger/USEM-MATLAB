@@ -11,10 +11,12 @@ matrix (\cref{ch:theory}). The original implementation used monomials
 $s^a t^b$ in skew coordinates. This chapter examines whether a Vandermonde
 matrix built from other polynomials is advantageous, explains why the Lagrange
 basis of the reference element was chosen as the new default, and documents a
-limitation that no choice of basis can remove. The numbers are produced by
-\code{studies/metric_basis/study_metric_basis.m} and
-\code{studies/metric_basis/probe_hybrid_space.m} (MATLAB or GNU Octave); the
-tests are in \code{tests/unit/MetricBasisTest.m}. The data in
+limitation that no choice of basis can remove, together with the hybrid trial
+space (\texttt{method = 2}) that avoids it. The numbers are produced by
+\code{studies/metric_basis/study_metric_basis.m},
+\code{probe_hybrid_space.m} and \code{study_hybrid_space.m} (MATLAB or GNU Octave);
+the tests are in \code{tests/unit/MetricBasisTest.m} and
+\code{tests/unit/MetricHybridTest.m}. The data in
 \code{docs/figures/data/metric-basis-*.dat} were computed with GNU Octave~8.4
 (IEEE double precision, LAPACK LU); values at round-off level can differ in the
 last digits in MATLAB.
@@ -381,7 +383,7 @@ parametric functions dominate the element routines in either case.
     time integrators) passes unchanged.
 \end{itemize}
 
-\section{Limitation and outlook: the Lebesgue constant of
+\section{Limitation: the Lebesgue constant of
 \texorpdfstring{$Q_p(s,t)$}{Qp(s,t)}}
 \label{sec:metric-basis-outlook}
 
@@ -400,28 +402,164 @@ on the mapped node set and is independent of the basis
   \item \textbf{Approximation.} For fields outside the trial space the
     interpolation error bound contains the factor $1+\Lambda_M$. Whether the
     Petrov--Galerkin solution inherits this depends on the discrete inf-sup
-    constant, which is not analysed here; the mesh-level results in
-    \cref{sec:metric-basis-results} show no deterioration up to $p=12$ on the
-    mildly distorted test mesh.
+    constant, which is not analysed here (see \cref{sec:metric-hybrid} for
+    mesh-level results).
 \end{itemize}
-The growth is not a consequence of Cartesian completeness. The hybrid space
+The growth is not a consequence of Cartesian completeness, which leads to the
+hybrid trial space of the next section.
+
+\section{Hybrid trial space (\texttt{method = 2})}
+\label{sec:metric-hybrid}
+
+\paragraph{Definition.} With $m=\min(p_\xi,p_\eta)$ and the Legendre
+polynomials $L_a$,
 \begin{equation}
-  T_p = P_p(x,y)\;\oplus\;\operatorname{span}\{L_a(\xi)L_b(\eta):\ a,b\le p,\
-  a+b>p\}
+  T_p = P_m(x,y)\;\oplus\;\operatorname{span}\{L_a(\xi)L_b(\eta):\
+  a\le p_\xi,\ b\le p_\eta,\ a+b>m\}.
+  \label{eq:hybrid-space}
 \end{equation}
-has the same dimension $(p+1)^2$, contains $P_p(x,y)$ (so Rajendran's
-completeness condition and the patch tests are unaffected) and is frame invariant,
-but its high-order complement is written in the parametric coordinates, in which
-the nodes form a tensor grid. \code{probe_hybrid_space.m} gives a Lebesgue constant
-close to the parametric one on all distorted test elements
+$P_m(x,y)$ is represented by $L_a(\tilde s)L_b(\tilde t)$, $a+b\le m$, in the
+scaled skew coordinates (affine in $\vect x$). The complement is written in the
+parametric coordinates, in which the element nodes form a tensor grid. Requirements
+for a metric trial space are $\dim T=(p_\xi+1)(p_\eta+1)$, $P_m(x,y)\subset T$
+(completeness, hence distortion immunity and exact patch tests), frame invariance
+and unisolvence. Beyond completeness the space can be chosen freely; $Q_p(s,t)$ is
+one choice, \eqref{eq:hybrid-space} another. For non-affine maps the complement
+depends on the polynomials used ($\operatorname{span}\{L_aL_b: a+b>m\}\ne
+\operatorname{span}\{\xi^a\eta^b: a+b>m\}$ modulo $P_m(x,y)$), so the Legendre
+basis is part of the definition and \code{p.metricBasis} is ignored.
+
+\paragraph{Proposition 3 (straight-edged elements).} If the geometry map is
+bilinear and the hybrid Vandermonde matrix is non-singular, then
+$T_p=Q_p(\xi,\eta)$: the metric functions coincide with the parametric ones and the
+element is the classical (symmetric) spectral element.
+
+\emph{Proof.} For a bilinear map $x,y\in Q_1(\xi,\eta)$, so $x^ay^b$ is a product
+of $a+b$ functions of $Q_1$ and lies in $Q_{a+b}\subset Q_p$ for $a+b\le m$
+\parencite[cf.][]{Arnold2002Approximation}. The complement lies in $Q_p(\xi,\eta)$
+by construction. Hence $T_p\subset Q_p(\xi,\eta)$, and since the
+$(p_\xi+1)(p_\eta+1)$ generating functions are linearly independent (non-singular
+$\matr V$), the dimensions agree. \hfill$\square$
+
+A corollary of the same argument: the classical Lagrange spectral element on
+straight-edged quadrilaterals already contains $P_p(x,y)$ and passes all patch
+tests of degree $\le p$ under angular distortion (verified numerically with
+\code{usemKeSymmetric} on the angular test mesh, $p=2,3,4$). The loss of
+completeness under angular distortion reported by \textcite{Lee1993effects}
+concerns serendipity elements. For full tensor-product spectral elements the
+unsymmetric formulation is needed only for curved edges, and the hybrid element
+is unsymmetric only there.
+
+\paragraph{Other properties.} $T_p$ is frame invariant ($P_m(x,y)$ and
+$(\xi,\eta)$ are), interpolatory at the nodes (so the GLL nodal-quadrature mass
+matrix stays diagonal) and contains the rigid-body modes. On the curved test
+elements the Lebesgue constant stays at the parametric level
 (\cref{fig:metric-basis-hybrid}): at $p=16$, $6.0$ instead of $4.0\times10^7$
 (trapezoid), $6.1$ instead of $5.5\times10^4$ (curved) and $8.5$ instead of
-$6.7\times10^6$ (general). On affine elements $T_p=Q_p$. Using $T_p$ would change the
-element, not only its numerics: the trial functions are no longer polynomials in
-$(x,y)$, their evaluation needs the parametric coordinates of the query points
-(available in all element routines, which evaluate at mapped Gauss points), and
-accuracy, stability and the dynamic behaviour would have to be re-assessed. It is
-therefore not implemented; it is the most promising follow-up of this study.
+$6.7\times10^6$ (general). The trial functions are no longer polynomials in
+$(x,y)$ on curved elements.
+
+\paragraph{Implementation.} \code{ShapeFunctions2D_Metric(..., p, 2, xiQ)}, or
+\code{p.metricMethod = 2} for the whole analysis. The parametric
+coordinates of the nodes are the reference nodes (\code{ReferenceNodes2D}); those
+of the query points are passed by all callers, which evaluate at mapped
+quadrature or plot points (\code{Ke_2D}, \code{Me_2D}, \code{KMe_2D},
+\code{Calc_results}, \code{Results_Stress_Strain}), otherwise they are computed by
+Newton's method (\code{Global2LocalNewton}). Gradients of the complement use the
+Jacobian at the query point, $\nabla_{\vect x}\phi=\matr J^{-1}\nabla_{\xi}\phi$, so
+the corresponding entries of $\matr K_e$ have rational integrands, as for curved
+isoparametric elements. This does not affect the patch tests: for $\vect u\in
+P_m(x,y)$ the interpolant is exact, $\matr B_R\hat{\vect u}=\bm\varepsilon(\vect u)$,
+and the integrand $\tilde{\matr B}_L^{\T}\matr C\bm\varepsilon(\vect u)$ is the same
+polynomial as for \texttt{method = 1}.
+
+\paragraph{Mesh-level comparison} (\code{study_hybrid_space.m}). Classical
+element, $Q_p(s,t)$ and hybrid element on the $3\times2$ mesh of
+\code{PatchTest.m} with curved-edge distortion $0.15$ and $0.20$ (min.\ $\det\matr
+J=0.16$, $0.09$) and angular plus curved distortion $0.3$ (min.\ $\det\matr
+J=0.014$), $p=1,\dots,10$ (\cref{fig:metric-hybrid-mesh}; data in
+\code{docs/figures/data/metric-hybrid-*.dat}).
+\begin{itemize}
+  \item \textbf{Patch test} (harmonic field of degree $p$). The classical element
+    fails on all three meshes ($10^{-2}$--$10^{-7}$). Both unsymmetric elements are
+    exact; the error of $Q_p(s,t)$ grows with $p$ to $10^{-13}$--$10^{-12}$, that of
+    the hybrid element stays at $\le10^{-14}$.
+  \item \textbf{Smooth field} $e^x\cos y$. All three converge exponentially. Up to
+    $p\approx8$, $Q_p(s,t)$ is the most accurate (by a factor $2$--$20$ over the
+    hybrid element, e.g.\ curved $0.15$, $p=7$: $6.0\times10^{-10}$ vs.\
+    $1.0\times10^{-8}$); the hybrid element is $2$--$50$ times more accurate than the
+    classical one. At $p=9,10$ the hybrid element is as accurate or more accurate
+    than $Q_p(s,t)$ (curved $0.20$, $p=10$: $3.9\times10^{-12}$ vs.\
+    $4.2\times10^{-10}$).
+  \item \textbf{Eigenvalues} ($\vect u=\vect0$ on the boundary, consistent mass).
+    The 8 eigenvalues of smallest modulus of the hybrid element agree with those of
+    the classical element to two digits for every $p$ (error $4.5\times10^{-7}$ at
+    $p=10$). $Q_p(s,t)$ produces spurious eigenvalues: from $p=5$--$7$ on,
+    $2$--$25$ eigenvalues $\lambda=\omega^2$ with $\operatorname{Re}\lambda<0$ and
+    $|\operatorname{Im}\lambda|/|\lambda|\to1$; they reach the low end of the
+    spectrum (error of the 8 lowest eigenvalues $1.9$ for curved $0.20$, $p=6$) and
+    the physical eigenvalues stagnate at $10^{-5}$--$10^{-3}$. The hybrid element
+    has no eigenvalue with negative real part and
+    $|\operatorname{Im}\lambda|/|\lambda|\le1.7\times10^{-2}$ over the whole
+    spectrum. The same holds for single elements: on the curved test elements
+    $Q_p(s,t)$ gives $|\operatorname{Im}\lambda|/|\lambda|=0.1$--$0.47$ for $p\ge4$
+    and an indefinite consistent mass matrix at $p=8$; the hybrid element
+    $\le7\times10^{-3}$ and a positive mass spectrum.
+\end{itemize}
+An eigenvalue $\omega^2$ with negative real part is an exponentially growing mode
+for any time integrator, so for transient, modal and frequency-domain analyses
+with $p\gtrsim5$ on curved meshes the hybrid element should be used. For static
+analyses at moderate $p$, $Q_p(s,t)$ is slightly more accurate. Both elements
+are distortion immune; neither result is covered by a stability theory (discrete
+inf-sup constant), which remains open.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}
+    \begin{groupplot}[group style={group size=3 by 2, horizontal sep=1.0cm,
+        vertical sep=1.9cm}, width=0.345\linewidth, height=0.32\linewidth,
+        ymode=log, grid=major, xlabel={$p$}, xmin=1, xmax=10,
+        cycle list name=metricbasis, unbounded coords=discard,
+        every axis plot/.append style={mark size=1.3pt},
+        title style={font=\small}, tick label style={font=\footnotesize}]
+      \nextgroupplot[title={curved 0.15}, ylabel={$e_u$ ($e^x\cos y$)},
+        legend to name=leg:hybrid, legend columns=3,
+        legend style={font=\footnotesize}]
+      \addplot+[mark=*] table[x=p, y=smooth_cla]{figures/data/metric-hybrid-curved15.dat};
+      \addplot+[mark=square*] table[x=p, y=smooth_skew]{figures/data/metric-hybrid-curved15.dat};
+      \addplot+[mark=triangle*] table[x=p, y=smooth_hyb]{figures/data/metric-hybrid-curved15.dat};
+      \legend{classical, {$Q_p(s,t)$ (\texttt{method 1})}, {hybrid (\texttt{method 2})}}
+      \nextgroupplot[title={curved 0.20}]
+      \addplot+[mark=*] table[x=p, y=smooth_cla]{figures/data/metric-hybrid-curved20.dat};
+      \addplot+[mark=square*] table[x=p, y=smooth_skew]{figures/data/metric-hybrid-curved20.dat};
+      \addplot+[mark=triangle*] table[x=p, y=smooth_hyb]{figures/data/metric-hybrid-curved20.dat};
+      \nextgroupplot[title={angular + curved 0.30}]
+      \addplot+[mark=*] table[x=p, y=smooth_cla]{figures/data/metric-hybrid-combined30.dat};
+      \addplot+[mark=square*] table[x=p, y=smooth_skew]{figures/data/metric-hybrid-combined30.dat};
+      \addplot+[mark=triangle*] table[x=p, y=smooth_hyb]{figures/data/metric-hybrid-combined30.dat};
+      \nextgroupplot[title={curved 0.15}, ylabel={$e_\lambda$}]
+      \addplot+[mark=*] table[x=p, y=eig_cla]{figures/data/metric-hybrid-curved15.dat};
+      \addplot+[mark=square*] table[x=p, y=eig_skew]{figures/data/metric-hybrid-curved15.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eig_hyb]{figures/data/metric-hybrid-curved15.dat};
+      \nextgroupplot[title={curved 0.20}]
+      \addplot+[mark=*] table[x=p, y=eig_cla]{figures/data/metric-hybrid-curved20.dat};
+      \addplot+[mark=square*] table[x=p, y=eig_skew]{figures/data/metric-hybrid-curved20.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eig_hyb]{figures/data/metric-hybrid-curved20.dat};
+      \nextgroupplot[title={angular + curved 0.30}]
+      \addplot+[mark=*] table[x=p, y=eig_cla]{figures/data/metric-hybrid-combined30.dat};
+      \addplot+[mark=square*] table[x=p, y=eig_skew]{figures/data/metric-hybrid-combined30.dat};
+      \addplot+[mark=triangle*] table[x=p, y=eig_hyb]{figures/data/metric-hybrid-combined30.dat};
+    \end{groupplot}
+  \end{tikzpicture}\\[2pt]
+  \ref{leg:hybrid}
+  \caption{$3\times2$ mesh on $[0,3]\times[0,2]$ with curved-edge distortion.
+    Top: maximum relative nodal error for $\vect u=(e^x\cos y,-e^x\sin y)$
+    (Dirichlet data on the boundary). Bottom: maximum relative error of the real
+    parts of the 8 eigenvalues of smallest modulus ($\vect u=\vect 0$ on the
+    boundary, consistent mass; reference: classical element, undistorted mesh,
+    $p=12$).}
+  \label{fig:metric-hybrid-mesh}
+\end{figure}
 
 \begin{figure}[htbp]
   \centering
@@ -440,8 +578,8 @@ therefore not implemented; it is the most promising follow-up of this study.
               $T_p$ trapezoid, $T_p$ general, $T_p$ curved}
     \end{semilogyaxis}
   \end{tikzpicture}
-  \caption{Lebesgue constant of the metric interpolation in $Q_p(s,t)$ (current
-    element) and in the hybrid space $T_p$ (outlook) on the distorted test
-    elements.}
+  \caption{Lebesgue constant of the metric interpolation in $Q_p(s,t)$
+    (\texttt{method = 1}) and in the hybrid space $T_p$ (\texttt{method = 2}) on
+    the distorted test elements (\texttt{probe\_hybrid\_space.m}).}
   \label{fig:metric-basis-hybrid}
 \end{figure}

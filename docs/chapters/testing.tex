@@ -45,6 +45,14 @@ also be run with \code{runtests}. GitHub Actions runs the suite on every push
     derivatives; equality with the parametric functions on parallelograms; frame
     invariance (rotation, translation, scaling) and the frame dependence of
     \code{method = 0}; skew coordinates \\
+  \code{MetricHybridTest} & hybrid trial space (\code{method = 2}): Kronecker
+    property, completeness in $(x,y)$ with gradients, finite-difference
+    derivatives, frame invariance, Newton inversion when no local coordinates are
+    given, equality with the parametric functions (and the classical $\matr K_e$) on
+    straight-edged elements, unsymmetry on curved ones, Lebesgue constant $<7$ at
+    $p=12$; element matrices: rigid-body modes, rank $n-3$, \code{KMe_2D} =
+    \code{Ke_2D}/\code{Me_2D}, diagonal nodal-quadrature mass, total mass;
+    \code{ReferenceNodes2D}, \code{Global2LocalNewton} \\
   \code{MetricBasisTest} & bases of the metric Vandermonde matrix: derivatives,
     span, closed-form values, Lagrange basis equals the parametric 1D functions;
     metric functions independent of the basis and frame invariant for every basis;
@@ -86,12 +94,14 @@ also be run with \code{runtests}. GitHub Actions runs the suite on every push
     z^k)$ with $k\le p$, and pure bending are reproduced to machine precision.
     Control experiment: the classical symmetric element fails on the same curved
     mesh. Fields of higher degree are not exact; exponential $p$-convergence for
-    $(e^x\cos y, -e^x\sin y)$ \\
+    $(e^x\cos y, -e^x\sin y)$. All exactness and convergence tests run for both
+    trial spaces (\code{method} 1 and 2); the hybrid element equals the classical one
+    on the angular mesh and is unsymmetric on the curved mesh \\
   \code{LeeBathePatchTest} & the Lee \& Bathe patch tests (reference data in
     \code{tests/fixtures/reference}), repeated with the steps of
     \code{call_Static}: the quadratic test matches the analytical pure-bending
     solution for all meshes and $p\ge2$; the cubic test for $p = 3$ is
-    mesh-independent and matches the stored solution \\
+    mesh-independent and matches the stored solution; both trial spaces \\
   \code{AbaqusInputTest} & end to end: the input files in
     \code{code/InputFilesAbaqus} are read, lifted to degree $p$ and compared with
     the reference models; static analysis from the input file \\
