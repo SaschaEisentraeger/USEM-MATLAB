@@ -30,6 +30,7 @@
 % notation
 \newcommand{\PM}{\textsf{PM}}
 \newcommand{\PP}{\textsf{PP}}
+\newcommand{\PH}{\textsf{PH}}
 \newcommand{\eE}{e_{E}}
 \newcommand{\eL}{e_{L^2}}
 \newcommand{\dd}{\,\mathrm{d}}
@@ -60,6 +61,7 @@
   },
   pline/.style={color=p#1, mark=*, mark options={solid,fill=p#1}},
   pdash/.style={color=p#1, mark=o, dashed, mark options={solid}},
+  phyb/.style={color=p#1, mark=square*, dashdotted, mark options={solid, fill=p#1}},
   meshplot/.style={
     width=3.35cm, height=3.35cm, axis equal image, hide axis,
     xmin=-0.05, xmax=3.05, ymin=-0.05, ymax=3.05,
@@ -71,6 +73,7 @@
 \tikzset{
   pline/.style={color=p#1, line width=0.7pt},
   pdash/.style={color=p#1, dashed, line width=0.7pt},
+  phyb/.style={color=p#1, dashdotted, line width=0.7pt},
 }
 
 % h-convergence panel: #1 problem, #2 form, #3 alpha (3 digits), #4 key (eE, eL, eN)

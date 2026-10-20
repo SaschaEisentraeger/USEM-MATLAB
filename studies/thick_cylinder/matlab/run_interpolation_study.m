@@ -2,8 +2,8 @@ function run_interpolation_study(alphas, Ns, ps, outdir)
 %RUN_INTERPOLATION_STUDY Interpolation errors in the trial spaces.
 %   For the same meshes as run_study, the exact nodal values are inserted
 %   into the trial functions of the unsymmetric element (metric functions,
-%   element by element) and of the conventional element (parametric
-%   functions), and the relative errors are evaluated with cyl_errors. The
+%   element by element; PM: skew coordinates, PH: hybrid space) and of the
+%   conventional element (parametric functions, PP), and the relative errors are evaluated with cyl_errors. The
 %   ratio (discretization error)/(interpolation error) separates the
 %   approximation property of the trial space from the stability of the
 %   discrete problem. Writes outdir/interp_aXXX.csv.
@@ -30,12 +30,18 @@ for alpha = alphas
         for pdeg = ps
             model = cyl_model(fullfile(inpDir, sprintf('ThickCylinder_N%d_a%03d.inp', N, alpha)), pdeg);
             rows = {};
-            for form = {'PM', 'PP'}
+            for form = {'PM', 'PH', 'PP'}
                 for k = 1:3
                     uEx = zeros(model.num_DoF, 1);
                     uEx(1:2:end) = prob{k}.ux(model.xCoor, model.yCoor);
                     uEx(2:2:end) = prob{k}.uy(model.xCoor, model.yCoor);
-                    er = cyl_errors(model, uEx, uEx, prob{k}, C, form{1}, [], ref{k});
+                    try
+                        er = cyl_errors(model, uEx, uEx, prob{k}, C, form{1}, [], ref{k});
+                    catch err
+                        % trial space rejected by the code base
+                        if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
+                        er = struct('energy', NaN, 'L2', NaN);
+                    end
                     rows{end+1} = sprintf('%s,%s,%d,%d,%d,%.6e,%.6e\n', kinds{k}, ...
                         form{1}, alpha, N, pdeg, er.energy, er.L2); %#ok<AGROW>
                 end

@@ -7,9 +7,14 @@ function run_study(alphas, Ns, ps, outdir)
 %     - the thick cylinder under internal pressure (Lame solution),
 %     - the manufactured polynomial solution (total degree 5),
 %     - the manufactured smooth non-polynomial solution,
-%   with the unsymmetric spectral element (PM, code base) and the
-%   conventional spectral element (PP). The stiffness matrices use the
-%   default quadrature of Ke_2D (2p x 2p Gauss points).
+%   with the unsymmetric spectral element of the code base with its two
+%   trial spaces (PM: skew coordinates, ShapeFunctions2D_Metric method 1,
+%   the default; PH: hybrid space, method 2) and the conventional spectral
+%   element (PP). The stiffness matrices use the default quadrature of
+%   Ke_2D (2p x 2p Gauss points). Cases the code base rejects (singular
+%   metric interpolation, det J = 0 for the hybrid space) are written as
+%   NaN. The columns lebesgue, condV, condKe and condK refer to the trial
+%   space of the row (PP: lebesgue = GLL value, condV = NaN).
 %   One CSV file per angle is written to outdir:  study_aXXX.csv
 %
 %   Defaults: alphas = [0 15 30 45 60 90], Ns = [1 2 4 8], ps = 2:8,
@@ -27,7 +32,7 @@ inpDir = fullfile(here, '..', 'mesh', 'inp');
 E = 1000;  nu = 0.25;
 C = PlaneStressConstitutiveMatrices(HookeMatrix3d(E, nu));
 kinds = {'lame', 'poly', 'smooth'};
-forms = {'PM', 'PP'};
+forms = {'PM', 'PH', 'PP'};
 for k = 1:numel(kinds)
     prob{k} = cyl_problem(kinds{k}, E, nu);          %#ok<AGROW>
     ref{k} = cyl_reference_norms(prob{k}, C);       %#ok<AGROW>
@@ -38,7 +43,7 @@ for alpha = alphas
     % The ABAQUS readers close all files, so the rows are appended per case
     fid = fopen(fname, 'w');
     fprintf(fid, ['problem,form,alpha,N,p,ndof,energy,L2,nodal,energySigned,' ...
-                  'minDetJ,negDetJ,area,lebesgueM,lebesgueGLL,condV,condKe,condK\n']);
+                  'minDetJ,negDetJ,area,lebesgue,lebesgueGLL,condV,condKe,condK\n']);
     fclose(fid);
     for N = Ns
         inp = fullfile(inpDir, sprintf('ThickCylinder_N%d_a%03d.inp', N, alpha));
@@ -46,20 +51,15 @@ for alpha = alphas
             t0 = tic;
             model = cyl_model(inp, pdeg);
             rows = {};
-            try
-                dg = cyl_diagnostics(model, C);
-            catch err
-                % singular metric interpolation: the unsymmetric element
-                % cannot be built on this mesh (see ShapeFunctions2D_Metric)
-                if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
-                dg = struct('lebesgue', NaN, 'lebesgueGLL', NaN, 'condV', NaN, ...
-                            'condKePM', NaN, 'condKePP', NaN);
-            end
+            dg = cyl_diagnostics(model, C);
+            leb = struct('PM', dg.lebesgue, 'PH', dg.lebesguePH, 'PP', dg.lebesgueGLL);
+            cV = struct('PM', dg.condV, 'PH', dg.condVPH, 'PP', NaN);
             for f = 1:numel(forms)
                 try
                     K = cyl_assemble(model, C, forms{f});
                 catch err
-                    if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
+                    % trial space rejected by the code base on this mesh
+                    if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
                     for k = 1:numel(kinds)
                         rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,NaN,NaN,NaN,NaN,%.6e,%d,%.15e,NaN,NaN,NaN,NaN,NaN\n', ...
                             kinds{k}, forms{f}, alpha, N, pdeg, model.num_DoF, ...
@@ -80,7 +80,7 @@ for alpha = alphas
                         kinds{k}, forms{f}, alpha, N, pdeg, model.num_DoF, ...
                         er.energy, er.L2, er.nodal, er.energySigned, ...
                         model.minDetJ, model.negDetJ, model.area, ...
-                        dg.lebesgue, dg.lebesgueGLL, dg.condV, ...
+                        leb.(forms{f}), dg.lebesgueGLL, cV.(forms{f}), ...
                         dg.(['condKe' forms{f}]), condK);
                 end
             end

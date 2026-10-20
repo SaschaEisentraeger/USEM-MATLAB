@@ -31,7 +31,8 @@ FLOOR = {"energy": 1e-12, "L2": 1e-13, "nodal": 1e-12}
 # element are only reported if both errors exceed ROUNDOFF_FACTOR times it.
 ROUNDOFF_FACTOR = 10.0
 PROBLEMS = ["lame", "poly", "smooth"]
-FORMS = ["PM", "PP"]
+FORMS = ["PM", "PH", "PP"]
+FORM_STYLE = {"PM": "pline", "PH": "phyb", "PP": "pdash"}
 
 
 def load():
@@ -86,7 +87,11 @@ def main():
     ps = sorted({r["p"] for r in rows})
     os.makedirs(TAB, exist_ok=True)
     os.makedirs(GEN, exist_ok=True)
-    get = lambda pr, fo, a, N, p, k: D[(pr, fo, a, N, p)][k] if (pr, fo, a, N, p) in D else None
+    def get(pr, fo, a, N, p, k):
+        """Value of the study; None if absent or NaN (case rejected by the
+        code base: singular metric interpolation)."""
+        v = D.get((pr, fo, a, N, p), {}).get(k)
+        return None if v is None or (isinstance(v, float) and math.isnan(v)) else v
 
     # h- and p-convergence tables
     for pr in PROBLEMS:
@@ -119,18 +124,20 @@ def main():
     # diagnostics (independent of the problem)
     for N in Ns:
         with open(os.path.join(TAB, f"diag_N{N}.dat"), "w") as f:
-            cols = ["alpha"] + [f"{k}{p}" for k in ("leb", "lebGLL", "cKePM", "cKePP", "cKPM", "cKPP", "neg", "minJ") for p in ps]
+            cols = ["alpha"] + [f"{k}{p}" for k in ("leb", "lebPH", "lebGLL", "cKePM", "cKePH", "cKePP",
+                                                    "cKPM", "cKPH", "cKPP", "neg", "minJ") for p in ps]
             f.write(" ".join(cols) + "\n")
             for a in alphas:
                 vals = [a]
-                vals += [get("lame", "PM", a, N, p, "lebesgueM") for p in ps]
-                vals += [get("lame", "PM", a, N, p, "lebesgueGLL") for p in ps]
-                vals += [get("lame", "PM", a, N, p, "condKe") for p in ps]
-                vals += [get("lame", "PP", a, N, p, "condKe") for p in ps]
-                vals += [get("lame", "PM", a, N, p, "condK") for p in ps]
-                vals += [get("lame", "PP", a, N, p, "condK") for p in ps]
-                vals += [get("lame", "PM", a, N, p, "negDetJ") for p in ps]
-                vals += [get("lame", "PM", a, N, p, "minDetJ") for p in ps]
+                vals += [get("lame", "PM", a, N, p, "lebesgue") for p in ps]
+                vals += [get("lame", "PH", a, N, p, "lebesgue") for p in ps]
+                vals += [get("lame", "PP", a, N, p, "lebesgueGLL") for p in ps]
+                for fo in FORMS:
+                    vals += [get("lame", fo, a, N, p, "condKe") for p in ps]
+                for fo in FORMS:
+                    vals += [get("lame", fo, a, N, p, "condK") for p in ps]
+                vals += [get("lame", "PP", a, N, p, "negDetJ") for p in ps]
+                vals += [get("lame", "PP", a, N, p, "minDetJ") for p in ps]
                 f.write(" ".join("nan" if (v is None or (isinstance(v, float) and math.isnan(v)))
                                  else f"{v:.6e}" for v in vals) + "\n")
 
@@ -144,9 +151,9 @@ def main():
                     for p in ps:
                         for k in ("energy", "L2", "nodal"):
                             def floor(N):
-                                if fo != "PM" or p < 5 or pr == "poly":
+                                if fo == "PP" or p < 5 or pr == "poly":
                                     return 0.0
-                                e = get("poly", "PM", a, N, p, k)
+                                e = get("poly", fo, a, N, p, k)
                                 return 0.0 if e is None else ROUNDOFF_FACTOR * e
                             rr = [rate(get(pr, fo, a, Ns[i], p, k), get(pr, fo, a, Ns[i + 1], p, k), k,
                                        floor(Ns[i]), floor(Ns[i + 1]))
@@ -156,7 +163,7 @@ def main():
 
     # LaTeX tables ---------------------------------------------------------
     def neg(a, N):
-        return get("lame", "PM", a, N, ps[0], "negDetJ") or 0
+        return get("lame", "PP", a, N, ps[0], "negDetJ") or 0
 
     def head(ncol):
         return ["\\begin{tabular}{l" + "r" * ncol + "}", "\\toprule",
@@ -167,7 +174,8 @@ def main():
         # dagger: folded elements (det J <= 0) on one of the meshes
         return f"$\\alpha={a}^\\circ$" + ("$^\\dagger$" if any(neg(a, N) for N in Nlist) else "")
 
-    FORM_NAME = {"PM": "\\PM\\ (unsymmetric)", "PP": "\\PP\\ (conventional)"}
+    FORM_NAME = {"PM": "\\PM\\ (unsymmetric, skew coordinates)", "PH": "\\PH\\ (unsymmetric, hybrid space)",
+                 "PP": "\\PP\\ (conventional)"}
     for pr in PROBLEMS:
         for k, kname, alist in (("energy", "E", [a for a in alphas if a <= 30]),
                                 ("nodal", "N", alphas)):
@@ -178,14 +186,14 @@ def main():
                     cells = []
                     for p in ps:
                         x = R[(pr, fo, a, p, k)][-1]       # finest pair N = 4 -> 8
-                        if pr == "poly" and fo == "PM" and p >= 5:
+                        if pr == "poly" and fo in ("PM", "PH") and p >= 5:
                             cells.append("ex.")
                         elif x is None:
                             cells.append("--")
                         else:
                             cells.append(f"{x:.2f}")
                     lines.append(alabel(a, Ns[-2:]) + " & " + " & ".join(cells) + "\\\\")
-                lines.append("\\midrule" if fo == "PM" else "\\bottomrule")
+                lines.append("\\midrule" if fo != "PP" else "\\bottomrule")
             lines.append("\\end{tabular}")
             with open(os.path.join(GEN, f"rates_{pr}_{kname}.tex"), "w") as f:
                 f.write("\n".join(lines) + "\n")
@@ -201,46 +209,56 @@ def main():
                 for p in ps:
                     e0 = get(pr, fo, 0, Nf, p, "nodal")
                     e1 = get(pr, fo, a, Nf, p, "nodal")
-                    r = e1 / e0
-                    cells.append(sci(r))
+                    cells.append("rej." if e1 is None or e0 is None else sci(e1 / e0))
                 lines.append(alabel(a, [Nf]) + " & " + " & ".join(cells) + "\\\\")
-            lines.append("\\midrule" if fo == "PM" else "\\bottomrule")
+            lines.append("\\midrule" if fo != "PP" else "\\bottomrule")
         lines.append("\\end{tabular}")
         with open(os.path.join(GEN, f"ratio_{pr}.tex"), "w") as f:
             f.write("\n".join(lines) + "\n")
 
-    # polynomial field, PM, p >= 5: nodal and energy error (round-off level)
+    # polynomial field, PM and PH, p >= 5: nodal error (round-off level)
     pe = [p for p in ps if p >= 5]
     lines = ["\\begin{tabular}{l" + "r" * (2 * len(pe)) + "}", "\\toprule",
              " & \\multicolumn{%d}{c}{$N=1$} & \\multicolumn{%d}{c}{$N=8$}\\\\" % (len(pe), len(pe)),
              "\\cmidrule(lr){2-%d}\\cmidrule(lr){%d-%d}" % (len(pe) + 1, len(pe) + 2, 2 * len(pe) + 1),
              " & " + " & ".join(f"$p={p}$" for p in pe) + " & " + " & ".join(f"$p={p}$" for p in pe) + "\\\\",
              "\\midrule"]
-    for a in alphas:
-        cells = [sci(get('poly', 'PM', a, N, p, 'nodal'), small=0)
-                 for N in (Ns[0], Ns[-1]) for p in pe]
-        lines.append(f"$\\alpha={a}^\\circ$ & " + " & ".join(cells) + "\\\\")
-    lines += ["\\bottomrule", "\\end{tabular}"]
+    for fo in ("PM", "PH"):
+        lines.append("\\multicolumn{%d}{l}{%s}\\\\" % (2 * len(pe) + 1, FORM_NAME[fo]))
+        for a in alphas:
+            cells = []
+            for N in (Ns[0], Ns[-1]):
+                for p in pe:
+                    v = get("poly", fo, a, N, p, "nodal")
+                    cells.append("rej." if v is None else sci(v, small=0))
+            lines.append(f"$\\alpha={a}^\\circ$ & " + " & ".join(cells) + "\\\\")
+        lines.append("\\midrule" if fo == "PM" else "\\bottomrule")
+    lines += ["\\end{tabular}"]
     with open(os.path.join(GEN, "poly_exact.tex"), "w") as f:
         f.write("\n".join(lines) + "\n")
 
-    # diagnostics on the finest mesh: Lebesgue constant of the metric
-    # interpolation and element condition number ratio PM/PP
-    for key, fname, fmtf in (("lebesgueM", "diag_leb.tex", lambda v: sci(v, 1e3)),
-                             ("condratio", "diag_cond.tex", lambda v: sci(v, 1e3))):
+    # diagnostics on the finest mesh: Lebesgue constant of the trial
+    # functions and element condition number ratio (PM/PP, PH/PP)
+    for key, fname in (("lebesgue", "diag_leb.tex"), ("condratio", "diag_cond.tex")):
         lines = head(len(ps))
-        for a in alphas:
-            cells = []
-            for p in ps:
-                if key == "condratio":
-                    v = get("lame", "PM", a, Nf, p, "condKe") / get("lame", "PP", a, Nf, p, "condKe")
-                else:
-                    v = get("lame", "PM", a, Nf, p, key)
-                cells.append(fmtf(v))
-            lines.append(alabel(a, [Nf]) + " & " + " & ".join(cells) + "\\\\")
-        if key == "lebesgueM":
+        for fo in ("PM", "PH"):
+            lines.append("\\multicolumn{%d}{l}{%s}\\\\" % (len(ps) + 1, FORM_NAME[fo]))
+            for a in alphas:
+                cells = []
+                for p in ps:
+                    if key == "condratio":
+                        v1 = get("lame", fo, a, Nf, p, "condKe")
+                        v2 = get("lame", "PP", a, Nf, p, "condKe")
+                        v = None if v1 is None or v2 is None else v1 / v2
+                    else:
+                        v = get("lame", fo, a, Nf, p, key)
+                    cells.append("rej." if v is None else sci(v, 1e3))
+                lines.append(alabel(a, [Nf]) + " & " + " & ".join(cells) + "\\\\")
             lines.append("\\midrule")
-            lines.append("GLL & " + " & ".join(f"{get('lame', 'PM', 0, Nf, p, 'lebesgueGLL'):.3g}" for p in ps) + "\\\\")
+        if key == "lebesgue":
+            lines.append("GLL & " + " & ".join(f"{get('lame', 'PP', 0, Nf, p, 'lebesgueGLL'):.3g}" for p in ps) + "\\\\")
+        else:
+            lines.pop()
         lines += ["\\bottomrule", "\\end{tabular}"]
         with open(os.path.join(GEN, fname), "w") as f:
             f.write("\n".join(lines) + "\n")
@@ -291,15 +309,15 @@ def fig_meshes():
 
 
 def fig_hconv(problem, key, ylabel, alphas=ALPHAS_ALL, ymin="1e-15", ymax="1e2"):
-    """Rows PM/PP; columns: alphas (one problem) or a list of
+    """Rows PM/PH/PP; columns: alphas (one problem) or a list of
     (problem, alpha, title prefix) tuples."""
     cols = [c if isinstance(c, tuple) else (problem, c, "") for c in alphas]
     n = len(cols)
     L = ["\\begin{tikzpicture}",
-         f"\\begin{{groupplot}}[group style={{group size={n} by 2, horizontal sep=1.5mm, vertical sep=8mm, "
+         f"\\begin{{groupplot}}[group style={{group size={n} by 3, horizontal sep=1.5mm, vertical sep=8mm, "
          "yticklabels at=edge left, xticklabels at=edge bottom}, "
-         f"conv, width={21.6 / n + 0.3:.2f}cm, height=4.6cm, ymin={ymin}, ymax={ymax}]"]
-    for fo, fl in (("PM", "\\PM"), ("PP", "\\PP")):
+         f"conv, width={21.6 / n + 0.3:.2f}cm, height=4.4cm, ymin={ymin}, ymax={ymax}]"]
+    for fo, fl in (("PM", "\\PM"), ("PH", "\\PH"), ("PP", "\\PP")):
         for i, (pr, a, pre) in enumerate(cols):
             if pre:      # several problems: form in the y-label, problem in the title
                 opts = f"title={{{pre}$\\alpha={a}^\\circ$}}"
@@ -313,7 +331,7 @@ def fig_hconv(problem, key, ylabel, alphas=ALPHAS_ALL, ymin="1e-15", ymax="1e2")
             for p in PS_ALL:
                 L.append(f"\\addplot[pline={p}] table[x=h, y={key}{p}] {{\\tab/h_{pr}_{fo}_a{a:03d}.dat}};")
     L.append("\\end{groupplot}")
-    L.append(f"\\node[font=\\small] at ($(group c1r2.south)!0.5!(group c{n}r2.south)+(0,-8mm)$) "
+    L.append(f"\\node[font=\\small] at ($(group c1r3.south)!0.5!(group c{n}r3.south)+(0,-8mm)$) "
              "{element size $h\\propto 1/N$};")
     L.append(legend_matrix(f"($(group c1r1.north)!0.5!(group c{n}r1.north)+(0,7mm)$)"))
     L.append("\\end{tikzpicture}")
@@ -331,10 +349,12 @@ def fig_alpha(problems, N, titles):
         L.append(f"\\nextgroupplot[title={{{t}}}" + (", ylabel={$e_n$}" if i == 0 else "") + "]")
         for p in (2, 4, 6, 8):
             L.append(f"\\addplot[pline={p}] table[x=alpha, y=eN{p}] {{\\tab/alpha_{pr}_PM_N{N}.dat}};")
+            L.append(f"\\addplot[phyb={p}] table[x=alpha, y=eN{p}] {{\\tab/alpha_{pr}_PH_N{N}.dat}};")
             L.append(f"\\addplot[pdash={p}] table[x=alpha, y=eN{p}] {{\\tab/alpha_{pr}_PP_N{N}.dat}};")
     L.append("\\end{groupplot}")
     cells = " ".join(f"\\draw[pline={p}] (0,0) -- (4mm,0) node[black, right] {{$p={p}$}}; \\pgfmatrixnextcell" for p in (2, 4, 6, 8))
     cells += " \\draw[black, solid] (0,0) -- (4mm,0) node[black, right] {\\PM}; \\pgfmatrixnextcell"
+    cells += " \\draw[black, dashdotted] (0,0) -- (4mm,0) node[black, right] {\\PH}; \\pgfmatrixnextcell"
     cells += " \\draw[black, dashed] (0,0) -- (4mm,0) node[black, right] {\\PP}; \\pgfmatrixnextcell"
     L.append(f"\\matrix[draw=gray!50, fill=white, font=\\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] "
              f"at ($(group c1r1.north)!0.5!(group c{n}r1.north)+(0,9mm)$) {{ {cells} \\\\ }};")
@@ -354,11 +374,13 @@ def fig_pconv(problems, titles, N):
         L.append(f"\\nextgroupplot[title={{{t}}}" + (", ylabel={$e_n$}" if i == 0 else "") + "]")
         for a, c in sty.items():
             L.append(f"\\addplot[color={c}, mark=*, mark options={{solid, fill={c}}}] table[x=p, y=eNN{N}] {{\\tab/p_{pr}_PM_a{a:03d}.dat}};")
+            L.append(f"\\addplot[color={c}, mark=square*, dashdotted, mark options={{solid, fill={c}}}] table[x=p, y=eNN{N}] {{\\tab/p_{pr}_PH_a{a:03d}.dat}};")
             L.append(f"\\addplot[color={c}, mark=o, dashed, mark options={{solid}}] table[x=p, y=eNN{N}] {{\\tab/p_{pr}_PP_a{a:03d}.dat}};")
     L.append("\\end{groupplot}")
     cells = " ".join(f"\\draw[color={c}, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {{$\\alpha={a}^\\circ$}}; \\pgfmatrixnextcell"
                      for a, c in sty.items())
     cells += " \\draw[black, solid] (0,0) -- (4mm,0) node[black, right] {\\PM}; \\pgfmatrixnextcell"
+    cells += " \\draw[black, dashdotted] (0,0) -- (4mm,0) node[black, right] {\\PH}; \\pgfmatrixnextcell"
     cells += " \\draw[black, dashed] (0,0) -- (4mm,0) node[black, right] {\\PP}; \\pgfmatrixnextcell"
     L.append(f"\\matrix[draw=gray!50, fill=white, font=\\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] "
              f"at ($(group c1r1.north)!0.5!(group c{n}r1.north)+(0,9mm)$) {{ {cells} \\\\ }};")

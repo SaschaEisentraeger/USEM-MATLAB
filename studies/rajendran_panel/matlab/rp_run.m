@@ -14,6 +14,9 @@ function rp_run(outdir)
 %                     skew coordinates, 2p x 2p points (Ke_2D)
 %     PMpusem       : p = 3..8, code base as is (interior nodes from the
 %                     8-node map)
+%     PH9, PHusem, PHp, PHpusem : as PM9 (with 5 x 5 points), PMusem, PMp,
+%                     PMpusem, hybrid trial space of the code base
+%                     (ShapeFunctions2D_Metric, method 2)
 %   Writes outdir/patch.csv (Meshes a-f, theta = 0..270 deg, three loads)
 %   and outdir/convergence.csv (sequences A, B, C; shear load; N = 1, 2, 4).
 here = fileparts(mfilename('fullpath'));
@@ -30,11 +33,14 @@ end
 % variant: name, p, interior nodes, metric method, nq, form
 V = {'PP9', 2, 'bilinear', 0, 5, 'PP'; 'MM9', 2, 'bilinear', 0, 5, 'MM';
      'PM9', 2, 'bilinear', 0, 5, 'PM'; 'PM9skew', 2, 'bilinear', 1, 5, 'PM';
-     'PMusem', 2, 'serendipity', 1, 4, 'PM'};
+     'PMusem', 2, 'serendipity', 1, 4, 'PM';
+     'PH9', 2, 'bilinear', 2, 5, 'PM'; 'PHusem', 2, 'serendipity', 2, 4, 'PM'};
 for pd = 3:8
     V(end+1, :) = {sprintf('PP%d', pd), pd, 'bilinear', 1, 2*pd, 'PP'};      %#ok<AGROW>
     V(end+1, :) = {sprintf('PM%d', pd), pd, 'bilinear', 1, 2*pd, 'PM'};      %#ok<AGROW>
     V(end+1, :) = {sprintf('PM%dusem', pd), pd, 'serendipity', 1, 2*pd, 'PM'}; %#ok<AGROW>
+    V(end+1, :) = {sprintf('PH%d', pd), pd, 'bilinear', 2, 2*pd, 'PM'};      %#ok<AGROW>
+    V(end+1, :) = {sprintf('PH%dusem', pd), pd, 'serendipity', 2, 2*pd, 'PM'}; %#ok<AGROW>
 end
 fid = fopen(fullfile(outdir, 'patch.csv'), 'w');
 fprintf(fid, 'variant,theta,load,uxA,uyA,energy,nodal,negDetJ\n');
@@ -66,8 +72,8 @@ end
                 % coincident nodes (pSpectralElement_NodesTopology) or
                 % singular metric interpolation (ShapeFunctions2D_Metric):
                 % the element cannot be built, the case is recorded as NaN
-                if ~any(strcmp(err.identifier, {'pSpectralElement_NodesTopology:coincidentNodes', ...
-                                                 'ShapeFunctions2D_Metric:singular'}))
+                if ~(strcmp(err.identifier, 'pSpectralElement_NodesTopology:coincidentNodes') || ...
+                     startsWith(err.identifier, 'ShapeFunctions2D_Metric:'))
                     rethrow(err);
                 end
                 for k = kk

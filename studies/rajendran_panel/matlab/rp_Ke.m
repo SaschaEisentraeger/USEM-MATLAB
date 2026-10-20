@@ -7,7 +7,7 @@ function K = rp_Ke(p, C, x, y, nq, form, method)
 %   method (metric functions, ShapeFunctions2D_Metric):
 %          0 = Cartesian coordinates relative to the centroid
 %              (Rajendran 2010, Eq. (20)), 1 = corotational skew
-%              coordinates (code-base default)
+%              coordinates (code-base default), 2 = hybrid trial space
 if strcmp(form, 'PP')
     K = cyl_Ke_PP(p, C, x, y, nq);
     return
@@ -18,7 +18,7 @@ W = Qd.W.';
 [J11, J12, J21, J22, detJ] = cyl_jacobian(Qd.dNxi, Qd.dNeta, x, y);
 J11 = J11(:).';  J12 = J12(:).';  J21 = J21(:).';  J22 = J22(:).';  detJ = detJ(:).';
 xg = Qd.N.'*x;  yg = Qd.N.'*y;
-[~, dMx, dMy] = ShapeFunctions2D_Metric(xg, yg, x, y, p, method);
+[~, dMx, dMy] = ShapeFunctions2D_Metric(xg, yg, x, y, p, method, [Qd.xi, Qd.eta]);
 if strcmp(form, 'PM')
     aX = Qd.dNxi.*J22 - Qd.dNeta.*J12;      % adj(J) grad_xi N
     aY = -Qd.dNxi.*J21 + Qd.dNeta.*J11;

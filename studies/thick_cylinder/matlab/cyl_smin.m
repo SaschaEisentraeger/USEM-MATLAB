@@ -20,7 +20,13 @@ for i = 1:size(cases, 1)
     out = zeros(1, 4);
     for f = 1:2
         forms = {'PM', 'PP'};
-        K = cyl_assemble(m, C, forms{f});
+        try
+            K = cyl_assemble(m, C, forms{f});
+        catch err
+            if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
+            out(2*f-1:2*f) = NaN;  loc = [NaN NaN];
+            continue
+        end
         A = K(act, act);
         [~, smin, V] = svds(A, 1, 0);
         smax = svds(A, 1);

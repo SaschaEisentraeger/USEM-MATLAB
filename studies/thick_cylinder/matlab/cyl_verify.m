@@ -20,20 +20,33 @@ C = PlaneStressConstitutiveMatrices(HookeMatrix3d(E, nu));
 lame = cyl_problem('lame', E, nu);
 L = {};
 
-L{end+1} = '1. Element matrices: max_e ||K_study - K_code||_F/||K_code||_F, nq = 2p';
+L{end+1} = ['1. Element matrices: max_e ||K_study - K_code||_F/||K_code||_F, nq = 2p ' ...
+            '(PM, PH: cyl_Ke_PM vs Ke_2D with p.metricMethod = 1, 2; PP: cyl_Ke_PP vs ' ...
+            'usemKeSymmetric; "rejected": the code base stops on this mesh)'];
 for a = [0 60 90]
     for pdeg = [2 5 8]
         m = cyl_model(inp(1, a), pdeg);
-        r = [0 0];
+        r = [0 0 0];
         for e = 1:m.num_Elem
             ids = m.Topology_Node(e, :).';
             x = m.xCoor(ids);  y = m.yCoor(ids);
-            K1 = Ke_2D(m.p, C, x, y, 2*pdeg, 2*pdeg);
+            for k = 1:2
+                if isnan(r(k)), continue, end      % already rejected
+                q = m.p;  q.metricMethod = k;
+                try
+                    K1 = Ke_2D(q, C, x, y, 2*pdeg, 2*pdeg);
+                    r(k) = max(r(k), norm(cyl_Ke_PM(q, C, x, y, 2*pdeg) - K1, 'fro')/norm(K1, 'fro'));
+                catch err
+                    if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
+                    r(k) = NaN;
+                end
+            end
             K3 = usemKeSymmetric(m.p, C, x, y);
-            r(1) = max(r(1), norm(cyl_Ke_PM(m.p, C, x, y, 2*pdeg) - K1, 'fro')/norm(K1, 'fro'));
-            r(2) = max(r(2), norm(cyl_Ke_PP(m.p, C, x, y, 2*pdeg) - K3, 'fro')/norm(K3, 'fro'));
+            r(3) = max(r(3), norm(cyl_Ke_PP(m.p, C, x, y, 2*pdeg) - K3, 'fro')/norm(K3, 'fro'));
         end
-        L{end+1} = sprintf('   alpha = %2d, p = %d:  PM vs Ke_2D %.2e,  PP vs usemKeSymmetric %.2e', a, pdeg, r);
+        c = arrayfun(@(v) sprintf('%.2e', v), r, 'UniformOutput', false);
+        c(isnan(r)) = {'rejected'};
+        L{end+1} = sprintf('   alpha = %2d, p = %d:  PM %s,  PH %s,  PP %s', a, pdeg, c{:}); %#ok<AGROW>
     end
 end
 
@@ -65,7 +78,13 @@ for a = [0 60]
         u0 = zeros(m.num_DoF, 1);
         u0(act0) = K0(act0, act0)\F0(act0);
         % study routines with the code-base load vector
-        K = cyl_assemble(m, C, 'PM');
+        try
+            K = cyl_assemble(m, C, 'PM');
+        catch err
+            if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
+            res4{end+1} = sprintf('   N = 1, alpha = %2d, p = %d:  rejected by the code base', a, pdeg); %#ok<AGROW>
+            continue
+        end
         [~, ~, act] = cyl_solve(m, K, F, lame);
         u = zeros(m.num_DoF, 1);
         u(act) = K(act, act)\F0(act);
