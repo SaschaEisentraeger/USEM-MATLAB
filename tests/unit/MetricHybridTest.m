@@ -112,15 +112,32 @@ classdef MetricHybridTest < matlab.unittest.TestCase
             tc.verifyEqual(N1, N0);
         end
 
-        function nonInvertibleMappingIsRejected(tc)
-            % interior node moved onto the mid-side node of edge 3 (as in
-            % MetricShapeFunctionsTest): the complement is a function of
-            % F^-1(x), which does not exist; the Vandermonde matrix itself
-            % stays regular because it uses the reference node coordinates
-            [x, y, P] = usemTestElement('square', 2);
-            x(9) = x(7); y(9) = y(7);
-            tc.verifyError(@() ShapeFunctions2D_Metric(1, 0.5, x, y, P, 2, [0 0]), ...
-                'ShapeFunctions2D_Metric:invalidMapping');
+        function negativeJacobianIsAllowed(tc, shape)
+            % Mirrored element (det J < 0 everywhere): the functions are
+            % evaluated through (xi,eta), completeness is unaffected
+            [x, y, P] = usemTestElement(shape, 3);
+            y = -y;
+            [xq, yq, IP] = interiorPoints(P, x, y);
+            [N, dNx, dNy] = ShapeFunctions2D_Metric(xq, yq, x, y, P, 2, IP);
+            xc = mean(x); yc = mean(y);
+            for a = 0:3
+                for b = 0:3-a
+                    f = (x-xc).^a.*(y-yc).^b;
+                    tc.verifyEqual(N'*f, (xq-xc).^a.*(yq-yc).^b, 'AbsTol', 1e-12);
+                    tc.verifyEqual(dNx'*f, a*(xq-xc).^max(a-1,0).*(yq-yc).^b, 'AbsTol', 1e-11);
+                    tc.verifyEqual(dNy'*f, b*(xq-xc).^a.*(yq-yc).^max(b-1,0), 'AbsTol', 1e-11);
+                end
+            end
+        end
+
+        function singularJacobianAtQueryPointIsRejected(tc)
+            % Edge 2-3 collapsed (node 3 onto node 2): x_eta = 0 on xi = 1,
+            % so det J = 0 there and the gradients are undefined; the
+            % Vandermonde matrix stays regular (xi*eta separates the nodes)
+            [x, y, P] = usemTestElement('square', 1);
+            x(3) = x(2); y(3) = y(2);
+            tc.verifyError(@() ShapeFunctions2D_Metric(x(2), y(2), x, y, P, 2, ...
+                [1, 0]), 'ShapeFunctions2D_Metric:singularJacobian');
         end
 
         function hybridEqualsParametricOnStraightEdgedElements(tc, straight, p)

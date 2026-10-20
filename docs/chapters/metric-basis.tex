@@ -459,6 +459,22 @@ elements the Lebesgue constant stays at the parametric level
 $6.7\times10^6$ (general). The trial functions are no longer polynomials in
 $(x,y)$ on curved elements.
 
+\paragraph{Folded and inverted elements.} The hybrid functions are only
+evaluated through $(\xi,\eta)$ (nodes at their reference coordinates, query points
+at mapped reference points), so the sign of $\det\matr J$ is irrelevant and
+completeness holds pointwise in $(\xi,\eta)$, also where the map folds. Only
+$\det\matr J=0$ at an evaluation point is excluded, because the gradients of the
+complement contain $\matr J^{-1}$ (error
+\code{ShapeFunctions2D_Metric:singularJacobian}). On the Rajendran panel meshes
+with $\theta=90^\circ,\dots,270^\circ$ (all elements with $\det\matr J\le0$
+somewhere, \code{studies/rajendran_panel}) the hybrid element passes the tension,
+bending and shear patch tests for $p=3,\dots,8$ like $Q_p(s,t)$; the round-off at
+$p=8$ is smaller ($\theta=135^\circ$: $7\times10^{-8}$ vs.\ $8\times10^{-6}$,
+$\theta=225^\circ$: $5\times10^{-8}$ vs.\ $1\times10^{-5}$). Where $\det\matr J$
+changes sign the complement part of $\matr K_e$ has an integrand $\propto1/\det\matr
+J$; this does not affect the patch tests (the complement coefficients of a
+$P_p$ field vanish), but its effect on non-polynomial fields has not been studied.
+
 \paragraph{Implementation.} \code{ShapeFunctions2D_Metric(..., p, 2, xiQ)}, or
 \code{p.metricMethod = 2} for the whole analysis. The parametric
 coordinates of the nodes are the reference nodes (\code{ReferenceNodes2D}); those

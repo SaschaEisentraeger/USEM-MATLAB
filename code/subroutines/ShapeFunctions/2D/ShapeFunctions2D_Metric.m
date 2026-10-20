@@ -229,15 +229,13 @@ xxi  = (dNxi'*xN)';   yxi  = (dNxi'*yN)';
 xeta = (dNeta'*xN)';  yeta = (dNeta'*yN)';
 detJ = xxi.*yeta - xeta.*yxi;
 
-% The complement is a function of (xi,eta) = F^-1(x): the geometry mapping
-% must be invertible (det J > 0 at the nodes and at the query points)
-[~,dNxiN,dNetaN] = ShapeFunctions2D_SEM(xiN,etaN,p);
-detJN = (dNxiN'*xN).*(dNetaN'*yN) - (dNetaN'*xN).*(dNxiN'*yN);
-if ~(min([detJ(:); detJN(:)]) > 0)
-    error('ShapeFunctions2D_Metric:invalidMapping', ...
-         ['The geometry mapping of the element is not invertible ' ...
-          '(det J <= 0): the hybrid metric shape functions (method = 2) ' ...
-          'are undefined.']);
+% The functions are evaluated through (xi,eta), so the sign of det J does
+% not matter (completeness holds pointwise in (xi,eta), also on folded
+% elements); the gradients of the complement need J^-1 at the query points
+if any(~(abs(detJ) > 0))
+    error('ShapeFunctions2D_Metric:singularJacobian', ...
+         ['det J = 0 at a query point: the gradients of the hybrid ' ...
+          'metric shape functions (method = 2) are undefined there.']);
 end
 
 % Inverse of J0 (skew coordinates are affine: grad_x = J0^-1 grad_(s,t))
