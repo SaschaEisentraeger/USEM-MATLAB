@@ -1,0 +1,65 @@
+\section{Discussion and conclusions}\label{sec:conclusions}
+The metric trial functions of unsymmetric spectral elements suffer from two distinct
+deficiencies that grow with the polynomial degree and the element distortion: an
+ill-conditioned interpolation \emph{system} and an ill-conditioned interpolation
+\emph{problem}. The first is a matter of the basis, the second of the trial space.
+
+\paragraph{Basis.} The trial space, its Lebesgue constant, distortion immunity and the exact
+element matrix are basis invariant (\cref{prop:invariance}). The scaled tensor-product Lagrange
+basis on GLL points makes the interpolation matrix a permutation on affine elements, so the
+unsymmetric element coincides with the conventional one to round-off there (symmetric
+$\bm K^e$ for all $p$), and on distorted elements it reduces $\kappa(\bm V)$ to the Lebesgue
+function of the interpolation at the reference points (\cref{prop:kappa}). Compared with
+monomials it lowers $\kappa$ by $4.6\cdot10^3$--$2.9\cdot10^4$ and the error of the computed shape
+functions by $3.6\cdot10^2$--$8.2\cdot10^3$ on the distorted test elements at $p=16$, and it removes the
+spurious rejection of elements by a singularity check (five element--degree combinations on the panel meshes). Its
+benefit is confined to round-off: approximation, the amplification of nodal perturbations and
+the stability of the discrete problem are unchanged, and the static results of the thick cylinder
+change only at round-off level. A better basis \emph{cannot} improve the Lebesgue constant.
+
+\paragraph{Hybrid space.} Completeness requires metric functions only for $P_p(\bx)$. The hybrid
+space $T_p$ (\cref{def:hybrid}) keeps them for $P_p$ and represents the remaining
+$\tfrac12p(p+1)$ functions in parametric coordinates. It retains distortion immunity, frame
+invariance and interpolation, reduces to the conventional spectral element on straight-sided
+elements, and its interpolant is the conventional one plus the interpolation error of a
+polynomial composed with the element map (\cref{prop:structure}), which bounds its Lebesgue
+constant by the GLL value plus a term that vanishes for bilinear maps. Unisolvence is equivalent
+to the non-singularity of a $d\times d$ matrix $\bm A$ (\cref{prop:factor}). Numerically, the hybrid
+space
+\begin{itemize}
+\item keeps the Lebesgue constant at or near the GLL value on single elements up to $p=16$
+  ($\le8.5$, against $5.5\cdot10^4$--$4.0\cdot10^7$ for $Q_p$ in skew coordinates) and $\le95$ on the
+  thick-cylinder meshes without folds (against up to $4.2\cdot10^6$);
+\item reproduces polynomial fields to $\le10^{-9}$ on all meshes, including folded ones, where
+  $Q_p$ in skew coordinates is limited to $10^{-5}$--$10^{-2}$ by round-off;
+\item produces no eigenvalues with negative real part and imaginary parts $\le1.8\,\%$ of the
+  modulus, where $Q_p$ in skew coordinates produces up to $25$ unstable modes on curved meshes;
+\item converges with the optimal order $p$ and quasi-optimally (discrete error $0.78$--$1.00$ times
+  the interpolation error) on all non-folded meshes of a mesh sequence with fixed relative
+  distortion, on which $Q_p$ in skew coordinates is optimal only for moderate distortion and the
+  conventional element converges with $\approx\lfloor p/2\rfloor$; the gain over the conventional
+  element reaches $2.6\cdot10^4$ in the energy norm ($p=7$, $\alpha=30^\circ$, $N=8$).
+\end{itemize}
+
+\paragraph{Limitations.} (i) No stability theory (discrete inf--sup
+condition~\cite{Babuska1971Error}) is available for either unsymmetric element; quasi-optimality
+of \PH\ is observed, not proven. (ii) Unisolvence of $T_p$ is guaranteed only near affine maps; it
+fails on some folded elements at $p\ge7$, and the complement part of the element matrix has a
+singular integrand where $\det\bm J$ changes sign; on folded meshes \PH\ is reliable only for
+$p\ge4$--$5$. (iii) The error constant of \PH\ depends on the distortion: where $Q_p$ in skew
+coordinates is stable, it can approximate better (by factors up to $5.7$ for the Lam\'e field at
+$\alpha=15^\circ$, up to $17$ for $e^x\cos y$ on curved meshes). (iv) The studies are two-dimensional,
+linear-elastic and restricted to $p\le16$ (element level) and $p\le8$ (convergence); 3D elements and
+non-linear problems remain to be examined.
+
+For high-order unsymmetric spectral elements we therefore recommend the scaled Lagrange basis
+for any metric space, and the hybrid space $T_p$ whenever $p\gtrsim4$, the distortion is not
+small, or the spectrum matters (transient and modal analysis).
+
+\section*{Reproduction}\label{sec:reproduction}
+Code base: USEM-MATLAB after commit \texttt{e293da1} (\texttt{ShapeFunctions2D\_Metric},
+\texttt{p.metricBasis}, \texttt{p.metricMethod}). Element and mesh level:
+\texttt{studies/metric\_basis/*.m}; patch tests: \texttt{studies/rajendran\_panel};
+thick cylinder: \texttt{studies/thick\_cylinder}; unisolvence:
+\texttt{studies/manuscript\_metric/matlab/unisolvence\_check.m}; tables and data of this paper:
+\texttt{studies/manuscript\_metric/make\_data.py}.

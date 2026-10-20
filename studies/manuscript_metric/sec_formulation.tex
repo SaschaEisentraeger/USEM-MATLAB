@@ -1,0 +1,56 @@
+\section{Unsymmetric spectral elements}\label{sec:formulation}
+\subsection{Petrov--Galerkin formulation}
+Let $\hat\Omega=[-1,1]^2$ with the tensor grid of $(p+1)^2$ GLL points $\bxi_k$ and the
+Lagrange polynomials $N_k\in Q_p(\bxi)$, $N_k(\bxi_l)=\delta_{kl}$. An element $\Omega^e$ is
+the image of the isoparametric map $\bx(\bxi)=\sum_kN_k(\bxi)\bx_k$ with nodes $\bx_k$; $\bm
+J=\partial\bx/\partial\bxi$. For linear elasticity with elasticity matrix $\bm D$ and strain
+operator $\bm\varepsilon$, the unsymmetric element uses the parametric functions $N_k$ as test
+functions and \emph{metric} functions $M_k$ as trial functions, which interpolate at the
+element nodes, $M_k(\bx_l)=\delta_{kl}$, and span a space $S^e$. The element stiffness
+matrix is
+\begin{equation}
+  \bm K^e=\int_{\hat\Omega}\bigl(\bm B_L^\ast\bigr)^{\T}\bm D\,\bm B_R\dd\xi\dd\eta ,
+  \qquad \bm B_L^\ast=\bm B_L\det\bm J ,
+  \label{eq:Ke}
+\end{equation}
+where $\bm B_L^\ast$ is built from $\operatorname{adj}\bm J\,\nabla_{\bxi}N_k$ and $\bm B_R$
+from $\nabla_{\bx}M_k$ evaluated at $\bx(\bxi)$~\cite{Rajendran2010technique}. The load vector
+is that of the conventional element. If $P_p(\bx)\subset S^e$ on every element (completeness),
+the nodes are unisolvent for $S^e$, the metric functions are evaluated at the mapped quadrature
+points, and loads and the (polynomial) integrand of~\eqref{eq:Ke} are integrated exactly, every
+displacement field of total degree $\le p$ is reproduced exactly on any mesh, independently of the
+sign of $\det\bm J$ (distortion immunity). The conventional spectral element (\PP) uses $S^e=\{N_k\circ
+\bx^{-1}\}$ and $\bm B_L^{\T}\bm D\bm B_L\det\bm J$ as integrand.
+
+The classical metric space is $Q_p$ in the corotational skew coordinates $\hat\bx=\bm
+J_0^{-1}(\bx-\bx_0)$ ($\bm J_0$, $\bx_0$: Jacobian and image of the element centre), which are
+affine in $\bx$ and frame invariant~\cite{Xie2016Modified}; hence $P_p(\bx)\subset Q_p(\hat
+x,\hat y)$. We denote the resulting element by \PM. Given a basis $\{\phi_c\}_{c=1}^{n}$,
+$n=(p+1)^2$, of $S^e$, the metric functions at query points $\bx_q$ follow from
+\begin{equation}
+  \bm V\bm M=\bm\Phi ,\qquad V_{ck}=\phi_c(\bx_k),\quad \Phi_{cq}=\phi_c(\bx_q),\quad
+  M_{kq}=M_k(\bx_q),
+  \label{eq:vandermonde}
+\end{equation}
+and analogously for the gradients.
+
+\subsection{Two measures of the metric interpolation}
+For nodal data $\bm f=(f_k)$ the metric interpolant is $\mathcal I_S\bm f=\sum_kf_kM_k$. Two
+quantities characterise this construction.
+\begin{itemize}
+\item The \emph{condition number} $\kappa(\bm V)=\|\bm V\|\,\|\bm V^{-1}\|$ of the linear
+  system~\eqref{eq:vandermonde}. With LU factorisation and partial pivoting the computed
+  $\hat{\bm M}$ satisfies $\|\hat{\bm M}-\bm M\|/\|\bm M\|\lesssim c_n\,\kappa(\bm V)\,u$ with
+  unit round-off $u\approx1.1\cdot10^{-16}$~\cite{Higham2002Accuracy}.
+\item The \emph{Lebesgue constant}
+  \begin{equation}
+    \Lambda_S=\max_{\bx\in\Omega^e}\lambda_S(\bx),\qquad \lambda_S(\bx)=\sum_k|M_k(\bx)| ,
+  \end{equation}
+  the norm of $\mathcal I_S$ from $\ell^\infty$ nodal data to $L^\infty(\Omega^e)$. It bounds the
+  interpolation error, $\|u-\mathcal I_Su\|_\infty\le(1+\Lambda_S)\inf_{v\in
+  S^e}\|u-v\|_\infty$~\cite{Brutman1997Lebesgue}, and the amplification of perturbations of the
+  nodal values (round-off, data errors) by the trial functions.
+\end{itemize}
+For the GLL tensor grid, $\Lambda_{\mathrm{GLL}}$ grows like $(\log p)^2$; it is $4.15$ at $p=8$
+and $6.0$ at $p=16$. For the conventional element on any mesh $\Lambda_{\PP}=\Lambda_{\mathrm{GLL}}$,
+since $\lambda(\bx(\bxi))=\sum_k|N_k(\bxi)|$.

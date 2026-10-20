@@ -1,0 +1,78 @@
+\section{Improvement 1: a well-conditioned basis}\label{sec:basis}
+\subsection{Basis invariance}
+\begin{proposition}[basis invariance]\label{prop:invariance}
+If $\bm V$ in~\eqref{eq:vandermonde} is non-singular, the metric functions are the unique
+$M_k\in S^e$ with $M_k(\bx_l)=\delta_{kl}$; they, their Lebesgue function $\lambda_S$ and the
+element matrix~\eqref{eq:Ke} do not depend on the basis $\{\phi_c\}$.
+\end{proposition}
+\begin{proof}
+For another basis $\bm\psi=\bm C\bm\phi$ with non-singular $\bm C$, $\bm V_\psi=\bm C\bm
+V_\phi$ and $\bm\Phi_\psi=\bm C\bm\Phi_\phi$, hence $\bm V_\psi^{-1}\bm\Phi_\psi=\bm
+V_\phi^{-1}\bm\Phi_\phi$; the same holds for the gradients.
+\end{proof}
+Completeness, frame invariance, distortion immunity and unisolvence ($\bm V$ non-singular for
+one basis iff for all) are therefore properties of the space $S^e$ and the node set. The basis
+affects only the floating-point error, through $\kappa(\bm V)$. Conversely, \emph{no choice of
+basis can reduce $\Lambda_S$}: approximation properties and the amplification of nodal
+perturbations can only be improved by changing the space (\cref{sec:hybrid}).
+
+\subsection{Candidate bases and scaling}
+The original implementation uses monomials $\hat x^a\hat y^b$. For monomials on real nodes
+symmetric about the origin, the condition number grows at least exponentially with the degree
+\cite{Gautschi1988Lower}; on a parallelogram the 2D matrix is the Kronecker product of two 1D
+Vandermonde matrices, so $\kappa_2(\bm V)$ is the square of the 1D value. We consider
+tensor-product bases $\phi_a(\tilde s)\phi_b(\tilde t)$ with Legendre polynomials,
+Chebyshev polynomials, or the Lagrange polynomials $\ell_a$ through the 1D GLL points. These
+polynomials are bounded on $[-1,1]$ but grow rapidly outside, while the skew coordinates of
+the nodes of a distorted element leave $[-1,1]^2$ (e.g.\ $|\hat x|\le1.27$ for the trapezoid of
+\cref{sec:elements}). The node coordinates are therefore mapped affinely from their bounding
+box onto $[-1,1]^2$,
+\begin{equation}
+  \tilde s=(\hat x-c_s)/r_s ,\qquad \tilde t=(\hat y-c_t)/r_t ,
+  \label{eq:bbox}
+\end{equation}
+with centre $c$ and half-widths $r$ of the box. The map is affine and computed from frame
+invariant quantities, so the space $Q_p(\hat x,\hat y)$ and frame invariance are preserved
+(\cref{prop:invariance}).
+
+\begin{lemma}[affine elements]\label{lem:affine}
+On a parallelogram, the Lagrange basis on the GLL points in the scaled
+coordinates~\eqref{eq:bbox} gives $\bm V=\bm\Pi$, a permutation matrix: $\kappa(\bm V)=1$,
+$M_k=N_k\circ\bx^{-1}$ exactly, and $\bm K^e$ of~\eqref{eq:Ke} equals the symmetric matrix of the
+conventional element.
+\end{lemma}
+\begin{proof}
+For an affine map $\bx=\bx_0+\bm J_0\bxi$, $\hat\bx=\bxi$. The bounding box of the nodes is
+$[-1,1]^2$, since the GLL grid contains the end points, so $(\tilde s,\tilde t)=\bxi$ and
+$\phi_c(\bx_k)=\ell_a(\xi_k)\ell_b(\eta_k)=\delta_{ck}$ up to the numbering. Then $\bm M=\bm
+\Pi^{\T}\bm\Phi$ is evaluated without arithmetic, $M_k(\bx(\bxi))=N_k(\bxi)$, and
+$\nabla_{\bx}M_k=\bm J^{-\T}\nabla_{\bxi}N_k$, so $\bm B_L^\ast=\bm B_R\det\bm J$ and
+$\bm K^e=\int\bm B_R^{\T}\bm D\bm B_R\det\bm J\dd\xi\dd\eta$.
+\end{proof}
+
+\begin{proposition}[distorted elements]\label{prop:kappa}
+Let $\hat\bs_d$ be the reference GLL points in the scaled coordinates~\eqref{eq:bbox}, so that
+$\phi_c(\hat\bs_d)=\delta_{cd}$, let $\tilde\bs_k$ be the scaled node coordinates, and let
+$\lambda_{\mathrm{ref}}(\bs)=\sum_c|\phi_c(\bs)|$. Then
+\begin{equation}
+  (\bm V^{-1})_{kd}=M_k(\hat\bs_d),\qquad
+  \kappa_1(\bm V)=\max_k\lambda_{\mathrm{ref}}(\tilde\bs_k)\;\max_d\lambda_S(\hat\bs_d).
+  \label{eq:kappa1}
+\end{equation}
+\end{proposition}
+\begin{proof}
+With the query points $\bx_q=\hat\bs_d$, $\bm\Phi=\bm I$ and $\bm M=\bm V^{-1}$. The 1-norm is the
+maximum absolute column sum: $\|\bm V\|_1=\max_k\sum_c|\phi_c(\tilde\bs_k)|$ and
+$\|\bm V^{-1}\|_1=\max_d\sum_k|M_k(\hat\bs_d)|$.
+\end{proof}
+Since $\tilde\bs_k\in[-1,1]^2$, the first factor is bounded by the reference value
+$\Lambda_{\mathrm{GLL}}$. With this basis, $\kappa(\bm V)$ is therefore the Lebesgue function of
+the metric interpolation at the reference points of the bounding box, up to the factor
+$\Lambda_{\mathrm{GLL}}$: the basis adds no ill-conditioning beyond that of the interpolation
+problem itself. Note that the points $\hat\bs_d$ may lie outside $\Omega^e$, where the metric
+polynomials extrapolate, so $\max_d\lambda_S(\hat\bs_d)$ can exceed $\Lambda_S$.
+
+The Legendre and Chebyshev bases have no such identity and are not exact on affine elements
+($\kappa_2=55$ and $2.6$ at $p=16$, respectively), but behave similarly on distorted elements
+(\cref{sec:elements}). We therefore use the scaled Lagrange basis as the default of the metric
+space $Q_p(\hat x,\hat y)$.

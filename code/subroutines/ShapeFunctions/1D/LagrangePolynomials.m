@@ -51,38 +51,29 @@ function ret = PHIp_fun(node,nodes)
     end 
 end
 
+% l and lp are evaluated for all points xi at once; the operations are the
+% same (and in the same order) for every point as in a pointwise loop
 function ret = l(xi,i,c,nodes)
-    ret = zeros(size(xi));
-    for j = 1:max(size(xi))
-        if xi(j)==nodes(i)
-            ret(j) = 1;
-        else
-            ret(j) = c(i)*PHI(xi(j),nodes)./(xi(j)-nodes(i));
-        end
-    end
+    ret = c(i)*PHI(xi,nodes)./(xi-nodes(i));
+    ret(xi==nodes(i)) = 1;
 end
 
 function ret = lp(xi,i,c,nodes)
-    ret = zeros(size(xi));
-    for j = 1:max(size(xi)) 
-        if xi(j)==nodes(i)
-            ret(j) = 0;
-            for k = 1:max(size(nodes))
-               if k~=i
-                  ret(j) = ret(j)+1/(xi(j)-nodes(k)); 
-               end
-            end
-        elseif ~isempty(find(nodes==xi(j), 1))
-            z = nodes==xi(j);
-            ret(j) = c(i)/(xi(j)-nodes(i))/c(z);
-        else
-            ret(j) = 0;
-            for k = 1:max(size(nodes))
-               if k~=i
-                  ret(j) = ret(j)+1/(xi(j)-nodes(k)); 
-               end
-            end
-            ret(j) = ret(j)*l(xi(j),i,c,nodes);
+    % sum_(k~=i) 1/(xi-x_k)
+    s = zeros(size(xi));
+    for k = 1:max(size(nodes))
+        if k~=i
+            s = s+1./(xi-nodes(k));
+        end
+    end
+    ret = s.*l(xi,i,c,nodes);
+    % xi at node i
+    ret(xi==nodes(i)) = s(xi==nodes(i));
+    % xi at another node z: c(i)/(xi-x_i)/c(z)
+    for z = 1:max(size(nodes))
+        if z~=i
+            at = xi==nodes(z);
+            ret(at) = c(i)./(xi(at)-nodes(i))/c(z);
         end
     end
 end

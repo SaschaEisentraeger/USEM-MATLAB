@@ -14,10 +14,14 @@ question for the unsymmetric spectral elements of the code base, $p=2,\dots,8$:
 \item Is distortion resistance lost for non-polynomial fields?
 \item If so, are optimal convergence rates nevertheless retained?
 \item If both are lost, what is the practical benefit of unsymmetric elements?
+\item Does a hybrid trial space, which uses metric (Cartesian) polynomials only for the
+  complete space $P_p(\bx)$ and parametric functions for the remainder
+  (\cref{sec:elements}), remove the deficiencies while keeping the polynomial exactness?
 \end{enumerate}
 The thick cylinder is complemented by manufactured solutions on the same geometry
 and meshes: a polynomial field (degree 5), for which the element is immune for
 $p\ge5$, and an analytic non-polynomial field. All statements below are based on the
 computed data in \texttt{results/} (reproducible with the scripts listed in
 \cref{sec:reproduce}); the conventional spectral element on the same meshes serves
-as reference.
+as reference. Questions 1--3 concern the unsymmetric element \PM\ in its original form,
+question 4 the hybrid element \PH.

@@ -2,22 +2,30 @@
 \begin{groupplot}[group style={group size=2 by 1, horizontal sep=14mm}, width=6.2cm, height=5.2cm, ymode=log, xtick={0,15,30,45,60,90}, xlabel={$\alpha$ [$^\circ$]}, tick label style={font=\scriptsize}, label style={font=\small}, title style={font=\small}, unbounded coords=jump, every axis plot/.append style={line width=0.7pt, mark size=1.3pt}, grid=major, grid style={gray!20}]
 \nextgroupplot[title={Lam\'e, $N=4$}, ylabel={$e_n$}]
 \addplot[pline=2] table[x=alpha, y=eN2] {\tab/alpha_lame_PM_N4.dat};
+\addplot[phyb=2] table[x=alpha, y=eN2] {\tab/alpha_lame_PH_N4.dat};
 \addplot[pdash=2] table[x=alpha, y=eN2] {\tab/alpha_lame_PP_N4.dat};
 \addplot[pline=4] table[x=alpha, y=eN4] {\tab/alpha_lame_PM_N4.dat};
+\addplot[phyb=4] table[x=alpha, y=eN4] {\tab/alpha_lame_PH_N4.dat};
 \addplot[pdash=4] table[x=alpha, y=eN4] {\tab/alpha_lame_PP_N4.dat};
 \addplot[pline=6] table[x=alpha, y=eN6] {\tab/alpha_lame_PM_N4.dat};
+\addplot[phyb=6] table[x=alpha, y=eN6] {\tab/alpha_lame_PH_N4.dat};
 \addplot[pdash=6] table[x=alpha, y=eN6] {\tab/alpha_lame_PP_N4.dat};
 \addplot[pline=8] table[x=alpha, y=eN8] {\tab/alpha_lame_PM_N4.dat};
+\addplot[phyb=8] table[x=alpha, y=eN8] {\tab/alpha_lame_PH_N4.dat};
 \addplot[pdash=8] table[x=alpha, y=eN8] {\tab/alpha_lame_PP_N4.dat};
 \nextgroupplot[title={smooth MMS, $N=4$}]
 \addplot[pline=2] table[x=alpha, y=eN2] {\tab/alpha_smooth_PM_N4.dat};
+\addplot[phyb=2] table[x=alpha, y=eN2] {\tab/alpha_smooth_PH_N4.dat};
 \addplot[pdash=2] table[x=alpha, y=eN2] {\tab/alpha_smooth_PP_N4.dat};
 \addplot[pline=4] table[x=alpha, y=eN4] {\tab/alpha_smooth_PM_N4.dat};
+\addplot[phyb=4] table[x=alpha, y=eN4] {\tab/alpha_smooth_PH_N4.dat};
 \addplot[pdash=4] table[x=alpha, y=eN4] {\tab/alpha_smooth_PP_N4.dat};
 \addplot[pline=6] table[x=alpha, y=eN6] {\tab/alpha_smooth_PM_N4.dat};
+\addplot[phyb=6] table[x=alpha, y=eN6] {\tab/alpha_smooth_PH_N4.dat};
 \addplot[pdash=6] table[x=alpha, y=eN6] {\tab/alpha_smooth_PP_N4.dat};
 \addplot[pline=8] table[x=alpha, y=eN8] {\tab/alpha_smooth_PM_N4.dat};
+\addplot[phyb=8] table[x=alpha, y=eN8] {\tab/alpha_smooth_PH_N4.dat};
 \addplot[pdash=8] table[x=alpha, y=eN8] {\tab/alpha_smooth_PP_N4.dat};
 \end{groupplot}
-\matrix[draw=gray!50, fill=white, font=\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] at ($(group c1r1.north)!0.5!(group c2r1.north)+(0,9mm)$) { \draw[pline=2] (0,0) -- (4mm,0) node[black, right] {$p=2$}; \pgfmatrixnextcell \draw[pline=4] (0,0) -- (4mm,0) node[black, right] {$p=4$}; \pgfmatrixnextcell \draw[pline=6] (0,0) -- (4mm,0) node[black, right] {$p=6$}; \pgfmatrixnextcell \draw[pline=8] (0,0) -- (4mm,0) node[black, right] {$p=8$}; \pgfmatrixnextcell \draw[black, solid] (0,0) -- (4mm,0) node[black, right] {\PM}; \pgfmatrixnextcell \draw[black, dashed] (0,0) -- (4mm,0) node[black, right] {\PP}; \pgfmatrixnextcell \\ };
+\matrix[draw=gray!50, fill=white, font=\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] at ($(group c1r1.north)!0.5!(group c2r1.north)+(0,9mm)$) { \draw[pline=2] (0,0) -- (4mm,0) node[black, right] {$p=2$}; \pgfmatrixnextcell \draw[pline=4] (0,0) -- (4mm,0) node[black, right] {$p=4$}; \pgfmatrixnextcell \draw[pline=6] (0,0) -- (4mm,0) node[black, right] {$p=6$}; \pgfmatrixnextcell \draw[pline=8] (0,0) -- (4mm,0) node[black, right] {$p=8$}; \pgfmatrixnextcell \draw[black, solid] (0,0) -- (4mm,0) node[black, right] {\PM}; \pgfmatrixnextcell \draw[black, dashdotted] (0,0) -- (4mm,0) node[black, right] {\PH}; \pgfmatrixnextcell \draw[black, dashed] (0,0) -- (4mm,0) node[black, right] {\PP}; \pgfmatrixnextcell \\ };
 \end{tikzpicture}
