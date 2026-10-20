@@ -45,10 +45,28 @@ for alpha = alphas
         for pdeg = ps
             t0 = tic;
             model = cyl_model(inp, pdeg);
-            dg = cyl_diagnostics(model, C);
             rows = {};
+            try
+                dg = cyl_diagnostics(model, C);
+            catch err
+                % singular metric interpolation: the unsymmetric element
+                % cannot be built on this mesh (see ShapeFunctions2D_Metric)
+                if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
+                dg = struct('lebesgue', NaN, 'lebesgueGLL', NaN, 'condV', NaN, ...
+                            'condKePM', NaN, 'condKePP', NaN);
+            end
             for f = 1:numel(forms)
-                K = cyl_assemble(model, C, forms{f});
+                try
+                    K = cyl_assemble(model, C, forms{f});
+                catch err
+                    if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
+                    for k = 1:numel(kinds)
+                        rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,NaN,NaN,NaN,NaN,%.6e,%d,%.15e,NaN,NaN,NaN,NaN,NaN\n', ...
+                            kinds{k}, forms{f}, alpha, N, pdeg, model.num_DoF, ...
+                            model.minDetJ, model.negDetJ, model.area); %#ok<AGROW>
+                    end
+                    continue
+                end
                 for k = 1:numel(kinds)
                     F = cyl_loads(model, prob{k});
                     [u, uEx, act] = cyl_solve(model, K, F, prob{k});

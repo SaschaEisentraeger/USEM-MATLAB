@@ -18,6 +18,14 @@ THETAS = [0, 90, 135, 175, 225, 270]
 MESH = dict(zip(THETAS, "abcdef"))
 
 
+def f4(v):
+    """Displacement for the tables; NaN = element could not be built
+    (coincident nodes or singular metric interpolation, error of the code
+    base)."""
+    v = float(v)
+    return "err." if math.isnan(v) else f"{v:.4f}"
+
+
 def read(name):
     with open(os.path.join(RES, name)) as f:
         return list(csv.DictReader(l for l in f if not l.startswith("#")))
@@ -47,7 +55,7 @@ def main():
                 ref = float(pv[key])
                 mark = "" if abs(ours - ref) <= 1.5e-4 else "$^\\ast$"
                 cells += [f"{ours:.4f}", f"{pv[key]}{mark}"]
-            cells += [f"{float(P[('PM9skew', t, load)][comp]):.4f}", f"{float(P[('PMusem', t, load)][comp]):.4f}"]
+            cells += [f4(P[('PM9skew', t, load)][comp]), f4(P[('PMusem', t, load)][comp])]
             L.append(f"{MESH[t]} ({t}$^\\circ$) & " + " & ".join(cells) + "\\\\")
         L += ["\\bottomrule", "\\end{tabular}"]
         with open(os.path.join(GEN, f"patch_{load}.tex"), "w") as f:
@@ -62,7 +70,7 @@ def main():
             cells = []
             for t in THETAS:
                 e = float(P[(v, t, "shear")]["nodal"])
-                cells.append(f"{e:.0e}".replace("e-0", "e-").replace("e+0", "e"))
+                cells.append("err." if math.isnan(e) else f"{e:.0e}".replace("e-0", "e-").replace("e+0", "e"))
             L.append(name + " & " + " & ".join(cells) + "\\\\")
         if p < 8:
             L.append("\\addlinespace[2pt]")
@@ -87,14 +95,16 @@ def main():
                 ref = float(pv[v])
                 mark = "" if abs(ours - ref) <= 1.5e-4 else "$^\\ast$"
                 cells += [f"{ours:.4f}", f"{pv[v]}{mark}"]
-            cells += [f"{float(C[('PM9skew', t, N)]['uyA']):.4f}", f"{float(C[('PMusem', t, N)]['uyA']):.4f}"]
+            cells += [f4(C[('PM9skew', t, N)]['uyA']), f4(C[('PMusem', t, N)]['uyA'])]
             L.append((seq if N == 1 else "") + f" & ${N}\\times{N}$ & " + " & ".join(cells) + "\\\\")
         L.append("\\midrule" if seq != "C" else "\\bottomrule")
         # least-squares rates of the energy-norm error (Eq. (24))
         row = [seq]
         for v in ("PP9", "PM9", "PM9skew", "PMusem", "PP3", "PM3"):
             e = [math.sqrt(abs(float(C[(v, t, N)]["energy"]))) for N in (1, 2, 4)]
-            if min(e) <= 0 or min(e) < 1e-12:
+            if any(math.isnan(x) for x in e):
+                row.append("err.")
+            elif min(e) <= 0 or min(e) < 1e-12:
                 row.append("--")
             else:
                 row.append(f"{np.polyfit(np.log([1, .5, .25]), np.log(e), 1)[0]:.2f}")

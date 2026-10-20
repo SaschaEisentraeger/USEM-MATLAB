@@ -102,6 +102,15 @@ classdef MetricShapeFunctionsTest < matlab.unittest.TestCase
             tc.verifyEqual(N0'*f, xq.^2 + 3*xq.*yq - yq.^2, 'AbsTol', 1e-9);
         end
 
+        function singularInterpolationIsRejected(tc)
+            % interior node moved onto the mid-side node of edge 3: the
+            % metric shape functions are undefined
+            [x, y, P] = usemTestElement('square', 2);
+            x(9) = x(7); y(9) = y(7);
+            tc.verifyError(@() ShapeFunctions2D_Metric(1, 0.5, x, y, P), ...
+                'ShapeFunctions2D_Metric:singular');
+        end
+
         function skewCoordinatesOfAffineElementAreReferenceCoordinates(tc, p)
             [x, y, P] = usemTestElement('parallelogram', p);
             [xi, eta] = refGrid(4);

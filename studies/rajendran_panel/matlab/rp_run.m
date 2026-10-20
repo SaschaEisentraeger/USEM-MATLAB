@@ -57,10 +57,28 @@ end
         % kk: load cases; withN: write the mesh parameter N (convergence file)
         rows = {};
         for v = 1:size(V, 1)
-            m = rp_model(file, V{v, 2}, V{v, 3});
-            m.metricMethod = V{v, 4};
-            K = rp_assemble(m, C, V{v, 5}, V{v, 6}, V{v, 4});
-            neg = negJ(m);
+            try
+                m = rp_model(file, V{v, 2}, V{v, 3});
+                m.metricMethod = V{v, 4};
+                K = rp_assemble(m, C, V{v, 5}, V{v, 6}, V{v, 4});
+                neg = negJ(m);
+            catch err
+                % coincident nodes (pSpectralElement_NodesTopology) or
+                % singular metric interpolation (ShapeFunctions2D_Metric):
+                % the element cannot be built, the case is recorded as NaN
+                if ~any(strcmp(err.identifier, {'pSpectralElement_NodesTopology:coincidentNodes', ...
+                                                 'ShapeFunctions2D_Metric:singular'}))
+                    rethrow(err);
+                end
+                for k = kk
+                    if ~withN
+                        rows{end+1} = sprintf('%s,%d,%s,NaN,NaN,NaN,NaN,NaN\n', V{v, 1}, t, loads{k}); %#ok<AGROW>
+                    else
+                        rows{end+1} = sprintf('%s,%d,%d,%s,NaN,NaN,NaN,NaN,NaN\n', V{v, 1}, t, N, loads{k}); %#ok<AGROW>
+                    end
+                end
+                continue
+            end
             for k = kk
                 F = rp_loads(m, prob{k});
                 u = rp_solve(m, K, F);

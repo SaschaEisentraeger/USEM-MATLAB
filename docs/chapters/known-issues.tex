@@ -48,6 +48,16 @@ fixed (\cref{sec:fixed}).
     which gave indefinite stiffness matrices for $p\ge3$ & Mock and ``fake'' node
     code removed; \code{nodal_distribution} rejects unknown distributions &
     \code{NodalDistributionTest} \\
+  element nodes & on strongly distorted 8-node meshes (e.g.\ Mesh b of the nodal
+    rotation patch test of \textcite{Rajendran2010technique}) the isoparametric
+    (serendipity) map places an interior node of degree-$p$ elements, $p$ even, onto
+    an edge node of the same element; the metric interpolation matrix is singular and
+    the solution was silently zero &
+    \code{pSpectralElement_NodesTopology} keeps the exact isoparametric placement but
+    stops on coincident nodes; \code{ShapeFunctions2D_Metric} stops if its
+    interpolation matrix is singular to working precision (also for nearly
+    non-unisolvent nodes of extremely distorted elements) &
+    \code{TopologyTest}, \code{MetricShapeFunctionsTest} \\
   path & copies of core functions in \code{NodalDistribution/FakeNodes/src}
     shadowed the originals & folder removed & -- \\
   geometry & \code{Global2LocalCoordinatesQuad} failed on every call

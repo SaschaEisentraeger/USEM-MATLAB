@@ -101,6 +101,28 @@ classdef TopologyTest < matlab.unittest.TestCase
                 'pSpectralElement_NodesTopology:cornerNodes');
         end
 
+        function coincidentNodesAreRejected(tc)
+            % 8-node element of Mesh b of Rajendran (2010), Fig. 9: the
+            % mid-side nodes of edges 2 and 3 are rotated by 90 deg about
+            % corner 3. The serendipity map sends the interior reference
+            % point (0,0) onto the mid-side node of edge 3, (1,-0.5), so
+            % every even degree produces two coincident nodes.
+            x = [0 1 1 0 0.5 1.5 1 0]';
+            y = [-1 -1 0 0 -1 0 -0.5 -0.5]';
+            P.ndist = 2;
+            for pdeg = [2 4]
+                P.pxi = pdeg; P.peta = pdeg;
+                tc.verifyError(@() pSpectralElement_NodesTopology( ...
+                    1:8, x, y, P, 2), ...
+                    'pSpectralElement_NodesTopology:coincidentNodes');
+            end
+            % odd degree: no interior node on xi = 0 or eta = 0
+            P.pxi = 3; P.peta = 3;
+            [T, xp] = pSpectralElement_NodesTopology(1:8, x, y, P, 2);
+            tc.verifyEqual(size(T), [1 16]);
+            tc.verifyEqual(numel(xp), 16);
+        end
+
         function linearMeshIsUnchangedForPOne(tc)
             [nodes, topo] = usemTestMesh(2, 2, 2, 2, 1);
             model = usemBuildModel(nodes, topo, 1);
