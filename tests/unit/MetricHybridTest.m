@@ -112,6 +112,17 @@ classdef MetricHybridTest < matlab.unittest.TestCase
             tc.verifyEqual(N1, N0);
         end
 
+        function nonInvertibleMappingIsRejected(tc)
+            % interior node moved onto the mid-side node of edge 3 (as in
+            % MetricShapeFunctionsTest): the complement is a function of
+            % F^-1(x), which does not exist; the Vandermonde matrix itself
+            % stays regular because it uses the reference node coordinates
+            [x, y, P] = usemTestElement('square', 2);
+            x(9) = x(7); y(9) = y(7);
+            tc.verifyError(@() ShapeFunctions2D_Metric(1, 0.5, x, y, P, 2, [0 0]), ...
+                'ShapeFunctions2D_Metric:invalidMapping');
+        end
+
         function hybridEqualsParametricOnStraightEdgedElements(tc, straight, p)
             % Bilinear map: x, y in Q_1(xi,eta), hence P_p(x,y) is in
             % Q_p(xi,eta) and T_p = Q_p(xi,eta) (dimension count)

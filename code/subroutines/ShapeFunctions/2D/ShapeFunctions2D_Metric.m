@@ -162,18 +162,8 @@ P  = kronRows(Qy,Qx);
 Px = kronRows(Qy,dQx);
 Py = kronRows(dQy,Qx);
 
-% The metric shape functions are undefined if the nodes are not unisolvent
-% for the polynomial space (e.g. coincident nodes or strongly distorted
-% elements): stop instead of returning meaningless shape functions
-rc = rcond(V);
-if ~(rc >= eps)
-    error('ShapeFunctions2D_Metric:singular', ...
-         ['The interpolation matrix of the metric shape functions is ' ...
-          'singular to working precision (rcond = %.2e): the element ' ...
-          'nodes are (nearly) not unisolvent. The element is too ' ...
-          'strongly distorted for the metric shape functions of degree ' ...
-          '(%d,%d).'], rc, px, py);
-end
+% Stop if the nodes are not unisolvent for the polynomial space
+checkUnisolvent(V,px,py);
 
 % Shape functions
 dV = decomposition(V);
@@ -239,6 +229,17 @@ xxi  = (dNxi'*xN)';   yxi  = (dNxi'*yN)';
 xeta = (dNeta'*xN)';  yeta = (dNeta'*yN)';
 detJ = xxi.*yeta - xeta.*yxi;
 
+% The complement is a function of (xi,eta) = F^-1(x): the geometry mapping
+% must be invertible (det J > 0 at the nodes and at the query points)
+[~,dNxiN,dNetaN] = ShapeFunctions2D_SEM(xiN,etaN,p);
+detJN = (dNxiN'*xN).*(dNetaN'*yN) - (dNetaN'*xN).*(dNxiN'*yN);
+if ~(min([detJ(:); detJN(:)]) > 0)
+    error('ShapeFunctions2D_Metric:invalidMapping', ...
+         ['The geometry mapping of the element is not invertible ' ...
+          '(det J <= 0): the hybrid metric shape functions (method = 2) ' ...
+          'are undefined.']);
+end
+
 % Inverse of J0 (skew coordinates are affine: grad_x = J0^-1 grad_(s,t))
 J0inv = inv(J0);
 
@@ -272,11 +273,29 @@ for b = 0:py
     end
 end
 
+checkUnisolvent(V,px,py);
+
 dV  = decomposition(V);
 N   = dV\P;
 dNx = dV\Px;
 dNy = dV\Py;
 
+end
+
+%% Unisolvence check
+% The metric shape functions are undefined if the nodes are not unisolvent
+% for the polynomial space (e.g. coincident nodes or strongly distorted
+% elements): stop instead of returning meaningless shape functions
+function checkUnisolvent(V,px,py)
+rc = rcond(V);
+if ~(rc >= eps)
+    error('ShapeFunctions2D_Metric:singular', ...
+         ['The interpolation matrix of the metric shape functions is ' ...
+          'singular to working precision (rcond = %.2e): the element ' ...
+          'nodes are (nearly) not unisolvent. The element is too ' ...
+          'strongly distorted for the metric shape functions of degree ' ...
+          '(%d,%d).'], rc, px, py);
+end
 end
 
 %% Column-wise Kronecker product: C(i*nB+j+1,:) = A(i+1,:).*B(j+1,:)
