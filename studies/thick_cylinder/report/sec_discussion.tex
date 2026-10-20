@@ -72,6 +72,14 @@ element mapping. The mechanism of the stability loss (\cref{sec:mechanism}) is
 characterised numerically, not proven.
 
 \section{Reproduction}\label{sec:reproduce}
+The results were computed with the code base of commit \texttt{2fea864}. Since commit
+\texttt{da84a58}, \texttt{ShapeFunctions2D\_Metric} stops with an error when its interpolation matrix
+is singular to working precision ($\mathrm{rcond}<\varepsilon$). On the present meshes this concerns
+\PM\ for $\alpha=45^\circ$, $p=8$, $N\ge4$, and for the folded meshes $\alpha=60^\circ$ ($p\ge7,6,4,4$
+for $N=1,2,4,8$) and $\alpha=90^\circ$ ($p\ge5,6,6,4$); never for $\alpha\le30^\circ$. For $p\ge5$ the
+polynomial patch test shows that these results were dominated by round-off (\cref{sec:poly});
+\texttt{run\_study.m} records them as NaN when re-run. All other results are unaffected.
+
 {\small
 \begin{tabular}{@{}p{0.5\linewidth}p{0.47\linewidth}@{}}
 \texttt{mesh/gen\_cylinder\_meshes.py} & gmsh model, meshes, ABAQUS files, plot data\\

@@ -1,35 +1,51 @@
 function model = rp_model(inpFile, pdeg, center)
 %RP_MODEL Spectral element model of the panel from a gmsh/ABAQUS file.
-%   The 8-node mesh is lifted to degree pdeg with the code base
-%   (usemReadAbaqus -> pSpectralElement_NodesTopology).
-%   center = 'serendipity' (code base: interior nodes from the 8-node map)
-%          | 'bilinear'    (interior nodes from the bilinear map of the four
-%                           corner nodes; for p = 2 the 9th node lies at the
-%                           centroid of the corners, as in PM-QUAD9* of
-%                           Rajendran 2010, Sec. 5.7)
-%   Edge nodes are those of the code base in both cases. With 'serendipity',
-%   interior nodes of strongly distorted elements can coincide with edge
-%   nodes (e.g. p = 2, Mesh b), which makes the metric interpolation
-%   singular.
+%   center = 'serendipity' : code base (usemReadAbaqus ->
+%                            pSpectralElement_NodesTopology): all nodes at
+%                            the images of the reference nodes under the
+%                            8-node (serendipity) map, i.e. the exact
+%                            isoparametric representation of the 8-node mesh.
+%                            Stops (coincidentNodes) if an interior node
+%                            falls onto an edge node (e.g. Mesh b, even p).
+%          | 'bilinear'    : a different geometry: edge nodes on the
+%                            parabolic 8-node edges as above, interior nodes
+%                            from the bilinear map of the four corner nodes;
+%                            for p = 2 the 9th node lies at the centroid of
+%                            the corners, as in PM-QUAD9* of Rajendran 2010,
+%                            Sec. 5.7. Built with
+%                            pSpectralElement_NodesTopology on the 4-node
+%                            corner mesh, the edge nodes are then moved onto
+%                            the 8-node edges.
 if nargin < 3, center = 'serendipity'; end
 p = struct('pxi', pdeg, 'peta', pdeg, 'ndist', 2);
-tmp = tempname;  mkdir(tmp);  old = cd(tmp);
-try
-    evalc('S = usemReadAbaqus(inpFile, p);');
-catch err
-    cd(old);  rmdir(tmp, 's');  rethrow(err);
-end
-cd(old);  rmdir(tmp, 's');
-model = S;
-if strcmp(center, 'bilinear')
+if strcmp(center, 'serendipity')
+    tmp = tempname;  mkdir(tmp);  old = cd(tmp);
+    try
+        evalc('S = usemReadAbaqus(inpFile, p);');
+    catch err
+        cd(old);  rmdir(tmp, 's');  rethrow(err);
+    end
+    cd(old);  rmdir(tmp, 's');
+    model = S;
+else
+    tmp = tempname;  mkdir(tmp);  old = cd(tmp);
+    try
+        [~, name, ext] = fileparts(inpFile);
+        copyfile(inpFile, [name ext]);
+        Adjust_Set_names_input_file_ABAQUS([name ext]);
+        evalc('[nodes, topo8] = Read_mesh_ABAQUS([name ''_adjusted'' ext]);');
+    catch err
+        cd(old);  rmdir(tmp, 's');  rethrow(err);
+    end
+    cd(old);  rmdir(tmp, 's');
+    model = usemBuildModel(nodes, topo8(:, 1:4), pdeg);
     [xi, eta] = cyl_local_coords(p);
     nb = 4 + 4*(pdeg - 1);                      % corner and edge nodes
-    N4 = ShapeFunctions2D_4nodes(xi(nb+1:end).', eta(nb+1:end).');
-    for e = 1:S.num_Elem
-        c = S.Topology_Node(e, 1:4);
-        m = S.Topology_Node(e, nb+1:end);
-        model.xCoor(m) = N4.'*S.xCoor(c(:));
-        model.yCoor(m) = N4.'*S.yCoor(c(:));
+    N8 = ShapeFunctions2D_8nodes(xi(1:nb).', eta(1:nb).');
+    for e = 1:model.num_Elem
+        ids = model.Topology_Node(e, 1:nb);
+        model.xCoor(ids) = N8.'*nodes(topo8(e, :), 1);
+        model.yCoor(ids) = N8.'*nodes(topo8(e, :), 2);
     end
 end
 x = model.xCoor;  y = model.yCoor;  tol = 1e-12;

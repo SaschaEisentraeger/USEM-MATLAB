@@ -23,9 +23,10 @@ the conventional (PP-QUAD9) and the metric (MM-QUAD9) elements, except for entri
 inconsistent within the paper itself (\cref{sec:paper}). The energy-norm convergence rates of
 PM-QUAD9$^\ast$ (Fig.~15 of the paper) are reproduced as well ($2.00$ and $1.98$ against
 $2.11$ and $1.97$). For $p\ge3$ the unsymmetric spectral element reproduces the cubic field of
-the shear test on every mesh, including fully folded ones, up to round-off. The code base as
-is, however, places interior nodes with the 8-node map; on these meshes this makes interior
-and edge nodes coincide for even $p$, and the solution fails (\cref{sec:code}).
+the shear test on every mesh, including fully folded ones, up to round-off. The code base places interior nodes
+isoparametrically with the 8-node map; on these meshes this makes interior and edge nodes
+coincide for even $p$. The code base now stops with an error in this case and when the metric
+interpolation is singular, instead of returning a wrong (zero) solution (\cref{sec:code}).
 \end{abstract}
 
 \section{Set-up}\label{sec:setup}
@@ -85,7 +86,9 @@ and $2p\times2p$ points, and \PM$_\mathrm{code}$ with the interior nodes of the 
   \resizebox{\linewidth}{!}{\input{generated/patch_shear}}
 
   \vspace{3mm}
-  \caption{Tension, $u_x(A)$ (paper: Table~14; exact $1.0$).}
+  \caption{Tension, $u_x(A)$ (paper: Table~14; exact $1.0$). In
+    \cref{tab:moment,tab:shear,tab:tension,tab:conv}, ``err.'' marks cases in which the code base
+    stops because interior and edge nodes coincide (\cref{sec:code}).}
   \label{tab:tension}
   \resizebox{\linewidth}{!}{\input{generated/patch_tension}}
 \end{table}
@@ -122,7 +125,8 @@ whereas \PP\ ($p=3$) still has energy-norm errors of $9$--$80\,\%$.
   \centering\small
   \caption{Shear loading on Meshes a--f: relative nodal error $e_n$ for $p=3,\dots,8$ (cubic
     field, contained in the \PM\ trial space for $p\ge3$). \PM: interior nodes from the bilinear
-    corner map; \PM$_\mathrm{code}$: interior nodes of \texttt{pSpectralElement\_NodesTopology}.}
+    corner map; \PM$_\mathrm{code}$: interior nodes of \texttt{pSpectralElement\_NodesTopology};
+    ``err.'': the code base stops (coincident nodes or singular metric interpolation).}
   \label{tab:highp}
   \input{generated/patch_highp}
 \end{table}
@@ -132,17 +136,26 @@ overlapping and folded elements. The round-off level grows with $p$ and distorti
 (from $10^{-13}$ to $10^{-5}$ for $p=8$, Mesh c), in line with the thick-cylinder study. The
 conventional element has errors of $7$--$100\,\%$ on the distorted meshes for all $p$.
 
-\section{A defect of the code base on these meshes}\label{sec:code}
-\texttt{pSpectralElement\_NodesTopology} places the interior nodes with the 8-node (serendipity)
-map. On Meshes b and f this maps the interior node $\bxi=(0,0)$ of the $p=2$ element exactly onto
-a mid-side node of the same element (e.g.\ $(1,-0.5)$); the metric Vandermonde matrix is
-singular ($\mathrm{cond}\approx10^{18}$--$10^{20}$) and the computed displacements are zero
-(``code'' columns of \cref{tab:moment,tab:shear,tab:tension,tab:conv}). The same happens for every
-even $p$ (interior nodes on $\xi=0$ or $\eta=0$), and on Meshes c--e the near-coincidence of
-nodes destroys the accuracy for $p\ge4$ (\cref{tab:highp}). Placing the interior nodes with the
-bilinear map of the corners, which for $p=2$ is the choice of the paper (``for simplicity''),
-removes the problem on all meshes tested. \texttt{ShapeFunctions2D\_Metric} uses
-\texttt{decomposition}, which does not stop on a singular matrix, so the failure is silent.
+\section{Interior nodes of the code base on these meshes}\label{sec:code}
+\texttt{pSpectralElement\_NodesTopology} places all new nodes isoparametrically, i.e.\ with the
+geometry map of the original 8-node (serendipity) element. The serendipity space is contained in
+$Q_p$, so the degree-$p$ geometry reproduces the 8-node geometry exactly; the map is also the
+Gordon--Hall interpolation of the three-node edges. On Meshes b and f, however, this map sends the
+interior reference point $\bxi=(0,0)$ onto a mid-side node of the same element (e.g.\
+$-\tfrac14\sum\bx_{\mathrm{corner}}+\tfrac12\sum\bx_{\mathrm{mid}}=(1,-0.5)$ in the element with
+corners $(0,-1)$, $(1,-1)$, $(1,0)$, $(0,0)$), for every even $p$. No set of distinct nodes
+represents this element geometry; the 9th node of the paper (corner centroid) defines a different
+geometry. Before commit \texttt{da84a58} the metric Vandermonde matrix was then singular
+($\mathrm{cond}\approx10^{18}$--$10^{20}$) and the computed displacements were silently zero.
+Since then the code base keeps the isoparametric placement but stops with an error:
+\texttt{pSpectralElement\_NodesTopology} on coincident nodes, and \texttt{ShapeFunctions2D\_Metric}
+when its interpolation matrix is singular to working precision ($\mathrm{rcond}<\varepsilon$),
+which also covers the nearly non-unisolvent node sets of Meshes c--e for high $p$, where the
+accuracy had been destroyed (\cref{tab:highp}). The ``code'' columns and
+\PM$_\mathrm{code}$ rows show these cases as ``err.''. On all meshes of the test suite, the
+Lee \& Bathe input files and the thick-cylinder meshes with $\alpha\le30^\circ$ ($p\le8$) neither
+check is triggered. The study results with interior nodes from the bilinear corner map
+(\PM, $p\ge3$) show that such meshes can be computed if a different geometry is acceptable.
 
 \section{Inconsistencies in the paper}\label{sec:paper}
 \begin{enumerate}
