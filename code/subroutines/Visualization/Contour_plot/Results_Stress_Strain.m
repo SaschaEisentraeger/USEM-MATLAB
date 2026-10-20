@@ -45,7 +45,7 @@ strain  = zeros(3,NumP);
 
 % Derivatives of the metric shape functions (x,y)
 IPg = Local2GlobalCoordinatesQuad(p,[xi,eta],[xCoor,yCoor]);
-[~,dMx,dMy] = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xCoor,yCoor,p);
+[~,dMx,dMy] = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xCoor,yCoor,p,[],[xi,eta]);
 
 for i = 1:NumP
 %------------------------Parametric shape functions-----------------------%

@@ -17,6 +17,10 @@ classdef PatchTest < matlab.unittest.TestCase
                       'curved',   {{2, 'curved',   0.15}}, ...
                       'combined', {{2, 'combined', 0.3}});
         analysis = struct('planeStress', 1, 'planeStrain', 2);
+        % Trial space of the metric functions (ShapeFunctions2D_Metric):
+        % Q_p in skew coordinates, or the hybrid space P_p(x,y) +
+        % parametric complement
+        trial = struct('skew', 1, 'hybrid', 2);
     end
 
     properties (Constant)
@@ -34,19 +38,19 @@ classdef PatchTest < matlab.unittest.TestCase
     end
 
     methods (Test)
-        function linearFieldIsExact(tc, mesh, p)
+        function linearFieldIsExact(tc, mesh, p, trial)
             % Classical patch test (constant strain)
-            model = buildModel(mesh, p);
+            model = buildModel(mesh, p, trial);
             K = usemAssemble(model, HookeMatrix2d(1, tc.nu, 1));
             field = @(x, y) deal(1e-3 + 2e-3*x - 1e-3*y, -5e-4 + 1e-3*x + 3e-3*y);
             [~, ~, err] = usemDirichletSolve(K, model, field);
             tc.verifyLessThan(err, 1e-10);
         end
 
-        function harmonicFieldsUpToDegreePAreExact(tc, mesh, p, analysis)
+        function harmonicFieldsUpToDegreePAreExact(tc, mesh, p, analysis, trial)
             % u = (Re z^k, -Im z^k) is divergence-free and harmonic, hence
             % in equilibrium for any isotropic material without body force.
-            model = buildModel(mesh, p);
+            model = buildModel(mesh, p, trial);
             K = usemAssemble(model, HookeMatrix2d(1, tc.nu, analysis));
             for k = 1:p
                 field = @(x, y) harmonicField(x - 1.3, y - 0.7, k);
@@ -55,11 +59,11 @@ classdef PatchTest < matlab.unittest.TestCase
             end
         end
 
-        function pureBendingIsExactForQuadraticElements(tc, mesh, p)
+        function pureBendingIsExactForQuadraticElements(tc, mesh, p, trial)
             % Pure bending in plane stress: u = kappa*(-x*y, (x^2 + nu*y^2)/2)
             % (quadratic, non-zero divergence, depends on nu).
             tc.assumeGreaterThanOrEqual(p, 2);
-            model = buildModel(mesh, p);
+            model = buildModel(mesh, p, trial);
             K = usemAssemble(model, HookeMatrix2d(1, tc.nu, 1));
             kappa = 1e-3; nu0 = tc.nu;
             field = @(x, y) deal(-kappa*x.*y, kappa/2*(x.^2 + nu0*y.^2));
@@ -93,13 +97,13 @@ classdef PatchTest < matlab.unittest.TestCase
             tc.verifyGreaterThan(err, 1e-5);
         end
 
-        function pRefinementConvergesExponentially(tc)
+        function pRefinementConvergesExponentially(tc, trial)
             % Smooth non-polynomial equilibrium field
             % u = (e^x cos y, -e^x sin y) on a distorted mesh.
             pvec = 2:7;
             err = zeros(size(pvec));
             for k = 1:numel(pvec)
-                model = buildModel({2, 'combined', 0.3}, pvec(k));
+                model = buildModel({2, 'combined', 0.3}, pvec(k), trial);
                 K = usemAssemble(model, HookeMatrix2d(1, tc.nu, 1));
                 [~, ~, err(k)] = usemDirichletSolve(K, model, ...
                     @(x, y) deal(exp(x).*cos(y), -exp(x).*sin(y)));
@@ -109,16 +113,35 @@ classdef PatchTest < matlab.unittest.TestCase
             tc.verifyLessThan(err(end), 1e-6);
             tc.verifyLessThan(err(end)/err(1), 1e-4);
         end
+
+        function hybridIsClassicalElementOnStraightEdgedMesh(tc)
+            % On bilinearly mapped elements the hybrid trial space equals
+            % the parametric space, so the stiffness is the classical one
+            model = buildModel({1, 'angular', 0.3}, 3, 2);
+            C = HookeMatrix2d(1, tc.nu, 1);
+            K = usemAssemble(model, C);
+            Ksym = assembleSymmetric(model, C);
+            tc.verifyLessThan(norm(full(K - Ksym), 'fro')/norm(full(K), 'fro'), 1e-12);
+        end
+
+        function hybridIsUnsymmetricOnCurvedMesh(tc)
+            model = buildModel({2, 'curved', 0.15}, 3, 2);
+            K = full(usemAssemble(model, HookeMatrix2d(1, tc.nu, 1)));
+            tc.verifyGreaterThan(norm(K - K', 'fro')/norm(K, 'fro'), 1e-4);
+        end
     end
 end
 
-function model = buildModel(mesh, p)
+function model = buildModel(mesh, p, trial)
 [order, kind, amount] = mesh{:};
 [nodes, topo] = usemTestMesh(3, 2, 3, 2, order);
 if ~strcmp(kind, 'none')
     nodes = usemDistortMesh(nodes, topo, kind, amount);
 end
 model = usemBuildModel(nodes, topo, p);
+if nargin > 2
+    model.p.metricMethod = trial;
+end
 end
 
 function [ux, uy] = harmonicField(x, y, k)

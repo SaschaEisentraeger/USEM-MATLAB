@@ -73,7 +73,7 @@ IW = flipud(IW);
 
 % Derivatives of the metric shape functions (x,y)
 IPg = Local2GlobalCoordinatesQuad(p,IP,[xCoor,yCoor]);
-[~,dMx,dMy] = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xCoor,yCoor,p);
+[~,dMx,dMy] = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xCoor,yCoor,p,[],IP);
     
 % Loop over all integration points
 for i = 1:NumIP

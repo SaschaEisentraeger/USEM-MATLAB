@@ -99,7 +99,7 @@ Naux = ShapeFunctions2D_SEM(IP(:,1),IP(:,2),p);
 
 % Metric shape functions (x,y)
 IPg = Local2GlobalCoordinatesQuad(p,IP,[xCoor,yCoor]);
-Maux = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xCoor,yCoor,p);
+Maux = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xCoor,yCoor,p,[],IP);
 
 % Loop over all integration points
 for i = 1:NumIP

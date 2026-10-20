@@ -38,8 +38,13 @@
 % p.metricBasis:Optional, basis of the generalized Vandermonde matrix in
 %               skew coordinates (method = 1): 'lagrange' (default),
 %               'legendre', 'chebyshev' or 'monomial' (see PolynomialBasis1D)
+% p.metricMethod: Optional, default for method (1 if absent)
 % method:       Optional, 0: centroid-shifted global coordinates (always
-%               monomials), 1: corotational skew coordinates (default)
+%               monomials), 1: corotational skew coordinates (default),
+%               2: hybrid space P_p(x,y) + {L_a(xi)L_b(eta): a+b > p}
+%               (see metricHybrid below); empty: p.metricMethod
+% xiQ:          Optional (method = 2), local coordinates [xi, eta] of the
+%               query points; computed by Newton's method if absent
 %-------------------------------------------------------------------------%
 %% Output
 %
@@ -50,12 +55,25 @@
 %       at (xQ,yQ)
 % V:    Generalized Vandermonde matrix (transpose), V(c,k) = phi_c(x_k)
 %-------------------------------------------------------------------------%
-function [N,dNx,dNy,V] = ShapeFunctions2D_Metric(xQ,yQ,xN,yN,p,method)
+function [N,dNx,dNy,V] = ShapeFunctions2D_Metric(xQ,yQ,xN,yN,p,method,xiQ)
 
-if nargin == 5
+if nargin < 6 || isempty(method)
     % Global (Cartesian) coordinates: 0
     % Corotational skew coordinates:  1
-    method = 1;
+    % Hybrid space:                   2
+    if isfield(p,'metricMethod')
+        method = p.metricMethod;
+    else
+        method = 1;
+    end
+end
+
+if method == 2
+    if nargin < 7 || isempty(xiQ)
+        xiQ = Global2LocalNewton(xQ,yQ,xN,yN,p);
+    end
+    [N,dNx,dNy,V] = metricHybrid(xQ(:),yQ(:),xN(:),yN(:),p,xiQ);
+    return
 end
 
 % Polynomial degree
@@ -161,6 +179,90 @@ else
     dNx = dV\Px;
     dNy = dV\Py;
 end
+
+end
+
+%% Hybrid trial space (method = 2)
+% T_p = P_m(x,y) + span{L_a(xi) L_b(eta) : a <= px, b <= py, a + b > m},
+% m = min(px,py), L_a: Legendre polynomials. The complete polynomials are
+% written in the bounding-box scaled skew coordinates (affine in x, so the
+% space is P_m(x,y)), the complement in the parametric coordinates, in
+% which the nodes form a tensor grid. T_p contains P_m(x,y) (completeness,
+% patch tests), is frame invariant and equals Q_p on affine elements. The
+% complement depends on the choice of L_a, so the basis is fixed here
+% (p.metricBasis is ignored).
+function [N,dNx,dNy,V] = metricHybrid(xQ,yQ,xN,yN,p,xiQ)
+
+px = p.pxi;
+py = p.peta;
+m  = min(px,py);
+
+% Skew coordinates, bounding box of the nodes mapped onto [-1,1]^2
+[sQ,tQ,J0] = CorotationalSkewCoordinates(xQ,yQ,xN,yN,p);
+[sN,tN]    = CorotationalSkewCoordinates(xN,yN,xN,yN,p);
+cs = (max(sN) + min(sN))/2;  rs = (max(sN) - min(sN))/2;
+ct = (max(tN) + min(tN))/2;  rt = (max(tN) - min(tN))/2;
+sN = (sN - cs)/rs;  sQ = (sQ - cs)/rs;
+tN = (tN - ct)/rt;  tQ = (tQ - ct)/rt;
+
+% Local coordinates of the nodes and of the query points
+[xiN,etaN] = ReferenceNodes2D(p);
+xiQq  = xiQ(:,1);
+etaQq = xiQ(:,2);
+
+% One-dimensional Legendre polynomials
+[Ls,~]      = PolynomialBasis1D(sN,px,'legendre');
+[Lt,~]      = PolynomialBasis1D(tN,py,'legendre');
+[Lxi,~]     = PolynomialBasis1D(xiN,px,'legendre');
+[Leta,~]    = PolynomialBasis1D(etaN,py,'legendre');
+[Qs,dQs]    = PolynomialBasis1D(sQ,px,'legendre');
+[Qt,dQt]    = PolynomialBasis1D(tQ,py,'legendre');
+[Qxi,dQxi]  = PolynomialBasis1D(xiQq,px,'legendre');
+[Qeta,dQeta]= PolynomialBasis1D(etaQq,py,'legendre');
+
+% Jacobian of the geometry mapping at the query points
+[~,dNxi,dNeta] = ShapeFunctions2D_SEM(xiQq,etaQq,p);
+xxi  = (dNxi'*xN)';   yxi  = (dNxi'*yN)';
+xeta = (dNeta'*xN)';  yeta = (dNeta'*yN)';
+detJ = xxi.*yeta - xeta.*yxi;
+
+% Inverse of J0 (skew coordinates are affine: grad_x = J0^-1 grad_(s,t))
+J0inv = inv(J0);
+
+nN = (px+1)*(py+1);
+nQ = numel(xQ);
+V  = zeros(nN);
+P  = zeros(nN,nQ);
+Px = zeros(nN,nQ);
+Py = zeros(nN,nQ);
+c = 0;
+for b = 0:py
+    for a = 0:px
+        c = c + 1;
+        if a + b <= m
+            % Complete polynomials in (x,y)
+            V(c,:) = Ls(a+1,:).*Lt(b+1,:);
+            P(c,:) = Qs(a+1,:).*Qt(b+1,:);
+            Ps = dQs(a+1,:).*Qt(b+1,:)/rs;
+            Pt = Qs(a+1,:).*dQt(b+1,:)/rt;
+            Px(c,:) = J0inv(1,1)*Ps + J0inv(1,2)*Pt;
+            Py(c,:) = J0inv(2,1)*Ps + J0inv(2,2)*Pt;
+        else
+            % Complement in the parametric coordinates
+            V(c,:) = Lxi(a+1,:).*Leta(b+1,:);
+            P(c,:) = Qxi(a+1,:).*Qeta(b+1,:);
+            Pxi  = dQxi(a+1,:).*Qeta(b+1,:);
+            Peta = Qxi(a+1,:).*dQeta(b+1,:);
+            Px(c,:) = ( yeta.*Pxi - yxi.*Peta)./detJ;
+            Py(c,:) = (-xeta.*Pxi + xxi.*Peta)./detJ;
+        end
+    end
+end
+
+dV  = decomposition(V);
+N   = dV\P;
+dNx = dV\Px;
+dNy = dV\Py;
 
 end
 

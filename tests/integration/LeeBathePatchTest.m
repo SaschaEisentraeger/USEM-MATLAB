@@ -32,6 +32,8 @@ classdef LeeBathePatchTest < matlab.unittest.TestCase
                    'PatchTestLeeQuadratic_midedge_ndof12', ...
                    'PatchTestLeeCubic_undistorted_ndof30', ...
                    'PatchTestLeeCubic_midedge_ndof30'};
+        % Trial space: Q_p in skew coordinates or hybrid space
+        trial = struct('skew', 1, 'hybrid', 2);
     end
 
     properties (Constant)
@@ -58,12 +60,13 @@ classdef LeeBathePatchTest < matlab.unittest.TestCase
             tc.verifyEqual([x y], [S.xCoor S.yCoor], 'AbsTol', 1e-12);
         end
 
-        function quadraticPatchTestMatchesPureBending(tc, quadraticCase)
+        function quadraticPatchTestMatchesPureBending(tc, quadraticCase, trial)
             % sigma_x = a*y, u_x = a*x*y/E,
             % u_y = -a/(2E)*(x^2 + nu*y^2) + a*nu/(2E)   (u_y(0,-1) = 0).
             % The load intensity a follows from the consistent nodal
             % forces on the right edge: sum(F_x,i * y_i) = 2a/3.
             S = loadCase(quadraticCase);
+            S.p.metricMethod = trial;
             [u, F] = solveStatic(S);
             right = abs(S.xCoor - 10) < 1e-9;
             a = 1.5*sum(F(2*find(right)-1).*S.yCoor(right));
@@ -75,12 +78,13 @@ classdef LeeBathePatchTest < matlab.unittest.TestCase
             tc.verifyEqual(u(2:2:end), uy, 'AbsTol', 1e-9*max(abs(uy)));
         end
 
-        function cubicPatchTestIsMeshIndependent(tc, cubicCase)
+        function cubicPatchTestIsMeshIndependent(tc, cubicCase, trial)
             % All meshes must give the tip displacement of the
             % undistorted mesh (cubic field, p = 3).
             ref = loadCase('PatchTestLeeCubic_undistorted_ndof56');
             uRef = solveStatic(ref);
             S = loadCase(cubicCase);
+            S.p.metricMethod = trial;
             u = solveStatic(S);
             for yTip = [-1 1]
                 iR = find(abs(ref.xCoor - 10) < 1e-9 & abs(ref.yCoor - yTip) < 1e-9);
@@ -90,8 +94,9 @@ classdef LeeBathePatchTest < matlab.unittest.TestCase
             end
         end
 
-        function cubicPatchTestMatchesStoredReference(tc, cubicCase)
+        function cubicPatchTestMatchesStoredReference(tc, cubicCase, trial)
             S = loadCase(cubicCase);
+            S.p.metricMethod = trial;
             u = solveStatic(S);
             tc.verifyEqual(u, S.u, 'AbsTol', 1e-8*max(abs(S.u)));
         end

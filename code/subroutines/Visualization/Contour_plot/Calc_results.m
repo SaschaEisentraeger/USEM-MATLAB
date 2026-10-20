@@ -54,7 +54,7 @@ Uy = uElem(2:2:end);
 % Matrix of shape functions
 % Metric shape functions (x,y)
 IPg = Local2GlobalCoordinatesQuad(p,EP,[xElem,yElem]);
-N = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xElem,yElem,p);
+N = ShapeFunctions2D_Metric(IPg(:,1),IPg(:,2),xElem,yElem,p,[],EP);
 %-------------------------------------------------------------------------%
 
 % Compute the displacements and global coordinates

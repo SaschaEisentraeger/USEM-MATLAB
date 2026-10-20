@@ -94,6 +94,13 @@ p.ndist = 2;
 % 'monomial':  monomials (previous implementation, ill-conditioned for p > 8)
 p.metricBasis = 'lagrange';
 
+% Trial space of the metric shape functions (docs: chapter "Basis of the
+% metric Vandermonde matrix", section on the hybrid space)
+% 1: Q_p in corotational skew coordinates (default)
+% 2: hybrid space P_p(x,y) + parametric complement (equals the classical
+%    spectral element on straight-edged elements)
+p.metricMethod = 1;
+
 %% Settings for dynamic analyses
 % Mass matrix formulation
 % 1: Consistent mass matrix

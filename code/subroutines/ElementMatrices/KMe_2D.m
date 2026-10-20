@@ -68,7 +68,7 @@ NumIP = numel(IPK(:,1));
 
 % Derivatives of the metric shape functions (x,y)
 IPKg = Local2GlobalCoordinatesQuad(p,IPK,[xCoor,yCoor]);
-[~,dMx,dMy] = ShapeFunctions2D_Metric(IPKg(:,1),IPKg(:,2),xCoor,yCoor,p);
+[~,dMx,dMy] = ShapeFunctions2D_Metric(IPKg(:,1),IPKg(:,2),xCoor,yCoor,p,[],IPK);
 
 % Element mass matrix
 M_element = zeros(ndof,ndof);
@@ -115,7 +115,7 @@ Naux = ShapeFunctions2D_SEM(IPM(:,1),IPM(:,2),p);
 
 % Metric shape functions (x,y)
 IPMg = Local2GlobalCoordinatesQuad(p,IPM,[xCoor,yCoor]);
-Maux = ShapeFunctions2D_Metric(IPMg(:,1),IPMg(:,2),xCoor,yCoor,p);
+Maux = ShapeFunctions2D_Metric(IPMg(:,1),IPMg(:,2),xCoor,yCoor,p,[],IPM);
  
 % Loop over all integration points
 for i = 1:NumIP
