@@ -1,0 +1,59 @@
+\section{Introduction}\label{sec:intro}
+Isoparametric elements lose accuracy on distorted meshes because the parametric shape
+functions, composed with a non-affine element map, no longer span the complete polynomials
+in Cartesian coordinates~\cite{Lee1993effects,Arnold2002Approximation}. The unsymmetric
+finite element method of \citet{Rajendran2003novel} restores completeness by a
+Petrov--Galerkin formulation: the test functions remain parametric, the trial functions are
+\emph{metric}, i.e.\ polynomials in physical coordinates that interpolate the nodal values.
+With the Jacobian determinant cancelled in the stiffness integral, the resulting elements
+reproduce every displacement field of total degree $\le p$ exactly on arbitrarily distorted
+meshes, also when $\det\bm J$ changes sign (Jacobian-unlimited elements, conditions C1--C3 of
+\citet{Rajendran2010technique}). The approach has been developed for a wide range of element
+types and applications, e.g.\
+\cite{Ooi2004hexahedron,Ooi2007extension,Cen2012shape,Cen2015unsymmetric,Xie2016Modified,Shang2018airy,Huang2022Unsymmetric,Pfefferkorn2021mesh,Pfefferkorn2023hourglassing,Zaehringer2026On};
+two known difficulties are the frame dependence of Cartesian metric functions, removed by
+skew (corotational) coordinates~\cite{Ooi2008Remedies,Xie2016Modified}, and the
+``interpolation failure'' of the metric functions on strongly distorted
+elements~\cite{Ooi2008Remedies,Rajendran2010technique}.
+
+For high-order (spectral) elements, the metric trial functions of degree $p$ in each
+coordinate are obtained element by element from a generalised Vandermonde system with
+$(p+1)^2$ unknowns. Two different properties of this construction degrade with $p$ and with
+the element distortion, and they are often not distinguished:
+\begin{enumerate}
+\item the condition number $\kappa(\bm V)$ of the interpolation matrix, which controls the
+  round-off in the computed shape functions and depends on the polynomial basis used to set up
+  the system;
+\item the Lebesgue constant $\Lambda$ of the interpolation in the trial space, which controls the
+  approximation and the amplification of nodal perturbations; it is a property of the space and
+  the node set and does not depend on the basis.
+\end{enumerate}
+A companion study of the thick cylinder of \citet[Sec.~5.9]{Rajendran2010technique} with
+$p=2,\dots,8$ (\cref{sec:cylinder}) shows the practical consequence: on meshes whose relative
+distortion does not decrease under refinement, the unsymmetric spectral element with metric
+functions $Q_p$ in skew coordinates converges optimally only for moderate distortion; beyond, its
+convergence is erratic, and the loss correlates with Lebesgue constants of $10^{3}$--$10^{8}$
+rather than with the sign of $\det\bm J$.
+
+This paper proposes one remedy for each property.
+\begin{enumerate}
+\item \emph{A well-conditioned basis} for the metric interpolation problem
+  (\cref{sec:basis}): a tensor-product Lagrange basis on the Gauss--Lobatto--Legendre (GLL)
+  points of the bounding box of the skew node coordinates. We prove that the trial space and its
+  Lebesgue constant are basis invariant, that the new basis makes $\bm V$ a permutation matrix on
+  affine elements, and that on distorted elements $\kappa_1(\bm V)$ equals the product of the
+  reference Lebesgue function at the scaled nodes and the Lebesgue function of the metric
+  interpolation at the reference points, i.e.\ the basis removes all ill-conditioning that is not
+  inherent in the interpolation problem. It does \emph{not} reduce the Lebesgue constant.
+\item \emph{A hybrid trial space} (\cref{sec:hybrid}) that uses metric polynomials only where
+  completeness requires them, for $P_p(\bx)$, and parametric functions for the remaining
+  $\tfrac12p(p+1)$ functions. We establish completeness, frame invariance and the reduction to
+  the conventional spectral element on bilinear elements, derive a factorisation of the
+  interpolation matrix that characterises unisolvence, and show that the hybrid interpolant is
+  the GLL interpolant plus the interpolation error of a polynomial, which bounds its Lebesgue
+  constant by the GLL value plus a term that vanishes on bilinear elements.
+\end{enumerate}
+\Cref{sec:numerics} supports the claims by element-level studies up to $p=16$, mesh-level
+studies (smooth fields, eigenvalues), Jacobian-unlimited patch tests on the meshes of
+\citet{Rajendran2010technique}, and the thick-cylinder study with $1512$ solutions.
+\Cref{sec:conclusions} summarises the advantages and the limitations.

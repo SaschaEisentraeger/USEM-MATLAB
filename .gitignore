@@ -6,6 +6,7 @@ literature/*.pdf
 *.pdf
 # ... except the reports of the studies (own work)
 !studies/*/report/report.pdf
+!studies/manuscript_metric/manuscript.pdf
 
 # --- Simulation output -----------------------------------------------------
 # Workspaces written by call_*.m (regenerate them by running Start_Sim.m).
