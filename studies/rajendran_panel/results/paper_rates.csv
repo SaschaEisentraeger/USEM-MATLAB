@@ -1,0 +1,5 @@
+# Fig. 15 (9-node, energy-norm strain error, Eq. (24)): least-squares rates over N = 1,2,4
+sequence,PP9,PM9
+A,1.93,1.93
+B,1.05,2.11
+C,0.85,1.97

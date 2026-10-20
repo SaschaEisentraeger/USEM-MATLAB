@@ -1,0 +1,22 @@
+\begin{abstract}
+\noindent
+The unsymmetric (parametric test / metric trial) spectral element of the USEM code base is
+studied for the thick cylinder of \citet[Sec.~5.9]{Rajendran2010technique} with $p=2,\dots,8$
+on gmsh meshes whose distortion is kept fixed under refinement
+($\alpha=0^\circ$--$90^\circ$, including folded elements), complemented by manufactured
+polynomial and analytic non-polynomial solutions on the same meshes; the conventional
+spectral element serves as reference (1008 solutions, verified against the code base).
+\emph{Findings.} (i) A degree-5 polynomial field is reproduced up to round-off for $p\ge5$ on
+all meshes without folds, but the round-off level grows with distortion and $p$ and destroys
+the exactness on folded meshes. (ii) For non-polynomial fields distortion immunity is lost,
+but for moderate distortion ($\alpha=15^\circ$, all $p\le6$; $\alpha=30^\circ$, $p\le3$) the
+element remains distortion tolerant (energy error at most $1.84$ times that on the undistorted
+mesh) and converges with the optimal order $p$, whereas the conventional element drops to
+$\lfloor p/2\rfloor$. (iii) For stronger distortion or higher $p$ both distortion tolerance and
+optimal convergence are lost; convergence becomes erratic and the element is less accurate
+than the conventional one, independently of the sign of $\det\bm J$. The loss is caused by
+the ill-conditioned metric interpolation (Lebesgue constants up to $10^{12}$), which
+degrades the stability of the Petrov--Galerkin operator. The practical benefit is therefore
+confined to moderately distorted, non-folding meshes; the element is not a reliable remedy
+for severely distorted or folded meshes at high order.
+\end{abstract}

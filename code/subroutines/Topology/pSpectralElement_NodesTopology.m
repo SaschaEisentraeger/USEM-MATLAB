@@ -6,6 +6,15 @@
 % New nodal coordinates and a new topology for higher order spectral
 % elements is generated from the original linear/quadratic discretization. 
 %
+% All new nodes are placed isoparametrically, i.e. at the images of the
+% reference nodes under the geometry map of the original element (bilinear
+% for 4-node, serendipity for 8-node elements). The degree-p geometry
+% therefore reproduces the original element geometry exactly. For strongly
+% distorted 8-node elements this map can send an interior node onto an edge
+% node of the same element; such a mesh cannot be represented by distinct
+% nodes and an error is raised (identifier
+% pSpectralElement_NodesTopology:coincidentNodes).
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Input
 %
@@ -226,4 +235,36 @@ if pxi >= 2 && peta >= 2
     end
 end
 
+% Coincident nodes make the element (and its metric shape functions)
+% degenerate; stop instead of continuing with a singular element
+checkCoincidentNodes(Topology_Node_p,xCoor_p,yCoor_p,pxi,peta);
+
+end
+
+%% Check for coincident nodes within the elements
+function checkCoincidentNodes(Topology_Node,xCoor,yCoor,pxi,peta)
+% Two nodes of an element are considered coincident if their distance is
+% below 1e-10 times the largest distance between the corner nodes.
+tol = 1e-10;
+for e = 1:size(Topology_Node,1)
+    x = xCoor(Topology_Node(e,:));
+    y = yCoor(Topology_Node(e,:));
+    x = x(:);
+    y = y(:);
+    h = max(max(hypot(x(1:4) - x(1:4).', y(1:4) - y(1:4).')));
+    D = hypot(x - x.', y - y.');
+    D(1:numel(x)+1:end) = inf;
+    [dmin,k] = min(D(:));
+    if dmin < tol*h
+        [a,b] = ind2sub(size(D),k);
+        error('pSpectralElement_NodesTopology:coincidentNodes', ...
+             ['Element %d: the local nodes %d and %d coincide at ' ...
+              '(%g, %g). The isoparametric map of the original element ' ...
+              'places a node onto another node of the same element; ' ...
+              'the element is too strongly distorted for degree ' ...
+              '(%d,%d). Change the mesh (e.g. the mid-side nodes) or ' ...
+              'the polynomial degree.'], e, a, b, x(a), y(a), ...
+              pxi, peta);
+    end
+end
 end

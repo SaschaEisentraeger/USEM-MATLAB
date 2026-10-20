@@ -79,6 +79,16 @@ tests on distorted meshes for $p = 1,\dots,4$, the Lee & Bathe benchmarks agains
 analytical solution, the ABAQUS readers, and the accuracy and convergence order of the time
 integrators. GitHub Actions runs it on every push.
 
+## Studies
+
+- `studies/thick_cylinder/`: distortion sensitivity and convergence of the unsymmetric
+  spectral element for non-polynomial fields (thick cylinder of Rajendran 2010, Sec. 5.9,
+  $p=2,\dots,8$, gmsh meshes, manufactured solutions). Report:
+  `studies/thick_cylinder/report/report.pdf`.
+- `studies/rajendran_panel/`: reproduction of the nodal rotation patch test and the
+  convergence test of Rajendran (2010), Secs. 5.5-5.7 ($\theta\ge90^\circ$, folded elements),
+  9-node and $p\le8$. Report: `studies/rajendran_panel/report/report.pdf`.
+
 ## Repository layout
 
 ```

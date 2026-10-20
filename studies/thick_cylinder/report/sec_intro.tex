@@ -1,0 +1,23 @@
+\section{Objective}\label{sec:intro}
+Unsymmetric (Petrov--Galerkin) elements with parametric test and metric trial
+functions reproduce every displacement field of total degree $\le p$ exactly on
+arbitrarily distorted meshes, including meshes with $\det\bm J\le0$
+(\emph{distortion immunity})~\cite{Rajendran2003novel,Rajendran2010technique}.
+Displacement fields of practical problems are, however, not polynomial.
+\Citet{Rajendran2010technique} observed for the thick cylinder (Section~5.9 of that
+paper, 8-node element) that the energy-norm convergence rate decreases from about
+2 to 1.85, 1.42 and 1.21 as the distortion angle increases from $0^\circ$ to
+$30^\circ$, $45^\circ$ and $60^\circ$, and concluded that conditions C1--C3 do not
+guarantee optimal convergence for non-polynomial fields. This study revisits the
+question for the unsymmetric spectral elements of the code base, $p=2,\dots,8$:
+\begin{enumerate}
+\item Is distortion resistance lost for non-polynomial fields?
+\item If so, are optimal convergence rates nevertheless retained?
+\item If both are lost, what is the practical benefit of unsymmetric elements?
+\end{enumerate}
+The thick cylinder is complemented by manufactured solutions on the same geometry
+and meshes: a polynomial field (degree 5), for which the element is immune for
+$p\ge5$, and an analytic non-polynomial field. All statements below are based on the
+computed data in \texttt{results/} (reproducible with the scripts listed in
+\cref{sec:reproduce}); the conventional spectral element on the same meshes serves
+as reference.

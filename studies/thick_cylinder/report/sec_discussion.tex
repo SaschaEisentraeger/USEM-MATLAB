@@ -1,0 +1,92 @@
+\section{Answers to the key questions}\label{sec:discussion}
+\paragraph{Is distortion resistance lost for non-polynomial fields?}
+Distortion \emph{immunity} in the sense of \citep{Rajendran2010technique} (results
+independent of the mesh) is lost by construction: the error of a non-polynomial field
+depends on the mesh, and it does so for both fields studied (\cref{tab:ratio}). Distortion
+\emph{resistance} depends on the distortion level and on $p$:
+\begin{itemize}
+\item moderate distortion without folds ($\alpha=15^\circ$, all $p\le6$; $\alpha=30^\circ$,
+  $p\le3$): retained. The energy error of \PM\ exceeds the error on the undistorted mesh
+  by $5$--$28\,\%$ ($15^\circ$) and $23$--$84\,\%$ ($30^\circ$, $p\le3$), whereas the nodal error of the conventional element is $3$--$280$ times
+  larger ($N=8$);
+\item strong distortion ($\alpha=30^\circ$ with $p\ge4$, $\alpha\ge45^\circ$ with $p\ge3$):
+  lost. The \PM\ error becomes erratic, often larger than that of the conventional
+  element, and on folded meshes ($\alpha\ge60^\circ$) the \PM\ solutions with $p\ge5$
+  are dominated by round-off.
+\end{itemize}
+The loss is not tied to the sign of $\det\bm J$, the quantity the formulation was
+designed to be insensitive to: it already occurs on meshes with $\det\bm J>0$
+($\alpha=30^\circ$) and correlates with the Lebesgue constant of the metric interpolation
+(\cref{tab:leb}).
+
+\paragraph{Are optimal convergence rates retained?}
+In the moderate regime, yes: \PM\ converges with the optimal energy-norm order $p$ for
+$p=2,\dots,6$ at $\alpha=15^\circ$ (and $p=2,3$ at $30^\circ$),
+for the analytic manufactured field and for the Lam\'e field, and exponentially under
+$p$-refinement. The conventional element loses half of the order on the same meshes
+($\eE=O(h^{\lfloor p/2\rfloor})$), because the element maps are not asymptotically
+affine. In the strong regime, optimal convergence is lost as well: rates are erratic and
+the error can grow under $h$- and $p$-refinement.
+
+\paragraph{Practical benefit.}
+Where both properties hold (moderate, non-folding distortion that persists under
+refinement), the benefit is substantial and grows with $p$: optimal order versus
+$\lfloor p/2\rfloor$, i.e.\ an error ratio $O(h^{-\lceil p/2\rceil})$ in favour of \PM\
+(a factor $390$ for $p=6$, $N=8$, $\alpha=15^\circ$). The benefit is, however, limited
+in the following respects, all of which concern precisely the situations for which
+the formulation was proposed:
+\begin{enumerate}
+\item \emph{Jacobian-unlimited meshes are not usable at high order.} For folded meshes the
+  exactness for polynomial fields is destroyed by round-off for $p\ge5$; for
+  non-polynomial fields neither element is consistently more accurate for $p\le4$ (\PM\
+  has the smaller nodal error in 4 of the 12 cases $p\le4$, $\alpha\in\{60^\circ,90^\circ\}$,
+  $N=8$), and \PM\ is orders of magnitude less accurate for $p\ge5$. The conventional spectral element, by contrast,
+  still converges in the nodal error on these meshes for $p\ge4$.
+\item \emph{Lack of robustness.} Whether a given mesh and degree fall into the benign
+  regime cannot be inferred from the Jacobian; non-monotone convergence occurred already
+  at $\alpha=30^\circ$, $p=4$. A usable a priori indicator is the Lebesgue constant of the
+  metric interpolation, which is cheap to compute element by element.
+\item \emph{Realistic distortion.} The mesh sequence studied keeps the relative distortion
+  fixed under refinement, the worst case for the conventional element. For meshes that
+  become asymptotically affine under refinement (smooth mappings, uniform refinement of
+  a coarse distorted mesh), \PP\ recovers the optimal order, and the advantage of \PM\
+  reduces to a constant.
+\item \emph{Cost.} The unsymmetric system requires a non-symmetric solver (about twice the
+  storage and factorisation cost of a symmetric one), and the metric functions require a
+  generalised Vandermonde solve per element and quadrature point set.
+\end{enumerate}
+Real-world solution fields are non-polynomial. For them the unsymmetric spectral element
+is the better choice on moderately distorted, non-folding meshes, where it is distortion
+tolerant and optimally convergent while the conventional element is not; it is not a
+reliable remedy for severely distorted or folded meshes at high polynomial degree, which
+was the original motivation of the formulation.
+
+\section{Limitations}\label{sec:limitations}
+One geometry (thick cylinder), one family of distortions (self-similar rotation of
+mid-side nodes), linear plane-stress elasticity, $p\le8$, $N\le8$, double precision,
+monomial basis of the metric functions (as in \texttt{ShapeFunctions2D\_Metric.m}); a
+better-conditioned basis would lower the round-off floor but not the Lebesgue constants,
+which are basis independent. The energy norm is evaluated with the signed $\det\bm J$; on
+folded meshes the nodal error is the only quantity that is defined independently of the
+element mapping. The mechanism of the stability loss (\cref{sec:mechanism}) is
+characterised numerically, not proven.
+
+\section{Reproduction}\label{sec:reproduce}
+The results were computed with the code base of commit \texttt{2fea864}. Since commit
+\texttt{da84a58}, \texttt{ShapeFunctions2D\_Metric} stops with an error when its interpolation matrix
+is singular to working precision ($\mathrm{rcond}<\varepsilon$). On the present meshes this concerns
+\PM\ for $\alpha=45^\circ$, $p=8$, $N\ge4$, and for the folded meshes $\alpha=60^\circ$ ($p\ge7,6,4,4$
+for $N=1,2,4,8$) and $\alpha=90^\circ$ ($p\ge5,6,6,4$); never for $\alpha\le30^\circ$. For $p\ge5$ the
+polynomial patch test shows that these results were dominated by round-off (\cref{sec:poly});
+\texttt{run\_study.m} records them as NaN when re-run. All other results are unaffected.
+
+{\small
+\begin{tabular}{@{}p{0.5\linewidth}p{0.47\linewidth}@{}}
+\texttt{mesh/gen\_cylinder\_meshes.py} & gmsh model, meshes, ABAQUS files, plot data\\
+\texttt{matlab/run\_study.m} & main study (MATLAB or GNU Octave)\\
+\texttt{matlab/run\_interpolation\_study.m} & interpolation errors in the trial spaces\\
+\texttt{matlab/run\_quadrature\_study.m} & quadrature sensitivity\\
+\texttt{matlab/cyl\_verify.m} & cross-checks against the code base\\
+\texttt{matlab/cyl\_conditioning\_check.m}, \texttt{cyl\_residual\_check.m}, \texttt{cyl\_spectrum\_check.m}, \texttt{cyl\_smin.m}, \texttt{cyl\_element\_analysis.m} & diagnostics of \cref{sec:mechanism}\\
+\texttt{postprocess.py} & tables and figure code\\
+\end{tabular}}
