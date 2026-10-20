@@ -1,1 +1,40 @@
-\section{discussion}
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What each improvement achieves}
+The two improvements act on different error sources and should not be conflated.
+The Lagrange basis of \cref{sec:basis} removes the ill-conditioning \emph{of the
+construction}: it is exact on affine elements and, by \cref{prop:kappa}, adds no
+amplification beyond that of the interpolation problem on distorted ones. It cannot
+change the shape functions (\cref{prop:invariance}) and hence cannot change the
+Lebesgue constant, the patch-test behaviour in exact arithmetic, the eigenvalues or
+the discrete solution beyond round-off. The hybrid space of \cref{sec:hybrid} changes
+the \emph{space}, and with it the Lebesgue constant, the stability properties and the
+approximation constant. Both are needed: the hybrid space has its own Vandermonde
+matrix, which is well conditioned in the Legendre-type basis used here because the
+complement is evaluated on the exact GLL tensor grid (\cref{fig:kappa}).
+
+\paragraph{Trade-off between the two trial spaces}
+\DISCTRADEOFF
+
+\paragraph{Folded elements}
+\DISCFOLDED
+
+\paragraph{Limitations}
+\begin{itemize}
+\item No a priori stability (discrete inf-sup) estimate is available for either metric
+  space; the statements on stability rest on the computed spectra, condition numbers
+  and convergence histories. \Cref{prop:representation} gives exact representations and
+  upper bounds of the Lebesgue constants, but the size of the correction operators is
+  quantified numerically only.
+\item The completeness degree of $\Tp_p$ is $\min(p_\xi,p_\eta)$, the same as for
+  $\Qp_{p_\xi,p_\eta}(s,t)$; neither space reproduces $\Pp_{\max(p_\xi,p_\eta)}$.
+\item The complement contributes rational integrands to $\matr K_e$ and
+  $\matr M_e$; Gauss quadrature is then not exact, as for curved isoparametric
+  elements. Where $\det\matr J$ vanishes inside an element, the integrands are singular.
+\item The study is restricted to linear plane elasticity on quadrilaterals with at most
+  biquadratic geometry. The construction carries over to hexahedra
+  ($\Pp_p(x,y,z)\oplus\Cp_p$ with the $L^2$-complement of $\Pp_p(\xi,\eta,\zeta)$ in
+  $\Qp_p(\xi,\eta,\zeta)$) and to triangles (complement in a simplex basis), but has not
+  been tested there.
+\end{itemize}
