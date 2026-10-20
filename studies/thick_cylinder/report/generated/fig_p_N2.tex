@@ -2,22 +2,30 @@
 \begin{groupplot}[group style={group size=2 by 1, horizontal sep=14mm}, width=6.2cm, height=5.2cm, ymode=log, xtick={2,...,8}, xlabel={$p$}, tick label style={font=\scriptsize}, label style={font=\small}, title style={font=\small}, unbounded coords=jump, every axis plot/.append style={line width=0.7pt, mark size=1.3pt}, grid=major, grid style={gray!20}]
 \nextgroupplot[title={Lam\'e, $N=2$}, ylabel={$e_n$}]
 \addplot[color=black, mark=*, mark options={solid, fill=black}] table[x=p, y=eNN2] {\tab/p_lame_PM_a000.dat};
+\addplot[color=black, mark=square*, dashdotted, mark options={solid, fill=black}] table[x=p, y=eNN2] {\tab/p_lame_PH_a000.dat};
 \addplot[color=black, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_lame_PP_a000.dat};
 \addplot[color=p3, mark=*, mark options={solid, fill=p3}] table[x=p, y=eNN2] {\tab/p_lame_PM_a015.dat};
+\addplot[color=p3, mark=square*, dashdotted, mark options={solid, fill=p3}] table[x=p, y=eNN2] {\tab/p_lame_PH_a015.dat};
 \addplot[color=p3, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_lame_PP_a015.dat};
 \addplot[color=p5, mark=*, mark options={solid, fill=p5}] table[x=p, y=eNN2] {\tab/p_lame_PM_a030.dat};
+\addplot[color=p5, mark=square*, dashdotted, mark options={solid, fill=p5}] table[x=p, y=eNN2] {\tab/p_lame_PH_a030.dat};
 \addplot[color=p5, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_lame_PP_a030.dat};
 \addplot[color=p7, mark=*, mark options={solid, fill=p7}] table[x=p, y=eNN2] {\tab/p_lame_PM_a045.dat};
+\addplot[color=p7, mark=square*, dashdotted, mark options={solid, fill=p7}] table[x=p, y=eNN2] {\tab/p_lame_PH_a045.dat};
 \addplot[color=p7, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_lame_PP_a045.dat};
 \nextgroupplot[title={smooth MMS, $N=2$}]
 \addplot[color=black, mark=*, mark options={solid, fill=black}] table[x=p, y=eNN2] {\tab/p_smooth_PM_a000.dat};
+\addplot[color=black, mark=square*, dashdotted, mark options={solid, fill=black}] table[x=p, y=eNN2] {\tab/p_smooth_PH_a000.dat};
 \addplot[color=black, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_smooth_PP_a000.dat};
 \addplot[color=p3, mark=*, mark options={solid, fill=p3}] table[x=p, y=eNN2] {\tab/p_smooth_PM_a015.dat};
+\addplot[color=p3, mark=square*, dashdotted, mark options={solid, fill=p3}] table[x=p, y=eNN2] {\tab/p_smooth_PH_a015.dat};
 \addplot[color=p3, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_smooth_PP_a015.dat};
 \addplot[color=p5, mark=*, mark options={solid, fill=p5}] table[x=p, y=eNN2] {\tab/p_smooth_PM_a030.dat};
+\addplot[color=p5, mark=square*, dashdotted, mark options={solid, fill=p5}] table[x=p, y=eNN2] {\tab/p_smooth_PH_a030.dat};
 \addplot[color=p5, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_smooth_PP_a030.dat};
 \addplot[color=p7, mark=*, mark options={solid, fill=p7}] table[x=p, y=eNN2] {\tab/p_smooth_PM_a045.dat};
+\addplot[color=p7, mark=square*, dashdotted, mark options={solid, fill=p7}] table[x=p, y=eNN2] {\tab/p_smooth_PH_a045.dat};
 \addplot[color=p7, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_smooth_PP_a045.dat};
 \end{groupplot}
-\matrix[draw=gray!50, fill=white, font=\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] at ($(group c1r1.north)!0.5!(group c2r1.north)+(0,9mm)$) { \draw[color=black, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=0^\circ$}; \pgfmatrixnextcell \draw[color=p3, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=15^\circ$}; \pgfmatrixnextcell \draw[color=p5, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=30^\circ$}; \pgfmatrixnextcell \draw[color=p7, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=45^\circ$}; \pgfmatrixnextcell \draw[black, solid] (0,0) -- (4mm,0) node[black, right] {\PM}; \pgfmatrixnextcell \draw[black, dashed] (0,0) -- (4mm,0) node[black, right] {\PP}; \pgfmatrixnextcell \\ };
+\matrix[draw=gray!50, fill=white, font=\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] at ($(group c1r1.north)!0.5!(group c2r1.north)+(0,9mm)$) { \draw[color=black, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=0^\circ$}; \pgfmatrixnextcell \draw[color=p3, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=15^\circ$}; \pgfmatrixnextcell \draw[color=p5, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=30^\circ$}; \pgfmatrixnextcell \draw[color=p7, line width=0.7pt] (0,0) -- (4mm,0) node[black, right] {$\alpha=45^\circ$}; \pgfmatrixnextcell \draw[black, solid] (0,0) -- (4mm,0) node[black, right] {\PM}; \pgfmatrixnextcell \draw[black, dashdotted] (0,0) -- (4mm,0) node[black, right] {\PH}; \pgfmatrixnextcell \draw[black, dashed] (0,0) -- (4mm,0) node[black, right] {\PP}; \pgfmatrixnextcell \\ };
 \end{tikzpicture}
