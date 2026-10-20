@@ -407,7 +407,34 @@ visible; a dissipative integrator or an energy-consistent formulation
 \subsection{Cost}
 \label{sec:num-cost}
 
-\PENDING{COSTTEXT}
+Run times of the reference implementation (GNU Octave~8.4, one core, median of seven
+runs, general element) are listed in \cref{tab:timing}. The Lagrange basis costs
+$1.0$--$1.35$ times as much as the monomials. The hybrid shape functions are $2$--$35$
+times more expensive to evaluate in this implementation, because the Jacobian at the query
+points is recomputed from the parametric shape-function derivatives and the basis matrix is
+assembled column by column; both are implementation details, not inherent costs, since the
+element routines already have $\matr J(\bxi_q)$. At the level of the element stiffness
+matrix, which is dominated by the quadrature loop, the overhead of \PH\ is $7$--$46\,\%$
+over the classical element and $18$--$33\,\%$ over \PM\ ($p=2,\dots,12$); the solution of the unsymmetric
+global system (LU instead of Cholesky) is the same for \PM\ and \PH.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Run times in seconds: metric shape functions and gradients at the $(2p)^2$ Gauss
+    points (SF) and element stiffness matrix ($\matr K_e$), general element.}
+  \label{tab:timing}
+  \begin{tabular}{@{}rccccccc@{}}
+    \toprule
+    & \multicolumn{3}{c}{SF} & \multicolumn{4}{c}{$\matr K_e$} \\
+    \cmidrule(lr){2-4}\cmidrule(lr){5-8}
+    $p$ & \PM, mon. & \PM, Lagr. & \PH & \PP & \PM, mon. & \PM, Lagr. & \PH \\
+    \midrule
+    4  & 0.013 & 0.018 & 0.13 & 0.59 & 0.50 & 0.47 & 0.63 \\
+    8  & 0.052 & 0.058 & 0.93 & 3.89 & 4.41 & 4.34 & 5.48 \\
+    12 & 0.097 & 0.123 & 3.50 & 16.4 & 17.0 & 17.2 & 20.4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Thick cylinder}
 \label{sec:num-cylinder}
