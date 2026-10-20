@@ -120,7 +120,20 @@ $\Lam_T\le1.06\,\Lam_N$ for $p\ge3$ on the curved element ($1.14\,\Lam_N$ at $p=
 $\Lam_N$ from $p\approx12$ on ($5.9$ versus $5.2$ at $p=12$, $8.5$ versus $6.1$ at
 $p=16$), which is four to six orders of magnitude below $\Lam_Q$.
 
-\SWEEPTEXT
+\paragraph{Dependence on the distortion} \Cref{fig:sweep} separates the effect of the
+distortion from that of the degree. For the bent element, whose Jacobian determinant is
+constant, $\Lam_Q$ grows from the GLL value to $8.2$, $1.9\cdot10^{2}$ and
+$6.4\cdot10^{3}$ at $\delta=0.5$ for $p=4,8,12$, so the growth is not caused by a
+degenerating Jacobian. $\Lam_T$ stays within $11\,\%$ of $\Lam_N$ over the whole range.
+For the element with one curved edge, $\Lam_T=\Lam_N$ (to two digits) up to
+$\delta\approx0.4$, and grows beyond; at the extreme $\delta=1$ (mid-side node moved by
+half the edge length) $\Lam_T=5.7$, $65$, $8.6\cdot10^{2}$ for $p=4,8,12$, compared with
+$\Lam_Q=71$, $4.6\cdot10^{4}$, $3.2\cdot10^{7}$. For the trapezoid, $\Lam_T=\Lam_N$ exactly
+for all $\delta$ (\cref{cor:defect}), whereas $\Lam_Q$ reaches $1.4\cdot10^{11}$ at
+$\delta=0.855$, $p=12$, and $\Qp_{12}(s,t)$ is rejected as singular to working precision at
+$\delta=0.9$. The condition numbers of the Vandermonde matrices behave alike
+(trapezoid, $p=12$, $\delta=0.81$: $\cond_2=1.1\cdot10^{12}$ for $\Qp_p(s,t)$ in the
+Lagrange basis, $4.8\cdot10^{6}$ for $\Tp_p$).
 
 \begin{figure}[htbp]
   \centering
@@ -146,17 +159,142 @@ $p=16$), which is four to six orders of magnitude below $\Lam_Q$.
 \subsection{Patch tests}
 \label{sec:num-patch}
 
-\PATCHTEXT
+\paragraph{Distorted meshes} The $3\times2$ meshes on $[0,3]\times[0,2]$ with
+curved-edge distortion $0.15$ and $0.20$ (minimum $\det\matr J=0.16$ and $0.09$) and
+with combined angular and curved-edge distortion (minimum $\det\matr J=0.014$,
+\cref{app:elements}) are loaded by prescribing the harmonic field
+$\vect u=(\operatorname{Re}z^p,-\operatorname{Im}z^p)$, $z=(x-1.3)+\mathrm i(y-0.7)$, at all
+boundary nodes; it is an equilibrium field of total degree $p$ without body force.
+\Cref{tab:patch} lists the maximum relative nodal error. \PP\ fails, as expected
+for curved edges. Both metric spaces pass for every $p$; the round-off level of \PM\
+grows with $p$ to $10^{-13}$--$10^{-12}$ at $p=10$, in line with $u\Lam_Q$
+(\cref{rem:reproduction}), whereas \PH\ stays at $\le3\cdot10^{-15}$.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Patch test of degree $p$ on the distorted $3\times2$ meshes: maximum relative
+    nodal error.}
+  \label{tab:patch}
+  \input{generated/patch}
+\end{table}
+
+\PANELTEXT
 
 \subsection{Convergence on meshes with persistent distortion}
 \label{sec:num-convergence}
 
-\CONVTEXT
+The unit square is discretised by $N\times N$ elements, $N=2,4,8,16$, whose interior
+mid-side nodes are moved normal to their edge by $\delta h$ (\cref{app:elements}).
+The element shapes are thus the same on every mesh: the distortion does not vanish under
+refinement, which is the worst case for the classical element. For $\delta=0.1$ and
+$0.2$ all elements are valid (minimum $\det\matr J$ at the quadrature points $0.21$ and
+$0.09$, relative to $0.25$ for the undistorted mesh); for $\delta=0.3$ the elements fold
+near two corners ($\det\matr J<0$ at quadrature points). The exact solution
+$\vect u=(\operatorname{Re}f,-\operatorname{Im}f)$, $f(z)=e^{2z}$, $z=x+\mathrm iy$, is an
+equilibrium field without body force and is prescribed at all boundary nodes. The relative
+energy-norm error $e_E$ is evaluated with the strains of the trial functions of each
+formulation and $(2p+2)^2$ Gauss points; on the folded meshes the energy integral contains
+$1/\det\matr J$ and is not meaningful, and the maximum relative nodal error $e_n$ is used.
+\Cref{fig:convergence} shows the errors, \cref{tab:rates} the observed rates.
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-convergence}
+  \caption{Convergence under $h$-refinement on meshes with persistent curved-edge
+    distortion $\delta$; $e_E$: relative energy-norm error, $e_n$: maximum relative nodal
+    error. Dashed line in the first panel: slope $6$.}
+  \label{fig:convergence}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Observed energy-norm rates $r_{N,2N}=\log_2(e_E^N/e_E^{2N})$ and error on the
+    finest mesh. Optimal rate: $p$.}
+  \label{tab:rates}
+  \begin{tabular}{@{}c@{}}
+    $\delta=0.1$\\[2pt] \input{generated/rates-d010}\\[8pt]
+    $\delta=0.2$\\[2pt] \input{generated/rates-d020}
+  \end{tabular}
+\end{table}
+
+\paragraph{Classical element} \PP\ converges with rates far below $p$, of the order of
+$p/2$ ($r_{8,16}=0.89$, $0.82$, $1.84$, $1.72$, $2.80$ for $p=2,\dots,6$ at
+$\delta=0.2$), consistent with
+$\Pp_{\lfloor p/2\rfloor}(x,y)\subset\Qp_p(\xi,\eta)\circ\vect F_e^{-1}$ for biquadratic maps
+(\cref{sec:formulation}). On the finest mesh it is two to five orders of magnitude less
+accurate than the stable metric elements.
+
+\paragraph{Moderate distortion ($\delta=0.1$)} Both metric spaces converge with the optimal
+rate $p$ for all $p\le6$. \PM\ is the more accurate one: the ratio
+$e_E^{\PH}/e_E^{\PM}$ on the finest mesh grows from $1.3$ ($p=2$) to $5.5$ ($p=6$). This is
+the expected price of the hybrid space for smooth solutions: $\Qp_p(s,t)$ contains
+Cartesian polynomials up to total degree $2p$, $\Tp_p$ only up to $p$, and the
+constant of the best approximation is correspondingly smaller for $\Qp_p(s,t)$.
+
+\paragraph{Strong distortion ($\delta=0.2$)} For $p\le4$ the picture is the same (ratio
+$2$--$5$ in favour of \PM, optimal rates for both). For $p=5$ and $6$, however, \PM\
+\emph{diverges} under refinement: its error grows from $5.5\cdot10^{-7}$ ($N=4$) to
+$5.8\cdot10^{-3}$ ($N=16$) for $p=5$, and on the finest mesh it is larger than that of
+\PP.
+\PH\ converges with $r_{8,16}=4.97$ and $5.98$ and reaches $3.1\cdot10^{-9}$ and
+$2.9\cdot10^{-11}$, i.e.\ six and seven orders of magnitude below \PM. Since the elements
+are the same on all meshes, the element-level quantities (Lebesgue constants, condition
+numbers) do not change with $N$, and by \cref{lem:interp} the interpolation error in
+$\Qp_p(s,t)$ decreases with the optimal order. The divergence of \PM\ can therefore not be
+attributed to approximation; it indicates a loss of stability of the assembled
+Petrov--Galerkin operator as the number of elements grows. This is consistent with the spurious eigenvalues of
+\cref{sec:num-spectra} and with the observations for the thick cylinder in
+\cref{sec:num-cylinder}.
+
+\paragraph{Folded elements ($\delta=0.3$)} \PM\ diverges for $p\ge4$ (nodal error up to
+$44$ at $p=5$, $N=16$). \PH\ converges in the nodal error, e.g.\ $p=5$:
+$8.1\cdot10^{-5}$, $1.7\cdot10^{-6}$, $3.0\cdot10^{-8}$, $4.9\cdot10^{-10}$ for
+$N=2,\dots,16$, but less regularly than on the valid meshes ($p=6$ stagnates at
+$4\cdot10^{-10}$ on the two finest meshes), and the energy-norm error stagnates at
+$10^{-8}$ for $p\ge5$. The reason is the integrand $\propto1/\det\matr J$ of the complement
+part of $\matr K_e$ (\cref{sec:hybrid-gradients}), which is singular where $\det\matr J$
+changes sign and is not integrated accurately by Gauss quadrature. \PP\ converges in the
+nodal error with reduced rates ($2.8\cdot10^{-6}$ for $p=5$, $N=16$).
 
 \subsection{Eigenvalues and transient stability}
 \label{sec:num-spectra}
 
-\SPECTEXT
+\paragraph{Generalised eigenvalues} For the same three meshes with $\vect u=\vect0$ on
+the boundary and the consistent mass matrix ($\rho=1$), the complete spectrum of
+$\matr K\bm\phi=\lambda\matr M\bm\phi$, $\lambda=\omega^2$, is computed. \Cref{tab:spectrum}
+gives the number of eigenvalues with $\operatorname{Re}\lambda<0$ and
+$\max|\operatorname{Im}\lambda|/|\lambda|$; \cref{fig:spectrum} the maximum relative error
+of the real parts of the 8 eigenvalues of smallest modulus, with the classical element on
+the undistorted mesh with $p=12$ as reference. \PM\ produces eigenvalues with
+$\operatorname{Re}\lambda<0$ from $p=5$ (curved $0.20$, angular + curved) or $p=7$
+(curved $0.15$) on, up to 25 of them at $p=10$, with
+$|\operatorname{Im}\lambda|/|\lambda|\to1$. They enter the low end of the spectrum: the
+error of the lowest eigenvalues jumps to $1.9$ (curved $0.20$, $p=6$) and $0.35$
+(angular + curved, $p=7$) and stagnates at $10^{-5}$--$10^{-3}$ for higher $p$,
+whereas \PP\ converges exponentially to $4.5\cdot10^{-7}$ at $p=10$. \PH\ has no
+eigenvalue with negative real part on any mesh and for any $p$,
+$|\operatorname{Im}\lambda|/|\lambda|\le1.7\cdot10^{-2}$ over the whole spectrum, and the
+error of its lowest eigenvalues is between $0.32$ and $1.07$ times that of \PP\ for every
+mesh and $p$ (\cref{fig:spectrum}); the error of \PM\ is up to $4\cdot10^{4}$ times larger.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Spectrum of $(\matr K,\matr M)$ on the distorted $3\times2$ meshes: number of
+    eigenvalues with $\operatorname{Re}\lambda<0$ / $\max|\operatorname{Im}\lambda|/|\lambda|$.
+    \PP\ has a real positive spectrum in all cases.}
+  \label{tab:spectrum}
+  \input{generated/spectrum}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-spectrum}
+  \caption{Maximum relative error $e_\lambda$ of the real parts of the 8 eigenvalues of
+    smallest modulus on the distorted $3\times2$ meshes.}
+  \label{fig:spectrum}
+\end{figure}
+
+\TRANSTEXT
 
 \subsection{Cost}
 \label{sec:num-cost}
