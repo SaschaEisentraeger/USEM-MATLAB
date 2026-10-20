@@ -65,7 +65,21 @@ $e_\delta$:
 The identity of \cref{prop:kappa} is reproduced to $4\cdot10^{-14}$ (relative) for all
 $p\le16$.
 
-\paragraph{Distorted elements} \CONDDIST
+\paragraph{Distorted elements} On the trapezoid, the curved and the general element,
+the three bases of $[-1,1]$ (with bounding-box scaling) lie within a factor of
+about~3 of one another; they improve on the monomials by a factor of 4--13 at $p=4$
+and of $10^{4}$--$4.5\cdot10^{4}$ at $p=16$ (general element: $\cond_2=1.7\cdot10^{6}$ versus $4.7$--$8.4\cdot10^{4}$ at
+$p=8$, $9.0\cdot10^{14}$ versus $0.9$--$2.0\cdot10^{11}$ at $p=16$). With monomials
+the trapezoid at $p=16$ is rejected as singular to working precision. In the Lagrange
+basis $e_\delta$ is reduced accordingly (trapezoid, curved and general element at
+$p=16$: $7.1\cdot10^{-6}$, $6.0\cdot10^{-9}$ and $1.8\cdot10^{-6}$, versus rejection,
+$4.9\cdot10^{-5}$ and $6.5\cdot10^{-4}$ with monomials). The remaining growth is that of the
+interpolation problem (\cref{prop:kappa}); no basis of $\Qp_p(s,t)$ removes it. The
+hybrid space has a different interpolation problem, and its Vandermonde matrix is
+better conditioned by two to five orders of magnitude than that of $\Qp_p(s,t)$ in any
+basis: $\cond_2=7.8\cdot10^{2}$ versus $\ge1.3\cdot10^{5}$ (trapezoid, $p=8$) and
+$1.7$--$2.0\cdot10^{6}$ versus $\ge8.5\cdot10^{10}$ (trapezoid and general element,
+$p=16$), with $e_\delta\le3.2\cdot10^{-11}$ for all elements and $p\le16$.
 
 \begin{figure}[htbp]
   \centering
@@ -97,7 +111,16 @@ bottom and top edge moved by $\delta$ in $y$, so that $x=\xi$,
 $y=\eta+\delta(1-\xi^2)$ and $\det\matr J\equiv1$), an element with one curved edge,
 and a trapezoid (top corners moved inwards by $\delta$; bilinear).
 
-\LEBTEXT
+\paragraph{Dependence on the degree} On all distorted elements $\Lam_Q$ grows
+exponentially with $p$: on the trapezoid from $10.4$ ($p=4$) over $7.7\cdot10^{2}$
+($p=8$) to $3.9\cdot10^{7}$ ($p=16$), on the curved element to $5.5\cdot10^{4}$ and on
+the general element to $6.9\cdot10^{6}$ at $p=16$. The hybrid space gives
+$\Lam_T=\Lam_N$ exactly on the trapezoid (\cref{cor:defect}; $6.09$ at $p=16$) and
+$\Lam_T\le1.06\,\Lam_N$ for $p\ge3$ on the curved element ($1.14\,\Lam_N$ at $p=2$); on the general element $\Lam_T$ exceeds
+$\Lam_N$ from $p\approx12$ on ($5.9$ versus $5.2$ at $p=12$, $8.5$ versus $6.1$ at
+$p=16$), which is four to six orders of magnitude below $\Lam_Q$.
+
+\SWEEPTEXT
 
 \begin{figure}[htbp]
   \centering
