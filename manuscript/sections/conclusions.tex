@@ -1,1 +1,29 @@
-\section{conclusions}
+\section{Conclusions}
+\label{sec:conclusions}
+
+Two improvements of the metric trial functions of unsymmetric spectral elements were
+presented, analysed and tested.
+\begin{enumerate}
+\item \emph{Basis of the metric Vandermonde matrix.} The metric shape functions are
+  basis independent. The Lagrange polynomials through the reference GLL nodes, in
+  bounding-box scaled skew coordinates, give $\cond(\matr V)=1$ on affine elements and a
+  condition number equal to the Lebesgue function of the metric interpolation (up to a
+  bounded factor) on distorted ones. Compared with monomials this reduces the error of the
+  computed shape functions by two to four orders of magnitude on distorted elements at
+  $p=16$ and restores the exact symmetry of $\matr K_e$ on affine elements. The Lebesgue
+  constant, and with it everything that depends only on the space, is unaffected by
+  any choice of basis.
+\item \emph{Hybrid trial space.} Writing only $\Pp_p(x,y)$ in metric coordinates and the
+  canonical ($L^2$-orthogonal) complement in parametric coordinates retains completeness,
+  affine invariance and distortion immunity, reduces to the classical element on
+  straight-edged quadrilaterals, and keeps the Lebesgue constant at or close to the GLL
+  value for moderate curved-edge distortion. In the tests it removed the instabilities of
+  the $\Qp_p(s,t)$ element---divergence under mesh refinement in statics, negative and
+  strongly complex eigenvalues, exponential growth in time---while converging with the
+  optimal order. It trades this robustness for a moderately larger error constant on
+  smooth static problems.
+\end{enumerate}
+Open questions are a stability theory (discrete inf-sup condition) for both metric spaces,
+an accurate treatment of the singular integrands of the hybrid space on folded elements,
+the residual (slow) growth of the hybrid element in long-time transient analysis, and the
+extension to three dimensions, triangles and nonlinear problems.

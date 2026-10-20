@@ -15,10 +15,34 @@ matrix, which is well conditioned in the Legendre-type basis used here because t
 complement is evaluated on the exact GLL tensor grid (\cref{fig:kappa}).
 
 \paragraph{Trade-off between the two trial spaces}
-\PENDING{DISCTRADEOFF}
+For smooth solutions on meshes where $\Qp_p(s,t)$ is stable, \PM\ is
+more accurate than \PH\ by a factor of $1.3$--$5.5$ in the energy norm, at the same
+convergence order (\cref{sec:num-convergence}). The reason is the larger Cartesian
+polynomial content of $\Qp_p(s,t)$. This advantage is lost abruptly when the Lebesgue
+constant of $\Qp_p(s,t)$ becomes large: on the $\delta=0.2$ meshes \PM\ diverges for
+$p\ge5$, and on all three $3\times2$ meshes it develops complex and negative eigenvalues
+from $p=5$--$7$ on. Neither the degree nor the amount of distortion at which this happens
+is known a priori; the Jacobian is not an indicator (the bent element has
+$\det\matr J\equiv1$). \PH\ was stable and optimally convergent in every non-folded case
+studied. In our view this makes $\Tp_p$ the appropriate default for high-order
+unsymmetric spectral elements, in particular for transient, modal and frequency-domain
+analyses, whereas $\Qp_p(s,t)$ remains attractive for static analyses at low to moderate
+degree and distortion, where its larger Cartesian content pays off. A cheap
+element-level indicator for the latter choice is $\Lam_Q$ itself, which can be computed
+together with the shape functions (\cref{prop:kappa}).
 
 \paragraph{Folded elements}
-\PENDING{DISCFOLDED}
+Distortion immunity in the sense of \cref{prop:immunity} holds on
+folded elements for both spaces, as the patch tests on the panel meshes of
+\cref{sec:num-patch} confirm; at $p=8$, \PH\ reduces the round-off level there by one
+to two orders of magnitude. For non-polynomial solutions on folded meshes, however, \PH\
+converges less regularly than on valid meshes, and its energy error stagnates, because
+the complement part of $\matr K_e$ contains $1/\det\matr J$, which is singular on the
+curve $\det\matr J=0$ inside the element. A remedy would be to integrate these terms
+with a rule adapted to the singular curve, or to write the complement gradients in a form
+that avoids $\matr J^{-1}$ (e.g.\ by multiplying the complement functions by $\det\matr J$,
+which changes the space); we have not pursued this. On folded meshes \PM\ is unstable at
+high order in our tests, and \PP\ converges with reduced order in the nodal error.
 
 \paragraph{Limitations}
 \begin{itemize}
