@@ -1,0 +1,23 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 1, horizontal sep=0.4cm,
+    y descriptions at=edge left},
+    width=0.37\linewidth, height=0.34\linewidth, ymode=log, grid=major,
+    xlabel={$\alpha$ [$^\circ$]}, xtick={0,15,30,45,60,90}, xmin=-5, xmax=95,
+    ymin=1e-13, ymax=1, ytick={1e-12,1e-9,1e-6,1e-3,1}, unbounded coords=discard]
+  \nextgroupplot[title={$p=4$}, ylabel={$e_E$ (Lam\'e, $N=8$)},
+      legend to name=leg:cyl, legend columns=3]
+    \addplot[styPP] table[x=alpha, y=PP]{\data/cyl-lame-N8-p4.dat};
+    \addplot[styPM] table[x=alpha, y=PM]{\data/cyl-lame-N8-p4.dat};
+    \addplot[styPH] table[x=alpha, y=PH]{\data/cyl-lame-N8-p4.dat};
+    \legend{\PP, {\PM, $\Qp_p(s,t)$}, {\PH, $\Tp_p$}}
+  \nextgroupplot[title={$p=6$}]
+    \addplot[styPP] table[x=alpha, y=PP]{\data/cyl-lame-N8-p6.dat};
+    \addplot[styPM] table[x=alpha, y=PM]{\data/cyl-lame-N8-p6.dat};
+    \addplot[styPH] table[x=alpha, y=PH]{\data/cyl-lame-N8-p6.dat};
+  \nextgroupplot[title={$p=8$}]
+    \addplot[styPP] table[x=alpha, y=PP]{\data/cyl-lame-N8-p8.dat};
+    \addplot[styPM] table[x=alpha, y=PM]{\data/cyl-lame-N8-p8.dat};
+    \addplot[styPH] table[x=alpha, y=PH]{\data/cyl-lame-N8-p8.dat};
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:cyl}

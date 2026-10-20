@@ -168,6 +168,59 @@ def growth():
         f.write('\\bottomrule\n\\end{tabular}\n')
 
 
+CYL = os.path.join(HERE, '..', '..', 'studies', 'thick_cylinder', 'results', 'raw')
+
+
+def cylinder(raw=CYL, problem='lame'):
+    """Thick cylinder (study of the code base): errors on the finest mesh versus the
+    distortion angle, observed rates, Lebesgue constants."""
+    alphas = [0, 15, 30, 45, 60, 90]
+    rows = []
+    for a in alphas:
+        f = os.path.join(raw, 'study_a%03d.csv' % a)
+        if os.path.exists(f):
+            rows += list(csv.DictReader(open(f)))
+    if not rows:
+        return
+    val = lambda r, k: float(r[k]) if r[k] not in ('', 'NaN', 'nan') else float('nan')
+    def get(a, N, p, form, key, prob=problem):
+        for r in rows:
+            if (int(r['alpha']) == a and int(r['N']) == N and int(r['p']) == p
+                    and r['form'] == form and r['problem'] == prob):
+                return val(r, key)
+        return float('nan')
+    for p in range(2, 9):
+        cols = {'alpha': [], 'PP': [], 'PM': [], 'PH': [], 'nPP': [], 'nPM': [], 'nPH': [],
+                'lebPM': [], 'lebPH': []}
+        for a in alphas:
+            cols['alpha'].append(a)
+            for fm in ('PP', 'PM', 'PH'):
+                cols[fm].append(get(a, 8, p, fm, 'energy'))
+                cols['n' + fm].append(get(a, 8, p, fm, 'nodal'))
+            cols['lebPM'].append(get(a, 8, p, 'PM', 'lebesgue'))
+            cols['lebPH'].append(get(a, 8, p, 'PH', 'lebesgue'))
+        write_table(os.path.join(DATA, 'cyl-%s-N8-p%d.dat' % (problem, p)), cols, list(cols))
+    with open(os.path.join(GEN, 'cyl-%s.tex' % problem), 'w') as f:
+        ps = [4, 6, 8]
+        f.write('\\begin{tabular}{@{}rl' + 'ccc' * len(ps) + '@{}}\n\\toprule\n')
+        f.write('& & ' + ' & '.join('\\multicolumn{3}{c}{$p=%d$}' % p for p in ps) + '\\\\\n')
+        f.write(''.join('\\cmidrule(lr){%d-%d}' % (3 + 3 * i, 5 + 3 * i) for i in range(len(ps))) + '\n')
+        f.write('$\\alpha$ & & ' + ' & '.join(['$e_E$ & $r$ & $\\Lambda$'] * len(ps)) + '\\\\\n\\midrule\n')
+        for a in alphas:
+            for k, (fm, name) in enumerate((('PP', '\\PP'), ('PM', '\\PM'), ('PH', '\\PH'))):
+                first = ('\\multirow{3}{*}{$%d^\\circ$}' % a) if k == 0 else ''
+                vals = []
+                for p in ps:
+                    e8, e4 = get(a, 8, p, fm, 'energy'), get(a, 4, p, fm, 'energy')
+                    r = math.log2(e4 / e8) if e4 > 0 and e8 > 0 else float('nan')
+                    leb = get(a, 8, p, fm, 'lebesgue')
+                    vals += [sci(e8), '--' if math.isnan(r) else '%.1f' % r,
+                             '--' if fm == 'PP' or math.isnan(leb) else sci(leb, 1)]
+                f.write('%s & %s & %s\\\\\n' % (first, name, ' & '.join(vals)))
+            f.write('\\midrule\n' if a != alphas[-1] else '')
+        f.write('\\bottomrule\n\\end{tabular}\n')
+
+
 if __name__ == '__main__':
     tags = sys.argv[1:] or ['d010', 'd020', 'd030']
     for t in tags:
@@ -175,4 +228,6 @@ if __name__ == '__main__':
     patch()
     panel()
     growth()
+    cylinder(os.environ.get('CYL_RAW', CYL))
+    cylinder(os.environ.get('CYL_RAW', CYL), 'smooth')
     print('done')
