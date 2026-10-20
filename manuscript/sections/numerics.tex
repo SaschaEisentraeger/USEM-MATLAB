@@ -179,6 +179,7 @@ completeness defect, which explains its classical-like spectral behaviour
   \caption{Deviation of the metric shape functions from the parametric ones ($d_N$) and of
     $\matr K_e$ from the classical stiffness matrix ($d_K$).}
   \label{tab:deviation}
+  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}llcccccc@{}}
     \toprule
     & & \multicolumn{2}{c}{trapezoid} & \multicolumn{2}{c}{curved} & \multicolumn{2}{c}{general} \\
@@ -195,6 +196,7 @@ completeness defect, which explains its classical-like spectral behaviour
      & \PH & $7.8\cdot10^{-13}$ & $5.6\cdot10^{-13}$ & $5.5\cdot10^{-3}$ & $2.2\cdot10^{-3}$ & $5.0\cdot10^{-2}$ & $9.8\cdot10^{-3}$ \\
     \bottomrule
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 \paragraph{Bounding-box scaling} The scaling \eqref{eq:bbox} pays off at higher degree,
@@ -223,7 +225,7 @@ $\le3.1\cdot10^{-15}$ (cf.\ \cref{rem:reproduction}).
   \caption{Patch test of degree $p$ on the distorted $3\times2$ meshes: maximum relative
     nodal error.}
   \label{tab:patch}
-  \input{generated/patch}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/patch}\end{adjustbox}
 \end{table}
 
 \paragraph{Folded elements} The nodal rotation patch test of
@@ -244,7 +246,7 @@ $225^\circ$), that of \PH\ is one to two orders of magnitude lower.
     ($2\times2$ elements, interior node rotated by $\theta$): maximum relative nodal error
     over the tension, bending and shear load cases.}
   \label{tab:panel}
-  \input{generated/panel}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/panel}\end{adjustbox}
 \end{table}
 
 \subsection{Convergence on meshes with persistent distortion}
@@ -278,10 +280,12 @@ $1/\det\matr J$ and is not meaningful, and the maximum relative nodal error $e_n
   \caption{Observed energy-norm rates $r_{N,2N}=\log_2(e_E^N/e_E^{2N})$ and error on the
     finest mesh. Optimal rate: $p$.}
   \label{tab:rates}
+  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}c@{}}
     $\delta=0.1$\\[2pt] \input{generated/rates-d010}\\[8pt]
     $\delta=0.2$\\[2pt] \input{generated/rates-d020}
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 \paragraph{Classical element} \PP\ converges with rates far below $p$, of the order of
@@ -354,7 +358,7 @@ mesh and $p$ (\cref{fig:spectrum}); the error of \PM\ is up to $4\cdot10^{4}$ ti
     eigenvalues with $\operatorname{Re}\lambda<0$ / $\max|\operatorname{Im}\lambda|/|\lambda|$.
     \PP\ has a real positive spectrum in all cases.}
   \label{tab:spectrum}
-  \input{generated/spectrum}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/spectrum}\end{adjustbox}
 \end{table}
 
 \begin{figure}[htbp]
@@ -403,7 +407,7 @@ visible; a dissipative integrator or an energy-consistent formulation
     vibration ($g$) and of the trapezoidal rule with $\Delta t=T_1/20$ ($g_\Delta$) on the
     distorted $3\times2$ meshes. \PP: $g=0$, $g_\Delta<10^{-14}$ in all cases.}
   \label{tab:growth}
-  \resizebox{\linewidth}{!}{\input{generated/growth}}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/growth}\end{adjustbox}
 \end{table}
 
 \begin{figure}[htbp]
@@ -434,6 +438,7 @@ global system (LU instead of Cholesky) is the same for \PM\ and \PH.
   \caption{Run times in seconds: metric shape functions and gradients at the $(2p)^2$ Gauss
     points (SF) and element stiffness matrix ($\matr K_e$), general element.}
   \label{tab:timing}
+  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}rccccccc@{}}
     \toprule
     & \multicolumn{3}{c}{SF} & \multicolumn{4}{c}{$\matr K_e$} \\
@@ -445,6 +450,7 @@ global system (LU instead of Cholesky) is the same for \PM\ and \PH.
     12 & 0.097 & 0.123 & 3.50 & 16.4 & 17.0 & 17.2 & 20.4 \\
     \bottomrule
   \end{tabular}
+  \end{adjustbox}
 \end{table}
 
 \subsection{Thick cylinder}

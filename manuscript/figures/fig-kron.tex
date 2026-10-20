@@ -1,6 +1,6 @@
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=1.6cm},
-    width=0.47\linewidth, height=0.34\linewidth, ymode=log, grid=major,
+    width=0.44\linewidth, height=0.34\linewidth, ymode=log, grid=major,
     xlabel={$p$}, ylabel={$e_\delta$}, xmin=1, xmax=16, ymin=1e-17, ymax=1,
     cycle list name=bases, every axis plot/.append style={mark size=1.3pt},
     unbounded coords=discard, y filter/.expression={y<-39.2 ? nan : y}]

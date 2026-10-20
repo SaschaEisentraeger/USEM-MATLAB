@@ -108,11 +108,11 @@ spectral properties of the classical element; $\Qp_p(s,t)$ does not have this pr
 Let $\hat\Pi$ denote GLL interpolation on $\hat\Omega$ (onto
 $\Qp=\Qp_{p_\xi,p_\eta}(\xi,\eta)$), $\pi$ the projector of $\Qp$ onto
 $\Pp_m(\xi,\eta)$ along $\Cp_p$ (truncation of the Legendre expansion), and
-$\mathcal P=\{q\circ\vect F_e: q\in\Pp_m(x,y)\}$. Define
+$\mathcal P=\{q\circ\vect F_e: q\in\Pp_m(x,y)\}$, $\hat\Qp=\{q\circ\vect F_e:
+q\in\Qp_p(s,t)\}$. Define
 \begin{equation}
   S=\pi\hat\Pi\big|_{\mathcal P}:\ \mathcal P\to\Pp_m(\xi,\eta),\qquad
-  S_Q=\hat\Pi\big|_{\hat\Qp}:\ \hat\Qp\to\Qp,\quad
-  \hat\Qp=\{q\circ\vect F_e: q\in\Qp_p(s,t)\},
+  S_Q=\hat\Pi\big|_{\hat\Qp}:\ \hat\Qp\to\Qp,
   \label{eq:S}
 \end{equation}
 and denote by $\mathcal I_T$, $\mathcal I_Q$ the nodal interpolation operators of
@@ -194,9 +194,11 @@ degree ($m$ resp.\ $p$) and $\Lam_{\mathcal U}$ its Lebesgue constant, and let
 $\tilde\Omega_e$ be the convex hull of $\Omega_e$. Then for
 $u\in W^{q_e+1,\infty}(\tilde\Omega_e)$
 \begin{equation}
+  \begin{aligned}
   \|u-\mathcal I_{\mathcal U}u\|_{L^\infty(\Omega_e)}
-  \le(1+\Lam_{\mathcal U})\inf_{q\in\Pp_{q_e}(x,y)}\|u-q\|_{L^\infty(\Omega_e)}
-  \le C\,(1+\Lam_{\mathcal U})\,h_e^{q_e+1}|u|_{W^{q_e+1,\infty}(\tilde\Omega_e)} .
+  &\le(1+\Lam_{\mathcal U})\inf_{q\in\Pp_{q_e}(x,y)}\|u-q\|_{L^\infty(\Omega_e)}\\
+  &\le C\,(1+\Lam_{\mathcal U})\,h_e^{q_e+1}|u|_{W^{q_e+1,\infty}(\tilde\Omega_e)} .
+  \end{aligned}
   \label{eq:interp}
 \end{equation}
 Moreover, with the derivative Lebesgue constant

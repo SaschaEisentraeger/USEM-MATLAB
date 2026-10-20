@@ -45,9 +45,11 @@ coordinates of the nodes leave $[-1,1]^2$; outside this interval the polynomials
 grow rapidly ($|T_p(s)|=\cosh(p\operatorname{arcosh}|s|)$ for $|s|>1$). We therefore
 map the bounding box of the nodes in $(s,t)$ onto $[-1,1]^2$,
 \begin{equation}
-  \tilde s=\frac{s-c_s}{r_s},\qquad \tilde t=\frac{t-c_t}{r_t},\qquad
-  c_s=\tfrac12\bigl(\max_k s_k+\min_k s_k\bigr),\quad
+  \begin{aligned}
+  &\tilde s=\frac{s-c_s}{r_s},\qquad \tilde t=\frac{t-c_t}{r_t},\\
+  &c_s=\tfrac12\bigl(\max_k s_k+\min_k s_k\bigr),\quad
   r_s=\tfrac12\bigl(\max_k s_k-\min_k s_k\bigr),
+  \end{aligned}
   \label{eq:bbox}
 \end{equation}
 and likewise for $t$. The map is affine and computed from affine-invariant
