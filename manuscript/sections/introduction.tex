@@ -52,8 +52,9 @@ appear at high order, and they are of different nature:
   $p$ and with the amount of distortion. It is a property of the space and of the
   node set, independent of how the shape functions are computed. It amplifies
   round-off, enters the interpolation error, and---as we show---is accompanied by a
-  loss of stability of the Petrov--Galerkin operator: spurious generalised
-  eigenvalues with negative real part, which render every time integrator unstable.
+  loss of stability of the Petrov--Galerkin operator: strongly complex and negative
+  generalised eigenvalues, which make the semi-discrete equations of motion
+  exponentially unstable, and divergence under mesh refinement in statics.
 \end{enumerate}
 
 This paper presents two improvements of the metric shape functions that address
@@ -88,8 +89,9 @@ representation of its interpolation operator as the GLL interpolant plus a
 correction that is driven only by the completeness defect of the classical element
 (\cref{prop:representation}). Numerically, its Lebesgue constant stays at the level
 of GLL interpolation for moderate curved-edge distortion and remains orders of
-magnitude below that of $\Qp_p(s,t)$ for strong distortion, and the spurious
-eigenvalues of the $\Qp_p(s,t)$ element disappear on all meshes tested.
+magnitude below that of $\Qp_p(s,t)$ for strong distortion. On all meshes tested,
+the eigenvalues with negative real part of the $\Qp_p(s,t)$ element disappear and the
+relative imaginary parts drop from $\mathcal O(1)$ to below $2\cdot10^{-2}$.
 
 The numerical studies (\cref{sec:numerics}) quantify conditioning, accuracy of the
 shape functions, Lebesgue constants versus degree and distortion, patch tests on
