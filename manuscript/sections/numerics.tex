@@ -154,7 +154,49 @@ Lagrange basis, $4.8\cdot10^{6}$ for $\Tp_p$).
 \subsection{Deviation from the classical element}
 \label{sec:num-deviation}
 
-\PENDING{DEVTEXT}
+\Cref{prop:representation} writes both metric families as the parametric shape functions
+plus a correction. \Cref{tab:deviation} quantifies the correction at the $(2p)^2$ Gauss
+points of $\matr K_e$, $d_N=\max_{k,q}|M_k(\bx_q)-N_k(\bx_q)|$, and its effect on the
+stiffness matrix, $d_K=\|\matr K_e-\matr K_e^{\PP}\|_F/\|\matr K_e^{\PP}\|_F$. For
+$\Qp_p(s,t)$ the correction grows exponentially with $p$, to $d_N=6.8\cdot10^{3}$ on the
+trapezoid and $3.9\cdot10^{3}$ on the general element at $p=12$; the metric shape
+functions then oscillate with amplitudes of the order of $\Lam_Q$ between the nodes, and
+$\matr K_e$ differs from the classical matrix by two to three orders of magnitude of its
+norm. For $\Tp_p$ the correction vanishes to round-off on the trapezoid
+(\cref{cor:defect}) and stays bounded on the curved elements, $d_N\le6.4\cdot10^{-2}$
+and $d_K\le4.2\cdot10^{-2}$ for all $p\le12$, decreasing with $p$ on the curved element.
+\PH\ is thus a small, $p$-robust perturbation of the classical element, confined to the
+completeness defect, which explains its classical-like spectral behaviour
+(\cref{sec:num-spectra}).
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Deviation of the metric shape functions from the parametric ones ($d_N$) and of
+    $\matr K_e$ from the classical stiffness matrix ($d_K$).}
+  \label{tab:deviation}
+  \begin{tabular}{@{}llcccccc@{}}
+    \toprule
+    & & \multicolumn{2}{c}{trapezoid} & \multicolumn{2}{c}{curved} & \multicolumn{2}{c}{general} \\
+    \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+    $p$ & & $d_N$ & $d_K$ & $d_N$ & $d_K$ & $d_N$ & $d_K$ \\
+    \midrule
+    \multirow{2}{*}{4} & \PM & $6.3\cdot10^{-1}$ & $2.7\cdot10^{-1}$ & $3.4\cdot10^{-1}$ & $1.6\cdot10^{-1}$ & $3.6\cdot10^{-1}$ & $2.2\cdot10^{-1}$ \\
+     & \PH & $4.2\cdot10^{-15}$ & $1.6\cdot10^{-15}$ & $2.5\cdot10^{-2}$ & $1.0\cdot10^{-2}$ & $4.7\cdot10^{-2}$ & $2.0\cdot10^{-2}$ \\
+    \midrule
+    \multirow{2}{*}{8} & \PM & $4.3\cdot10^{1}$ & $7.2\cdot10^{0}$ & $4.1\cdot10^{0}$ & $7.4\cdot10^{-1}$ & $2.3\cdot10^{1}$ & $3.9\cdot10^{0}$ \\
+     & \PH & $1.8\cdot10^{-14}$ & $1.4\cdot10^{-14}$ & $1.0\cdot10^{-2}$ & $3.8\cdot10^{-3}$ & $4.0\cdot10^{-2}$ & $1.1\cdot10^{-2}$ \\
+    \midrule
+    \multirow{2}{*}{12} & \PM & $6.8\cdot10^{3}$ & $7.4\cdot10^{2}$ & $6.9\cdot10^{1}$ & $9.0\cdot10^{0}$ & $3.9\cdot10^{3}$ & $3.4\cdot10^{2}$ \\
+     & \PH & $7.8\cdot10^{-13}$ & $5.6\cdot10^{-13}$ & $5.5\cdot10^{-3}$ & $2.2\cdot10^{-3}$ & $5.0\cdot10^{-2}$ & $9.8\cdot10^{-3}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Bounding-box scaling} Without the scaling \eqref{eq:bbox}, the Lagrange basis
+of $\Qp_p(s,t)$ gives larger condition numbers where the nodes leave $[-1,1]^2$ in skew
+coordinates: on the trapezoid $\cond_2=4.7\cdot10^{10}$ instead of $3.8\cdot10^{8}$ at
+$p=12$, on the general element $7.8\cdot10^{8}$ instead of $1.3\cdot10^{8}$; on the curved
+element, whose nodes lie in $[-1,1]^2$, it makes no difference.
 
 \subsection{Patch tests}
 \label{sec:num-patch}
@@ -178,7 +220,26 @@ grows with $p$ to $10^{-13}$--$10^{-12}$ at $p=10$, in line with $u\Lam_Q$
   \input{generated/patch}
 \end{table}
 
-\PENDING{PANELTEXT}
+\paragraph{Folded elements} The nodal rotation patch test of
+\citet[Secs.~5.5--5.7]{Rajendran2010technique} uses the panel $[0,2]\times[-1,1]$
+discretised by $2\times2$ quadratic elements whose nodes are rotated with the angle
+$\theta$ (meshes a--f of that paper); for $\theta\ge90^\circ$ all four elements fold
+($\det\matr J\le0$ in parts of each element). The elements are lifted to degree $p$ with
+the interior nodes taken from the bilinear corner map. The load cases tension, pure bending
+and end shear have exact solutions of degree $1$, $2$ and $3$, so all of them lie in the
+trial spaces for $p\ge3$. \Cref{tab:panel} shows
+the maximum nodal error over the three load cases. Both metric spaces pass for all
+$\theta$; at $p=8$ the round-off level of \PM\ rises to $10^{-5}$ ($\theta=135^\circ$,
+$225^\circ$), that of \PH\ is one to two orders of magnitude lower.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Patch tests on the folded panel meshes of \citet{Rajendran2010technique}
+    ($2\times2$ elements, interior node rotated by $\theta$): maximum relative nodal error
+    over the tension, bending and shear load cases.}
+  \label{tab:panel}
+  \input{generated/panel}
+\end{table}
 
 \subsection{Convergence on meshes with persistent distortion}
 \label{sec:num-convergence}
