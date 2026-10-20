@@ -205,13 +205,14 @@ def cylinder(raw=CYL, problem='lame'):
         f.write('\\begin{tabular}{@{}rl' + 'ccc' * len(ps) + '@{}}\n\\toprule\n')
         f.write('& & ' + ' & '.join('\\multicolumn{3}{c}{$p=%d$}' % p for p in ps) + '\\\\\n')
         f.write(''.join('\\cmidrule(lr){%d-%d}' % (3 + 3 * i, 5 + 3 * i) for i in range(len(ps))) + '\n')
-        f.write('$\\alpha$ & & ' + ' & '.join(['$e_E$ & $r$ & $\\Lambda$'] * len(ps)) + '\\\\\n\\midrule\n')
+        f.write('$\\alpha$ & & ' + ' & '.join(['$e$ & $r$ & $\\Lambda$'] * len(ps)) + '\\\\\n\\midrule\n')
         for a in alphas:
             for k, (fm, name) in enumerate((('PP', '\\PP'), ('PM', '\\PM'), ('PH', '\\PH'))):
-                first = ('\\multirow{3}{*}{$%d^\\circ$}' % a) if k == 0 else ''
+                first = ('\\multirow{3}{*}{$%d^{\\circ%s}$}' % (a, '\\ast' if a >= 45 else '')) if k == 0 else ''
                 vals = []
+                key = 'energy' if a < 45 else 'nodal'      # alpha >= 45: folded at N = 8
                 for p in ps:
-                    e8, e4 = get(a, 8, p, fm, 'energy'), get(a, 4, p, fm, 'energy')
+                    e8, e4 = get(a, 8, p, fm, key), get(a, 4, p, fm, key)
                     r = math.log2(e4 / e8) if e4 > 0 and e8 > 0 else float('nan')
                     leb = get(a, 8, p, fm, 'lebesgue')
                     vals += [sci(e8), '--' if math.isnan(r) else '%.1f' % r,
