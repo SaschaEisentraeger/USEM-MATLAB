@@ -87,8 +87,9 @@ element space on every straight-edged quadrilateral, and we derive an exact
 representation of its interpolation operator as the GLL interpolant plus a
 correction that is driven only by the completeness defect of the classical element
 (\cref{prop:representation}). Numerically, its Lebesgue constant stays at the level
-of GLL interpolation on all distorted elements tested, and the spurious eigenvalues
-of the $\Qp_p(s,t)$ element disappear.
+of GLL interpolation for moderate curved-edge distortion and remains orders of
+magnitude below that of $\Qp_p(s,t)$ for strong distortion, and the spurious
+eigenvalues of the $\Qp_p(s,t)$ element disappear on all meshes tested.
 
 The numerical studies (\cref{sec:numerics}) quantify conditioning, accuracy of the
 shape functions, Lebesgue constants versus degree and distortion, patch tests on

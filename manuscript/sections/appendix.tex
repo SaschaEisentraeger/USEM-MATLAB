@@ -1,0 +1,29 @@
+\appendix
+\section{Test elements}
+\label{app:elements}
+
+The single test elements are defined by 4- or 8-node input elements (corner nodes
+counter-clockwise, then the mid-side nodes of the edges 1--2, 2--3, 3--4, 4--1) and
+lifted to degree $p$ by isoparametric interpolation of the input geometry:
+\begin{center}
+  \small
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    element & nodes $(x,y)$ \\
+    \midrule
+    parallelogram & $(0,0)$, $(2,0.3)$, $(2.6,1.5)$, $(0.6,1.2)$ \\
+    trapezoid & $(0,0)$, $(2,0)$, $(1.4,1)$, $(0.2,1.3)$ \\
+    curved & $(0,0)$, $(2,0)$, $(2,1)$, $(0,1)$; $(1,-0.2)$, $(2.25,0.5)$, $(1,1)$, $(0,0.5)$ \\
+    general & $(0,0)$, $(2,0.1)$, $(1.5,1.2)$, $(0.2,1)$; $(1.1,-0.15)$, $(1.9,0.6)$,
+      $(0.8,1.25)$, $(0.05,0.5)$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+The meshes of \cref{sec:num-convergence} consist of $N\times N$ 8-node elements on the
+unit square whose interior mid-side nodes are moved normal to their edge by $\delta h$,
+$h=1/N$ (the normal is oriented consistently, so that all interior horizontal edges
+bow in $-y$ and all interior vertical edges in $-x$). The $3\times2$ meshes of
+\cref{sec:num-patch,sec:num-spectra} on $[0,3]\times[0,2]$ use the same curved-edge
+distortion with $\delta=0.15$ and $0.20$ (absolute), and, for ``angular + curved
+$0.30$'', an alternating shift of the interior corner nodes by $\pm0.3$ in $x$ followed
+by the curved-edge distortion with $0.15$.
