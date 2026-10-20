@@ -6,7 +6,8 @@ isoparametric map destroys the completeness of the approximation space in
 Cartesian coordinates: under angular distortion, serendipity elements no longer
 contain all quadratic polynomials \citep{Lee1993effects,Rajendran2000completeness},
 and under curved-edge distortion even full tensor-product (Lagrange) elements of
-degree $p$ contain $\Pp_k(x,y)$ only for $k<p$ \citep{Arnold2002Approximation}.
+degree $p$ with a geometry map of degree $g$ are guaranteed to contain $\Pp_k(x,y)$ only
+for $gk\le p$ \citep[cf.][]{Arnold2002Approximation}.
 MacNeal's theorem \citep{MacNeal1992On} shows that, within the class of symmetric
 (Bubnov--Galerkin) elements, distortion insensitivity and passing the patch test
 cannot be combined in general. The unsymmetric finite element method (UFEM) of
@@ -67,10 +68,12 @@ basis is a purely numerical choice, and we propose the Lagrange polynomials thro
 the reference GLL nodes in bounding-box scaled skew coordinates. On affine elements
 the Vandermonde matrix becomes a permutation matrix ($\cond=1$ for every $p$); on
 distorted elements its condition number equals, up to a factor bounded by the
-reference Lebesgue constant, the Lebesgue function of the metric interpolation at the
-reference nodes (\cref{prop:kappa}). Hence this basis adds no ill-conditioning
-beyond that of the interpolation problem. The same analysis shows that \emph{no}
-choice of basis can reduce the Lebesgue constant.
+reference Lebesgue constant, the Lebesgue function of the metric interpolation on the
+reference grid of the bounding box (\cref{prop:kappa}), which traces the remaining
+ill-conditioning to the extrapolation of the interpolant beyond the element. Numerically,
+the condition number at $p=16$ drops by three to four orders of magnitude relative to
+monomials. The same analysis shows that \emph{no} choice of basis can reduce the
+Lebesgue constant.
 
 \paragraph{Contribution 2: hybrid metric--parametric trial space
 (\cref{sec:hybrid})} Distortion immunity requires only that the trial space

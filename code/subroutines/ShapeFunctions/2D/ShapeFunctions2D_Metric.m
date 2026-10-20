@@ -41,7 +41,8 @@
 % p.metricMethod: Optional, default for method (1 if absent)
 % method:       Optional, 0: centroid-shifted global coordinates (always
 %               monomials), 1: corotational skew coordinates (default),
-%               2: hybrid space P_p(x,y) + {L_a(xi)L_b(eta): a+b > p}
+%               2: hybrid space P_m(x,y) + {L_a(xi)L_b(eta): a+b > m},
+%               m = min(pxi,peta)
 %               (see metricHybrid below); empty: p.metricMethod
 % xiQ:          Optional (method = 2), local coordinates [xi, eta] of the
 %               query points; computed by Newton's method if absent

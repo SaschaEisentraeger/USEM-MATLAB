@@ -9,11 +9,12 @@ interpolation problem whose Lebesgue constant grows exponentially with $p$ and w
 the distortion. We propose one remedy for each. (1) The metric shape functions are
 independent of the polynomial basis; using the Lagrange polynomials through the
 reference Gauss--Lobatto--Legendre nodes in bounding-box scaled skew coordinates makes
-the Vandermonde matrix a permutation matrix on affine elements, and on distorted
-elements its condition number equals, up to a bounded factor, the Lebesgue function of
-the metric interpolation. The basis therefore removes all ill-conditioning beyond that
-of the interpolation problem, but---as we prove---no basis can reduce the Lebesgue
-constant. (2) We introduce a hybrid trial space in which only the complete polynomials
+the Vandermonde matrix a permutation matrix on affine elements and reduces the
+condition number on distorted elements by three to four orders of magnitude at $p=16$
+compared with monomials. We prove that its condition number equals the Lebesgue function
+of the metric interpolation on the reference grid of the element's bounding box, which
+identifies the remaining ill-conditioning as an extrapolation effect, and that no basis
+can reduce the Lebesgue constant itself. (2) We introduce a hybrid trial space in which only the complete polynomials
 $\Pp_p(x,y)$, which are required for distortion immunity, are written in metric
 coordinates, while the remaining approximation is the $L^2$-orthogonal complement of
 $\Pp_p(\xi,\eta)$ in $\Qp_p(\xi,\eta)$, written in parametric coordinates. The space is
@@ -21,8 +22,9 @@ complete, affine invariant and interpolatory, coincides with the classical spect
 element on straight-edged quadrilaterals, and its interpolant is the GLL interpolant
 plus a correction driven only by the completeness defect of the classical element.
 Numerical studies up to $p=16$ show condition numbers reduced by up to five orders of
-magnitude, Lebesgue constants at or close to the GLL level instead of up to $10^{7}$, patch
-tests passed at round-off level independently of $p$,
+magnitude, Lebesgue constants at or close to the GLL level for moderate curved-edge
+distortion where those of $\Qp_p(s,t)$ reach $10^{4}$--$10^{7}$, patch tests on non-folded
+meshes passed at round-off level up to $p=10$,
 optimal convergence on meshes with persistent curved-edge distortion where the
 $\Qp_p(s,t)$ element diverges for $p\ge5$, and the removal of the strongly complex and
 negative eigenvalues that make the $\Qp_p(s,t)$ element exponentially unstable in

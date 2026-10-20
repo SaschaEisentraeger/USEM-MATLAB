@@ -44,8 +44,11 @@ $\hat M_l(\bxi_k)=\delta_{lk}$.
 
 The complete polynomials are represented by $L_a(\tilde s)L_b(\tilde t)$, $a+b\le m$,
 in the scaled skew coordinates \eqref{eq:bbox}. The definition through
-$\hat\Omega$ requires only the evaluation of $\vect F_e$, not its inverse, and it
-remains meaningful where $\vect F_e$ is not injective (folded elements).
+$\hat\Omega$ requires only the evaluation of $\vect F_e$, not its inverse. Where
+$\vect F_e$ is not injective (folded elements), only the pull-back $\hat\Tp_p$ is
+defined---the physical space $\Tp_p$ and point evaluation at physical coordinates are
+not---and all element quantities are computed in reference coordinates, as in
+\eqref{eq:Ke}.
 
 \begin{lemma}[Canonical complement]
 \label{lem:complement}
@@ -196,20 +199,37 @@ $u\in W^{q_e+1,\infty}(\tilde\Omega_e)$
   \le C\,(1+\Lam_{\mathcal U})\,h_e^{q_e+1}|u|_{W^{q_e+1,\infty}(\tilde\Omega_e)} .
   \label{eq:interp}
 \end{equation}
+Moreover, with the derivative Lebesgue constant
+$\Lam'_{\mathcal U}=h_e\max_{\bx\in\Omega_e}\sum_l|\nabla M_l^e(\bx)|$,
+\begin{equation}
+  |u-\mathcal I_{\mathcal U}u|_{W^{1,\infty}(\Omega_e)}
+  \le C\,(1+\Lam'_{\mathcal U})\,h_e^{q_e}|u|_{W^{q_e+1,\infty}(\tilde\Omega_e)} .
+  \label{eq:interp1}
+\end{equation}
 For a family of elements obtained from a fixed element by similarity
-transformations (self-similar refinement), $\Lam_{\mathcal U}$ is independent of
-$h_e$ by \cref{lem:affine}.
+transformations (self-similar refinement), $\Lam_{\mathcal U}$ and $\Lam'_{\mathcal U}$
+are independent of $h_e$ by \cref{lem:affine}.
 \end{lemma}
 \begin{proof}
 $\mathcal I_{\mathcal U}$ reproduces $\Pp_{q_e}(x,y)$, so
-$u-\mathcal I_{\mathcal U}u=(u-q)-\mathcal I_{\mathcal U}(u-q)$ for every such $q$; the
-second inequality follows from the Taylor polynomial of degree $q_e$ on
-$\tilde\Omega_e$ (Bramble--Hilbert lemma), with $C$ depending only on $q_e$.
+$u-\mathcal I_{\mathcal U}u=(u-q)-\mathcal I_{\mathcal U}(u-q)$ for every such $q$. Choose
+$q$ as the Taylor polynomial of degree $q_e$ of $u$ about a point of $\tilde\Omega_e$; then
+$\|u-q\|_{L^\infty}\le Ch_e^{q_e+1}|u|_{W^{q_e+1,\infty}}$ and
+$|u-q|_{W^{1,\infty}}\le Ch_e^{q_e}|u|_{W^{q_e+1,\infty}}$ on $\tilde\Omega_e$, with $C$
+depending only on $q_e$. The $L^\infty$ estimate follows from
+$\|\mathcal I_{\mathcal U}(u-q)\|_\infty\le\Lam_{\mathcal U}\|u-q\|_\infty$, the
+$W^{1,\infty}$ estimate from
+$|\nabla\mathcal I_{\mathcal U}(u-q)|\le\|u-q\|_\infty\sum_l|\nabla M_l^e|
+\le h_e^{-1}\Lam'_{\mathcal U}\|u-q\|_\infty$. Under a similarity
+$\bx\mapsto\alpha\matr R\bx+\vect c$ the shape functions are unchanged as functions of the
+material point (\cref{lem:affine}), their gradients scale with $\alpha^{-1}$ and $h_e$ with
+$\alpha$, so $\Lam'_{\mathcal U}$ is invariant.
 \end{proof}
 
-Both metric spaces thus have the optimal interpolation order on meshes whose
-distortion persists under refinement, where the classical element is limited to
-$\Pp_k(x,y)$ with $gk\le p$; they differ in the constant $1+\Lam_{\mathcal U}$. An
+Both metric spaces thus have the optimal interpolation order, in $L^\infty$ and in
+$W^{1,\infty}$ (hence in the energy norm), on meshes whose distortion persists under
+refinement, where the classical element is limited to
+$\Pp_k(x,y)$ with $gk\le p$; they differ in the constants $1+\Lam_{\mathcal U}$ and $1+\Lam'_{\mathcal U}$. An
 error estimate for the Petrov--Galerkin solution additionally requires a discrete
 inf-sup condition for the pair (test space, non-conforming trial space) and a
 consistency estimate for the non-conforming trial space (Strang-type arguments). We do

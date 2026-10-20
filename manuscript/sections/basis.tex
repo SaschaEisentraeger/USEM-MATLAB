@@ -69,9 +69,10 @@ Lagrange basis $\phi_c(\vect s_k)=\delta_{ck}$ up to the ordering:
 
 \begin{corollary}
 \label{cor:affine}
-On an affine element, the Lagrange basis gives a permutation matrix $\matr V$,
-$\cond(\matr V)=1$ in every norm, and $\matr N=\matr V^{-1}\matr P$ is obtained
-without arithmetic error beyond that of evaluating $\matr P$. Metric and parametric
+On an affine element, the Lagrange basis gives a permutation matrix $\matr V$ (up to
+the rounding of the scaled skew coordinates of the nodes), $\cond_q(\matr V)=1$ for
+every $q$-norm, and $\matr N=\matr V^{-1}\matr P$ is obtained without amplification of
+rounding errors. Metric and parametric
 functions then agree to round-off, and $\matr K_e$ is symmetric to round-off, for
 every $p$.
 \end{corollary}
@@ -105,11 +106,20 @@ and $\|\matr V^{-1}\|_1=\max_d\sum_l|M_l^e(\hat{\vect s}_d)|$.
 \end{proof}
 
 By \eqref{eq:bbox}, all $\tilde{\vect s}_k\in\hat\Omega$, so the first factor is
-bounded by $\Lam_N$ (e.g.\ $\Lam_N\le6.1$ for $p\le16$). The condition number in the
-Lagrange basis is therefore, up to this factor, the Lebesgue function of the metric
-interpolation itself, evaluated at the reference nodes: the basis introduces no
-ill-conditioning beyond that of the interpolation problem. Conversely, the
-proposition shows the limit of any basis: by \cref{prop:invariance},
+bounded by $\Lam_N$ (e.g.\ $\Lam_N\le6.1$ for $p\le16$). The second factor is the Lebesgue
+function of the metric interpolation at the reference tensor grid of the bounding box.
+On an affine element this grid coincides with the nodes and the factor is $1$. On a
+distorted element, however, part of the grid lies \emph{outside} the element (e.g.\ the
+corners of the bounding box), where $\lambda_{\mathcal U}$ is an extrapolation and can
+exceed the Lebesgue constant $\Lam_{\mathcal U}$ by orders of magnitude
+(\cref{sec:num-conditioning}). \Cref{prop:kappa} thus identifies the source of the
+remaining ill-conditioning of every tensor-product basis on the bounding box: the
+extrapolation of the metric interpolant from the element to its bounding box. It cannot
+be removed by switching among the bases considered here (they lie within a factor of
+about~3 of one another numerically), only by bases adapted to the node set itself, e.g.\
+discretely orthogonalised bases \citep{Brubeck2021Vandermonde}, which we do not pursue.
+
+The proposition also shows the limit of \emph{any} basis: by \cref{prop:invariance},
 $\lambda_{\mathcal U}$ and $\Lam_{\mathcal U}$ do not depend on the basis, and a large
 Lebesgue constant amplifies perturbations of the nodal values (round-off, or the
 nodal error of a discrete solution) by up to $\Lam_{\mathcal U}$, whatever basis is

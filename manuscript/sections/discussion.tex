@@ -4,15 +4,19 @@
 \paragraph{What each improvement achieves}
 The two improvements act on different error sources and should not be conflated.
 The Lagrange basis of \cref{sec:basis} removes the ill-conditioning \emph{of the
-construction}: it is exact on affine elements and, by \cref{prop:kappa}, adds no
-amplification beyond that of the interpolation problem on distorted ones. It cannot
+construction}: it is exact on affine elements, and on distorted ones it reduces the
+condition number by orders of magnitude relative to monomials, while
+\cref{prop:kappa} shows that the remainder stems from extrapolating the metric
+interpolant to the bounding box of the element. It cannot
 change the shape functions (\cref{prop:invariance}) and hence cannot change the
 Lebesgue constant, the patch-test behaviour in exact arithmetic, the eigenvalues or
 the discrete solution beyond round-off. The hybrid space of \cref{sec:hybrid} changes
 the \emph{space}, and with it the Lebesgue constant, the stability properties and the
 approximation constant. Both are needed: the hybrid space has its own Vandermonde
-matrix, which is well conditioned in the Legendre-type basis used here because the
-complement is evaluated on the exact GLL tensor grid (\cref{fig:kappa}).
+matrix, which in the Legendre-type basis used here is better conditioned than that of
+$\Qp_p(s,t)$ in any basis for $p\ge4$ (by up to five orders of magnitude at $p=16$),
+because the complement is evaluated on the exact GLL tensor grid, but whose condition
+number still grows with $p$ ($\approx2\cdot10^{6}$ at $p=16$, \cref{fig:kappa}).
 
 \paragraph{Trade-off between the two trial spaces}
 For smooth solutions on meshes where $\Qp_p(s,t)$ is stable, \PM\ is
@@ -32,8 +36,8 @@ element-level indicator for the latter choice is $\Lam_Q$ itself, which can be c
 together with the shape functions (\cref{prop:kappa}).
 
 \paragraph{Folded elements}
-Distortion immunity in the sense of \cref{prop:immunity} holds on
-folded elements for both spaces, as the patch tests on the panel meshes of
+Exactness for polynomial solutions is observed on folded elements for both
+spaces (\cref{rem:folded}), as the patch tests on the panel meshes of
 \cref{sec:num-patch} confirm; at $p=8$, \PH\ reduces the round-off level there by one
 to two orders of magnitude. For non-polynomial solutions on folded meshes, however, \PH\
 converges less regularly than on valid meshes, and its energy error stagnates, because

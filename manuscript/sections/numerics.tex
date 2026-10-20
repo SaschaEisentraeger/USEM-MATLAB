@@ -46,8 +46,8 @@ i.e.\ by a factor of about $5.8\approx(1+\sqrt2)^2$ per degree, the square of th
 growth. Legendre polynomials give $\cond_2=10.2$, $24.4$, $55.3$, Chebyshev
 polynomials $\cond_2\le3$, and the Lagrange basis $\cond_2=1$ for every $p$
 (\cref{cor:affine}). Accordingly, $e_\delta$ grows with $p$ as $\cond_2(\matr V)u$ for
-the monomials ($2.0\cdot10^{-12}$ at $p=8$, $1.1\cdot10^{-6}$ at $p=16$) and is below
-$10^{-28}$ for the Lagrange basis. The asymmetry
+the monomials ($2.0\cdot10^{-12}$ at $p=8$, $1.1\cdot10^{-6}$ at $p=16$) and is at most
+$1.1\cdot10^{-28}$ for the Lagrange basis. The asymmetry
 $\|\matr K_e-\matr K_e^\T\|_F/\|\matr K_e\|_F$, zero in exact arithmetic, follows
 $e_\delta$:
 \begin{center}
@@ -62,22 +62,26 @@ $e_\delta$:
     \bottomrule
   \end{tabular}
 \end{center}
-The identity of \cref{prop:kappa} is reproduced to $4\cdot10^{-14}$ (relative) for all
-$p\le16$.
+The identity of \cref{prop:kappa} is reproduced to $4.1\cdot10^{-14}$ (relative) for
+all $p\le16$ on this element, and to within the expected round-off ($\le1.8\cdot10^{-11}$)
+on the distorted elements.
 
 \paragraph{Distorted elements} On the trapezoid, the curved and the general element,
 the three bases of $[-1,1]$ (with bounding-box scaling) lie within a factor of
 about~3 of one another; they improve on the monomials by a factor of 4--13 at $p=4$
-and of $10^{4}$--$4.5\cdot10^{4}$ at $p=16$ (general element: $\cond_2=1.7\cdot10^{6}$ versus $4.7$--$8.4\cdot10^{4}$ at
+and of $4.6\cdot10^{3}$--$4.5\cdot10^{4}$ at $p=16$ (general element: $\cond_2=1.7\cdot10^{6}$ versus $4.7$--$8.4\cdot10^{4}$ at
 $p=8$, $9.0\cdot10^{14}$ versus $0.9$--$2.0\cdot10^{11}$ at $p=16$). With monomials
 the trapezoid at $p=16$ is rejected as singular to working precision. In the Lagrange
 basis $e_\delta$ is reduced accordingly (trapezoid, curved and general element at
 $p=16$: $7.1\cdot10^{-6}$, $6.0\cdot10^{-9}$ and $1.8\cdot10^{-6}$, versus rejection,
-$4.9\cdot10^{-5}$ and $6.5\cdot10^{-4}$ with monomials). The remaining growth is that of the
-interpolation problem (\cref{prop:kappa}); no basis of $\Qp_p(s,t)$ removes it. The
-hybrid space has a different interpolation problem, and its Vandermonde matrix is
-better conditioned by two to five orders of magnitude than that of $\Qp_p(s,t)$ in any
-basis: $\cond_2=7.8\cdot10^{2}$ versus $\ge1.3\cdot10^{5}$ (trapezoid, $p=8$) and
+$4.9\cdot10^{-5}$ and $6.5\cdot10^{-4}$ with monomials). The remaining growth is caused by
+the extrapolation of the metric interpolant to the bounding box (\cref{prop:kappa}): the
+factor $\cond_1(\matr V)/\|\matr V\|_1=\max_d\lambda_{\mathcal U}(\hat{\vect s}_d)$ is
+$9.8\cdot10^{4}$ on the general element at $p=8$, where $\Lam_Q=3.2\cdot10^{2}$, and
+$1.4\cdot10^{11}$ at $p=16$, where $\Lam_Q=6.9\cdot10^{6}$. The hybrid space has a different
+interpolation problem; its Vandermonde matrix is as well conditioned as that of
+$\Qp_p(s,t)$ for $p\le3$ and better conditioned in any basis from $p=4$ on, by a factor
+of $2$--$6$ at $p=4$ and of $1.6\cdot10^{3}$--$1.9\cdot10^{5}$ at $p=16$: $\cond_2=7.8\cdot10^{2}$ versus $\ge1.3\cdot10^{5}$ (trapezoid, $p=8$) and
 $1.7$--$2.0\cdot10^{6}$ versus $\ge8.5\cdot10^{10}$ (trapezoid and general element,
 $p=16$), with $e_\delta\le3.2\cdot10^{-11}$ for all elements and $p\le16$.
 
@@ -96,7 +100,7 @@ $p=16$), with $e_\delta\le3.2\cdot10^{-11}$ for all elements and $p\le16$.
   \input{figures/fig-kron}
   \caption{Error $e_\delta$ of the Kronecker property of the computed metric shape
     functions (values below $10^{-17}$ are not shown; for the Lagrange basis on the
-    parallelogram $e_\delta\le10^{-28}$).}
+    parallelogram $e_\delta\le1.1\cdot10^{-28}$).}
   \label{fig:kron}
 \end{figure}
 
@@ -116,9 +120,10 @@ exponentially with $p$: on the trapezoid from $10.4$ ($p=4$) over $7.7\cdot10^{2
 ($p=8$) to $3.9\cdot10^{7}$ ($p=16$), on the curved element to $5.5\cdot10^{4}$ and on
 the general element to $6.9\cdot10^{6}$ at $p=16$. The hybrid space gives
 $\Lam_T=\Lam_N$ exactly on the trapezoid (\cref{cor:defect}; $6.09$ at $p=16$) and
-$\Lam_T\le1.06\,\Lam_N$ for $p\ge3$ on the curved element ($1.14\,\Lam_N$ at $p=2$); on the general element $\Lam_T$ exceeds
-$\Lam_N$ from $p\approx12$ on ($5.9$ versus $5.2$ at $p=12$, $8.5$ versus $6.1$ at
-$p=16$), which is four to six orders of magnitude below $\Lam_Q$.
+$\Lam_T\le1.07\,\Lam_N$ for $p\ge3$ on the curved element ($1.14\,\Lam_N$ at $p=2$). On the
+general element $\Lam_T\le1.05\,\Lam_N$ for $3\le p\le10$ ($1.11\,\Lam_N$ at $p=2$), and the
+ratio grows for higher $p$ to $1.12$ ($p=12$) and $1.40$ ($p=16$, $\Lam_T=8.5$ versus
+$\Lam_N=6.1$), almost six orders of magnitude below $\Lam_Q$ at that degree.
 
 \paragraph{Dependence on the distortion} \Cref{fig:sweep} separates the effect of the
 distortion from that of the degree. For the bent element, whose Jacobian determinant is
@@ -160,9 +165,9 @@ points of $\matr K_e$, $d_N=\max_{k,q}|M_k(\bx_q)-N_k(\bx_q)|$, and its effect o
 stiffness matrix, $d_K=\|\matr K_e-\matr K_e^{\PP}\|_F/\|\matr K_e^{\PP}\|_F$. For
 $\Qp_p(s,t)$ the correction grows exponentially with $p$, to $d_N=6.8\cdot10^{3}$ on the
 trapezoid and $3.9\cdot10^{3}$ on the general element at $p=12$; the metric shape
-functions then oscillate with amplitudes of the order of $\Lam_Q$ between the nodes, and
-$\matr K_e$ differs from the classical matrix by two to three orders of magnitude of its
-norm. For $\Tp_p$ the correction vanishes to round-off on the trapezoid
+functions then deviate from the parametric ones by up to $10^{3}$--$10^{4}$ between the
+nodes, and $\|\matr K_e-\matr K_e^{\PP}\|_F$ reaches $9$ (curved), $3.4\cdot10^{2}$
+(general) and $7.4\cdot10^{2}$ (trapezoid) times $\|\matr K_e^{\PP}\|_F$. For $\Tp_p$ the correction vanishes to round-off on the trapezoid
 (\cref{cor:defect}) and stays bounded on the curved elements, $d_N\le6.4\cdot10^{-2}$
 and $d_K\le4.2\cdot10^{-2}$ for all $p\le12$, decreasing with $p$ on the curved element.
 \PH\ is thus a small, $p$-robust perturbation of the classical element, confined to the
@@ -192,25 +197,26 @@ completeness defect, which explains its classical-like spectral behaviour
   \end{tabular}
 \end{table}
 
-\paragraph{Bounding-box scaling} Without the scaling \eqref{eq:bbox}, the Lagrange basis
-of $\Qp_p(s,t)$ gives larger condition numbers where the nodes leave $[-1,1]^2$ in skew
-coordinates: on the trapezoid $\cond_2=4.7\cdot10^{10}$ instead of $3.8\cdot10^{8}$ at
-$p=12$, on the general element $7.8\cdot10^{8}$ instead of $1.3\cdot10^{8}$; on the curved
-element, whose nodes lie in $[-1,1]^2$, it makes no difference.
+\paragraph{Bounding-box scaling} The scaling \eqref{eq:bbox} pays off at higher degree,
+where the nodes leave $[-1,1]^2$ in skew coordinates: for the Lagrange basis of
+$\Qp_p(s,t)$ at $p=12$, $\cond_2=3.8\cdot10^{8}$ instead of $4.7\cdot10^{10}$ on the
+trapezoid and $1.3\cdot10^{8}$ instead of $7.8\cdot10^{8}$ on the general element. On the
+curved element the effect is at most a factor $1.5$, and for $p\le4$ the scaling can
+slightly increase the condition number (trapezoid, $p=2$: $8.3$ instead of $5.8$).
 
 \subsection{Patch tests}
 \label{sec:num-patch}
 
 \paragraph{Distorted meshes} The $3\times2$ meshes on $[0,3]\times[0,2]$ with
-curved-edge distortion $0.15$ and $0.20$ (minimum $\det\matr J=0.16$ and $0.09$) and
-with combined angular and curved-edge distortion (minimum $\det\matr J=0.014$,
-\cref{app:elements}) are loaded by prescribing the harmonic field
+curved-edge distortion $0.15$ and $0.20$ and with combined angular and curved-edge
+distortion (\cref{app:elements}; minimum $\det\matr J$ at the quadrature points $0.16$,
+$0.09$ and $0.02$, relative to $0.25$ for the undistorted mesh) are loaded by prescribing the harmonic field
 $\vect u=(\operatorname{Re}z^p,-\operatorname{Im}z^p)$, $z=(x-1.3)+\mathrm i(y-0.7)$, at all
 boundary nodes; it is an equilibrium field of total degree $p$ without body force.
 \Cref{tab:patch} lists the maximum relative nodal error. \PP\ fails, as expected
 for curved edges. Both metric spaces pass for every $p$; the round-off level of \PM\
-grows with $p$ to $10^{-13}$--$10^{-12}$ at $p=10$, in line with $u\Lam_Q$
-(\cref{rem:reproduction}), whereas \PH\ stays at $\le3\cdot10^{-15}$.
+grows with $p$ to $1.2\cdot10^{-13}$--$8.1\cdot10^{-13}$ at $p=10$, whereas \PH\ stays at
+$\le3.1\cdot10^{-15}$ (cf.\ \cref{rem:reproduction}).
 
 \begin{table}[htbp]
   \centering\small
@@ -248,8 +254,8 @@ The unit square is discretised by $N\times N$ elements, $N=2,4,8,16$, whose inte
 mid-side nodes are moved normal to their edge by $\delta h$ (\cref{app:elements}).
 The element shapes are thus the same on every mesh: the distortion does not vanish under
 refinement, which is the worst case for the classical element. For $\delta=0.1$ and
-$0.2$ all elements are valid (minimum $\det\matr J$ at the quadrature points $0.21$ and
-$0.09$, relative to $0.25$ for the undistorted mesh); for $\delta=0.3$ the elements fold
+$0.2$ all elements are valid (minimum $\det\matr J$ at the quadrature points $0.20$ and
+$0.095$, relative to $0.25$ for the undistorted mesh); for $\delta=0.3$ the elements fold
 near two corners ($\det\matr J<0$ at quadrature points). The exact solution
 $\vect u=(\operatorname{Re}f,-\operatorname{Im}f)$, $f(z)=e^{2z}$, $z=x+\mathrm iy$, is an
 equilibrium field without body force and is prescribed at all boundary nodes. The relative
@@ -282,8 +288,8 @@ $1/\det\matr J$ and is not meaningful, and the maximum relative nodal error $e_n
 $p/2$ ($r_{8,16}=0.89$, $0.82$, $1.84$, $1.72$, $2.80$ for $p=2,\dots,6$ at
 $\delta=0.2$), consistent with
 $\Pp_{\lfloor p/2\rfloor}(x,y)\subset\Qp_p(\xi,\eta)\circ\vect F_e^{-1}$ for biquadratic maps
-(\cref{sec:formulation}). On the finest mesh it is two to five orders of magnitude less
-accurate than the stable metric elements.
+(\cref{sec:formulation}). On the finest mesh it is one to four and a half orders of
+magnitude less accurate than the stable metric elements.
 
 \paragraph{Moderate distortion ($\delta=0.1$)} Both metric spaces converge with the optimal
 rate $p$ for all $p\le6$. \PM\ is the more accurate one: the ratio
@@ -332,7 +338,11 @@ $\operatorname{Re}\lambda<0$ from $p=5$ (curved $0.20$, angular + curved) or $p=
 $|\operatorname{Im}\lambda|/|\lambda|\to1$. They enter the low end of the spectrum: the
 error of the lowest eigenvalues jumps to $1.9$ (curved $0.20$, $p=6$) and $0.35$
 (angular + curved, $p=7$) and stagnates at $10^{-5}$--$10^{-3}$ for higher $p$,
-whereas \PP\ converges exponentially to $4.5\cdot10^{-7}$ at $p=10$. \PH\ has no
+whereas the error of \PP\ decreases to a plateau of $4.4$--$4.5\cdot10^{-7}$ for
+$p\ge8$, common to all meshes and formulations without spurious modes, which reflects the
+accuracy of the reference values (classical element, $p=12$) and the corner
+singularities of the clamped rectangle; differences below this level are not
+significant. \PH\ has no
 eigenvalue with negative real part on any mesh and for any $p$,
 $|\operatorname{Im}\lambda|/|\lambda|\le1.7\cdot10^{-2}$ over the whole spectrum, and the
 error of its lowest eigenvalues is between $0.32$ and $1.07$ times that of \PP\ for every
@@ -369,8 +379,9 @@ $z=(1+\mathrm ic)/(1-\mathrm ic)$, $c=\pm\sqrt\lambda\,\Delta t/2$. \PP\ is stab
 $p=6,7$, and $g_\Delta$ reaches $5$--$33$ per period: a perturbation at round-off level is
 amplified to $\mathcal O(1)$ within a few periods. For \PH, $g\le0.65$ and
 $g_\Delta\le0.16$ on all meshes and for all $p$ ($\le0.11$ for $p\ge3$). \PH\ is therefore
-\emph{not} free of growing modes, but their growth is slower by two to three orders of
-magnitude, and $g_\Delta$ does not increase with $p$.
+\emph{not} free of growing modes, but their growth is slower than that of \PM\ by a factor
+of $2$--$3$ at $p=2$, $10$--$30$ at $p=3$ and up to four orders of magnitude ($g$) at
+$p=7$, and $g_\Delta$ does not increase with $p$.
 
 \Cref{fig:transient} shows the free vibration from a smooth initial displacement,
 $\vect u_0=(\sin\frac{\pi x}{3}\sin\frac{\pi y}{2},\ \sin\frac{2\pi x}{3}\sin\frac{\pi y}{2})$,
@@ -429,7 +440,7 @@ global system (LU instead of Cholesky) is the same for \PM\ and \PH.
     \cmidrule(lr){2-4}\cmidrule(lr){5-8}
     $p$ & \PM, mon. & \PM, Lagr. & \PH & \PP & \PM, mon. & \PM, Lagr. & \PH \\
     \midrule
-    4  & 0.013 & 0.018 & 0.13 & 0.59 & 0.50 & 0.47 & 0.63 \\
+    4  & 0.013 & 0.017 & 0.13 & 0.59 & 0.50 & 0.47 & 0.63 \\
     8  & 0.052 & 0.058 & 0.93 & 3.89 & 4.41 & 4.34 & 5.48 \\
     12 & 0.097 & 0.123 & 3.50 & 16.4 & 17.0 & 17.2 & 20.4 \\
     \bottomrule

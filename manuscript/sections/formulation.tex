@@ -56,11 +56,12 @@ classical spectral element) or \PM\ (parametric test, metric trial functions), a
 
 \begin{proposition}[Distortion immunity]
 \label{prop:immunity}
-Let $\Pp_q(x,y)\subset\mathcal U_e$ for every element, let the exact solution of
-\eqref{eq:strong} satisfy $\vect u\in[\Pp_q(x,y)]^2$, and let the quadrature of
-\eqref{eq:Ke} and of the load vector be exact for the resulting integrands. Then the
-solution of \eqref{eq:pg} is $\vect u_h=\vect u$, independently of the shape of the
-elements.
+Let every element map $\vect F_e$ be bijective, let $\Pp_q(x,y)\subset\mathcal U_e$ for
+every element, let the exact solution of \eqref{eq:strong} satisfy
+$\vect u\in[\Pp_q(x,y)]^2$, let the quadrature of \eqref{eq:Ke} and of the load vector be
+exact for the resulting integrands, and let the global system matrix (after imposing the
+Dirichlet conditions) be non-singular. Then the solution of \eqref{eq:pg} is
+$\vect u_h=\vect u$, independently of the shape of the elements.
 \end{proposition}
 \begin{proof}
 Because $\mathcal U_e$ is interpolatory and contains $\vect u|_{\Omega_e}$, the
@@ -69,9 +70,19 @@ $\bm\varepsilon(\vect u_h)=\bm\varepsilon(\vect u)$. As $\vect w_h$ is continuou
 integration by parts over $\Omega$ gives
 $\int_\Omega\bm\varepsilon(\vect w_h)^\T\bm\sigma(\vect u)\dd\Omega
 =\int_\Omega\vect w_h^\T\vect b\dd\Omega+\int_{\Gamma_t}\vect w_h^\T\bar{\vect t}\dd\Gamma$.
-Hence the exact nodal values satisfy \eqref{eq:pg}; uniqueness of the discrete
-solution (non-singular global matrix) completes the proof.
+Hence the exact nodal values satisfy \eqref{eq:pg}, and they are its unique solution.
 \end{proof}
+
+\begin{remark}[Folded elements]
+\label{rem:folded}
+If $\vect F_e$ is not injective (``folded'' elements, $\det\matr J$ changing sign), the
+parametric functions are not well defined in physical space and the argument above does
+not apply. The element matrices \eqref{eq:Ke}, however, are defined in reference
+coordinates with the signed $\det\matr J$ (through $\adj\matr J$), as are the loads. For
+such elements exactness of polynomial solutions has been observed for low-order elements
+\citep{Rajendran2010technique} and is confirmed by our patch tests
+(\cref{sec:num-patch}); we do not give a proof here.
+\end{remark}
 This is the higher-order form of the conditions of \citet{Rajendran2010technique}.
 The parametric space violates the hypothesis on curved elements: for a geometry map
 of degree $g$ in each variable, $x^ay^b\circ\vect F_e\in\Qp_{g(a+b)}$, so that
@@ -92,7 +103,7 @@ written in the corotational skew coordinates
   \matr J_0=\frac{\partial(x,y)}{\partial(\xi,\eta)}\Big|_{\bxi=\vect 0},
   \label{eq:skew}
 \end{equation}
-with the Jacobian convention
+which require $\det\matr J_0\ne0$, with the Jacobian convention
 $\matr J=\bigl[\begin{smallmatrix}x_{,\xi}&y_{,\xi}\\x_{,\eta}&y_{,\eta}\end{smallmatrix}\bigr]$.
 
 \begin{lemma}[Affine invariance]
