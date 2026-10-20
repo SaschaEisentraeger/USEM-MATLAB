@@ -1,0 +1,173 @@
+\documentclass[10pt,a4paper]{article}
+\input{../../thick_cylinder/report/preamble}
+\usetikzlibrary{calc}
+\renewcommand{\tab}{../results}
+
+\title{Reproduction of the nodal rotation patch test and the convergence test of
+       Rajendran (2010) for $\theta\ge90^\circ$ with the USEM code base}
+\author{USEM-MATLAB study \texttt{studies/rajendran\_panel}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+The square-panel tests of \citet[Secs.~5.5--5.7]{Rajendran2010technique} (mid-side nodes
+rotated by $\theta=90^\circ$--$270^\circ$, overlapping and folded elements) are recomputed
+with the spectral elements of the code base on gmsh meshes. With the 9-node element defined
+as in the paper (parametric test functions, metric trial functions in Cartesian coordinates,
+9th node at the centroid of the corners, $5\times5$ Gauss points), all values of the 9-node
+Tables~15--19 are reproduced to four digits, for the unsymmetric (PM-QUAD9$^\ast$) as well as
+the conventional (PP-QUAD9) and the metric (MM-QUAD9) elements, except for entries that are
+inconsistent within the paper itself (\cref{sec:paper}). The energy-norm convergence rates of
+PM-QUAD9$^\ast$ (Fig.~15 of the paper) are reproduced as well ($2.00$ and $1.98$ against
+$2.11$ and $1.97$). For $p\ge3$ the unsymmetric spectral element reproduces the cubic field of
+the shear test on every mesh, including fully folded ones, up to round-off. The code base as
+is, however, places interior nodes with the 8-node map; on these meshes this makes interior
+and edge nodes coincide for even $p$, and the solution fails (\cref{sec:code}).
+\end{abstract}
+
+\section{Set-up}\label{sec:setup}
+Panel $[0,2]\times[-1,1]$, plane stress, $\nu=0.25$, three point supports ($u_x=0$ at
+$(0,\pm1)$, $u_x=u_y=0$ at $(0,0)$), equilibrated loads on $x=0$ and $x=2$ (tension
+$\sigma_x=1000$; moment $\sigma_x=-1500y$; shear $\sigma_x=-1500(2-x)y$,
+$\tau_{xy}=750(1-y^2)$), displacement at $A=(2,0)$. The meshes (\cref{fig:meshes}) are
+generated with gmsh (\texttt{mesh/gen\_panel\_meshes.py}): $2\times2$ super-elements of
+$2\times2$ elements; the mid-side nodes of the internal edges of every super-element are
+rotated about its centre by $\theta$ (Meshes a--f: $\theta=0^\circ,90^\circ,135^\circ,175^\circ,
+225^\circ,270^\circ$; sequences A, B, C: $\theta=0^\circ,90^\circ,135^\circ$ with $1\times1$,
+$2\times2$, $4\times4$ super-elements). For $\theta\ge90^\circ$ every element of every mesh has
+$\det\bm J\le0$ somewhere.
+
+\paragraph{Material constant.} The paper states $E=1500$, but its exact solutions ($1.0$,
+$1.5$, $3.3125$) are those of $E=2000$ (elasticity solutions with the supports above: $1.333$,
+$2.0$, $4.4167$ for $E=1500$; $1.0$, $1.5$, $3.3125$ for $E=2000$). $E=2000$ is used here; all
+displacements scale with $1/E$.
+
+\paragraph{Loads.} The consistent nodal forces (\texttt{matlab/rp\_loads.m}) agree with the
+lists of the paper (Fig.~8 and Sec.~5.6) except for the moment case of Fig.~8, where the
+paper lists $-250$, $-500$ at nodes 8, 9 (and $250$, $500$ at nodes 14, 13); the consistent,
+antisymmetric values are $-500$, $-250$ (and $500$, $250$). The listed values would give a
+moment of $1125$ instead of $1000$; since the paper's PM results equal the exact $1.5$, the
+consistent values were evidently used.
+
+\paragraph{Elements.} With $p=2$ (9 nodes):
+PP9 = conventional element; MM9 = metric functions on both sides, $\int\bm B_R^{\mathsf T}\bm D
+\bm B_R\det\bm J$; PM9 = PM-QUAD9$^\ast$, $\int(\bm B_L^\ast)^{\mathsf T}\bm D\bm B_R$. As in the
+paper: metric functions $Q_2$ in Cartesian coordinates relative to the element centroid
+(\texttt{ShapeFunctions2D\_Metric}, method 0), 9th node at the centroid of the corners,
+$5\times5$ Gauss points. In addition: ``\PM, skew'' = the code-base metric functions (skew
+coordinates, method 1) with the same nodes; ``\PM, code'' = \texttt{Ke\_2D} with the nodes of
+\texttt{pSpectralElement\_NodesTopology} ($4\times4$ points). For $p=3,\dots,8$: \PP\ and \PM\
+with interior nodes from the bilinear corner map (the generalisation of the corner centroid)
+and $2p\times2p$ points, and \PM$_\mathrm{code}$ with the interior nodes of the code base.
+
+\begin{figure}[t]
+  \centering
+  \input{generated/fig_meshes}
+  \caption{gmsh meshes: Meshes a--f of the patch test and the $2\times2$, $4\times4$ meshes of
+    sequences B and C (cf.\ Figs.~9, 10 of the paper).}
+  \label{fig:meshes}
+\end{figure}
+
+\section{Nodal rotation patch test ($p=2$)}\label{sec:patch}
+\begin{table}[h]
+  \centering\small
+  \caption{Moment loading, $u_y(A)$ (paper: Table~15; exact $1.5$).}
+  \label{tab:moment}
+  \resizebox{\linewidth}{!}{\input{generated/patch_moment}}
+
+  \vspace{3mm}
+  \caption{Shear loading, $u_y(A)$ (paper: Table~16; exact $3.3125$). $^\ast$: differs from the
+    present result, see \cref{sec:paper}.}
+  \label{tab:shear}
+  \resizebox{\linewidth}{!}{\input{generated/patch_shear}}
+
+  \vspace{3mm}
+  \caption{Tension, $u_x(A)$ (paper: Table~14; exact $1.0$).}
+  \label{tab:tension}
+  \resizebox{\linewidth}{!}{\input{generated/patch_tension}}
+\end{table}
+PM9 passes the constant and the linear strain patch tests on all meshes, as in the paper
+(\cref{tab:tension,tab:moment}); for the quadratic-strain (cubic displacement) shear test, which
+lies outside $Q_2$, its results are within $1.7\,\%$ of the exact value on all meshes
+(\cref{tab:shear}). All PP9 and MM9 values for moment and shear coincide with the paper to four
+digits. The metric functions of the code base (skew coordinates) give the same results for the
+constant and linear strain tests and comparable ones for the shear test ($3.15$--$3.41$).
+
+\section{Convergence test (shear loading, $p=2$)}\label{sec:conv}
+\begin{table}[h]
+  \centering\small
+  \caption{$u_y(A)$ for the sequences A, B, C (paper: Tables~17--19; exact $3.3125$).}
+  \label{tab:conv}
+  \resizebox{\linewidth}{!}{\input{generated/convergence}}
+
+  \vspace{3mm}
+  \caption{Least-squares rates of the energy-norm strain error, Eq.~(24) of the paper (paper:
+    Fig.~15). \PP\ on folded meshes: the parametric strain is singular where $\det\bm J=0$, so the
+    energy error of \PP\ is not well defined for B and C (here: signed $\det\bm J$).
+    ``--'': error at round-off level (field reproduced).}
+  \label{tab:rates}
+  \input{generated/rates}
+\end{table}
+The displacements of sequence A and of PP9 and MM9 for B and C agree with the paper. PM9 on
+sequence B yields the values the paper lists for sequence C and vice versa (\cref{sec:paper}).
+PM9 converges with the optimal rate $2$ on the folded meshes of B and C, as reported in the paper.
+For $p=3$ the unsymmetric element reproduces the field on all meshes (error $\le2\cdot10^{-12}$),
+whereas \PP\ ($p=3$) still has energy-norm errors of $9$--$80\,\%$.
+
+\section{Higher degrees}\label{sec:highp}
+\begin{table}[h]
+  \centering\small
+  \caption{Shear loading on Meshes a--f: relative nodal error $e_n$ for $p=3,\dots,8$ (cubic
+    field, contained in the \PM\ trial space for $p\ge3$). \PM: interior nodes from the bilinear
+    corner map; \PM$_\mathrm{code}$: interior nodes of \texttt{pSpectralElement\_NodesTopology}.}
+  \label{tab:highp}
+  \input{generated/patch_highp}
+\end{table}
+With interior nodes from the bilinear corner map, the unsymmetric element is Jacobian-unlimited
+immune for $p=3,\dots,8$ (\cref{tab:highp}): the cubic field is reproduced on all meshes with
+overlapping and folded elements. The round-off level grows with $p$ and distortion
+(from $10^{-13}$ to $10^{-5}$ for $p=8$, Mesh c), in line with the thick-cylinder study. The
+conventional element has errors of $7$--$100\,\%$ on the distorted meshes for all $p$.
+
+\section{A defect of the code base on these meshes}\label{sec:code}
+\texttt{pSpectralElement\_NodesTopology} places the interior nodes with the 8-node (serendipity)
+map. On Meshes b and f this maps the interior node $\bxi=(0,0)$ of the $p=2$ element exactly onto
+a mid-side node of the same element (e.g.\ $(1,-0.5)$); the metric Vandermonde matrix is
+singular ($\mathrm{cond}\approx10^{18}$--$10^{20}$) and the computed displacements are zero
+(``code'' columns of \cref{tab:moment,tab:shear,tab:tension,tab:conv}). The same happens for every
+even $p$ (interior nodes on $\xi=0$ or $\eta=0$), and on Meshes c--e the near-coincidence of
+nodes destroys the accuracy for $p\ge4$ (\cref{tab:highp}). Placing the interior nodes with the
+bilinear map of the corners, which for $p=2$ is the choice of the paper (``for simplicity''),
+removes the problem on all meshes tested. \texttt{ShapeFunctions2D\_Metric} uses
+\texttt{decomposition}, which does not stop on a singular matrix, so the failure is silent.
+
+\section{Inconsistencies in the paper}\label{sec:paper}
+\begin{enumerate}
+\item $E=1500$ is stated, the exact values correspond to $E=2000$ (\cref{sec:setup}).
+\item Fig.~8, moment loading: nodal forces at nodes 8/9 and 14/13 interchanged (\cref{sec:setup}).
+\item Table~16, PP-QUAD9, Meshes b and f: $1.9088$; the present value $3.0033$ equals the paper's
+  own PP-QUAD9 value for the same mesh in Table~18 ($1\times1$ super-element of sequence B).
+\item Tables~18 and 19, PM-QUAD9$^\ast$ columns: interchanged. The present values for sequence B
+  ($3.2710$, $3.3000$, $3.3110$) are the paper's Table~19 entries ($3.2710$, $3.3001$, $3.3110$),
+  those for C the Table~18 entries; the $1\times1$ values of Table~16 (b: $3.2710$, c: $3.3044$)
+  confirm the present assignment.
+\item Table~14, MM-QUAD9: $1.0$ for all meshes. With a stiffness matrix that reproduces all MM9
+  moment and shear values to four digits, MM9 gives $1.1300$ (b, f), $1.4633$ (c, e), $1.0285$ (d),
+  also with load vectors computed from the metric functions (Eq.~(22) of the paper). MM9 does not
+  pass the constant strain patch test on these meshes; the paper's entries could not be reproduced.
+\end{enumerate}
+Apart from these items, every 9-node value of the paper for $\theta\ge90^\circ$ is reproduced to
+four digits. The 8-node results (Tables~8--13) are not reproduced: the code base provides only
+tensor-product (Lagrange) elements.
+
+\section{Reproduction}
+\texttt{mesh/gen\_panel\_meshes.py} (gmsh), \texttt{matlab/rp\_run.m} (all computations, GNU
+Octave 8.4 or MATLAB, a few minutes), \texttt{postprocess.py} (tables). Paper values:
+\texttt{results/paper\_values.csv}, \texttt{results/paper\_rates.csv}.
+
+\bibliographystyle{plainnat}
+\bibliography{../../../literature/references}
+\end{document}

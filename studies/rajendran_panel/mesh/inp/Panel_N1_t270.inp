@@ -1,0 +1,92 @@
+*Heading
+** Job name: Panel_N1_t270 Model name: Model-1
+** Square panel [0,2] x [-1,1] of Rajendran (2010), Secs. 5.5-5.7 (nodal rotation
+** patch test / convergence test), 2 x 2 CPS8 elements, theta = 270 deg.
+** E = 2000 reproduces the exact solutions given in the paper (which states E = 1500).
+** Loads (equilibrated nodal forces on x = 0 and x = 2) are applied in the analysis.
+** Geometry and mesh: gmsh (studies/rajendran_panel/mesh/gen_panel_meshes.py)
+*Preprint, echo=NO, model=NO, history=NO, contact=NO
+**
+** PARTS
+**
+*Part, name=Panel
+*Node
+      1, 0, -1
+      2, 1, -1
+      3, 1, 0
+      4, 0, 0
+      5, 1, 1
+      6, 0, 1
+      7, 2, -1
+      8, 2, -0
+      9, 2, 1
+     10, 0.5, -1
+     11, 0.5, 9.1848509936051484e-17
+     12, 1, 0.5
+     13, 0, -0.5
+     14, 1.5, -9.1848509936051484e-17
+     15, 0.5, 1
+     16, 0, 0.5
+     17, 1.5, -1
+     18, 2, -0.5
+     19, 0.99999999999999989, -0.5
+     20, 2, 0.5
+     21, 1.5, 1
+*Element, type=CPS8
+      1, 1, 2, 3, 4, 10, 11, 12, 13
+      2, 4, 3, 5, 6, 12, 14, 15, 16
+      3, 2, 7, 8, 3, 17, 18, 19, 11
+      4, 3, 8, 9, 5, 19, 20, 21, 14
+*Nset, nset=Set-all, generate
+ 1, 21, 1
+*Elset, elset=Set-all, generate
+ 1, 4, 1
+** Section: Section-1
+*Solid Section, elset=Set-all, material=Material-1
+,
+*End Part
+**
+**
+** ASSEMBLY
+**
+*Assembly, name=Assembly
+**
+*Instance, name=Panel-1, part=Panel
+*End Instance
+**
+*Nset, nset=Set-ROLLER, instance=Panel-1
+ 1, 6
+*Nset, nset=Set-PIN, instance=Panel-1
+ 4
+*End Assembly
+**
+** MATERIALS
+**
+*Material, name=Material-1
+*Density
+ 1.,
+*Elastic
+ 2000, 0.25
+** ----------------------------------------------------------------
+**
+** STEP: Step-1
+**
+*Step, name=Step-1, nlgeom=NO
+*Static
+1., 1., 1e-05, 1.
+**
+** BOUNDARY CONDITIONS
+**
+** Name: BC-1 Type: Displacement/Rotation
+*Boundary
+Set-ROLLER, 1, 1
+** Name: BC-2 Type: Displacement/Rotation
+*Boundary
+Set-PIN, 1, 2
+**
+** OUTPUT REQUESTS
+**
+*Restart, write, frequency=0
+*Output, field, variable=PRESELECT
+*Output, history, variable=PRESELECT
+*End Step
