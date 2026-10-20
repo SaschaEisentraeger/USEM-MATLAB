@@ -140,10 +140,39 @@ def panel():
         f.write('\\bottomrule\n\\end{tabular}\n')
 
 
+def growth():
+    meshes = [('curved15', 'curved $0.15$'), ('curved20', 'curved $0.20$'),
+              ('combined30', 'angular + curved $0.30$')]
+    have = [m for m in meshes if os.path.exists(os.path.join(DATA, 'growth-%s.dat' % m[0]))]
+    if not have:
+        return
+    tabs = {m: read_table(os.path.join(DATA, 'growth-%s.dat' % m)) for m, _ in have}
+    ps = [int(p) for p in tabs[have[0][0]]['p']]
+    show = [p for p in ps if p in (2, 4, 6, 8)]
+    with open(os.path.join(GEN, 'growth.tex'), 'w') as f:
+        f.write('\\begin{tabular}{@{}ll' + 'cc' * len(show) + '@{}}\n\\toprule\n')
+        f.write('& & ' + ' & '.join('\\multicolumn{2}{c}{$p=%d$}' % p for p in show) + '\\\\\n')
+        f.write(''.join('\\cmidrule(lr){%d-%d}' % (3 + 2 * i, 4 + 2 * i) for i in range(len(show))) + '\n')
+        f.write('mesh & & ' + ' & '.join(['$g$ & $g_\\Delta$'] * len(show)) + '\\\\\n\\midrule\n')
+        for m, label in have:
+            T = tabs[m]
+            for k, (fm, name) in enumerate((('PM', '\\PM'), ('PH', '\\PH'))):
+                first = ('\\multirow{2}{*}{%s}' % label) if k == 0 else ''
+                vals = []
+                for p in show:
+                    i = ps.index(p) if p in ps else None
+                    vals += [sci(T['gSemi_' + fm][i]) if i is not None else '--',
+                             sci(T['gTrap_' + fm][i]) if i is not None else '--']
+                f.write('%s & %s & %s\\\\\n' % (first, name, ' & '.join(vals)))
+            f.write('\\midrule\n' if m != have[-1][0] else '')
+        f.write('\\bottomrule\n\\end{tabular}\n')
+
+
 if __name__ == '__main__':
     tags = sys.argv[1:] or ['d010', 'd020', 'd030']
     for t in tags:
         convergence(t)
     patch()
     panel()
+    growth()
     print('done')

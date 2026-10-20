@@ -294,7 +294,54 @@ mesh and $p$ (\cref{fig:spectrum}); the error of \PM\ is up to $4\cdot10^{4}$ ti
   \label{fig:spectrum}
 \end{figure}
 
-\PENDING{TRANSTEXT}
+\paragraph{Growth rates and transient response} The relevant stability measure for
+$\matr M\ddot{\vect u}+\matr K\vect u=\vect 0$ is not the sign of
+$\operatorname{Re}\lambda$ alone: every eigenvalue that is not real and positive yields
+solutions $e^{\pm\mathrm i\sqrt\lambda t}\bm\phi$, one of which grows with the rate
+$|\operatorname{Im}\sqrt\lambda|$. \Cref{tab:growth} lists the largest growth exponent per
+fundamental period $T_1=2\pi/\omega_1$ (of \PP),
+$g=T_1\max|\operatorname{Im}\sqrt\lambda|$, and the corresponding exponent of the
+trapezoidal rule (Newmark, $\beta=1/4$, $\gamma=1/2$, $\Delta t=T_1/20$),
+$g_\Delta=20\ln\max|z|$ with the amplification factors
+$z=(1+\mathrm ic)/(1-\mathrm ic)$, $c=\pm\sqrt\lambda\,\Delta t/2$. \PP\ is stable
+($g=0$). For \PM, $g$ grows from $\mathcal O(1)$ at $p=2$ to $10^{2}$--$10^{4}$ at
+$p=6,7$, and $g_\Delta$ reaches $5$--$33$ per period: a perturbation at round-off level is
+amplified to $\mathcal O(1)$ within a few periods. For \PH, $g\le0.65$ and
+$g_\Delta\le0.16$ on all meshes and for all $p$ ($\le0.11$ for $p\ge3$). \PH\ is therefore
+\emph{not} free of growing modes, but their growth is slower by two to three orders of
+magnitude, and $g_\Delta$ does not increase with $p$.
+
+\Cref{fig:transient} shows the free vibration from a smooth initial displacement,
+$\vect u_0=(\sin\frac{\pi x}{3}\sin\frac{\pi y}{2},\ \sin\frac{2\pi x}{3}\sin\frac{\pi y}{2})$,
+perturbed by $10^{-10}$ (relative) to emulate round-off, over $50\,T_1$ with the trapezoidal
+rule and $\Delta t=T_1/20$. For \PM\ the response grows exponentially and exceeds $10^{29}$
+(the computation is stopped at $10^{30}$) for every $p=4,\dots,8$ on both meshes, including
+$p=4$, where all eigenvalues have positive real part. \PH\ and \PP\ remain bounded
+($\max|\vect u(t)|/\max|\vect u_0|\le1.81$ for all $p$), and their responses are
+indistinguishable in the plot; over $50\,T_1$ the residual growth of \PH\ amplifies the
+round-off perturbation by at most $e^{50g_\Delta}\le e^{4.4}$ ($p=4,\dots,8$), which is invisible at
+the scale of the response. For very long integration times, or for time steps that resolve
+the growing high-frequency modes, this residual growth of \PH\ would eventually become
+visible; a dissipative integrator or an energy-consistent formulation
+\citep{Wang2022Temporal,Zaehringer2026On} would be needed to remove it.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Largest growth exponent per fundamental period of the semi-discrete free
+    vibration ($g$) and of the trapezoidal rule with $\Delta t=T_1/20$ ($g_\Delta$) on the
+    distorted $3\times2$ meshes. \PP: $g=0$, $g_\Delta<10^{-14}$ in all cases.}
+  \label{tab:growth}
+  \resizebox{\linewidth}{!}{\input{generated/growth}}
+\end{table}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-transient}
+  \caption{Free vibration with the trapezoidal rule ($\Delta t=T_1/20$), $p=6$: maximum
+    nodal displacement relative to the initial one. The \PM\ curves end where the response
+    exceeds $10^{30}$.}
+  \label{fig:transient}
+\end{figure}
 
 \subsection{Cost}
 \label{sec:num-cost}
