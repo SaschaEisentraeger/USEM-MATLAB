@@ -1,0 +1,31 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 1, horizontal sep=1.1cm},
+    width=0.36\linewidth, height=0.32\linewidth, ymode=log, grid=major,
+    ymin=1, ymax=1e9, unbounded coords=discard, every axis plot/.append style={thick}]
+  \nextgroupplot[title={bent ($\det\matr J=1$)}, xlabel={$\delta$}, ylabel={Lebesgue constant},
+      legend to name=leg:sweep, legend columns=6]
+    \addplot[red, solid] table[x=delta, y=LQ_p4]{\data/sweep-bend.dat};
+    \addplot[red, dashed] table[x=delta, y=LQ_p8]{\data/sweep-bend.dat};
+    \addplot[red, dotted] table[x=delta, y=LQ_p12]{\data/sweep-bend.dat};
+    \addplot[blue, solid] table[x=delta, y=LT_p4]{\data/sweep-bend.dat};
+    \addplot[blue, dashed] table[x=delta, y=LT_p8]{\data/sweep-bend.dat};
+    \addplot[blue, dotted] table[x=delta, y=LT_p12]{\data/sweep-bend.dat};
+    \legend{{$\Lam_Q$, $p=4$}, {$\Lam_Q$, $p=8$}, {$\Lam_Q$, $p=12$},
+            {$\Lam_T$, $p=4$}, {$\Lam_T$, $p=8$}, {$\Lam_T$, $p=12$}}
+  \nextgroupplot[title={one curved edge}, xlabel={$\delta$}]
+    \addplot[red, solid] table[x=delta, y=LQ_p4]{\data/sweep-onecurve.dat};
+    \addplot[red, dashed] table[x=delta, y=LQ_p8]{\data/sweep-onecurve.dat};
+    \addplot[red, dotted] table[x=delta, y=LQ_p12]{\data/sweep-onecurve.dat};
+    \addplot[blue, solid] table[x=delta, y=LT_p4]{\data/sweep-onecurve.dat};
+    \addplot[blue, dashed] table[x=delta, y=LT_p8]{\data/sweep-onecurve.dat};
+    \addplot[blue, dotted] table[x=delta, y=LT_p12]{\data/sweep-onecurve.dat};
+  \nextgroupplot[title={trapezoid (bilinear)}, xlabel={$\delta$}]
+    \addplot[red, solid] table[x=delta, y=LQ_p4]{\data/sweep-trapezoid.dat};
+    \addplot[red, dashed] table[x=delta, y=LQ_p8]{\data/sweep-trapezoid.dat};
+    \addplot[red, dotted] table[x=delta, y=LQ_p12]{\data/sweep-trapezoid.dat};
+    \addplot[blue, solid] table[x=delta, y=LT_p4]{\data/sweep-trapezoid.dat};
+    \addplot[blue, dashed] table[x=delta, y=LT_p8]{\data/sweep-trapezoid.dat};
+    \addplot[blue, dotted] table[x=delta, y=LT_p12]{\data/sweep-trapezoid.dat};
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:sweep}

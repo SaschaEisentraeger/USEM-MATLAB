@@ -1,0 +1,141 @@
+\section{Unsymmetric spectral elements}
+\label{sec:formulation}
+
+\subsection{Problem and Petrov--Galerkin discretisation}
+
+We consider linear plane elasticity on $\Omega\subset\R^2$,
+\begin{equation}
+  -\nabla\cdot\bm\sigma(\vect u) = \vect b \ \text{in } \Omega,\qquad
+  \bm\sigma = \matr C\,\bm\varepsilon(\vect u),\qquad
+  \vect u = \bar{\vect u}\ \text{on } \Gamma_u,\qquad
+  \bm\sigma\vect n = \bar{\vect t}\ \text{on } \Gamma_t ,
+  \label{eq:strong}
+\end{equation}
+with the strain vector $\bm\varepsilon=[\varepsilon_{xx},\varepsilon_{yy},
+\gamma_{xy}]^\T$ and the plane stress or plane strain matrix $\matr C$. The mesh
+consists of quadrilaterals $\Omega_e=\vect F_e(\hat\Omega)$,
+$\hat\Omega=[-1,1]^2$, with an isoparametric geometry map $\vect F_e$ of degree $p$
+in each reference coordinate $\bxi=(\xi,\eta)$. The element nodes are the images
+$\bx_k=\vect F_e(\bxi_k)$, $k=1,\dots,n=(p+1)^2$, of the tensor-product GLL nodes
+$\bxi_k$; for simplicity of notation $p_\xi=p_\eta=p$ unless stated otherwise.
+
+The \emph{parametric} functions $N_k=\hat N_k\circ\vect F_e^{-1}$, where $\hat
+N_k\in\Qp_p(\xi,\eta)$ are the Lagrange polynomials through the GLL nodes, span the
+conforming test space $\mathcal W_h\subset H^1(\Omega)$. The \emph{metric} trial
+functions $M_k^e$ span an element space $\mathcal U_e$ of dimension $n$ and are
+interpolatory, $M_k^e(\bx_l)=\delta_{kl}$; the global trial function is
+$\vect u_h|_{\Omega_e}=\sum_k \hat{\vect u}_k M_k^e$ with the nodal displacements
+$\hat{\vect u}_k$ shared by adjacent elements. The trial functions are in general
+discontinuous across element edges (they coincide only at the nodes). The
+discrete problem reads: find the nodal values such that
+\begin{equation}
+  \sum_e\int_{\Omega_e}\bm\varepsilon(\vect w_h)^\T\matr C\,\bm\varepsilon(\vect u_h)\dd\Omega
+  = \int_\Omega\vect w_h^\T\vect b\dd\Omega + \int_{\Gamma_t}\vect w_h^\T\bar{\vect t}\dd\Gamma
+  \qquad\forall\,\vect w_h\in\mathcal W_h,\ \vect w_h|_{\Gamma_u}=\vect 0 .
+  \label{eq:pg}
+\end{equation}
+In matrix form the element stiffness is
+\begin{equation}
+  \matr K_e=\int_{\hat\Omega}\tilde{\matr B}_L^\T\,\matr C\,\matr B_R\dd\xi\dd\eta,
+  \qquad \tilde{\matr B}_L=\det\matr J\,\matr B_L ,
+  \label{eq:Ke}
+\end{equation}
+where $\matr B_L$ contains the Cartesian derivatives of the parametric functions and
+$\matr B_R$ those of the metric functions, evaluated at $\vect F_e(\bxi)$.
+$\tilde{\matr B}_L$ is assembled from $\adj\matr J\,\nabla_{\bxi}\hat N_k$, so
+$\det\matr J$ does not appear in a denominator. $\matr K_e$ is unsymmetric unless
+$\mathcal U_e=\mathcal W_h|_{\Omega_e}$. The consistent mass matrix is
+$\matr M_e=\int_{\hat\Omega}\rho\,\matr N^\T\matr M\det\matr J\dd\xi\dd\eta$ with
+the parametric ($\matr N$) and metric ($\matr M$) function values; with GLL nodal
+quadrature it is diagonal, because both families are interpolatory at the GLL nodes.
+We refer to the formulation as \PP\ (parametric test and trial functions, i.e.\ the
+classical spectral element) or \PM\ (parametric test, metric trial functions), and to
+\PM\ with the hybrid trial space of \cref{sec:hybrid} as \PH.
+
+\subsection{Distortion immunity}
+
+\begin{proposition}[Distortion immunity]
+\label{prop:immunity}
+Let $\Pp_q(x,y)\subset\mathcal U_e$ for every element, let the exact solution of
+\eqref{eq:strong} satisfy $\vect u\in[\Pp_q(x,y)]^2$, and let the quadrature of
+\eqref{eq:Ke} and of the load vector be exact for the resulting integrands. Then the
+solution of \eqref{eq:pg} is $\vect u_h=\vect u$, independently of the shape of the
+elements.
+\end{proposition}
+\begin{proof}
+Because $\mathcal U_e$ is interpolatory and contains $\vect u|_{\Omega_e}$, the
+interpolant of the exact nodal values is $\vect u$ itself on every element, so
+$\bm\varepsilon(\vect u_h)=\bm\varepsilon(\vect u)$. As $\vect w_h$ is continuous,
+integration by parts over $\Omega$ gives
+$\int_\Omega\bm\varepsilon(\vect w_h)^\T\bm\sigma(\vect u)\dd\Omega
+=\int_\Omega\vect w_h^\T\vect b\dd\Omega+\int_{\Gamma_t}\vect w_h^\T\bar{\vect t}\dd\Gamma$.
+Hence the exact nodal values satisfy \eqref{eq:pg}; uniqueness of the discrete
+solution (non-singular global matrix) completes the proof.
+\end{proof}
+This is the higher-order form of the conditions of \citet{Rajendran2010technique}.
+The parametric space violates the hypothesis on curved elements: for a geometry map
+of degree $g$ in each variable, $x^ay^b\circ\vect F_e\in\Qp_{g(a+b)}$, so that
+$\Pp_k(x,y)\circ\vect F_e\subset\Qp_p(\xi,\eta)$ is guaranteed only for $gk\le p$
+\citep[cf.][]{Arnold2002Approximation}. For bilinear maps ($g=1$), the classical
+tensor-product element is complete of degree $p$; the loss of completeness under
+purely angular distortion reported by \citet{Lee1993effects} concerns serendipity
+spaces.
+
+\subsection{Metric shape functions in skew coordinates}
+\label{sec:skew}
+
+Following \citet{Yuan1993New} and \citet{Xie2016Modified}, the metric functions are
+written in the corotational skew coordinates
+\begin{equation}
+  \vect s=(s,t)^\T=\matr J_0^{-\T}(\bx-\bx_0),\qquad
+  \bx_0=\vect F_e(\vect 0),\quad
+  \matr J_0=\frac{\partial(x,y)}{\partial(\xi,\eta)}\Big|_{\bxi=\vect 0},
+  \label{eq:skew}
+\end{equation}
+with the Jacobian convention
+$\matr J=\bigl[\begin{smallmatrix}x_{,\xi}&y_{,\xi}\\x_{,\eta}&y_{,\eta}\end{smallmatrix}\bigr]$.
+
+\begin{lemma}[Affine invariance]
+\label{lem:affine}
+Let $\bx\mapsto\matr A\bx+\vect c$ with $\det\matr A\ne0$ be applied to all nodes of
+an element. Then the skew coordinates of every material point are unchanged. In
+particular, any space defined in $(s,t)$ (or in $(\xi,\eta)$) is invariant under
+rigid-body motions, uniform scaling and every other affine transformation of the
+element.
+\end{lemma}
+\begin{proof}
+The transformed map is $\vect F_e'=\matr A\vect F_e+\vect c$, hence
+$\matr J_0'^\T=\matr A\matr J_0^\T$ and $\bx'-\bx_0'=\matr A(\bx-\bx_0)$, so
+$\vect s'=\matr J_0^{-\T}\matr A^{-1}\matr A(\bx-\bx_0)=\vect s$.
+\end{proof}
+Because $\vect s$ is affine in $\bx$, $\Qp_p(s,t)\supset\Pp_{p}(s,t)=\Pp_p(x,y)$, so
+the space $\mathcal U_e=\Qp_p(s,t)$ satisfies the hypothesis of \cref{prop:immunity}
+with $q=p$ on every element. On an affine element (parallelogram), $\vect F_e$ is
+affine and $\vect s=\bxi$, so the metric and parametric functions coincide. Tensor
+products of monomials in centroid-shifted Cartesian coordinates
+\citep{Rajendran2003novel} span $\Qp_p(x,y)$, which contains $\Pp_p(x,y)$ as well but
+depends on the orientation of the Cartesian frame (e.g.\ $xy$ versus $st$); this
+makes the element frame dependent \citep{Ooi2008Remedies}.
+
+Given a basis $\{\phi_c\}_{c=1}^n$ of $\mathcal U_e$, the metric functions are
+computed from the generalised Vandermonde matrix and the basis values at the query
+points $\bx_q$ (e.g.\ the images of the quadrature points),
+\begin{equation}
+  V_{ck}=\phi_c(\bx_k),\qquad P_{cq}=\phi_c(\bx_q),\qquad
+  \matr N=\matr V^{-1}\matr P,\qquad N_{lq}=M_l^e(\bx_q),
+  \label{eq:vandermonde}
+\end{equation}
+and analogously for the derivatives. Throughout, $\Lam_N$ denotes the Lebesgue
+constant of tensor-product GLL interpolation on $\hat\Omega$, and for an
+interpolatory space $\mathcal U_e$ with shape functions $M_l^e$
+\begin{equation}
+  \lambda_{\mathcal U}(\bx)=\sum_{l=1}^n|M_l^e(\bx)|,\qquad
+  \Lam_{\mathcal U}=\max_{\bx\in\Omega_e}\lambda_{\mathcal U}(\bx)
+  \label{eq:lebesgue}
+\end{equation}
+are its Lebesgue function and Lebesgue constant. $\Lam_{\mathcal U}=\|\mathcal
+I_{\mathcal U}\|_{L^\infty\to L^\infty}$ is the norm of the nodal interpolation
+operator $\mathcal I_{\mathcal U}$, so that
+$\|f-\mathcal I_{\mathcal U}f\|_\infty\le(1+\Lam_{\mathcal U})\inf_{v\in\mathcal
+U_e}\|f-v\|_\infty$. Note that the parametric Lebesgue constant is independent of the
+element map, because $\sum_k|N_k(\vect F_e(\bxi))|=\sum_k|\hat N_k(\bxi)|$.

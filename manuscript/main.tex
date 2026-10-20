@@ -1,0 +1,49 @@
+\documentclass[preprint,12pt,authoryear]{elsarticle}
+
+\input{preamble}
+
+\journal{Computer Methods in Applied Mechanics and Engineering}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Well-conditioned and stable metric trial functions for unsymmetric
+  spectral elements: reference-node Lagrange bases and a hybrid
+  metric--parametric trial space}
+
+\author[ovgu]{Sascha Eisentr\"ager\corref{cor}}
+\ead{sascha.eisentraeger@ovgu.de}
+% further authors to be added
+\cortext[cor]{Corresponding author}
+\affiliation[ovgu]{organization={Otto von Guericke University Magdeburg},
+  city={Magdeburg}, country={Germany}}
+
+\input{sections/abstract}
+
+\begin{keyword}
+unsymmetric finite element method \sep Petrov--Galerkin \sep spectral element
+method \sep mesh distortion \sep metric shape functions \sep Lebesgue constant
+\sep generalized Vandermonde matrix
+\end{keyword}
+
+\end{frontmatter}
+
+\input{sections/introduction}
+\input{sections/formulation}
+\input{sections/basis}
+\input{sections/hybrid}
+\input{sections/implementation}
+\input{sections/numerics}
+\input{sections/discussion}
+\input{sections/conclusions}
+
+\section*{Data availability}
+The implementation (MATLAB/GNU Octave), the scripts that produce every number and
+figure of this paper (\texttt{manuscript/studies}) and the raw data
+(\texttt{manuscript/data}) are contained in the USEM code repository.
+
+\bibliographystyle{elsarticle-harv}
+\bibliography{references}
+
+\end{document}

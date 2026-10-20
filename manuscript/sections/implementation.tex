@@ -1,0 +1,54 @@
+\section{Implementation}
+\label{sec:implementation}
+
+Both improvements are local to the routine that evaluates the metric shape
+functions at a set of query points; assembly, loads, boundary conditions and solvers
+are unchanged. \Cref{alg:metric} summarises the evaluation for one element; the
+query points are passed with their reference coordinates, which the element routines
+know (images of quadrature or plotting points).
+
+\begin{algorithm}[htbp]
+\caption{Metric shape functions of one element at query points $\bxi_q$
+  (\PM: $\Qp_p(s,t)$, Lagrange basis; \PH: hybrid space $\Tp_p$).}
+\label{alg:metric}
+\begin{algorithmic}[1]
+\Require nodes $\bx_k$, reference nodes $\bxi_k$, query points $\bxi_q$, $\bx_q=\vect F_e(\bxi_q)$
+\State $\bx_0\gets\vect F_e(\vect 0)$, $\matr J_0\gets\matr J(\vect 0)$;
+  $\vect s_k\gets\matr J_0^{-\T}(\bx_k-\bx_0)$, $\vect s_q\gets\matr J_0^{-\T}(\bx_q-\bx_0)$
+  \Comment{skew coordinates \eqref{eq:skew}}
+\State scale $\vect s_k,\vect s_q$ with the bounding box of $\{\vect s_k\}$ \eqref{eq:bbox}
+\If{\PM}
+  \State $V_{ck}\gets\ell_a(\tilde s_k)\ell_b(\tilde t_k)$,
+    $P_{cq}\gets\ell_a(\tilde s_q)\ell_b(\tilde t_q)$, $0\le a,b\le p$
+    \Comment{1D GLL Lagrange polynomials}
+  \State gradients: $\nabla_{\bx}=\matr J_0^{-1}\mathrm{diag}(r_s^{-1},r_t^{-1})\nabla_{\tilde{\vect s}}$
+\Else \Comment{\PH}
+  \For{$0\le a\le p_\xi$, $0\le b\le p_\eta$}
+    \If{$a+b\le m$}
+      \State $V_{ck}\gets L_a(\tilde s_k)L_b(\tilde t_k)$,
+        $P_{cq}\gets L_a(\tilde s_q)L_b(\tilde t_q)$; gradient as in line 5
+    \Else
+      \State $V_{ck}\gets L_a(\xi_k)L_b(\eta_k)$,
+        $P_{cq}\gets L_a(\xi_q)L_b(\eta_q)$; $\nabla_{\bx}=\matr J(\bxi_q)^{-1}\nabla_{\bxi}$
+    \EndIf
+  \EndFor
+\EndIf
+\State stop if $\mathrm{rcond}(\matr V)<\varepsilon_{\mathrm{mach}}$ \Comment{nodes not unisolvent}
+\State LU factorisation of $\matr V$; $\matr N\gets\matr V^{-1}\matr P$,
+  $\nabla\matr N\gets\matr V^{-1}\nabla\matr P$
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Cost} The 1D Lagrange basis costs $\mathcal O(p)$ operations per
+function and point (product formula, with prefix and suffix products for the
+derivative, so that query points may coincide with nodes), compared with
+$\mathcal O(1)$ for monomials or recurrences; the hybrid space additionally needs
+$\matr J(\bxi_q)$, which the element routines compute anyway. The dominant cost, the
+LU factorisation of the $n\times n$ matrix $\matr V$ ($\mathcal O(p^6)$) and the
+solves with the $\mathcal O(p^2)$ right-hand sides of $\matr P$ and its gradients
+($\mathcal O(p^6)$), is the same for all variants. Measured run times are given in
+\cref{sec:num-cost}.
+
+\paragraph{Anisotropic degrees} For $p_\xi\ne p_\eta$, $\Qp_{p_\xi,p_\eta}(s,t)$ contains
+$\Pp_{\min(p_\xi,p_\eta)}(x,y)$, and so does $\Tp_p$ with $m=\min(p_\xi,p_\eta)$; both
+spaces have the same completeness degree.

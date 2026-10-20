@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 1, horizontal sep=1.4cm},
+    width=0.47\linewidth, height=0.34\linewidth, ymode=log, grid=major,
+    xlabel={$t/T_1$}, ylabel={$\max|\vect u(t)|/\max|\vect u_0|$},
+    xmin=0, xmax=50, ymin=1e-1, ymax=1e31, unbounded coords=discard]
+  \nextgroupplot[title={curved $0.20$, $p=6$}, legend to name=leg:trans, legend columns=3]
+    \addplot[black, thick] table[x=t, y=amp_PP]{\data/transient-curved20-p6.dat};
+    \addplot[red, thick] table[x=t, y=amp_PM]{\data/transient-curved20-p6.dat};
+    \addplot[blue, thick, dashed] table[x=t, y=amp_PH]{\data/transient-curved20-p6.dat};
+    \legend{\PP, {\PM, $\Qp_p(s,t)$}, {\PH, $\Tp_p$}}
+  \nextgroupplot[title={angular + curved $0.30$, $p=6$}]
+    \addplot[black, thick] table[x=t, y=amp_PP]{\data/transient-combined30-p6.dat};
+    \addplot[red, thick] table[x=t, y=amp_PM]{\data/transient-combined30-p6.dat};
+    \addplot[blue, thick, dashed] table[x=t, y=amp_PH]{\data/transient-combined30-p6.dat};
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:trans}

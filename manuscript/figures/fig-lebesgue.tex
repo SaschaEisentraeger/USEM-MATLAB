@@ -1,0 +1,21 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 1, horizontal sep=1.1cm},
+    width=0.36\linewidth, height=0.32\linewidth, ymode=log, grid=major,
+    xlabel={$p$}, xmin=1, xmax=16, ymin=1, ymax=1e10, unbounded coords=discard]
+  \nextgroupplot[title={trapezoid}, ylabel={Lebesgue constant},
+      legend to name=leg:leb, legend columns=3]
+    \addplot[styPM] table[x=p, y=LQ]{\data/element-trapezoid.dat};
+    \addplot[styPH] table[x=p, y=LT]{\data/element-trapezoid.dat};
+    \addplot[styLN] table[x=p, y=LN]{\data/element-trapezoid.dat};
+    \legend{{$\Lam_Q$, $\Qp_p(s,t)$}, {$\Lam_T$, $\Tp_p$}, {$\Lam_N$, GLL}}
+  \nextgroupplot[title={curved}]
+    \addplot[styPM] table[x=p, y=LQ]{\data/element-curved.dat};
+    \addplot[styPH] table[x=p, y=LT]{\data/element-curved.dat};
+    \addplot[styLN] table[x=p, y=LN]{\data/element-curved.dat};
+  \nextgroupplot[title={general}]
+    \addplot[styPM] table[x=p, y=LQ]{\data/element-general.dat};
+    \addplot[styPH] table[x=p, y=LT]{\data/element-general.dat};
+    \addplot[styLN] table[x=p, y=LN]{\data/element-general.dat};
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:leb}

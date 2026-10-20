@@ -1,0 +1,22 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 1, horizontal sep=0.9cm,
+    y descriptions at=edge left},
+    width=0.37\linewidth, height=0.34\linewidth, ymode=log, grid=major,
+    xlabel={$p$}, ylabel={$e_\lambda$}, xmin=1, xmax=10, ymin=1e-8, ymax=1e1,
+    unbounded coords=discard]
+  \nextgroupplot[title={curved $0.15$}, legend to name=leg:spec, legend columns=3]
+    \addplot[styPP] table[x=p, y=eig_cla]{\data/spectrum-curved15.dat};
+    \addplot[styPM] table[x=p, y=eig_skew]{\data/spectrum-curved15.dat};
+    \addplot[styPH] table[x=p, y=eig_hyb]{\data/spectrum-curved15.dat};
+    \legend{\PP, {\PM, $\Qp_p(s,t)$}, {\PH, $\Tp_p$}}
+  \nextgroupplot[title={curved $0.20$}]
+    \addplot[styPP] table[x=p, y=eig_cla]{\data/spectrum-curved20.dat};
+    \addplot[styPM] table[x=p, y=eig_skew]{\data/spectrum-curved20.dat};
+    \addplot[styPH] table[x=p, y=eig_hyb]{\data/spectrum-curved20.dat};
+  \nextgroupplot[title={angular + curved $0.30$}]
+    \addplot[styPP] table[x=p, y=eig_cla]{\data/spectrum-combined30.dat};
+    \addplot[styPM] table[x=p, y=eig_skew]{\data/spectrum-combined30.dat};
+    \addplot[styPH] table[x=p, y=eig_hyb]{\data/spectrum-combined30.dat};
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:spec}

@@ -1,0 +1,18 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=1.6cm},
+    width=0.47\linewidth, height=0.34\linewidth, ymode=log, grid=major,
+    xlabel={$p$}, ylabel={$\kappa_2(\matr V)$}, xmin=1, xmax=16, ymin=0.5, ymax=1e17,
+    cycle list name=bases, every axis plot/.append style={mark size=1.3pt},
+    unbounded coords=discard]
+  \nextgroupplot[title={parallelogram}, legend to name=leg:kappa, legend columns=5]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=kappa2_\b]{\data/element-parallelogram.dat};}
+    \legend{monomial, Legendre, Chebyshev, Lagrange (\PM), hybrid (\PH)}
+  \nextgroupplot[title={trapezoid}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=kappa2_\b]{\data/element-trapezoid.dat};}
+  \nextgroupplot[title={curved}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=kappa2_\b]{\data/element-curved.dat};}
+  \nextgroupplot[title={general}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=kappa2_\b]{\data/element-general.dat};}
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:kappa}

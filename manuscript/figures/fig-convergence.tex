@@ -1,0 +1,47 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 2, horizontal sep=0.9cm, vertical sep=1.5cm,
+    y descriptions at=edge left},
+    width=0.37\linewidth, height=0.36\linewidth, xmode=log, ymode=log, grid=major,
+    xlabel={$h$}, ylabel={$e_E$}, ymin=1e-11, ymax=1, x dir=reverse,
+    xtick={0.5,0.25,0.125,0.0625}, xticklabels={$\frac12$,$\frac14$,$\frac18$,$\frac1{16}$},
+    unbounded coords=discard, every axis plot/.append style={thick, mark size=1.4pt}]
+  \nextgroupplot[title={\PP, $\delta=0.1$}, legend to name=leg:conv, legend columns=5]
+    \addplot[red, mark=*] table[x=h, y=energy_PP]{\data/conv-d010-p2.dat};
+    \addplot[blue, mark=square*] table[x=h, y=energy_PP]{\data/conv-d010-p3.dat};
+    \addplot[black, mark=triangle*] table[x=h, y=energy_PP]{\data/conv-d010-p4.dat};
+    \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PP]{\data/conv-d010-p5.dat};
+    \addplot[orange, mark=pentagon*] table[x=h, y=energy_PP]{\data/conv-d010-p6.dat};
+    \legend{$p=2$,$p=3$,$p=4$,$p=5$,$p=6$}
+  \nextgroupplot[title={\PM, $\delta=0.1$}]
+    \addplot[red, mark=*] table[x=h, y=energy_PM]{\data/conv-d010-p2.dat};
+    \addplot[blue, mark=square*] table[x=h, y=energy_PM]{\data/conv-d010-p3.dat};
+    \addplot[black, mark=triangle*] table[x=h, y=energy_PM]{\data/conv-d010-p4.dat};
+    \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PM]{\data/conv-d010-p5.dat};
+    \addplot[orange, mark=pentagon*] table[x=h, y=energy_PM]{\data/conv-d010-p6.dat};
+  \nextgroupplot[title={\PH, $\delta=0.1$}]
+    \addplot[red, mark=*] table[x=h, y=energy_PH]{\data/conv-d010-p2.dat};
+    \addplot[blue, mark=square*] table[x=h, y=energy_PH]{\data/conv-d010-p3.dat};
+    \addplot[black, mark=triangle*] table[x=h, y=energy_PH]{\data/conv-d010-p4.dat};
+    \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PH]{\data/conv-d010-p5.dat};
+    \addplot[orange, mark=pentagon*] table[x=h, y=energy_PH]{\data/conv-d010-p6.dat};
+  \nextgroupplot[title={\PP, $\delta=0.3$}]
+    \addplot[red, mark=*] table[x=h, y=energy_PP]{\data/conv-d030-p2.dat};
+    \addplot[blue, mark=square*] table[x=h, y=energy_PP]{\data/conv-d030-p3.dat};
+    \addplot[black, mark=triangle*] table[x=h, y=energy_PP]{\data/conv-d030-p4.dat};
+    \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PP]{\data/conv-d030-p5.dat};
+    \addplot[orange, mark=pentagon*] table[x=h, y=energy_PP]{\data/conv-d030-p6.dat};
+  \nextgroupplot[title={\PM, $\delta=0.3$}]
+    \addplot[red, mark=*] table[x=h, y=energy_PM]{\data/conv-d030-p2.dat};
+    \addplot[blue, mark=square*] table[x=h, y=energy_PM]{\data/conv-d030-p3.dat};
+    \addplot[black, mark=triangle*] table[x=h, y=energy_PM]{\data/conv-d030-p4.dat};
+    \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PM]{\data/conv-d030-p5.dat};
+    \addplot[orange, mark=pentagon*] table[x=h, y=energy_PM]{\data/conv-d030-p6.dat};
+  \nextgroupplot[title={\PH, $\delta=0.3$}]
+    \addplot[red, mark=*] table[x=h, y=energy_PH]{\data/conv-d030-p2.dat};
+    \addplot[blue, mark=square*] table[x=h, y=energy_PH]{\data/conv-d030-p3.dat};
+    \addplot[black, mark=triangle*] table[x=h, y=energy_PH]{\data/conv-d030-p4.dat};
+    \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PH]{\data/conv-d030-p5.dat};
+    \addplot[orange, mark=pentagon*] table[x=h, y=energy_PH]{\data/conv-d030-p6.dat};
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:conv}

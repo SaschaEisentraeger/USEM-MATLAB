@@ -1,0 +1,17 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=1.6cm},
+    width=0.47\linewidth, height=0.34\linewidth, ymode=log, grid=major,
+    xlabel={$p$}, ylabel={$e_\delta$}, xmin=1, xmax=16, ymin=1e-17, ymax=1,
+    cycle list name=bases, every axis plot/.append style={mark size=1.3pt},
+    unbounded coords=discard, y filter/.expression={y<-39.2 ? nan : y}]
+  \nextgroupplot[title={parallelogram}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=eKron_\b]{\data/element-parallelogram.dat};}
+  \nextgroupplot[title={trapezoid}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=eKron_\b]{\data/element-trapezoid.dat};}
+  \nextgroupplot[title={curved}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=eKron_\b]{\data/element-curved.dat};}
+  \nextgroupplot[title={general}]
+    \pgfplotsforeachungrouped \b in {mon,leg,che,lag,hyb} {\addplot table[x=p, y=eKron_\b]{\data/element-general.dat};}
+\end{groupplot}
+\end{tikzpicture}\\[3pt]
+\pgfplotslegendfromname{leg:kappa}

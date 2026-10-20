@@ -1,0 +1,63 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\pgfplotsset{compat=1.18}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
+  urlcolor=blue!50!black]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+
+% Theorem environments
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% Notation
+\newcommand{\vect}[1]{\bm{#1}}
+\newcommand{\matr}[1]{\bm{#1}}
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\bx}{\vect x}
+\newcommand{\bxi}{\bm\xi}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Pp}{\mathcal P}
+\newcommand{\Qp}{\mathcal Q}
+\newcommand{\Tp}{\mathcal T}
+\newcommand{\Cp}{\mathcal C}
+\newcommand{\Ihat}{\hat\Pi}
+\newcommand{\Lam}{\Lambda}
+\newcommand{\adj}{\operatorname{adj}}
+\newcommand{\spn}{\operatorname{span}}
+\newcommand{\cond}{\kappa}
+\newcommand{\PP}{\textsf{PP}}
+\newcommand{\PM}{\textsf{PM}}
+\newcommand{\PH}{\textsf{PH}}
+\newcommand{\data}{data}   % path to the data files (relative to main.tex)
+
+% Plot styles
+\pgfplotscreateplotcyclelist{bases}{%
+  {red,mark=*},{blue,mark=square*},{black,mark=triangle*},
+  {green!50!black,mark=diamond*},{orange,mark=pentagon*}}
+\pgfplotsset{
+  every axis/.append style={tick label style={font=\footnotesize},
+    label style={font=\small}, title style={font=\small},
+    legend style={font=\footnotesize}},
+  styPP/.style={black,mark=o,mark size=1.6pt,thick},
+  styPM/.style={red,mark=square*,mark size=1.4pt,thick},
+  styPH/.style={blue,mark=triangle*,mark size=1.8pt,thick},
+  styLN/.style={black,dashed,thick},
+}
