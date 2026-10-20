@@ -31,9 +31,11 @@ $\det\matr J\equiv1$). \PH\ was stable and optimally convergent in every non-fol
 studied. In our view this makes $\Tp_p$ the appropriate default for high-order
 unsymmetric spectral elements, in particular for transient, modal and frequency-domain
 analyses, whereas $\Qp_p(s,t)$ remains attractive for static analyses at low to moderate
-degree and distortion, where its larger Cartesian content pays off. A cheap
-element-level indicator for the latter choice is $\Lam_Q$ itself, which can be computed
-together with the shape functions (\cref{prop:kappa}).
+degree and distortion, where its larger Cartesian content pays off. An element-level
+indicator for the latter choice is $\Lam_Q$ itself, which can be estimated by evaluating
+the metric shape functions on a sampling grid in the element (the condition number of
+$\matr V$ is not a substitute, since it also contains the extrapolation to the bounding
+box, \cref{prop:kappa}).
 
 \paragraph{Folded elements}
 Exactness for polynomial solutions is observed on folded elements for both
