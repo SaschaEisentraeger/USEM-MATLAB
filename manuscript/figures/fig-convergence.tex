@@ -1,6 +1,6 @@
 \begin{tikzpicture}
-\begin{groupplot}[group style={group size=3 by 3, horizontal sep=0.5cm, vertical sep=1.4cm,
-    y descriptions at=edge left},
+\begin{groupplot}[group style={group size=3 by 3, horizontal sep=0.35cm, vertical sep=1.1cm,
+    y descriptions at=edge left, x descriptions at=edge bottom},
     width=0.37\linewidth, height=0.34\linewidth, xmode=log, ymode=log, grid=major,
     xlabel={$h$}, ymin=1e-13, ymax=10, x dir=reverse,
     xtick={0.5,0.25,0.125,0.0625}, xticklabels={$\frac12$,$\frac14$,$\frac18$,$\frac1{16}$},
@@ -14,13 +14,13 @@
     \addplot[orange, mark=pentagon*] table[x=h, y=energy_PP]{\data/conv-d010-p6.dat};
     \addplot[gray, dashed, domain=0.0625:0.5, samples=2, forget plot] {1e-2*(x/0.5)^6};
     \legend{$p=2$,$p=3$,$p=4$,$p=5$,$p=6$}
-  \nextgroupplot[title={\PM, $\delta=0.1$}, ylabel={$e_E$}]
+  \nextgroupplot[title={\PM, $\delta=0.1$}]
     \addplot[red, mark=*] table[x=h, y=energy_PM]{\data/conv-d010-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=energy_PM]{\data/conv-d010-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=energy_PM]{\data/conv-d010-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PM]{\data/conv-d010-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=energy_PM]{\data/conv-d010-p6.dat};
-  \nextgroupplot[title={\PH, $\delta=0.1$}, ylabel={$e_E$}]
+  \nextgroupplot[title={\PH, $\delta=0.1$}]
     \addplot[red, mark=*] table[x=h, y=energy_PH]{\data/conv-d010-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=energy_PH]{\data/conv-d010-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=energy_PH]{\data/conv-d010-p4.dat};
@@ -32,13 +32,13 @@
     \addplot[black, mark=triangle*] table[x=h, y=energy_PP]{\data/conv-d020-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PP]{\data/conv-d020-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=energy_PP]{\data/conv-d020-p6.dat};
-  \nextgroupplot[title={\PM, $\delta=0.2$}, ylabel={$e_E$}]
+  \nextgroupplot[title={\PM, $\delta=0.2$}]
     \addplot[red, mark=*] table[x=h, y=energy_PM]{\data/conv-d020-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=energy_PM]{\data/conv-d020-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=energy_PM]{\data/conv-d020-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PM]{\data/conv-d020-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=energy_PM]{\data/conv-d020-p6.dat};
-  \nextgroupplot[title={\PH, $\delta=0.2$}, ylabel={$e_E$}]
+  \nextgroupplot[title={\PH, $\delta=0.2$}]
     \addplot[red, mark=*] table[x=h, y=energy_PH]{\data/conv-d020-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=energy_PH]{\data/conv-d020-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=energy_PH]{\data/conv-d020-p4.dat};
@@ -50,13 +50,13 @@
     \addplot[black, mark=triangle*] table[x=h, y=nodal_PP]{\data/conv-d030-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=nodal_PP]{\data/conv-d030-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=nodal_PP]{\data/conv-d030-p6.dat};
-  \nextgroupplot[title={\PM, $\delta=0.3$ (folded)}, ylabel={$e_n$}]
+  \nextgroupplot[title={\PM, $\delta=0.3$ (folded)}]
     \addplot[red, mark=*] table[x=h, y=nodal_PM]{\data/conv-d030-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=nodal_PM]{\data/conv-d030-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=nodal_PM]{\data/conv-d030-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=nodal_PM]{\data/conv-d030-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=nodal_PM]{\data/conv-d030-p6.dat};
-  \nextgroupplot[title={\PH, $\delta=0.3$ (folded)}, ylabel={$e_n$}]
+  \nextgroupplot[title={\PH, $\delta=0.3$ (folded)}]
     \addplot[red, mark=*] table[x=h, y=nodal_PH]{\data/conv-d030-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=nodal_PH]{\data/conv-d030-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=nodal_PH]{\data/conv-d030-p4.dat};
