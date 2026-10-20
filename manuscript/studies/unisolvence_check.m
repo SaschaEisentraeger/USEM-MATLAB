@@ -11,7 +11,7 @@ function T = unisolvence_check(cases, outfile)
 %   rcond(A), |det V_T|/|det V_ref det A| - 1 and rcond(V_Q) of Q_p(s,t)
 %   (Lagrange basis, method 1), and reports the minimum over the elements.
 here = fileparts(mfilename('fullpath'));
-cyl = fullfile(here, '..', '..', 'thick_cylinder', 'matlab');
+cyl = fullfile(here, '..', '..', 'studies', 'thick_cylinder', 'matlab');
 addpath(cyl);  cyl_setup_paths();
 T = zeros(size(cases, 1), 8);
 for i = 1:size(cases, 1)

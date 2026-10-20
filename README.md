@@ -89,6 +89,12 @@ integrators. GitHub Actions runs it on every push.
   convergence test of Rajendran (2010), Secs. 5.5-5.7 ($\theta\ge90^\circ$, folded elements),
   9-node and $p\le8$. Report: `studies/rajendran_panel/report/report.pdf`.
 
+## Manuscript
+
+`manuscript/`: draft paper on well-conditioned bases and the hybrid metric–parametric trial
+space of the metric shape functions (LaTeX, `latexmk -pdf main.tex`); the scripts that produce
+all numbers and figures are in `manuscript/studies/`, the data in `manuscript/data/`.
+
 ## Repository layout
 
 ```

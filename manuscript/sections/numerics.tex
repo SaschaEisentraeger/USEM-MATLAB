@@ -199,12 +199,36 @@ completeness defect, which explains its classical-like spectral behaviour
   \end{adjustbox}
 \end{table}
 
-\paragraph{Bounding-box scaling} The scaling \eqref{eq:bbox} pays off at higher degree,
-where the nodes leave $[-1,1]^2$ in skew coordinates: for the Lagrange basis of
-$\Qp_p(s,t)$ at $p=12$, $\cond_2=3.8\cdot10^{8}$ instead of $4.7\cdot10^{10}$ on the
-trapezoid and $1.3\cdot10^{8}$ instead of $7.8\cdot10^{8}$ on the general element. On the
-curved element the effect is at most a factor $1.5$, and for $p\le4$ the scaling can
-slightly increase the condition number (trapezoid, $p=2$: $8.3$ instead of $5.8$).
+\paragraph{Bounding-box scaling} The Lagrange basis is always used together with the
+scaling \eqref{eq:bbox}; \cref{tab:scaling} separates the two effects. The scaling alone
+does not help the monomials (their condition number changes by less than a factor $2$, in
+either direction), so the gain over the original construction comes from the basis. On
+elements whose nodes leave $[-1,1]^2$ in skew coordinates (trapezoid, general element),
+however, the Lagrange basis retains this gain at high degree only with the scaling: without
+it, $\cond_2=2.2\cdot10^{15}$ on the trapezoid at $p=16$, no better than with monomials,
+instead of $8.6\cdot10^{11}$. On the curved element, whose nodes lie in $[-1,1]^2$, the scaling
+has no effect, and on the parallelogram it is the identity. For $p\le4$ the scaling can
+slightly increase the condition number.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Condition number $\cond_2(\matr V)$ of the $\Qp_p(s,t)$ Vandermonde matrix without
+    / with the bounding-box scaling \eqref{eq:bbox}.}
+  \label{tab:scaling}
+  \begin{adjustbox}{max width=\linewidth}
+  \begin{tabular}{@{}rcccccc@{}}
+    \toprule
+    & \multicolumn{2}{c}{trapezoid} & \multicolumn{2}{c}{curved} & \multicolumn{2}{c}{general}\\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+    $p$ & monomial & Lagrange & monomial & Lagrange & monomial & Lagrange \\
+    \midrule
+    8  & $6.3\cdot10^{6}$ / $1.3\cdot10^{7}$ & $2.0\cdot10^{6}$ / $2.4\cdot10^{5}$ & $6.0\cdot10^{5}$ / $6.0\cdot10^{5}$ & $4.8\cdot10^{3}$ / $4.8\cdot10^{3}$ & $1.7\cdot10^{6}$ / $2.2\cdot10^{6}$ & $1.7\cdot10^{5}$ / $8.4\cdot10^{4}$ \\
+    12 & $1.4\cdot10^{11}$ / $2.2\cdot10^{11}$ & $4.7\cdot10^{10}$ / $3.8\cdot10^{8}$ & $2.2\cdot10^{9}$ / $2.2\cdot10^{9}$ & $1.4\cdot10^{6}$ / $1.4\cdot10^{6}$ & $2.9\cdot10^{10}$ / $2.9\cdot10^{10}$ & $7.8\cdot10^{8}$ / $1.3\cdot10^{8}$ \\
+    16 & $5.0\cdot10^{15}$ / $6.2\cdot10^{15}$ & $2.2\cdot10^{15}$ / $8.6\cdot10^{11}$ & $1.4\cdot10^{13}$ / $1.4\cdot10^{13}$ & $4.8\cdot10^{8}$ / $4.8\cdot10^{8}$ & $9.0\cdot10^{14}$ / $7.0\cdot10^{14}$ & $7.6\cdot10^{12}$ / $2.0\cdot10^{11}$ \\
+    \bottomrule
+  \end{tabular}
+  \end{adjustbox}
+\end{table}
 
 \subsection{Patch tests}
 \label{sec:num-patch}
@@ -218,7 +242,11 @@ boundary nodes; it is an equilibrium field of total degree $p$ without body forc
 \Cref{tab:patch} lists the maximum relative nodal error. \PP\ fails, as expected
 for curved edges. Both metric spaces pass for every $p$; the round-off level of \PM\
 grows with $p$ to $1.2\cdot10^{-13}$--$8.1\cdot10^{-13}$ at $p=10$, whereas \PH\ stays at
-$\le3.1\cdot10^{-15}$ (cf.\ \cref{rem:reproduction}).
+$\le3.1\cdot10^{-15}$ (cf.\ \cref{rem:reproduction}). For the smooth field
+$\vect u=(e^x\cos y,-e^x\sin y)$ on the same meshes all three elements converge
+exponentially in $p$; for $p\le8$, \PM\ is in most cases the more accurate unsymmetric
+element (by factors up to $17$), at $p=9,10$ \PH\ is more accurate or within a factor $1.5$,
+and \PH\ is $3.6$--$150$ times more accurate than \PP\ for $p=5,\dots,10$ (curved $0.20$).
 
 \begin{table}[htbp]
   \centering\small
@@ -236,9 +264,11 @@ $\theta$ (meshes a--f of that paper); for $\theta\ge90^\circ$ all four elements 
 the interior nodes taken from the bilinear corner map. The load cases tension, pure bending
 and end shear have exact solutions of degree $1$, $2$ and $3$, so all of them lie in the
 trial spaces for $p\ge3$. \Cref{tab:panel} shows
-the maximum nodal error over the three load cases. Both metric spaces pass for all
-$\theta$; at $p=8$ the round-off level of \PM\ rises to $10^{-5}$ ($\theta=135^\circ$,
-$225^\circ$), that of \PH\ is one to two orders of magnitude lower.
+the maximum nodal error over the three load cases; the meshes are shown in
+\cref{fig:meshes}. Both metric spaces pass for all $\theta$; at $p=8$ the round-off level of
+\PM\ rises to $10^{-5}$ ($\theta=135^\circ$, $225^\circ$), that of \PH\ is one to two orders of
+magnitude lower. The classical element has nodal errors of $13$--$140\,\%$ for the shear load
+on the folded meshes ($p=3,\dots,8$).
 
 \begin{table}[htbp]
   \centering\small
@@ -456,31 +486,154 @@ global system (LU instead of Cholesky) is the same for \PM\ and \PH.
 \subsection{Thick cylinder}
 \label{sec:num-cylinder}
 
-As a non-polynomial benchmark with curved boundaries we use the thick cylinder under
-internal pressure of \citet[Sec.~5.9]{Rajendran2010technique} (quarter annulus
-$1\le r\le3$, $E=1000$, $\nu=0.25$, plane stress, Lam\'e solution), computed in the
-companion study of the code base (\texttt{studies/thick\_cylinder}) with all three
-formulations. The meshes consist of $2N\times2N$ eight-node elements generated with gmsh
-\citep{Geuzaine2009Gmsh}, $N=1,2,4,8$, lifted to degree $p$ with exact boundary arcs; in
-every $2\times2$ super-element the internal mid-side nodes are rotated by $\alpha$ (mesh
-sequence B of \citet{Rajendran2010technique}), so that the relative distortion is the
-same on every mesh. For $\alpha\le30^\circ$ all elements are valid; for $\alpha\ge45^\circ$
-elements fold on the finest mesh ($\det\matr J<0$ at quadrature points), and the maximum
-relative nodal error $e_n$ is used instead of the energy error. \Cref{tab:cylinder} lists
-the errors on the finest mesh ($N=8$), the observed rates between $N=4$ and $8$ and the
-largest Lebesgue constant of the metric interpolation over the elements;
-\cref{fig:cylinder} shows $e_n$ versus $\alpha$.
+\paragraph{Set-up} As a benchmark with curved boundaries and non-polynomial solutions we
+use the thick cylinder under internal pressure of \citet[Sec.~5.9]{Rajendran2010technique}
+(quarter annulus $1\le r\le3$, $E=1000$, $\nu=0.25$, plane stress, internal pressure
+$1000$), computed with all three formulations in the companion study of the code base
+(\texttt{studies/thick\_cylinder}, $1512$ solutions). The meshes consist of $2N\times2N$
+eight-node elements generated with gmsh \citep{Geuzaine2009Gmsh}, $N=1,2,4,8$, lifted to
+degree $p=2,\dots,8$ with the arcs represented exactly (Gordon--Hall blending
+\citep{Gordon1973Transfinite}); in every $2\times2$ super-element the internal mid-side
+nodes are rotated by $\alpha\in\{0^\circ,15^\circ,30^\circ,45^\circ,60^\circ,90^\circ\}$
+(mesh sequence B of \citet{Rajendran2010technique}, \cref{fig:meshes}), so that the relative
+distortion is the same on every mesh and the element maps are not asymptotically affine.
+Elements fold for $\alpha=45^\circ$ ($N\ge2$) and $\alpha\ge60^\circ$. Three fields are
+computed: the Lam\'e solution, a manufactured polynomial of total degree~5, and the analytic
+field $u_x=\tfrac1{10}(\sin3X\cos2Y+e^{XY})$, $u_y=\tfrac1{10}(\cos2X\sin3Y+Ye^{-X})$,
+$X=x/3$, $Y=y/3$, with body forces and tractions derived from the exact fields. Errors: the
+relative energy norm $\eE$ (strains of the respective trial functions) and the maximum
+relative nodal error $e_n$; on folded meshes only $e_n$ is meaningful. Cases in which the code
+base finds the interpolation matrix singular to working precision
+($\mathrm{rcond}<\varepsilon_{\mathrm{mach}}$) are rejected.
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-meshes}
+  \caption{Top: panel meshes of the Jacobian-unlimited patch test (\cref{sec:num-patch};
+    internal nodes rotated by $\theta$). Bottom: thick-cylinder meshes for $N=2$
+    ($4\times4$ elements); the finer meshes repeat the pattern on $N^2$ super-elements.}
+  \label{fig:meshes}
+\end{figure}
+
+\paragraph{Polynomial field} \Cref{tab:cylpoly} gives the maximum nodal error for the degree-5
+field over all meshes and $p=5,\dots,8$. Both unsymmetric elements are exact in exact
+arithmetic; in floating point the error of \PM\ grows with the distortion to $1.1\cdot10^{-4}$
+($45^\circ$) and $1.6\cdot10^{-2}$ ($90^\circ$), that of \PH\ stays $\le9.9\cdot10^{-10}$ on every mesh on
+which it can be built, including the folded ones.
 
 \begin{table}[htbp]
   \centering\small
-  \caption{Thick cylinder (Lam\'e solution), $N=8$: error $e$ (energy norm $e_E$ for
+  \caption{Thick cylinder, polynomial field (degree 5): maximum relative nodal error over
+    $N=1,\dots,8$ and $p=5,\dots,8$; in parentheses the number of rejected cases.}
+  \label{tab:cylpoly}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_cylpoly}\end{adjustbox}
+\end{table}
+
+\paragraph{Convergence on valid meshes} \Cref{fig:cyl-h} shows the energy error of the
+analytic and of the Lam\'e field at $\alpha=30^\circ$, \cref{tab:cylrates} the observed rates
+between $N=4$ and $N=8$, and \cref{tab:cylinder} the errors on the finest mesh for all
+angles. Without distortion the three formulations are equivalent ($\eE=2.7\cdot10^{-6}$,
+$2.7\cdot10^{-9}$, $2.7\cdot10^{-12}$ for the Lam\'e field and $p=4,6,8$). With distortion, \PP\
+converges with about half the optimal order, as expected from
+$\Pp_{\lfloor p/2\rfloor}(x,y)\subset\Qp_p(\xi,\eta)\circ\vect F_e^{-1}$. \PH\ converges with
+the optimal order $p$ for all $p$ at $15^\circ$ and $30^\circ$ (Lam\'e: $1.96$--$7.87$; analytic:
+$2.00$--$6.02$) and keeps $\Lam_T\le95$ (\cref{tab:cyllebesgue}). \PM\ is the most accurate
+element at $\alpha=15^\circ$ for $p\le7$ (by a factor $1.1$--$4.3$ over \PH\ for the Lam\'e field),
+consistent with \cref{sec:num-convergence}, but its rate drops at $p=8$
+($\Lam_Q=1.3\cdot10^{4}$), where \PH\ becomes more accurate ($3.1\cdot10^{-11}$ versus
+$1.2\cdot10^{-10}$). At $\alpha=30^\circ$, \PM\ is optimal only for $p\le3$; beyond, its error is
+erratic and can increase under refinement (analytic field, $p=4$: $\eE=2.2\cdot10^{-4}$ at $N=4$,
+$4.3\cdot10^{-4}$ at $N=8$), and at $p=8$ (Lam\'e) it is less accurate than \PP\ ($4.8\cdot10^{-8}$
+versus $3.0\cdot10^{-8}$); $\Lam_Q$ reaches $4.2\cdot10^{6}$ ($p=7$) on these meshes. At $\alpha=30^\circ$, $p=8$, \PH\ is
+$390$ times more accurate than \PM\ and $245$ times more accurate than \PP\ for the Lam\'e
+field; for the analytic field its energy error at $N=8$ is $8$--$2.6\cdot10^4$ times smaller than
+that of \PP\ ($p=2,\dots,8$).
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-cyl-h}
+  \caption{Thick cylinder, $\alpha=30^\circ$ (no folded elements): energy error versus element
+    size for the analytic field (top) and the Lam\'e field (bottom).}
+  \label{fig:cyl-h}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Thick cylinder: observed rates of $\eE$ between $N=4$ and $N=8$ (optimal: $p$);
+    --: error at round-off level.}
+  \label{tab:cylrates}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_rates}\end{adjustbox}
+\end{table}
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Thick cylinder (Lam\'e solution), $N=8$: error $e$ (energy norm $\eE$ for
     $\alpha\le30^\circ$, maximum relative nodal error $e_n$ for the folded meshes
     $\alpha\ge45^\circ$, marked $^\ast$), observed rate $r=\log_2(e^{N=4}/e^{N=8})$ and largest
-    element Lebesgue constant $\Lam$ of the metric interpolation. --: element rejected
-    (interpolation matrix singular to working precision).}
+    element Lebesgue constant $\Lam$ of the metric interpolation. --: element rejected.}
   \label{tab:cylinder}
   \begin{adjustbox}{max width=\linewidth}\input{generated/cyl-lame}\end{adjustbox}
 \end{table}
+
+\paragraph{Approximation versus stability} Inserting the exact nodal values into the trial
+functions gives the interpolation error of each space; the ratio of discretisation to
+interpolation error separates stability from approximation (\cref{tab:quasiopt}). For \PH\ the
+ratio lies between $0.78$ and $1.00$ in all $158$ cases on the meshes without folds with errors
+above round-off level, for \PP\ between $0.84$ and $1.00$ ($165$ cases): both are
+quasi-optimal with a constant close to one in this example. For \PM\ it ranges from $0.07$ to
+$10^5$; at $\alpha=30^\circ$, $p\ge3$, the discrete \PM\ solution is up to $64$ times worse
+\emph{or} up to five times better than its interpolant, i.e.\ it does not inherit the
+approximation property of its space. This is the mesh-level manifestation of the loss of
+stability observed in \cref{sec:num-convergence}.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Thick cylinder, $N=8$: energy error of the discrete solution divided by the energy
+    error of the interpolant of the exact field in the same trial space.}
+  \label{tab:quasiopt}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_quasiopt}\end{adjustbox}
+\end{table}
+
+\paragraph{Lebesgue constants, conditioning and spectra} \Cref{tab:cyllebesgue} lists the
+maxima over the elements of the finest mesh. The Lebesgue constant of \PM\ reaches $10^3$ at
+$30^\circ$, $p=4$, and $1.3\cdot10^8$ at $45^\circ$, $p=8$; that of \PH\ stays within $30\,\%$ of the
+GLL value up to $15^\circ$ and $\le95$ at $30^\circ$. $\cond_2(\matr V)$ of \PM\ exceeds its
+Lebesgue constant by up to two orders of magnitude at $30^\circ$ and almost four at $45^\circ$
+(extrapolation to the bounding box,
+\cref{prop:kappa}); that of \PH\ is $10^2$--$10^5$ times smaller than that of \PM\ at $30^\circ$,
+$p\ge6$. The companion study also analysed the global stiffness matrices
+($\alpha\le30^\circ$): their smallest singular values agree to $1\,\%$ for the three elements,
+but the largest singular value of \PM\ exceeds that of \PP\ by up to a factor $344$, whereas
+that of \PH\ stays within a factor $1.2$; in the expansion of the \PM\ error in the singular
+triplets, a single one of the six lowest triplets carries $21$--$68\,\%$ of the error in four of
+five cases with $\alpha\ge30^\circ$, while for \PH\ and \PP\ the error is spread over the spectrum.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Thick cylinder, $N=8$: Lebesgue constant $\Lam$ ($16\times16$ sample points per
+    element, a lower bound) and condition number $\cond_2(\matr V)$ of the interpolation matrix,
+    maximum over the elements.}
+  \label{tab:cyllebesgue}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_lebesgue}\end{adjustbox}
+\end{table}
+
+\paragraph{Folded meshes and unisolvence} \Cref{fig:cylinder} shows $e_n$ on the finest mesh
+versus $\alpha$. On the folded meshes \PH\ is the most accurate element in most cases with
+$3\le p\le6$, often by two orders of magnitude (e.g.\ $\alpha=45^\circ$, $p=6$:
+$e_n=2.9\cdot10^{-9}$ versus $2.9\cdot10^{-7}$ for \PP\ and $3.5\cdot10^{-5}$ for \PM;
+$\alpha=90^\circ$, $p=6$: $2.0\cdot10^{-7}$ versus $1.1\cdot10^{-4}$ and $3.0\cdot10^{-4}$), whereas
+\PM\ is less accurate than \PP\ in almost all folded cases and is rejected for $p\ge6$ at
+$\alpha=60^\circ$. The limits discussed in \cref{sec:num-convergence} appear here as well: at
+$p=2$ ($\alpha=60^\circ,90^\circ$) and at $\alpha=90^\circ$, $p=4$, \PH\ is less accurate than \PP\
+(errors of order $10^{-2}$--$1$, non-monotone in $N$, as for the other two elements); at
+$\alpha=45^\circ$, $p=8$, it stagnates at the level of \PP\ ($2.4\cdot10^{-9}$ versus
+$4.0\cdot10^{-9}$); and for $p\ge7$ at $\alpha=60^\circ,90^\circ$ its interpolation matrix is singular
+to working precision on some folded elements, so that only \PP\ can be used.
+\Cref{tab:unisolvence} confirms \cref{prop:factor}: $\mathrm{rcond}(\matr A)$ follows
+$\mathrm{rcond}(\matr V_T)$ within a factor $30$, and the singular cases are exactly those with
+$\mathrm{rcond}(\matr A)\le4\cdot10^{-16}$ (all other cases: $\ge2\cdot10^{-15}$). On folded meshes,
+the hybrid space therefore extends the range of usable degrees compared with $\Qp_p(s,t)$, but
+it is not a general remedy.
 
 \begin{figure}[htbp]
   \centering
@@ -490,30 +643,12 @@ largest Lebesgue constant of the metric interpolation over the elements;
   \label{fig:cylinder}
 \end{figure}
 
-\paragraph{Valid meshes} Without distortion the three formulations are equivalent
-($e_E=2.7\cdot10^{-6}$, $2.7\cdot10^{-9}$, $2.7\cdot10^{-12}$ for $p=4,6,8$). With
-distortion, \PP\ loses about half of the convergence order ($r=2.1$--$2.2$, $3.2$--$3.5$,
-$4.4$--$4.8$ for $p=4,6,8$ at $\alpha=15^\circ,30^\circ$). \PH\ converges with the optimal
-order ($r=3.9$, $5.9$, $7.9$) and keeps $\Lam_T\le95$. \PM\ is the most accurate element at
-$\alpha=15^\circ$ for $p\le7$ (by a factor $1.1$--$4.3$ over \PH), consistent with
-\cref{sec:num-convergence}, but its rate drops at $p=8$ ($r=5.6$, $\Lam_Q=1.3\cdot10^{4}$),
-where \PH\ becomes more accurate ($3.1\cdot10^{-11}$ versus $1.2\cdot10^{-10}$);
-at $\alpha=30^\circ$ its convergence is erratic ($r=0.8$ for $p=4$) and at $p=8$ it is less
-accurate than \PP\ ($4.8\cdot10^{-8}$ versus $3.0\cdot10^{-8}$), with $\Lam_Q$ up to
-$1.2\cdot10^{6}$. At $\alpha=30^\circ$, $p=8$, \PH\ is $390$ times more accurate than \PM\ and
-$245$ times more accurate than \PP. The companion study also reports that the \PH\ error is
-$0.78$--$1.00$ times its own interpolation error on all valid meshes, i.e.\ the
-Petrov--Galerkin solution is quasi-optimal in this example.
-
-\paragraph{Folded meshes} On the folded meshes \PH\ is the most accurate element in most
-cases with $3\le p\le6$, often by two orders of magnitude (e.g.\ $\alpha=45^\circ$, $p=6$:
-$e_n=2.9\cdot10^{-9}$ versus $2.9\cdot10^{-7}$ for \PP\ and $3.5\cdot10^{-5}$ for \PM;
-$\alpha=90^\circ$, $p=6$: $2.0\cdot10^{-7}$ versus $1.1\cdot10^{-4}$ and $3.0\cdot10^{-4}$),
-whereas \PM\ is less accurate than \PP\ in almost all folded cases and rejected for
-$p\ge6$ at $\alpha=60^\circ$. The limits discussed in \cref{sec:num-convergence} appear here
-as well: at $p=2$ ($\alpha=60^\circ,90^\circ$) and at $\alpha=90^\circ$, $p=4$, \PH\ is less
-accurate than \PP\ ($e_n=1.1$ at $\alpha=90^\circ$, $p=2$); at $\alpha=45^\circ$, $p=8$, it
-stagnates at the level of \PP\ ($2.4\cdot10^{-9}$ versus $4.0\cdot10^{-9}$); and for $p\ge7$ at
-$\alpha=60^\circ,90^\circ$ its interpolation matrix is singular to working precision on some
-folded elements, so that only \PP\ can be used. On folded meshes, the hybrid space therefore extends the range
-of usable degrees compared with $\Qp_p(s,t)$, but it is not a general remedy.
+\begin{table}[htbp]
+  \centering\small
+  \caption{Unisolvence of the hybrid space on the thick-cylinder meshes: minimum over the
+    elements of $\mathrm{rcond}$ of $\matr V_T$, of $\matr A$ (\cref{prop:factor}) and of the
+    Vandermonde matrix $\matr V_Q$ of $\Qp_p(s,t)$; number of elements with
+    $\mathrm{rcond}(\matr V_T)<\varepsilon_{\mathrm{mach}}$.}
+  \label{tab:unisolvence}
+  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_unisolvence}\end{adjustbox}
+\end{table}

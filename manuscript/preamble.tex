@@ -64,5 +64,28 @@
 }
 
 
+% Styles of the thick-cylinder figures (colours for p = 2..8, dark = high p)
+\newcommand{\eE}{e_{E}}
+\definecolor{p2}{HTML}{FDB863}
+\definecolor{p3}{HTML}{F08B3E}
+\definecolor{p4}{HTML}{D9541A}
+\definecolor{p5}{HTML}{B2182B}
+\definecolor{p6}{HTML}{7F1C6A}
+\definecolor{p7}{HTML}{4A2A8A}
+\definecolor{p8}{HTML}{1B2A5E}
+\definecolor{cPP}{HTML}{555555}
+\definecolor{cPM}{HTML}{C0392B}
+\definecolor{cPH}{HTML}{1F5FA8}
+\pgfplotsset{
+  conv/.style={
+    xmode=log, ymode=log, x dir=reverse, grid=major,
+    xtick={1,0.5,0.25,0.125}, xticklabels={$1$,$\frac12$,$\frac14$,$\frac18$},
+    xmin=0.1, xmax=1.25, unbounded coords=jump, mark size=1.2pt, line width=0.7pt,
+  },
+  pline/.style={color=p#1, mark=*, mark options={solid,fill=p#1}},
+  meshplot/.style={width=3.0cm, height=3.0cm, axis equal image, hide axis,
+    title style={font=\scriptsize, yshift=-1.2ex}},
+}
+
 % Avoid overfull lines with long unbreakable math/macros
 \setlength{\emergencystretch}{2em}

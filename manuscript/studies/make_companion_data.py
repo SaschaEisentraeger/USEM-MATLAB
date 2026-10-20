@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Data and tables of the manuscript on metric trial functions.
+"""Thick-cylinder, panel and affine-element tables of the manuscript
+(originally from a second draft, merged into this manuscript).
 
 Collects the results of
   docs/figures/data/metric-*.dat            element- and mesh-level studies
                                             (studies/metric_basis/*.m)
   studies/rajendran_panel/results/*.csv     Jacobian-unlimited patch tests
   studies/thick_cylinder/results/            distortion and convergence study
-  results/unisolvence.txt                    matlab/unisolvence_check.m
+  data/unisolvence.txt                       studies/unisolvence_check.m
 and writes data/*.dat (plot data) and generated/*.tex (tables).
 """
 import csv
@@ -15,12 +16,12 @@ import os
 import shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
+ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))  # repository root
 DOCS = os.path.join(ROOT, "docs", "figures", "data")
 CYL = os.path.join(ROOT, "studies", "thick_cylinder", "results")
 PANEL = os.path.join(ROOT, "studies", "rajendran_panel", "results")
-DATA = os.path.join(HERE, "data")
-GEN = os.path.join(HERE, "generated")
+DATA = os.path.join(HERE, "..", "data")
+GEN = os.path.join(HERE, "..", "generated")
 FORMS = ("PM", "PH", "PP")
 NAME = {"PM": "$Q_p(\\hat x,\\hat y)$", "PH": "$T_p$ (hybrid)", "PP": "parametric"}
 
@@ -223,7 +224,7 @@ def main():
     write("tab_cylpoly.tex", L)
 
     # unisolvence check
-    with open(os.path.join(HERE, "results", "unisolvence.txt")) as f:
+    with open(os.path.join(DATA, "unisolvence.txt")) as f:
         U = list(csv.DictReader(f, delimiter=" "))
     L = ["\\begin{tabular}{@{}rrrcccc@{}}", "\\toprule",
          "$\\alpha$ & $N$ & $p$ & $\\min\\mathrm{rcond}(\\bm V_T)$ & $\\min\\mathrm{rcond}(\\bm A)$ & "

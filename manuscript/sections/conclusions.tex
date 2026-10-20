@@ -21,9 +21,17 @@ presented, analysed and tested.
   value for moderate curved-edge distortion. In the tests it removed the divergence under
   mesh refinement and the negative and strongly complex eigenvalues of the $\Qp_p(s,t)$
   element, reduced the exponential growth in time by orders of magnitude (a slow residual
-  growth remains), and converged with the optimal order on non-folded meshes. It trades this robustness for a moderately larger error constant on
-  smooth static problems.
+  growth remains), and converged with the optimal order on non-folded meshes; for the thick
+  cylinder its error was $0.78$--$1.00$ times its interpolation error on all valid meshes.
+  Unisolvence reduces to the non-singularity of a $\dim\Pp_m\times\dim\Pp_m$ matrix, which
+  fails only on some folded elements at high degree. The hybrid space trades this
+  robustness for a moderately larger error constant on smooth static problems where
+  $\Qp_p(s,t)$ is stable.
 \end{enumerate}
+For high-order unsymmetric spectral elements we therefore recommend the reference-node
+Lagrange basis for any metric space in skew coordinates, and the hybrid space whenever
+$p\gtrsim4$, the curved-edge distortion is not small, or the spectrum matters (transient,
+modal and frequency-domain analyses).
 Open questions are a stability theory (discrete inf-sup condition) for both metric spaces,
 an accurate treatment of the singular integrands of the hybrid space on folded elements,
 the residual (slow) growth of the hybrid element in long-time transient analysis, and the

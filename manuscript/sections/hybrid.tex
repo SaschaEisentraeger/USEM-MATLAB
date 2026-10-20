@@ -178,12 +178,49 @@ $\Tp_p$, the correction has rank at most $\dim\Pp_m=(m+1)(m+2)/2$ and involves t
 inverse $S^{-1}$ of the low-order block only; the high-order part of the interpolant is
 untouched. For $\Qp_p(s,t)$, the correction acts on the whole $n$-dimensional space,
 involves the GLL interpolation error of Cartesian polynomials of tensor degree $p$
-(total degree up to $2p$) and the inverse of the full matrix $S_Q$. The bounds
+(total degree up to $2p$) and the inverse of the full matrix $S_Q$. In particular,
+this correction does not vanish even on bilinear elements, because
+$s^at^b\circ\vect F_e\in\Qp_{a+b}(\xi,\eta)\not\subset\Qp_p(\xi,\eta)$ for $a+b>p$ in general;
+for a smooth perturbation $\vect F_e=\vect F_{\mathrm{bil}}+\delta\,\vect g$ of a bilinear
+map, on the other hand, the correction of $\Tp_p$ is $\mathcal O(\delta)$, since
+$q\circ\vect F_{\mathrm{bil}}\in\Qp_p(\xi,\eta)$ for $q\in\Pp_m(x,y)$. The bounds
 \eqref{eq:lebbound} are not sharp enough to quantify the difference a priori; the
 numerical results of \cref{sec:num-lebesgue} show that $\Lam_T$ stays at (or very
 close to) $\Lam_N$ for moderate curved-edge distortion and grows for strong distortion,
 but by orders of magnitude less than $\Lam_Q$, which grows exponentially in $p$ and in
 the distortion.
+
+\paragraph{Unisolvence} The operator $S$ has a simple matrix form. Let $\matr V_{\mathrm{ref}}$
+be the Legendre Vandermonde matrix of the GLL grid (rows $L_a(\xi_k)L_b(\eta_k)$, all
+$a\le p_\xi$, $b\le p_\eta$), ordered as the $d=\dim\Pp_m$ low-order rows $\matr L$
+($a+b\le m$) followed by the rows $\matr R$ of the complement, and let the hybrid
+Vandermonde matrix be ordered alike, $\matr V_T=[\matr Q;\matr R]$, where the rows of
+$\matr Q$ are the nodal values of a basis $\{q_j\}$ of $\mathcal P$. Let
+$\matr A\in\R^{d\times d}$ be the matrix of $S$, i.e.\ $A_{ij}$ is the coefficient of the
+$i$-th low-order Legendre product in $\hat\Pi q_j$.
+
+\begin{proposition}[Factorisation of the hybrid Vandermonde matrix]
+\label{prop:factor}
+$|\det\matr V_T|=|\det\matr V_{\mathrm{ref}}|\,|\det\matr A|$. Hence the nodes are unisolvent
+for $\hat\Tp_p$ if and only if $\matr A$ is non-singular, and they are unisolvent for every
+element map sufficiently close to an affine one.
+\end{proposition}
+\begin{proof}
+Every row of $\matr Q$ is a vector of nodal values and has a unique expansion in the rows of
+the non-singular matrix $\matr V_{\mathrm{ref}}$, whose coefficients are the Legendre
+coefficients of $\hat\Pi q_j$: $\matr Q=\matr A^\T\matr L+\matr B\matr R$. Hence
+$\matr V_T=\bigl[\begin{smallmatrix}\matr A^\T&\matr B\\\matr0&\matr I\end{smallmatrix}\bigr]
+\bigl[\begin{smallmatrix}\matr L\\\matr R\end{smallmatrix}\bigr]$, and the determinant identity
+follows. On an affine element $q\circ\vect F_e\in\Pp_m(\xi,\eta)$, $\hat\Pi$ is exact and
+$\matr A$ is the matrix of the invertible composition with an affine map; $\det\matr A$
+depends continuously on the nodes.
+\end{proof}
+
+Since $\matr V_{\mathrm{ref}}$ is fixed and well conditioned, $\mathrm{rcond}(\matr A)$ is a
+cheap element-level indicator of unisolvence ($d\times d$ instead of $n\times n$). On
+strongly non-affine (folded) elements unisolvence is not guaranteed;
+\cref{sec:num-cylinder} shows that it fails on some folded elements at $p\ge7$, exactly
+where $\matr A$ becomes singular.
 
 \subsection{Approximation}
 

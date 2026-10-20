@@ -1,0 +1,57 @@
+\begin{tikzpicture}
+    \begin{groupplot}[group style={group size=3 by 2, horizontal sep=3mm, vertical sep=10mm, x descriptions at=edge bottom,
+        yticklabels at=edge left, xticklabels at=edge bottom}, conv, width=0.36\linewidth, height=0.33\linewidth,
+        ymin=1e-14, ymax=1, xlabel={$h\propto1/N$}]
+      \nextgroupplot[title={\PM, analytic}, ylabel={$\eE$},
+        legend to name=leg:p, legend columns=7, legend style={font=\footnotesize}]
+      \addplot[pline=2] table[x=h, y=eE2]{\data/cyl_h_smooth_PM_a030.dat};
+      \addplot[pline=3] table[x=h, y=eE3]{\data/cyl_h_smooth_PM_a030.dat};
+      \addplot[pline=4] table[x=h, y=eE4]{\data/cyl_h_smooth_PM_a030.dat};
+      \addplot[pline=5] table[x=h, y=eE5]{\data/cyl_h_smooth_PM_a030.dat};
+      \addplot[pline=6] table[x=h, y=eE6]{\data/cyl_h_smooth_PM_a030.dat};
+      \addplot[pline=7] table[x=h, y=eE7]{\data/cyl_h_smooth_PM_a030.dat};
+      \addplot[pline=8] table[x=h, y=eE8]{\data/cyl_h_smooth_PM_a030.dat};
+      \legend{$p=2$, $p=3$, $p=4$, $p=5$, $p=6$, $p=7$, $p=8$}
+      \nextgroupplot[title={\PH, analytic}]
+      \addplot[pline=2] table[x=h, y=eE2]{\data/cyl_h_smooth_PH_a030.dat};
+      \addplot[pline=3] table[x=h, y=eE3]{\data/cyl_h_smooth_PH_a030.dat};
+      \addplot[pline=4] table[x=h, y=eE4]{\data/cyl_h_smooth_PH_a030.dat};
+      \addplot[pline=5] table[x=h, y=eE5]{\data/cyl_h_smooth_PH_a030.dat};
+      \addplot[pline=6] table[x=h, y=eE6]{\data/cyl_h_smooth_PH_a030.dat};
+      \addplot[pline=7] table[x=h, y=eE7]{\data/cyl_h_smooth_PH_a030.dat};
+      \addplot[pline=8] table[x=h, y=eE8]{\data/cyl_h_smooth_PH_a030.dat};
+      \nextgroupplot[title={\PP, analytic}]
+      \addplot[pline=2] table[x=h, y=eE2]{\data/cyl_h_smooth_PP_a030.dat};
+      \addplot[pline=3] table[x=h, y=eE3]{\data/cyl_h_smooth_PP_a030.dat};
+      \addplot[pline=4] table[x=h, y=eE4]{\data/cyl_h_smooth_PP_a030.dat};
+      \addplot[pline=5] table[x=h, y=eE5]{\data/cyl_h_smooth_PP_a030.dat};
+      \addplot[pline=6] table[x=h, y=eE6]{\data/cyl_h_smooth_PP_a030.dat};
+      \addplot[pline=7] table[x=h, y=eE7]{\data/cyl_h_smooth_PP_a030.dat};
+      \addplot[pline=8] table[x=h, y=eE8]{\data/cyl_h_smooth_PP_a030.dat};
+      \nextgroupplot[title={\PM, Lam\'e}, ylabel={$\eE$}]
+      \addplot[pline=2] table[x=h, y=eE2]{\data/cyl_h_lame_PM_a030.dat};
+      \addplot[pline=3] table[x=h, y=eE3]{\data/cyl_h_lame_PM_a030.dat};
+      \addplot[pline=4] table[x=h, y=eE4]{\data/cyl_h_lame_PM_a030.dat};
+      \addplot[pline=5] table[x=h, y=eE5]{\data/cyl_h_lame_PM_a030.dat};
+      \addplot[pline=6] table[x=h, y=eE6]{\data/cyl_h_lame_PM_a030.dat};
+      \addplot[pline=7] table[x=h, y=eE7]{\data/cyl_h_lame_PM_a030.dat};
+      \addplot[pline=8] table[x=h, y=eE8]{\data/cyl_h_lame_PM_a030.dat};
+      \nextgroupplot[title={\PH, Lam\'e}]
+      \addplot[pline=2] table[x=h, y=eE2]{\data/cyl_h_lame_PH_a030.dat};
+      \addplot[pline=3] table[x=h, y=eE3]{\data/cyl_h_lame_PH_a030.dat};
+      \addplot[pline=4] table[x=h, y=eE4]{\data/cyl_h_lame_PH_a030.dat};
+      \addplot[pline=5] table[x=h, y=eE5]{\data/cyl_h_lame_PH_a030.dat};
+      \addplot[pline=6] table[x=h, y=eE6]{\data/cyl_h_lame_PH_a030.dat};
+      \addplot[pline=7] table[x=h, y=eE7]{\data/cyl_h_lame_PH_a030.dat};
+      \addplot[pline=8] table[x=h, y=eE8]{\data/cyl_h_lame_PH_a030.dat};
+      \nextgroupplot[title={\PP, Lam\'e}]
+      \addplot[pline=2] table[x=h, y=eE2]{\data/cyl_h_lame_PP_a030.dat};
+      \addplot[pline=3] table[x=h, y=eE3]{\data/cyl_h_lame_PP_a030.dat};
+      \addplot[pline=4] table[x=h, y=eE4]{\data/cyl_h_lame_PP_a030.dat};
+      \addplot[pline=5] table[x=h, y=eE5]{\data/cyl_h_lame_PP_a030.dat};
+      \addplot[pline=6] table[x=h, y=eE6]{\data/cyl_h_lame_PP_a030.dat};
+      \addplot[pline=7] table[x=h, y=eE7]{\data/cyl_h_lame_PP_a030.dat};
+      \addplot[pline=8] table[x=h, y=eE8]{\data/cyl_h_lame_PP_a030.dat};
+    \end{groupplot}
+  \end{tikzpicture}\\[1mm]
+  \pgfplotslegendfromname{leg:p}

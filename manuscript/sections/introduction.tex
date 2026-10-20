@@ -23,9 +23,11 @@ denominator. Elements satisfying them reproduce every displacement field of the
 completeness degree exactly on arbitrarily distorted meshes, including meshes with
 $\det\matr J\le0$. The approach has been extended to frame-invariant formulations
 in skew coordinates \citep{Yuan1993New,Ooi2008Remedies,Xie2016Modified}, to
-analytical trial functions \citep{Cen2015unsymmetric,Cen2019Some}, to solids
-\citep{Ooi2004hexahedron}, to geometrically nonlinear problems
-\citep{Li2018high}, and to elastodynamics
+analytical trial functions \citep{Cen2012shape,Cen2015unsymmetric,Cen2019Some}, to
+orthotropic and incompatible-mode elements \citep{Shang2018airy,Huang2022Unsymmetric}, to
+solids \citep{Ooi2004hexahedron}, to enhanced assumed strain formulations
+\citep{Pfefferkorn2021mesh,Pfefferkorn2023hourglassing}, to geometrically nonlinear
+problems \citep{Ooi2007extension,Li2018high}, and to elastodynamics
 \citep{Liew2006quadratic,Wang2022Temporal,Zaehringer2026On}; the
 non-variational character of the formulation was analysed by
 \citet{Prathap2006mesh,Prathap2007The}.
@@ -90,7 +92,9 @@ affine invariant and interpolatory, that it coincides with the classical spectra
 element space on every straight-edged quadrilateral, and we derive an exact
 representation of its interpolation operator as the GLL interpolant plus a
 correction that is driven only by the completeness defect of the classical element
-(\cref{prop:representation}). Numerically, its Lebesgue constant stays at the level
+(\cref{prop:representation}), together with a factorisation of its Vandermonde determinant
+that reduces unisolvence to the non-singularity of a $\dim\Pp_p\times\dim\Pp_p$ matrix
+(\cref{prop:factor}). Numerically, its Lebesgue constant stays at the level
 of GLL interpolation for moderate curved-edge distortion and remains orders of
 magnitude below that of $\Qp_p(s,t)$ for strong distortion. On all meshes tested,
 the eigenvalues with negative real part of the $\Qp_p(s,t)$ element disappear and the
