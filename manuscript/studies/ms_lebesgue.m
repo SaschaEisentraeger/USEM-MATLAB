@@ -8,8 +8,14 @@ IP = [Xi(:), Eta(:)];
 Xg = Local2GlobalCoordinatesQuad(P, IP, [x, y]);
 LN = max(sum(abs(ShapeFunctions2D_SEM(IP(:,1), IP(:,2), P)), 1));
 P.metricBasis = 'lagrange';
-M = ShapeFunctions2D_Metric(Xg(:,1), Xg(:,2), x, y, P, 1);
-LQ = max(sum(abs(M), 1));
+try
+    M = ShapeFunctions2D_Metric(Xg(:,1), Xg(:,2), x, y, P, 1);
+    LQ = max(sum(abs(M), 1));
+catch err
+    % Q_p(s,t) rejected by the code base (singular to working precision)
+    if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
+    LQ = NaN;
+end
 M = ShapeFunctions2D_Metric(Xg(:,1), Xg(:,2), x, y, P, 2, IP);
 LT = max(sum(abs(M), 1));
 end

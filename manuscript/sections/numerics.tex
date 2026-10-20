@@ -1,5 +1,146 @@
-\section{numerics}
-\begin{figure}[htbp]\centering\input{figures/fig-nodes}\caption{nodes}\end{figure}
-\begin{figure}[htbp]\centering\input{figures/fig-kappa}\caption{kappa}\end{figure}
-\begin{figure}[htbp]\centering\input{figures/fig-kron}\caption{kron}\end{figure}
-\begin{figure}[htbp]\centering\input{figures/fig-lebesgue}\caption{leb}\end{figure}
+\section{Numerical studies}
+\label{sec:numerics}
+
+All computations use the MATLAB/GNU Octave implementation of the unsymmetric spectral
+element (USEM code base) in IEEE double precision; the data were produced with GNU
+Octave~8.4 by the scripts in \texttt{manuscript/studies}. Unless stated otherwise:
+GLL nodes, $p_\xi=p_\eta=p$, isotropic material with $\nu=0.3$ (plane stress),
+$2p\times2p$ Gauss points for $\matr K_e$ and the consistent mass matrix. The
+geometry is generated from 8-node (serendipity) input elements and lifted to degree
+$p$, so the element maps are at most biquadratic ($g\le2$). The three formulations
+compared are \PP\ (classical spectral element), \PM\ (metric trial space
+$\Qp_p(s,t)$, Lagrange basis, \cref{sec:basis}) and \PH\ (hybrid trial space
+$\Tp_p$, \cref{sec:hybrid}).
+
+\subsection{Test elements and node geometry}
+\label{sec:num-elements}
+
+Four single elements are used: a parallelogram (affine), a trapezoid (straight
+edges, bilinear map), an element with two curved edges (``curved'') and an element
+with angular and curved-edge distortion (``general''); their 8-node coordinates are
+listed in \cref{app:elements}. \Cref{fig:nodes} shows the GLL nodes of the general
+element for $p=8$ in the three coordinate systems involved. In the scaled skew
+coordinates, in which $\Qp_p(s,t)$ interpolates, the nodes form a visibly perturbed
+tensor grid; in the reference coordinates, in which the complement $\Cp_p$ of the
+hybrid space interpolates, they form the exact GLL grid.
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-nodes}
+  \caption{GLL nodes ($p=8$) of the general test element in physical, scaled skew
+    and reference coordinates. Dashed: the box $[-1,1]^2$ of \eqref{eq:bbox}.}
+  \label{fig:nodes}
+\end{figure}
+
+\subsection{Conditioning of the Vandermonde matrix and accuracy of the shape functions}
+\label{sec:num-conditioning}
+
+\Cref{fig:kappa} shows $\cond_2(\matr V)$ for the four bases of $\Qp_p(s,t)$ and for
+the hybrid space; \cref{fig:kron} shows the error of the Kronecker property of the
+computed shape functions, $e_\delta=\max_{l,k}|M_l^e(\bx_k)-\delta_{lk}|$, which is the
+error for unit nodal data (\cref{rem:reproduction}).
+
+\paragraph{Affine element} With monomials, $\cond_2(\matr V)$ grows from
+$2.9\cdot10^{2}$ ($p=4$) over $2.9\cdot10^{5}$ ($p=8$) to $3.5\cdot10^{11}$ ($p=16$),
+i.e.\ by a factor of about $5.8\approx(1+\sqrt2)^2$ per degree, the square of the 1D
+growth. Legendre polynomials give $\cond_2=10.2$, $24.4$, $55.3$, Chebyshev
+polynomials $\cond_2\le3$, and the Lagrange basis $\cond_2=1$ for every $p$
+(\cref{cor:affine}). Accordingly, $e_\delta$ grows with $p$ as $\cond_2(\matr V)u$ for
+the monomials ($2.0\cdot10^{-12}$ at $p=8$, $1.1\cdot10^{-6}$ at $p=16$) and is below
+$10^{-28}$ for the Lagrange basis. The asymmetry
+$\|\matr K_e-\matr K_e^\T\|_F/\|\matr K_e\|_F$, zero in exact arithmetic, follows
+$e_\delta$:
+\begin{center}
+  \small
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    $p$ & 4 & 8 & 12 & 16 \\
+    \midrule
+    \PM, monomial & $2.2\cdot10^{-15}$ & $4.2\cdot10^{-12}$ & $2.9\cdot10^{-9}$ & $2.0\cdot10^{-6}$ \\
+    \PM, Lagrange & $1.6\cdot10^{-15}$ & $4.6\cdot10^{-15}$ & $1.5\cdot10^{-14}$ & $3.4\cdot10^{-14}$ \\
+    \PH & $1.3\cdot10^{-15}$ & $5.1\cdot10^{-15}$ & $1.2\cdot10^{-14}$ & $2.3\cdot10^{-14}$ \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+The identity of \cref{prop:kappa} is reproduced to $4\cdot10^{-14}$ (relative) for all
+$p\le16$.
+
+\paragraph{Distorted elements} \CONDDIST
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-kappa}
+  \caption{Condition number $\cond_2(\matr V)$ of the metric Vandermonde matrix
+    versus $p$. Monomial, Legendre, Chebyshev and Lagrange: bases of $\Qp_p(s,t)$
+    (\PM); hybrid: Legendre-type basis of $\Tp_p$ (\PH). Missing points: matrix
+    singular to working precision ($\mathrm{rcond}<\varepsilon_{\mathrm{mach}}$).}
+  \label{fig:kappa}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-kron}
+  \caption{Error $e_\delta$ of the Kronecker property of the computed metric shape
+    functions (values below $10^{-17}$ are not shown; for the Lagrange basis on the
+    parallelogram $e_\delta\le10^{-28}$).}
+  \label{fig:kron}
+\end{figure}
+
+\subsection{Lebesgue constants}
+\label{sec:num-lebesgue}
+
+The Lebesgue constants are evaluated on a uniform grid of $(6p+11)^2$ reference
+points mapped to the element. \Cref{fig:lebesgue} shows them versus $p$ for the three
+distorted test elements, \cref{fig:sweep} versus the amount of distortion $\delta$ for
+three one-parameter families on $\hat\Omega$: a ``bent'' element (mid-side nodes of the
+bottom and top edge moved by $\delta$ in $y$, so that $x=\xi$,
+$y=\eta+\delta(1-\xi^2)$ and $\det\matr J\equiv1$), an element with one curved edge,
+and a trapezoid (top corners moved inwards by $\delta$; bilinear).
+
+\LEBTEXT
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-lebesgue}
+  \caption{Lebesgue constants of the metric interpolation in $\Qp_p(s,t)$ and in
+    $\Tp_p$, and of GLL interpolation, versus $p$.}
+  \label{fig:lebesgue}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \input{figures/fig-sweep}
+  \caption{Lebesgue constants versus the amount of distortion $\delta$ for $p=4,8,12$.
+    For the trapezoid, $\Lam_T=\Lam_N$ (\cref{cor:defect}).}
+  \label{fig:sweep}
+\end{figure}
+
+\subsection{Deviation from the classical element}
+\label{sec:num-deviation}
+
+\DEVTEXT
+
+\subsection{Patch tests}
+\label{sec:num-patch}
+
+\PATCHTEXT
+
+\subsection{Convergence on meshes with persistent distortion}
+\label{sec:num-convergence}
+
+\CONVTEXT
+
+\subsection{Eigenvalues and transient stability}
+\label{sec:num-spectra}
+
+\SPECTEXT
+
+\subsection{Cost}
+\label{sec:num-cost}
+
+\COSTTEXT
+
+\subsection{Thick cylinder}
+\label{sec:num-cylinder}
+
+\CYLTEXT

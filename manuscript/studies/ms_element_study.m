@@ -1,7 +1,8 @@
-function R = ms_element_study(pvec)
+function R = ms_element_study(pvec, shapes)
 %MS_ELEMENT_STUDY Element-level study of the manuscript (Secs. 5.1-5.2).
 %
-%   R = ms_element_study()          p = 1..16
+%   R = ms_element_study()          p = 1..16, all test elements
+%   R = ms_element_study(pvec, shapes)
 %
 %   For the four test elements of usemTestElement and every degree p:
 %     kappa2_<b>, kappa1_<b>  condition numbers of the metric Vandermonde
@@ -11,11 +12,14 @@ function R = ms_element_study(pvec)
 %     eKron_<b>               max_{l,k} |M_l(x_k) - delta_lk| (computed)
 %     LN, LQ, LT              Lebesgue constants: parametric interpolation,
 %                             Q_p(s,t), hybrid space T_p
-%     idErr                   max |(V^-1)_ld - M_l(s_d)| (Proposition 2,
+%     idErr                   max |(V^-1)_ld - M_l(s_d)| / max |(V^-1)_ld|
+%                             (Proposition 2,
 %                             Lagrange basis)
 %     lamRef                  max_k lambda_ref(s_k) (first factor of
 %                             kappa_1 in Proposition 2)
 %     asym_<b>                ||K_e - K_e^T||_F/||K_e||_F (parallelogram)
+%   Cases rejected by the code base (rcond(V) < eps, i.e. V singular to
+%   working precision) are written as NaN.
 %   Writes manuscript/data/element-<shape>.dat.
 
 if nargin < 1, pvec = 1:16; end
@@ -23,7 +27,7 @@ if nargin < 1, pvec = 1:16; end
 
 bases  = {'monomial', 'legendre', 'chebyshev', 'lagrange'};
 tags   = {'mon', 'leg', 'che', 'lag'};
-shapes = {'parallelogram', 'trapezoid', 'curved', 'general'};
+if nargin < 2, shapes = {'parallelogram', 'trapezoid', 'curved', 'general'}; end
 C = HookeMatrix2d(1, 0.3, 1);
 
 for s = 1:numel(shapes)
@@ -43,7 +47,12 @@ for s = 1:numel(shapes)
         [xiN, etaN] = ReferenceNodes2D(P);
         for b = 1:numel(bases)
             P.metricBasis = bases{b};
-            [Nk, ~, ~, V] = ShapeFunctions2D_Metric(x, y, x, y, P, 1);
+            try
+                [Nk, ~, ~, V] = ShapeFunctions2D_Metric(x, y, x, y, P, 1);
+            catch err
+                if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
+                continue
+            end
             T.(['kappa2_' tags{b}])(ii) = cond(V);
             T.(['kappa1_' tags{b}])(ii) = cond(V, 1);
             T.(['eKron_'  tags{b}])(ii) = max(max(abs(Nk - eye(n))));
@@ -92,7 +101,8 @@ N0 = ShapeFunctions2D_SEM(0, 0, P);
 x0 = [N0'*x; N0'*y];
 X = J0'*st + x0;                       % (s,t) = J0^-T (x - x0)
 M = ShapeFunctions2D_Metric(X(1,:)', X(2,:)', x, y, P, 1);
-err = max(max(abs(M - inv(V))));
+Vi = inv(V);
+err = max(max(abs(M - Vi)))/max(max(abs(Vi)));   % relative
 % first factor: max_k sum_c |phi_c(s_k)| = ||V||_1
 lamRef = norm(V, 1);
 end
