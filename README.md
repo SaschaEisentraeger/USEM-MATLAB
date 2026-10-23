@@ -88,6 +88,10 @@ integrators. GitHub Actions runs it on every push.
 - `studies/rajendran_panel/`: reproduction of the nodal rotation patch test and the
   convergence test of Rajendran (2010), Secs. 5.5-5.7 ($\theta\ge90^\circ$, folded elements),
   9-node and $p\le8$. Report: `studies/rajendran_panel/report/report.pdf`.
+- `studies/metric_basis/`: basis of the metric Vandermonde matrix (monomial, Legendre,
+  Chebyshev, Lagrange: conditioning, Kronecker property, completeness, Lebesgue constant)
+  and comparison of the trial space $Q_p(s,t)$ with the hybrid metric–parametric space.
+  Results: chapter "Metric basis" of the documentation.
 
 ## Manuscript
 
