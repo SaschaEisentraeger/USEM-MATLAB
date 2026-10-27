@@ -25,7 +25,7 @@ pivoting, the standard perturbation bound \citep{Higham2002Accuracy} gives
   \frac{\|\hat{\matr N}-\matr N\|}{\|\matr N\|}\lesssim c_n\,\rho_n\,\cond(\matr V)\,u ,
   \label{eq:fp}
 \end{equation}
-with the growth factor $\rho_n$ (moderate in practice) and $u\approx1.1\times10^{-16}$.
+with the growth factor $\rho_n$ (moderate in practice) and the unit round-off $u\approx1.1\cdot10^{-16}$.
 Thus, the basis has to be chosen such that $\cond(\matr V)$ is minimised.
 
 \subsection{Candidate bases and bounding-box scaling}
@@ -64,14 +64,14 @@ $\matr V_1\otimes\matr V_1$ of the 1D Vandermonde matrix, and
 $\cond_2(\matr V)=\cond_2(\matr V_1)^2$. For monomials on nodes symmetric about the
 origin, $\cond(\matr V_1)$ grows at least exponentially \citep{Gautschi1988Lower},
 and therefore the 2D condition number grows with the square of an exponential. For the
-Lagrange basis, on the other hand, $\phi_c(\vect s_k)=\delta_{ck}$ holds up to the
+Lagrange basis, on the other hand, $\phi_c(\tilde{\vect s}_k)=\delta_{ck}$ holds up to the
 ordering, which leads to the following result.
 
 \begin{corollary}
 \label{cor:affine}
 On an affine element, the Lagrange basis gives a permutation matrix $\matr V$ (up to
-the rounding of the scaled skew coordinates of the nodes), $\cond_q(\matr V)=1$ for
-every $q$-norm, and $\matr N=\matr V^{-1}\matr P$ is obtained without amplification of
+the rounding of the scaled skew coordinates of the nodes), $\cond_r(\matr V)=1$ for
+every $r$-norm, and $\matr N=\matr V^{-1}\matr P$ is obtained without amplification of
 rounding errors. Metric and parametric
 functions then agree to round-off, and $\matr K_e$ is symmetric to round-off, for
 every $p$.

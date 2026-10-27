@@ -165,7 +165,7 @@ Lagrange basis, $4.8\cdot10^{6}$ for $\Tp_p$).
 
 \Cref{prop:representation} writes both metric families as the parametric shape functions
 plus a correction. \Cref{tab:deviation} quantifies the correction at the $(2p)^2$ Gauss
-points of $\matr K_e$, $d_N=\max_{k,q}|M_k(\bx_q)-N_k(\bx_q)|$, and its effect on the
+points of $\matr K_e$, $d_N=\max_{k,q}|M_k^e(\bx_q)-N_k(\bx_q)|$, and its effect on the
 stiffness matrix, $d_K=\|\matr K_e-\matr K_e^{\PP}\|_F/\|\matr K_e^{\PP}\|_F$. For
 $\Qp_p(s,t)$, the correction grows exponentially with $p$, to $d_N=6.8\cdot10^{3}$ on the
 trapezoid and $3.9\cdot10^{3}$ on the general element at $p=12$. In other words, the
@@ -240,8 +240,8 @@ the identity. Note that for $p\le4$ the scaling can slightly increase the condit
 
 \paragraph{Distorted meshes} Three $3\times2$ meshes on $[0,3]\times[0,2]$ are
 considered: two with curved-edge distortion $0.15$ and $0.20$ and one with combined
-angular and curved-edge distortion (\cref{app:elements}). The minimum $\det\matr J$ at the
-quadrature points is $0.16$, $0.09$ and $0.02$, respectively, relative to $0.25$ for the
+angular and curved-edge distortion (\cref{app:elements}). The minimum of $\det\matr J$ over
+the elements is $0.16$, $0.09$ and $0.014$, respectively, relative to $0.25$ for the
 undistorted mesh. The meshes are loaded by prescribing the harmonic field
 $\vect u=(\operatorname{Re}z^p,-\operatorname{Im}z^p)$, $z=(x-1.3)+\mathrm i(y-0.7)$, at all
 boundary nodes. This is an equilibrium field of total degree $p$ without body force.
@@ -378,11 +378,11 @@ gives the number of eigenvalues with $\operatorname{Re}\lambda<0$ and
 $\max|\operatorname{Im}\lambda|/|\lambda|$. \Cref{fig:spectrum} depicts the maximum relative
 error of the real parts of the 8 eigenvalues of smallest modulus. Here, the classical
 element on the undistorted mesh with $p=12$ serves as reference. \PM\ produces eigenvalues with
-$\operatorname{Re}\lambda<0$ from $p=5$ (curved $0.20$, angular + curved) or $p=7$
+$\operatorname{Re}\lambda<0$ from $p=5$ (curved $0.20$, angular + curved $0.30$) or $p=7$
 (curved $0.15$) on, up to 25 of them at $p=10$, with
 $|\operatorname{Im}\lambda|/|\lambda|\to1$. These eigenvalues enter the low end of the
 spectrum, and the error of the lowest eigenvalues jumps to $1.9$ (curved $0.20$,
-$p=6$) and $0.35$ (angular + curved, $p=7$) and stagnates at $10^{-5}$--$10^{-3}$ for
+$p=6$) and $0.35$ (angular + curved $0.30$, $p=7$) and stagnates at $10^{-5}$--$10^{-3}$ for
 higher $p$. The error of \PP, on the other hand, decreases to a plateau of
 $4.4$--$4.5\cdot10^{-7}$ for $p\ge8$, which is common to all meshes and formulations
 without spurious modes. This plateau reflects the accuracy of the reference values
@@ -466,8 +466,8 @@ energy-consistent formulation \citep{Wang2022Temporal,Zaehringer2026On} would be
 
 Run times of the reference implementation (GNU Octave~8.4, one core, median of seven
 runs, general element) are compiled in \cref{tab:timing}. The Lagrange basis costs
-$1.0$--$1.35$ times as much as the monomials. The hybrid shape functions are $2$--$35$
-times more expensive to evaluate in this implementation, because the Jacobian at the query
+$1.0$--$1.34$ times as much as the monomials. The hybrid shape functions are $2$--$35$
+times more expensive to evaluate than those of \PM\ in this implementation, because the Jacobian at the query
 points is recomputed from the parametric shape-function derivatives and the basis matrix is
 assembled column by column. Both are implementation details rather than inherent
 costs, since the element routines already provide $\matr J(\bxi_q)$. At the level of the
@@ -524,7 +524,7 @@ base finds the interpolation matrix singular to working precision
 \begin{figure}[htbp]
   \centering
   \input{figures/fig-meshes}
-  \caption{Top: panel meshes of the Jacobian-unlimited patch test (\cref{sec:num-patch};
+  \caption{Top: panel meshes of the nodal rotation patch test (\cref{sec:num-patch};
     internal nodes rotated by $\theta$). Bottom: thick-cylinder meshes for $N=2$
     ($4\times4$ elements); the finer meshes repeat the pattern on $N^2$ super-elements.}
   \label{fig:meshes}
@@ -620,12 +620,13 @@ number $\cond_2(\matr V)$ of \PM\ exceeds its Lebesgue constant by up to two ord
 magnitude at $30^\circ$ and almost four at $45^\circ$ (extrapolation to the bounding box,
 \cref{prop:kappa}). The condition number of \PH\ is $10^2$--$10^5$ times smaller than that
 of \PM\ at $30^\circ$, $p\ge6$. In the companion study, the global stiffness matrices were
-analysed as well ($\alpha\le30^\circ$). Their smallest singular values agree to $1\,\%$ for the
-three elements, but the largest singular value of \PM\ exceeds that of \PP\ by up to a
-factor $344$, whereas that of \PH\ stays within a factor $1.2$. If the \PM\ error
-is expanded in the singular triplets, a single one of the six lowest triplets carries
-$21$--$68\,\%$ of the error in four of five cases with $\alpha\ge30^\circ$. For \PH\ and \PP,
-on the other hand, the error is spread over the spectrum.
+analysed as well. For the Lam\'e problem ($14$ cases with $\alpha\le30^\circ$), their smallest
+singular values agree to $1\,\%$ for the three elements, but the largest singular value of
+\PM\ exceeds that of \PP\ by up to a factor $344$, whereas that of \PH\ stays within a
+factor $1.2$. For the analytic field, the error of the discrete solution was expanded in
+the singular triplets. In four of the five \PM\ cases tested with $\alpha\ge30^\circ$, a
+single one of the six lowest triplets carries $21$--$68\,\%$ of the error. For \PH\ and
+\PP, on the other hand, the error is spread over the spectrum.
 
 \begin{table}[htbp]
   \centering\small

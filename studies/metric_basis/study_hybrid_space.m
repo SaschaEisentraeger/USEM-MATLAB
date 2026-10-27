@@ -10,7 +10,7 @@ function R = study_hybrid_space(varargin)
 %   curved-edge distortion of the interior mid-side nodes:
 %     'curved15'  : curved, amount 0.15   (min det J = 0.16)
 %     'curved20'  : curved, amount 0.20   (min det J = 0.09)
-%     'combined30': angular 0.3 + curved 0.3 (min det J = 0.014)
+%     'combined30': angular 0.3 + curved 0.15 (min det J = 0.014)
 %   For each p:
 %     patch   max relative nodal error, harmonic field of degree p
 %             (exact for methods 1 and 2)

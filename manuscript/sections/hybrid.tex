@@ -79,7 +79,7 @@ Let the hybrid Vandermonde matrix be non-singular. Then
 \item[(i)] $\dim\Tp_p=n$, the sum in \eqref{eq:hybrid} is direct, and the shape
   functions exist and are unique;
 \item[(ii)] $\Pp_m(x,y)\subset\Tp_p$; in particular \cref{prop:immunity} holds with
-  $q=m$, and the rigid-body modes are contained;
+  $k=m$, and the rigid-body modes are contained;
 \item[(iii)] $\Tp_p$ is invariant under affine transformations of the element
   (\cref{lem:affine});
 \item[(iv)] if $\vect F_e$ is bilinear (straight-edged quadrilateral), then
@@ -117,7 +117,8 @@ q\in\Qp_p(s,t)\}$. Define
   \label{eq:S}
 \end{equation}
 and denote by $\mathcal I_T$, $\mathcal I_Q$ the nodal interpolation operators of
-$\hat\Tp_p$ and $\hat\Qp$ (all functions pulled back to $\hat\Omega$).
+$\hat\Tp_p$ and $\hat\Qp$ (all functions pulled back to $\hat\Omega$) and by $\Lam_T$,
+$\Lam_Q$ the corresponding Lebesgue constants \eqref{eq:lebesgue}.
 
 \begin{proposition}[Representation of the metric interpolants]
 \label{prop:representation}
@@ -227,23 +228,23 @@ where $\matr A$ becomes singular.
 
 \begin{lemma}[Interpolation error]
 \label{lem:interp}
-Let $\mathcal U_e\in\{\Tp_p,\Qp_p(s,t)\}$ be unisolvent, $q_e$ its completeness
+Let $\mathcal U_e\in\{\Tp_p,\Qp_p(s,t)\}$ be unisolvent, $k_e$ its completeness
 degree ($m$ resp.\ $p$) and $\Lam_{\mathcal U}$ its Lebesgue constant, and let
 $\tilde\Omega_e$ be the convex hull of $\Omega_e$. Then for
-$u\in W^{q_e+1,\infty}(\tilde\Omega_e)$
+$f\in W^{k_e+1,\infty}(\tilde\Omega_e)$
 \begin{equation}
   \begin{aligned}
-  \|u-\mathcal I_{\mathcal U}u\|_{L^\infty(\Omega_e)}
-  &\le(1+\Lam_{\mathcal U})\inf_{q\in\Pp_{q_e}(x,y)}\|u-q\|_{L^\infty(\Omega_e)}\\
-  &\le C\,(1+\Lam_{\mathcal U})\,h_e^{q_e+1}|u|_{W^{q_e+1,\infty}(\tilde\Omega_e)} .
+  \|f-\mathcal I_{\mathcal U}f\|_{L^\infty(\Omega_e)}
+  &\le(1+\Lam_{\mathcal U})\inf_{q\in\Pp_{k_e}(x,y)}\|f-q\|_{L^\infty(\Omega_e)}\\
+  &\le C\,(1+\Lam_{\mathcal U})\,h_e^{k_e+1}|f|_{W^{k_e+1,\infty}(\tilde\Omega_e)} .
   \end{aligned}
   \label{eq:interp}
 \end{equation}
 Moreover, with the derivative Lebesgue constant
 $\Lam'_{\mathcal U}=h_e\max_{\bx\in\Omega_e}\sum_l|\nabla M_l^e(\bx)|$,
 \begin{equation}
-  |u-\mathcal I_{\mathcal U}u|_{W^{1,\infty}(\Omega_e)}
-  \le C\,(1+\Lam'_{\mathcal U})\,h_e^{q_e}|u|_{W^{q_e+1,\infty}(\tilde\Omega_e)} .
+  |f-\mathcal I_{\mathcal U}f|_{W^{1,\infty}(\Omega_e)}
+  \le C\,(1+\Lam'_{\mathcal U})\,h_e^{k_e}|f|_{W^{k_e+1,\infty}(\tilde\Omega_e)} .
   \label{eq:interp1}
 \end{equation}
 For a family of elements obtained from a fixed element by similarity
@@ -251,16 +252,16 @@ transformations (self-similar refinement), $\Lam_{\mathcal U}$ and $\Lam'_{\math
 are independent of $h_e$ by \cref{lem:affine}.
 \end{lemma}
 \begin{proof}
-$\mathcal I_{\mathcal U}$ reproduces $\Pp_{q_e}(x,y)$, so
-$u-\mathcal I_{\mathcal U}u=(u-q)-\mathcal I_{\mathcal U}(u-q)$ for every such $q$. Choose
-$q$ as the Taylor polynomial of degree $q_e$ of $u$ about a point of $\tilde\Omega_e$; then
-$\|u-q\|_{L^\infty}\le Ch_e^{q_e+1}|u|_{W^{q_e+1,\infty}}$ and
-$|u-q|_{W^{1,\infty}}\le Ch_e^{q_e}|u|_{W^{q_e+1,\infty}}$ on $\tilde\Omega_e$, with $C$
-depending only on $q_e$. The $L^\infty$ estimate follows from
-$\|\mathcal I_{\mathcal U}(u-q)\|_\infty\le\Lam_{\mathcal U}\|u-q\|_\infty$, the
+$\mathcal I_{\mathcal U}$ reproduces $\Pp_{k_e}(x,y)$, so
+$f-\mathcal I_{\mathcal U}f=(f-q)-\mathcal I_{\mathcal U}(f-q)$ for every such $q$. Choose
+$q$ as the Taylor polynomial of degree $k_e$ of $f$ about a point of $\tilde\Omega_e$; then
+$\|f-q\|_{L^\infty}\le Ch_e^{k_e+1}|f|_{W^{k_e+1,\infty}}$ and
+$|f-q|_{W^{1,\infty}}\le Ch_e^{k_e}|f|_{W^{k_e+1,\infty}}$ on $\tilde\Omega_e$, with $C$
+depending only on $k_e$. The $L^\infty$ estimate follows from
+$\|\mathcal I_{\mathcal U}(f-q)\|_\infty\le\Lam_{\mathcal U}\|f-q\|_\infty$, the
 $W^{1,\infty}$ estimate from
-$|\nabla\mathcal I_{\mathcal U}(u-q)|\le\|u-q\|_\infty\sum_l|\nabla M_l^e|
-\le h_e^{-1}\Lam'_{\mathcal U}\|u-q\|_\infty$. Under a similarity
+$|\nabla\mathcal I_{\mathcal U}(f-q)|\le\|f-q\|_\infty\sum_l|\nabla M_l^e|
+\le h_e^{-1}\Lam'_{\mathcal U}\|f-q\|_\infty$. Under a similarity
 $\bx\mapsto\alpha\matr R\bx+\vect c$ the shape functions are unchanged as functions of the
 material point (\cref{lem:affine}), their gradients scale with $\alpha^{-1}$ and $h_e$ with
 $\alpha$, so $\Lam'_{\mathcal U}$ is invariant.

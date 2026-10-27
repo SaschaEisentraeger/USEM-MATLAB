@@ -45,8 +45,9 @@ $\matr B_R$ those of the metric functions, evaluated at $\vect F_e(\bxi)$.
 Since $\tilde{\matr B}_L$ is assembled from $\adj\matr J\,\nabla_{\bxi}\hat N_k$,
 $\det\matr J$ does not appear in a denominator. The element stiffness matrix is
 unsymmetric unless $\mathcal U_e=\mathcal W_h|_{\Omega_e}$. The consistent mass matrix is
-$\matr M_e=\int_{\hat\Omega}\rho\,\matr N^\T\matr M\det\matr J\dd\xi\dd\eta$ with
-the parametric ($\matr N$) and metric ($\matr M$) function values. With GLL nodal
+$\matr M_e=\int_{\hat\Omega}\rho\,\matr N_L^\T\matr N_R\det\matr J\dd\xi\dd\eta$, where
+$\matr N_L$ and $\matr N_R$ contain the values of the parametric and of the metric
+functions, respectively. With GLL nodal
 quadrature, it is diagonal, because both families are interpolatory at the GLL nodes.
 In the following, we refer to the formulation as \PP\ (parametric test and trial functions, i.e.\ the
 classical spectral element) or \PM\ (parametric test, metric trial functions), and to
@@ -56,9 +57,9 @@ classical spectral element) or \PM\ (parametric test, metric trial functions), a
 
 \begin{proposition}[Distortion immunity]
 \label{prop:immunity}
-Let every element map $\vect F_e$ be bijective, let $\Pp_q(x,y)\subset\mathcal U_e$ for
+Let every element map $\vect F_e$ be bijective, let $\Pp_k(x,y)\subset\mathcal U_e$ for
 every element, let the exact solution of \eqref{eq:strong} satisfy
-$\vect u\in[\Pp_q(x,y)]^2$, let the quadrature of \eqref{eq:Ke} and of the load vector be
+$\vect u\in[\Pp_k(x,y)]^2$, let the quadrature of \eqref{eq:Ke} and of the load vector be
 exact for the resulting integrands, and let the global system matrix (after imposing the
 Dirichlet conditions) be non-singular. Then the solution of \eqref{eq:pg} is
 $\vect u_h=\vect u$, independently of the shape of the elements.
@@ -122,7 +123,7 @@ $\vect s'=\matr J_0^{-\T}\matr A^{-1}\matr A(\bx-\bx_0)=\vect s$.
 \end{proof}
 Since $\vect s$ is affine in $\bx$, $\Qp_p(s,t)\supset\Pp_{p}(s,t)=\Pp_p(x,y)$, and
 therefore the space $\mathcal U_e=\Qp_p(s,t)$ satisfies the hypothesis of
-\cref{prop:immunity} with $q=p$ on every element. On an affine element (parallelogram),
+\cref{prop:immunity} with $k=p$ on every element. On an affine element (parallelogram),
 $\vect F_e$ is affine and $\vect s=\bxi$. Consequently, the metric and parametric
 functions coincide. Tensor products of monomials in centroid-shifted Cartesian
 coordinates \citep{Rajendran2003novel} span $\Qp_p(x,y)$. This space contains
