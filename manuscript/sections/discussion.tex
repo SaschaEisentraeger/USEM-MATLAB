@@ -1,71 +1,75 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\paragraph{What each improvement achieves}
-The two improvements act on different error sources and should not be conflated.
-The Lagrange basis of \cref{sec:basis} removes the ill-conditioning \emph{of the
-construction}: it is exact on affine elements, and on distorted ones it reduces the
-condition number by orders of magnitude relative to monomials, while
-\cref{prop:kappa} shows that the remainder stems from extrapolating the metric
-interpolant to the bounding box of the element. It cannot
-change the shape functions (\cref{prop:invariance}) and hence cannot change the
-Lebesgue constant, the patch-test behaviour in exact arithmetic, the eigenvalues or
-the discrete solution beyond round-off. The hybrid space of \cref{sec:hybrid} changes
-the \emph{space}, and with it the Lebesgue constant, the stability properties and the
-approximation constant. Both are needed: the hybrid space has its own Vandermonde
-matrix, which in the Legendre-type basis used here is better conditioned than that of
-$\Qp_p(s,t)$ in any basis for $p\ge4$ (by up to five orders of magnitude at $p=16$),
-because the complement is evaluated on the exact GLL tensor grid, but whose condition
-number still grows with $p$ ($\approx2\cdot10^{6}$ at $p=16$, \cref{fig:kappa}).
+\paragraph{Effect of the two improvements}
+Note that the two improvements act on different sources of error and, therefore, have to
+be assessed separately. The Lagrange basis of \cref{sec:basis} removes the
+ill-conditioning \emph{of the construction}. It is exact on affine elements, and on
+distorted ones it reduces the condition number by orders of magnitude relative to
+monomials. The remainder stems from extrapolating the metric interpolant to the bounding
+box of the element (\cref{prop:kappa}). The basis cannot change the shape functions
+(\cref{prop:invariance}), and consequently it cannot change the Lebesgue constant, the
+patch-test behaviour in exact arithmetic, the eigenvalues or the discrete solution beyond
+round-off. The hybrid space of \cref{sec:hybrid}, in contrast, changes the \emph{space},
+and with it the Lebesgue constant, the stability properties and the approximation
+constant. Both improvements are needed, since the hybrid space has its own Vandermonde
+matrix. In the Legendre-type basis used here, this matrix is better conditioned than that
+of $\Qp_p(s,t)$ in any basis for $p\ge4$ (by up to five orders of magnitude at $p=16$),
+because the complement is evaluated on the exact GLL tensor grid. Its condition number
+still grows with $p$ ($\approx2\cdot10^{6}$ at $p=16$, \cref{fig:kappa}).
 
 \paragraph{Trade-off between the two trial spaces}
 For smooth solutions on meshes where $\Qp_p(s,t)$ is stable, \PM\ is
 more accurate than \PH\ by a factor of $1.3$--$5.5$ in the energy norm, at the same
-convergence order (\cref{sec:num-convergence}). The reason is the larger Cartesian
-polynomial content of $\Qp_p(s,t)$. This advantage is lost abruptly when the Lebesgue
-constant of $\Qp_p(s,t)$ becomes large: on the $\delta=0.2$ meshes \PM\ diverges for
-$p\ge5$, and on all three $3\times2$ meshes it develops complex and negative eigenvalues
-from $p=5$--$7$ on. Neither the degree nor the amount of distortion at which this happens
-is known a priori; the Jacobian is not an indicator (the bent element has
-$\det\matr J\equiv1$). \PH\ was stable and optimally convergent in every non-folded case
-studied. In our view this makes $\Tp_p$ the appropriate default for high-order
-unsymmetric spectral elements, in particular for transient, modal and frequency-domain
-analyses, whereas $\Qp_p(s,t)$ remains attractive for static analyses at low to moderate
-degree and distortion, where its larger Cartesian content pays off. An element-level
-indicator for the latter choice is $\Lam_Q$ itself, which can be estimated by evaluating
-the metric shape functions on a sampling grid in the element (the condition number of
-$\matr V$ is not a substitute, since it also contains the extrapolation to the bounding
-box, \cref{prop:kappa}).
+convergence order (\cref{sec:num-convergence}). This is due to the larger Cartesian
+polynomial content of $\Qp_p(s,t)$. This advantage is, however, lost abruptly when the
+Lebesgue constant of $\Qp_p(s,t)$ becomes large. On the $\delta=0.2$ meshes, \PM\ diverges
+for $p\ge5$, and on all three $3\times2$ meshes it develops complex and negative
+eigenvalues from $p=5$--$7$ on. Neither the degree nor the amount of distortion at which
+this happens is known a priori, and the Jacobian is not an indicator either (the bent
+element has $\det\matr J\equiv1$). \PH\ was stable and optimally convergent in every
+non-folded case studied. In our opinion, this makes $\Tp_p$ the appropriate default for
+high-order unsymmetric spectral elements, in particular for transient, modal and
+frequency-domain analyses. The space $\Qp_p(s,t)$, on the other hand, remains attractive
+for static analyses at low to moderate degree and distortion, where its larger Cartesian
+content pays off. An element-level indicator for the latter choice is $\Lam_Q$ itself,
+which can be estimated by evaluating the metric shape functions on a sampling grid in the
+element. Note that the condition number of $\matr V$ is not a substitute, since it also
+contains the extrapolation to the bounding box (\cref{prop:kappa}).
 
 \paragraph{Folded elements}
 Exactness for polynomial solutions is observed on folded elements for both
 spaces (\cref{rem:folded}), as the patch tests on the panel meshes of
-\cref{sec:num-patch} confirm; at $p=8$, \PH\ reduces the round-off level there by one
+\cref{sec:num-patch} confirm. At $p=8$, \PH\ reduces the round-off level there by one
 to two orders of magnitude. For non-polynomial solutions on folded meshes, however, \PH\
-converges less regularly than on valid meshes, and its energy error stagnates, because
-the complement part of $\matr K_e$ contains $1/\det\matr J$, which is singular on the
-curve $\det\matr J=0$ inside the element. A remedy would be to integrate these terms
-with a rule adapted to the singular curve, or to write the complement gradients in a form
-that avoids $\matr J^{-1}$ (e.g.\ by multiplying the complement functions by $\det\matr J$,
-which changes the space); we have not pursued this. On folded meshes \PM\ is unstable at
+converges less regularly than on valid meshes, and its energy error stagnates. This is due
+to the fact that the complement part of $\matr K_e$ contains $1/\det\matr J$, which is
+singular on the curve $\det\matr J=0$ inside the element. A remedy would be to integrate
+these terms with a rule adapted to the singular curve or to write the complement
+gradients in a form that avoids $\matr J^{-1}$ (e.g.\ by multiplying the complement
+functions by $\det\matr J$, which changes the space). This is out of the scope of this
+contribution and left for future research. On folded meshes, \PM\ is unstable at
 high order in our tests, and \PP\ converges with reduced order in the nodal error.
 
 \paragraph{Limitations}
-\begin{itemize}
-\item No a priori stability (discrete inf-sup \citep{Babuska1971Error}) estimate is
-  available for either metric space; quasi-optimality of \PH\ is observed for the thick
-  cylinder (\cref{tab:quasiopt}), not proven; the statements on stability rest on the computed spectra, condition numbers
-  and convergence histories. \Cref{prop:representation} gives exact representations and
-  upper bounds of the Lebesgue constants, but the size of the correction operators is
-  quantified numerically only.
+The following limitations of the present study have to be kept in mind:
+\begin{enumerate}
+\item No a priori stability estimate (discrete inf-sup condition
+  \citep{Babuska1971Error}) is available for either metric space. The quasi-optimality of
+  \PH\ is observed for the thick cylinder (\cref{tab:quasiopt}), but not proven, and the
+  statements on stability rest on the computed spectra, condition numbers and convergence
+  histories. While \cref{prop:representation} gives exact representations and upper
+  bounds of the Lebesgue constants, the size of the correction operators is only
+  quantified numerically.
 \item The completeness degree of $\Tp_p$ is $\min(p_\xi,p_\eta)$, the same as for
-  $\Qp_{p_\xi,p_\eta}(s,t)$; neither space reproduces $\Pp_{\max(p_\xi,p_\eta)}$.
+  $\Qp_{p_\xi,p_\eta}(s,t)$, and neither space reproduces
+  $\Pp_{\max(p_\xi,p_\eta)}$.
 \item The complement contributes rational integrands to $\matr K_e$ and
-  $\matr M_e$; Gauss quadrature is then not exact, as for curved isoparametric
-  elements. Where $\det\matr J$ vanishes inside an element, the integrands are singular.
+  $\matr M_e$. As for curved isoparametric elements, Gauss quadrature is then not exact.
+  Where $\det\matr J$ vanishes inside an element, the integrands are singular.
 \item The study is restricted to linear plane elasticity on quadrilaterals with at most
   biquadratic geometry. The construction carries over to hexahedra
   ($\Pp_p(x,y,z)\oplus\Cp_p$ with the $L^2$-complement of $\Pp_p(\xi,\eta,\zeta)$ in
-  $\Qp_p(\xi,\eta,\zeta)$) and to triangles (complement in a simplex basis), but has not
+  $\Qp_p(\xi,\eta,\zeta)$) and to triangles (complement in a simplex basis), but it has not
   been tested there.
-\end{itemize}
+\end{enumerate}

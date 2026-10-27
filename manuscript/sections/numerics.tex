@@ -2,14 +2,14 @@
 \label{sec:numerics}
 
 All computations use the MATLAB/GNU Octave implementation of the unsymmetric spectral
-element (USEM code base) in IEEE double precision; the data were produced with GNU
-Octave~8.4 by the scripts in \texttt{manuscript/studies}. Unless stated otherwise:
-GLL nodes, $p_\xi=p_\eta=p$, isotropic material with $\nu=0.3$ (plane stress),
-$2p\times2p$ Gauss points for $\matr K_e$ and the consistent mass matrix. The
+element (USEM code base) in IEEE double precision. The data were produced with GNU
+Octave~8.4 by the scripts in \texttt{manuscript/studies}. If not stated otherwise, GLL
+nodes, $p_\xi=p_\eta=p$, an isotropic material with $\nu=0.3$ (plane stress) and
+$2p\times2p$ Gauss points for $\matr K_e$ and the consistent mass matrix are used. The
 geometry is generated from 8-node (serendipity) input elements and lifted to degree
-$p$, so the element maps are at most biquadratic ($g\le2$). The three formulations
-compared are \PP\ (classical spectral element), \PM\ (metric trial space
-$\Qp_p(s,t)$, Lagrange basis, \cref{sec:basis}) and \PH\ (hybrid trial space
+$p$, and therefore the element maps are at most biquadratic ($g\le2$). In the following,
+three formulations are compared: \PP\ (classical spectral element), \PM\ (metric trial
+space $\Qp_p(s,t)$, Lagrange basis, \cref{sec:basis}) and \PH\ (hybrid trial space
 $\Tp_p$, \cref{sec:hybrid}).
 
 \subsection{Test elements and node geometry}
@@ -17,12 +17,12 @@ $\Tp_p$, \cref{sec:hybrid}).
 
 Four single elements are used: a parallelogram (affine), a trapezoid (straight
 edges, bilinear map), an element with two curved edges (``curved'') and an element
-with angular and curved-edge distortion (``general''); their 8-node coordinates are
+with angular and curved-edge distortion (``general''). Their 8-node coordinates are
 listed in \cref{app:elements}. \Cref{fig:nodes} shows the GLL nodes of the general
 element for $p=8$ in the three coordinate systems involved. In the scaled skew
 coordinates, in which $\Qp_p(s,t)$ interpolates, the nodes form a visibly perturbed
-tensor grid; in the reference coordinates, in which the complement $\Cp_p$ of the
-hybrid space interpolates, they form the exact GLL grid.
+tensor grid. In the reference coordinates, on the other hand, in which the complement
+$\Cp_p$ of the hybrid space interpolates, they form the exact GLL grid.
 
 \begin{figure}[htbp]
   \centering
@@ -36,7 +36,7 @@ hybrid space interpolates, they form the exact GLL grid.
 \label{sec:num-conditioning}
 
 \Cref{fig:kappa} shows $\cond_2(\matr V)$ for the four bases of $\Qp_p(s,t)$ and for
-the hybrid space; \cref{fig:kron} shows the error of the Kronecker property of the
+the hybrid space. \Cref{fig:kron} depicts the error of the Kronecker property of the
 computed shape functions, $e_\delta=\max_{l,k}|M_l^e(\bx_k)-\delta_{lk}|$, which is the
 error for unit nodal data (\cref{rem:reproduction}).
 
@@ -44,8 +44,8 @@ error for unit nodal data (\cref{rem:reproduction}).
 $2.9\cdot10^{2}$ ($p=4$) over $2.9\cdot10^{5}$ ($p=8$) to $3.5\cdot10^{11}$ ($p=16$),
 i.e.\ by a factor of about $5.8\approx(1+\sqrt2)^2$ per degree, the square of the 1D
 growth. Legendre polynomials give $\cond_2=10.2$, $24.4$, $55.3$, Chebyshev
-polynomials $\cond_2\le3$, and the Lagrange basis $\cond_2=1$ for every $p$
-(\cref{cor:affine}). Accordingly, $e_\delta$ grows with $p$ as $\cond_2(\matr V)u$ for
+polynomials $\cond_2\le3$, and the Lagrange basis yields $\cond_2=1$ for every $p$, as
+expected from \cref{cor:affine}. Accordingly, $e_\delta$ grows with $p$ as $\cond_2(\matr V)u$ for
 the monomials ($2.0\cdot10^{-12}$ at $p=8$, $1.1\cdot10^{-6}$ at $p=16$) and is at most
 $1.1\cdot10^{-28}$ for the Lagrange basis. The asymmetry
 $\|\matr K_e-\matr K_e^\T\|_F/\|\matr K_e\|_F$, zero in exact arithmetic, follows
@@ -68,22 +68,26 @@ on the distorted elements.
 
 \paragraph{Distorted elements} On the trapezoid, the curved and the general element,
 the three bases of $[-1,1]$ (with bounding-box scaling) lie within a factor of
-about~3 of one another; they improve on the monomials by a factor of 4--13 at $p=4$
-and of $4.6\cdot10^{3}$--$4.5\cdot10^{4}$ at $p=16$ (general element: $\cond_2=1.7\cdot10^{6}$ versus $4.7$--$8.4\cdot10^{4}$ at
-$p=8$, $9.0\cdot10^{14}$ versus $0.9$--$2.0\cdot10^{11}$ at $p=16$). With monomials
+about~3 of one another. Compared with the monomials, they improve the condition number by
+a factor of 4--13 at $p=4$ and of $4.6\cdot10^{3}$--$4.5\cdot10^{4}$ at $p=16$ (general element: $\cond_2=1.7\cdot10^{6}$ versus $4.7$--$8.4\cdot10^{4}$ at
+$p=8$, $9.0\cdot10^{14}$ versus $0.9$--$2.0\cdot10^{11}$ at $p=16$). With monomials,
 the trapezoid at $p=16$ is rejected as singular to working precision. In the Lagrange
-basis $e_\delta$ is reduced accordingly (trapezoid, curved and general element at
+basis, $e_\delta$ is reduced accordingly (trapezoid, curved and general element at
 $p=16$: $7.1\cdot10^{-6}$, $6.0\cdot10^{-9}$ and $1.8\cdot10^{-6}$, versus rejection,
 $4.9\cdot10^{-5}$ and $6.5\cdot10^{-4}$ with monomials). The remaining growth is caused by
-the extrapolation of the metric interpolant to the bounding box (\cref{prop:kappa}): the
+the extrapolation of the metric interpolant to the bounding box (\cref{prop:kappa}). On
+the general element, for instance, the
 factor $\cond_1(\matr V)/\|\matr V\|_1=\max_d\lambda_{\mathcal U}(\hat{\vect s}_d)$ is
-$9.8\cdot10^{4}$ on the general element at $p=8$, where $\Lam_Q=3.2\cdot10^{2}$, and
+$9.8\cdot10^{4}$ at $p=8$, where $\Lam_Q=3.2\cdot10^{2}$, and
 $1.4\cdot10^{11}$ at $p=16$, where $\Lam_Q=6.9\cdot10^{6}$. The hybrid space has a different
-interpolation problem; its Vandermonde matrix is as well conditioned as that of
-$\Qp_p(s,t)$ for $p\le3$ and better conditioned in any basis from $p=4$ on, by a factor
-of $2$--$6$ at $p=4$ and of $1.6\cdot10^{3}$--$1.9\cdot10^{5}$ at $p=16$: $\cond_2=7.8\cdot10^{2}$ versus $\ge1.3\cdot10^{5}$ (trapezoid, $p=8$) and
+interpolation problem. Its Vandermonde matrix is as well conditioned as that of
+$\Qp_p(s,t)$ for $p\le3$, and from $p=4$ on it is better conditioned than that of
+$\Qp_p(s,t)$ in any basis, namely by a factor
+of $2$--$6$ at $p=4$ and of $1.6\cdot10^{3}$--$1.9\cdot10^{5}$ at $p=16$. For instance, we
+obtain $\cond_2=7.8\cdot10^{2}$ versus $\ge1.3\cdot10^{5}$ (trapezoid, $p=8$) and
 $1.7$--$2.0\cdot10^{6}$ versus $\ge8.5\cdot10^{10}$ (trapezoid and general element,
-$p=16$), with $e_\delta\le3.2\cdot10^{-11}$ for all elements and $p\le16$.
+$p=16$). The error of the Kronecker property satisfies $e_\delta\le3.2\cdot10^{-11}$ for
+all elements and $p\le16$.
 
 \begin{figure}[htbp]
   \centering
@@ -109,31 +113,31 @@ $p=16$), with $e_\delta\le3.2\cdot10^{-11}$ for all elements and $p\le16$.
 
 The Lebesgue constants are evaluated on a uniform grid of $(6p+11)^2$ reference
 points mapped to the element. \Cref{fig:lebesgue} shows them versus $p$ for the three
-distorted test elements, \cref{fig:sweep} versus the amount of distortion $\delta$ for
-three one-parameter families on $\hat\Omega$: a ``bent'' element (mid-side nodes of the
-bottom and top edge moved by $\delta$ in $y$, so that $x=\xi$,
-$y=\eta+\delta(1-\xi^2)$ and $\det\matr J\equiv1$), an element with one curved edge,
-and a trapezoid (top corners moved inwards by $\delta$; bilinear).
+distorted test elements. In \cref{fig:sweep}, they are depicted versus the amount of
+distortion $\delta$ for three one-parameter families on $\hat\Omega$: (i) a ``bent''
+element (mid-side nodes of the bottom and top edge moved by $\delta$ in $y$, so that
+$x=\xi$, $y=\eta+\delta(1-\xi^2)$ and $\det\matr J\equiv1$), (ii) an element with one
+curved edge and (iii) a trapezoid (top corners moved inwards by $\delta$; bilinear).
 
-\paragraph{Dependence on the degree} On all distorted elements $\Lam_Q$ grows
+\paragraph{Dependence on the degree} On all distorted elements, $\Lam_Q$ grows
 exponentially with $p$: on the trapezoid from $10.4$ ($p=4$) over $7.7\cdot10^{2}$
 ($p=8$) to $3.9\cdot10^{7}$ ($p=16$), on the curved element to $5.5\cdot10^{4}$ and on
-the general element to $6.9\cdot10^{6}$ at $p=16$. The hybrid space gives
-$\Lam_T=\Lam_N$ exactly on the trapezoid (\cref{cor:defect}; $6.09$ at $p=16$) and
-$\Lam_T\le1.07\,\Lam_N$ for $p\ge3$ on the curved element ($1.14\,\Lam_N$ at $p=2$). On the
-general element $\Lam_T\le1.05\,\Lam_N$ for $3\le p\le10$ ($1.11\,\Lam_N$ at $p=2$), and the
-ratio grows for higher $p$ to $1.12$ ($p=12$) and $1.40$ ($p=16$, $\Lam_T=8.5$ versus
-$\Lam_N=6.1$), almost six orders of magnitude below $\Lam_Q$ at that degree.
+the general element to $6.9\cdot10^{6}$ at $p=16$. As expected from \cref{cor:defect},
+the hybrid space gives $\Lam_T=\Lam_N$ exactly on the trapezoid ($6.09$ at $p=16$). On the
+curved element, $\Lam_T\le1.07\,\Lam_N$ holds for $p\ge3$ ($1.14\,\Lam_N$ at $p=2$). On the
+general element, $\Lam_T\le1.05\,\Lam_N$ for $3\le p\le10$ ($1.11\,\Lam_N$ at $p=2$). For
+higher $p$, the ratio grows to $1.12$ ($p=12$) and $1.40$ ($p=16$, $\Lam_T=8.5$ versus
+$\Lam_N=6.1$), which is still almost six orders of magnitude below $\Lam_Q$ at that degree.
 
 \paragraph{Dependence on the distortion} \Cref{fig:sweep} separates the effect of the
 distortion from that of the degree. For the bent element, whose Jacobian determinant is
 constant, $\Lam_Q$ grows from the GLL value to $8.2$, $1.9\cdot10^{2}$ and
-$6.4\cdot10^{3}$ at $\delta=0.5$ for $p=4,8,12$, so the growth is not caused by a
-degenerating Jacobian. $\Lam_T$ stays within $11\,\%$ of $\Lam_N$ over the whole range.
-For the element with one curved edge, $\Lam_T=\Lam_N$ (to two digits) up to
-$\delta\approx0.4$, and grows beyond; at the extreme $\delta=1$ (mid-side node moved by
-half the edge length) $\Lam_T=5.7$, $65$, $8.6\cdot10^{2}$ for $p=4,8,12$, compared with
-$\Lam_Q=71$, $4.6\cdot10^{4}$, $3.2\cdot10^{7}$. For the trapezoid, $\Lam_T=\Lam_N$ exactly
+$6.4\cdot10^{3}$ at $\delta=0.5$ for $p=4,8,12$. Consequently, the growth is not caused by
+a degenerating Jacobian. In contrast, $\Lam_T$ stays within $11\,\%$ of $\Lam_N$ over the
+whole range. For the element with one curved edge, $\Lam_T=\Lam_N$ (to two digits) up to
+$\delta\approx0.4$, and $\Lam_T$ grows beyond. At the extreme $\delta=1$ (mid-side node
+moved by half the edge length), we obtain $\Lam_T=5.7$, $65$, $8.6\cdot10^{2}$ for
+$p=4,8,12$, compared with $\Lam_Q=71$, $4.6\cdot10^{4}$, $3.2\cdot10^{7}$. For the trapezoid, $\Lam_T=\Lam_N$ exactly
 for all $\delta$ (\cref{cor:defect}), whereas $\Lam_Q$ reaches $1.4\cdot10^{11}$ at
 $\delta=0.855$, $p=12$, and $\Qp_{12}(s,t)$ is rejected as singular to working precision at
 $\delta=0.9$. The condition numbers of the Vandermonde matrices behave alike
@@ -163,15 +167,16 @@ Lagrange basis, $4.8\cdot10^{6}$ for $\Tp_p$).
 plus a correction. \Cref{tab:deviation} quantifies the correction at the $(2p)^2$ Gauss
 points of $\matr K_e$, $d_N=\max_{k,q}|M_k(\bx_q)-N_k(\bx_q)|$, and its effect on the
 stiffness matrix, $d_K=\|\matr K_e-\matr K_e^{\PP}\|_F/\|\matr K_e^{\PP}\|_F$. For
-$\Qp_p(s,t)$ the correction grows exponentially with $p$, to $d_N=6.8\cdot10^{3}$ on the
-trapezoid and $3.9\cdot10^{3}$ on the general element at $p=12$; the metric shape
-functions then deviate from the parametric ones by up to $10^{3}$--$10^{4}$ between the
-nodes, and $\|\matr K_e-\matr K_e^{\PP}\|_F$ reaches $9$ (curved), $3.4\cdot10^{2}$
-(general) and $7.4\cdot10^{2}$ (trapezoid) times $\|\matr K_e^{\PP}\|_F$. For $\Tp_p$ the correction vanishes to round-off on the trapezoid
-(\cref{cor:defect}) and stays bounded on the curved elements, $d_N\le6.4\cdot10^{-2}$
-and $d_K\le4.2\cdot10^{-2}$ for all $p\le12$, decreasing with $p$ on the curved element.
-\PH\ is thus a small, $p$-robust perturbation of the classical element, confined to the
-completeness defect, which explains its classical-like spectral behaviour
+$\Qp_p(s,t)$, the correction grows exponentially with $p$, to $d_N=6.8\cdot10^{3}$ on the
+trapezoid and $3.9\cdot10^{3}$ on the general element at $p=12$. In other words, the
+metric shape functions deviate from the parametric ones by up to $10^{3}$--$10^{4}$
+between the nodes, and $\|\matr K_e-\matr K_e^{\PP}\|_F$ reaches $9$ (curved), $3.4\cdot10^{2}$
+(general) and $7.4\cdot10^{2}$ (trapezoid) times $\|\matr K_e^{\PP}\|_F$. For $\Tp_p$, on the
+other hand, the correction vanishes to round-off on the trapezoid (\cref{cor:defect}) and
+stays bounded on the curved elements ($d_N\le6.4\cdot10^{-2}$ and $d_K\le4.2\cdot10^{-2}$
+for all $p\le12$). On the curved element, it even decreases with $p$.
+Thus, \PH\ is a small, $p$-robust perturbation of the classical element, confined to the
+completeness defect. This explains its classical-like spectral behaviour
 (\cref{sec:num-spectra}).
 
 \begin{table}[htbp]
@@ -200,15 +205,15 @@ completeness defect, which explains its classical-like spectral behaviour
 \end{table}
 
 \paragraph{Bounding-box scaling} The Lagrange basis is always used together with the
-scaling \eqref{eq:bbox}; \cref{tab:scaling} separates the two effects. The scaling alone
-does not help the monomials (their condition number changes by less than a factor $2$, in
-either direction), so the gain over the original construction comes from the basis. On
-elements whose nodes leave $[-1,1]^2$ in skew coordinates (trapezoid, general element),
-however, the Lagrange basis retains this gain at high degree only with the scaling: without
-it, $\cond_2=2.2\cdot10^{15}$ on the trapezoid at $p=16$, no better than with monomials,
-instead of $8.6\cdot10^{11}$. On the curved element, whose nodes lie in $[-1,1]^2$, the scaling
-has no effect, and on the parallelogram it is the identity. For $p\le4$ the scaling can
-slightly increase the condition number.
+scaling \eqref{eq:bbox}. In \cref{tab:scaling}, the two effects are separated. The scaling
+alone does not help the monomials (their condition number changes by less than a factor
+$2$, in either direction), and therefore the gain over the original construction comes
+from the basis. On elements whose nodes leave $[-1,1]^2$ in skew coordinates (trapezoid,
+general element), however, the Lagrange basis retains this gain at high degree only with
+the scaling. Without it, we obtain $\cond_2=2.2\cdot10^{15}$ instead of $8.6\cdot10^{11}$ on
+the trapezoid at $p=16$, which is no better than with monomials. On the curved element,
+whose nodes lie in $[-1,1]^2$, the scaling has no effect, and on the parallelogram it is
+the identity. Note that for $p\le4$ the scaling can slightly increase the condition number.
 
 \begin{table}[htbp]
   \centering\small
@@ -233,20 +238,24 @@ slightly increase the condition number.
 \subsection{Patch tests}
 \label{sec:num-patch}
 
-\paragraph{Distorted meshes} The $3\times2$ meshes on $[0,3]\times[0,2]$ with
-curved-edge distortion $0.15$ and $0.20$ and with combined angular and curved-edge
-distortion (\cref{app:elements}; minimum $\det\matr J$ at the quadrature points $0.16$,
-$0.09$ and $0.02$, relative to $0.25$ for the undistorted mesh) are loaded by prescribing the harmonic field
+\paragraph{Distorted meshes} Three $3\times2$ meshes on $[0,3]\times[0,2]$ are
+considered: two with curved-edge distortion $0.15$ and $0.20$ and one with combined
+angular and curved-edge distortion (\cref{app:elements}). The minimum $\det\matr J$ at the
+quadrature points is $0.16$, $0.09$ and $0.02$, respectively, relative to $0.25$ for the
+undistorted mesh. The meshes are loaded by prescribing the harmonic field
 $\vect u=(\operatorname{Re}z^p,-\operatorname{Im}z^p)$, $z=(x-1.3)+\mathrm i(y-0.7)$, at all
-boundary nodes; it is an equilibrium field of total degree $p$ without body force.
-\Cref{tab:patch} lists the maximum relative nodal error. \PP\ fails, as expected
-for curved edges. Both metric spaces pass for every $p$; the round-off level of \PM\
-grows with $p$ to $1.2\cdot10^{-13}$--$8.1\cdot10^{-13}$ at $p=10$, whereas \PH\ stays at
+boundary nodes. This is an equilibrium field of total degree $p$ without body force.
+Therefore, both metric spaces are expected to reproduce it exactly, whereas \PP\ is
+expected to fail on the curved elements (\cref{sec:formulation}).
+\Cref{tab:patch} lists the maximum relative nodal error. Both metric spaces pass for every
+$p$, and \PP\ fails. The round-off level of \PM\ grows with $p$ to
+$1.2\cdot10^{-13}$--$8.1\cdot10^{-13}$ at $p=10$, whereas \PH\ stays at
 $\le3.1\cdot10^{-15}$ (cf.\ \cref{rem:reproduction}). For the smooth field
-$\vect u=(e^x\cos y,-e^x\sin y)$ on the same meshes all three elements converge
-exponentially in $p$; for $p\le8$, \PM\ is in most cases the more accurate unsymmetric
-element (by factors up to $17$), at $p=9,10$ \PH\ is more accurate or within a factor $1.5$,
-and \PH\ is $3.6$--$150$ times more accurate than \PP\ for $p=5,\dots,10$ (curved $0.20$).
+$\vect u=(e^x\cos y,-e^x\sin y)$ on the same meshes, all three elements converge
+exponentially in $p$. For $p\le8$, \PM\ is in most cases the more accurate unsymmetric
+element (by factors up to $17$), while at $p=9,10$ \PH\ is more accurate or within a factor
+$1.5$. Compared with \PP, \PH\ is $3.6$--$150$ times more accurate for $p=5,\dots,10$
+(curved $0.20$).
 
 \begin{table}[htbp]
   \centering\small
@@ -259,15 +268,15 @@ and \PH\ is $3.6$--$150$ times more accurate than \PP\ for $p=5,\dots,10$ (curve
 \paragraph{Folded elements} The nodal rotation patch test of
 \citet[Secs.~5.5--5.7]{Rajendran2010technique} uses the panel $[0,2]\times[-1,1]$
 discretised by $2\times2$ quadratic elements whose nodes are rotated with the angle
-$\theta$ (meshes a--f of that paper); for $\theta\ge90^\circ$ all four elements fold
+$\theta$ (meshes a--f of that paper). For $\theta\ge90^\circ$, all four elements fold
 ($\det\matr J\le0$ in parts of each element). The elements are lifted to degree $p$ with
 the interior nodes taken from the bilinear corner map. The load cases tension, pure bending
-and end shear have exact solutions of degree $1$, $2$ and $3$, so all of them lie in the
-trial spaces for $p\ge3$. \Cref{tab:panel} shows
-the maximum nodal error over the three load cases; the meshes are shown in
-\cref{fig:meshes}. Both metric spaces pass for all $\theta$; at $p=8$ the round-off level of
-\PM\ rises to $10^{-5}$ ($\theta=135^\circ$, $225^\circ$), that of \PH\ is one to two orders of
-magnitude lower. The classical element has nodal errors of $13$--$140\,\%$ for the shear load
+and end shear have exact solutions of degree $1$, $2$ and $3$, and therefore all of them
+lie in the trial spaces for $p\ge3$. \Cref{tab:panel} shows the maximum nodal error over
+the three load cases, and the meshes are depicted in \cref{fig:meshes}. Both metric spaces
+pass for all $\theta$. At $p=8$, the round-off level of \PM\ rises to $10^{-5}$
+($\theta=135^\circ$, $225^\circ$), whereas that of \PH\ is one to two orders of magnitude
+lower. The classical element has nodal errors of $13$--$140\,\%$ for the shear load
 on the folded meshes ($p=3,\dots,8$).
 
 \begin{table}[htbp]
@@ -284,17 +293,18 @@ on the folded meshes ($p=3,\dots,8$).
 
 The unit square is discretised by $N\times N$ elements, $N=2,4,8,16$, whose interior
 mid-side nodes are moved normal to their edge by $\delta h$ (\cref{app:elements}).
-The element shapes are thus the same on every mesh: the distortion does not vanish under
-refinement, which is the worst case for the classical element. For $\delta=0.1$ and
-$0.2$ all elements are valid (minimum $\det\matr J$ at the quadrature points $0.20$ and
-$0.095$, relative to $0.25$ for the undistorted mesh); for $\delta=0.3$ the elements fold
+Thus, the element shapes are the same on every mesh, and the distortion does not vanish
+under refinement, which is the worst case for the classical element. For $\delta=0.1$ and
+$0.2$, all elements are valid (minimum $\det\matr J$ at the quadrature points $0.20$ and
+$0.095$, relative to $0.25$ for the undistorted mesh). For $\delta=0.3$, the elements fold
 near two corners ($\det\matr J<0$ at quadrature points). The exact solution
 $\vect u=(\operatorname{Re}f,-\operatorname{Im}f)$, $f(z)=e^{2z}$, $z=x+\mathrm iy$, is an
 equilibrium field without body force and is prescribed at all boundary nodes. The relative
 energy-norm error $e_E$ is evaluated with the strains of the trial functions of each
-formulation and $(2p+2)^2$ Gauss points; on the folded meshes the energy integral contains
-$1/\det\matr J$ and is not meaningful, and the maximum relative nodal error $e_n$ is used.
-\Cref{fig:convergence} shows the errors, \cref{tab:rates} the observed rates.
+formulation and $(2p+2)^2$ Gauss points. On the folded meshes, the energy integral
+contains $1/\det\matr J$ and is not meaningful. Therefore, the maximum relative nodal error
+$e_n$ is used instead. The errors are depicted in \cref{fig:convergence}, and the observed
+rates are compiled in \cref{tab:rates}.
 
 \begin{figure}[htbp]
   \centering
@@ -318,43 +328,44 @@ $1/\det\matr J$ and is not meaningful, and the maximum relative nodal error $e_n
   \end{adjustbox}
 \end{table}
 
-\paragraph{Classical element} \PP\ converges with rates far below $p$, of the order of
+\paragraph{Classical element} Due to the persistent distortion, \PP\ is expected to
+converge with reduced rates. We observe rates far below $p$, of the order of
 $p/2$ ($r_{8,16}=0.89$, $0.82$, $1.84$, $1.72$, $2.80$ for $p=2,\dots,6$ at
-$\delta=0.2$), consistent with
+$\delta=0.2$), which is consistent with
 $\Pp_{\lfloor p/2\rfloor}(x,y)\subset\Qp_p(\xi,\eta)\circ\vect F_e^{-1}$ for biquadratic maps
-(\cref{sec:formulation}). On the finest mesh it is one to four and a half orders of
+(\cref{sec:formulation}). On the finest mesh, it is one to four and a half orders of
 magnitude less accurate than the stable metric elements.
 
 \paragraph{Moderate distortion ($\delta=0.1$)} Both metric spaces converge with the optimal
-rate $p$ for all $p\le6$. \PM\ is the more accurate one: the ratio
+rate $p$ for all $p\le6$. \PM\ is, however, the more accurate one, and the ratio
 $e_E^{\PH}/e_E^{\PM}$ on the finest mesh grows from $1.3$ ($p=2$) to $5.5$ ($p=6$). This is
-the expected price of the hybrid space for smooth solutions: $\Qp_p(s,t)$ contains
-Cartesian polynomials up to total degree $2p$, $\Tp_p$ only up to $p$, and the
-constant of the best approximation is correspondingly smaller for $\Qp_p(s,t)$.
+the expected price of the hybrid space for smooth solutions. Here, $\Qp_p(s,t)$ contains
+Cartesian polynomials up to total degree $2p$, whereas $\Tp_p$ contains them only up to
+$p$, and therefore the constant of the best approximation is smaller for $\Qp_p(s,t)$.
 
-\paragraph{Strong distortion ($\delta=0.2$)} For $p\le4$ the picture is the same (ratio
+\paragraph{Strong distortion ($\delta=0.2$)} For $p\le4$, the picture is the same (ratio
 $2$--$5$ in favour of \PM, optimal rates for both). For $p=5$ and $6$, however, \PM\
-\emph{diverges} under refinement: its error grows from $5.5\cdot10^{-7}$ ($N=4$) to
-$5.8\cdot10^{-3}$ ($N=16$) for $p=5$, and on the finest mesh it is larger than that of
-\PP.
-\PH\ converges with $r_{8,16}=4.97$ and $5.98$ and reaches $3.1\cdot10^{-9}$ and
+\emph{diverges} under refinement. For $p=5$, its error grows from $5.5\cdot10^{-7}$ ($N=4$)
+to $5.8\cdot10^{-3}$ ($N=16$), and on the finest mesh it is even larger than that of \PP.
+In contrast, \PH\ converges with $r_{8,16}=4.97$ and $5.98$ and reaches $3.1\cdot10^{-9}$ and
 $2.9\cdot10^{-11}$, i.e.\ six and seven orders of magnitude below \PM. Since the elements
 are the same on all meshes, the element-level quantities (Lebesgue constants, condition
 numbers) do not change with $N$, and by \cref{lem:interp} the interpolation error in
-$\Qp_p(s,t)$ decreases with the optimal order. The divergence of \PM\ can therefore not be
-attributed to approximation; it indicates a loss of stability of the assembled
+$\Qp_p(s,t)$ decreases with the optimal order. Therefore, the divergence of \PM\ cannot be
+attributed to approximation. Instead, it indicates a loss of stability of the assembled
 Petrov--Galerkin operator as the number of elements grows. This is consistent with the spurious eigenvalues of
 \cref{sec:num-spectra} and with the observations for the thick cylinder in
 \cref{sec:num-cylinder}.
 
 \paragraph{Folded elements ($\delta=0.3$)} \PM\ diverges for $p\ge4$ (nodal error up to
-$44$ at $p=5$, $N=16$). \PH\ converges in the nodal error, e.g.\ $p=5$:
+$44$ at $p=5$, $N=16$). \PH\ converges in the nodal error (e.g.\ $p=5$:
 $8.1\cdot10^{-5}$, $1.7\cdot10^{-6}$, $3.0\cdot10^{-8}$, $4.9\cdot10^{-10}$ for
-$N=2,\dots,16$, but less regularly than on the valid meshes ($p=6$ stagnates at
-$4\cdot10^{-10}$ on the two finest meshes), and the energy-norm error stagnates at
-$10^{-8}$ for $p\ge5$. The reason is the integrand $\propto1/\det\matr J$ of the complement
-part of $\matr K_e$ (\cref{sec:hybrid-gradients}), which is singular where $\det\matr J$
-changes sign and is not integrated accurately by Gauss quadrature. \PP\ converges in the
+$N=2,\dots,16$), but less regularly than on the valid meshes ($p=6$ stagnates at
+$4\cdot10^{-10}$ on the two finest meshes). Moreover, the energy-norm error stagnates at
+$10^{-8}$ for $p\ge5$. This is due to the fact that the integrand $\propto1/\det\matr J$ of
+the complement part of $\matr K_e$ (\cref{sec:hybrid-gradients}) is singular where
+$\det\matr J$ changes sign and, therefore, is not integrated accurately by Gauss
+quadrature. \PP\ converges in the
 nodal error with reduced rates ($2.8\cdot10^{-6}$ for $p=5$, $N=16$).
 
 \subsection{Eigenvalues and transient stability}
@@ -364,23 +375,24 @@ nodal error with reduced rates ($2.8\cdot10^{-6}$ for $p=5$, $N=16$).
 the boundary and the consistent mass matrix ($\rho=1$), the complete spectrum of
 $\matr K\bm\phi=\lambda\matr M\bm\phi$, $\lambda=\omega^2$, is computed. \Cref{tab:spectrum}
 gives the number of eigenvalues with $\operatorname{Re}\lambda<0$ and
-$\max|\operatorname{Im}\lambda|/|\lambda|$; \cref{fig:spectrum} the maximum relative error
-of the real parts of the 8 eigenvalues of smallest modulus, with the classical element on
-the undistorted mesh with $p=12$ as reference. \PM\ produces eigenvalues with
+$\max|\operatorname{Im}\lambda|/|\lambda|$. \Cref{fig:spectrum} depicts the maximum relative
+error of the real parts of the 8 eigenvalues of smallest modulus. Here, the classical
+element on the undistorted mesh with $p=12$ serves as reference. \PM\ produces eigenvalues with
 $\operatorname{Re}\lambda<0$ from $p=5$ (curved $0.20$, angular + curved) or $p=7$
 (curved $0.15$) on, up to 25 of them at $p=10$, with
-$|\operatorname{Im}\lambda|/|\lambda|\to1$. They enter the low end of the spectrum: the
-error of the lowest eigenvalues jumps to $1.9$ (curved $0.20$, $p=6$) and $0.35$
-(angular + curved, $p=7$) and stagnates at $10^{-5}$--$10^{-3}$ for higher $p$,
-whereas the error of \PP\ decreases to a plateau of $4.4$--$4.5\cdot10^{-7}$ for
-$p\ge8$, common to all meshes and formulations without spurious modes, which reflects the
-accuracy of the reference values (classical element, $p=12$) and the corner
-singularities of the clamped rectangle; differences below this level are not
-significant. \PH\ has no
-eigenvalue with negative real part on any mesh and for any $p$,
-$|\operatorname{Im}\lambda|/|\lambda|\le1.7\cdot10^{-2}$ over the whole spectrum, and the
+$|\operatorname{Im}\lambda|/|\lambda|\to1$. These eigenvalues enter the low end of the
+spectrum, and the error of the lowest eigenvalues jumps to $1.9$ (curved $0.20$,
+$p=6$) and $0.35$ (angular + curved, $p=7$) and stagnates at $10^{-5}$--$10^{-3}$ for
+higher $p$. The error of \PP, on the other hand, decreases to a plateau of
+$4.4$--$4.5\cdot10^{-7}$ for $p\ge8$, which is common to all meshes and formulations
+without spurious modes. This plateau reflects the accuracy of the reference values
+(classical element, $p=12$) and the corner singularities of the clamped rectangle. Note
+that differences below this level are not significant. \PH, in contrast, has no
+eigenvalue with negative real part on any mesh and for any $p$, and
+$|\operatorname{Im}\lambda|/|\lambda|\le1.7\cdot10^{-2}$ holds over the whole spectrum. The
 error of its lowest eigenvalues is between $0.32$ and $1.07$ times that of \PP\ for every
-mesh and $p$ (\cref{fig:spectrum}); the error of \PM\ is up to $4\cdot10^{4}$ times larger.
+mesh and $p$ (\cref{fig:spectrum}), whereas the error of \PM\ is up to $4\cdot10^{4}$ times
+larger.
 
 \begin{table}[htbp]
   \centering\small
@@ -410,26 +422,26 @@ trapezoidal rule (Newmark, $\beta=1/4$, $\gamma=1/2$, $\Delta t=T_1/20$),
 $g_\Delta=20\ln\max|z|$ with the amplification factors
 $z=(1+\mathrm ic)/(1-\mathrm ic)$, $c=\pm\sqrt\lambda\,\Delta t/2$. \PP\ is stable
 ($g=0$). For \PM, $g$ grows from $\mathcal O(1)$ at $p=2$ to $10^{2}$--$10^{4}$ at
-$p=6,7$, and $g_\Delta$ reaches $5$--$33$ per period: a perturbation at round-off level is
-amplified to $\mathcal O(1)$ within a few periods. For \PH, $g\le0.65$ and
-$g_\Delta\le0.16$ on all meshes and for all $p$ ($\le0.11$ for $p\ge3$). \PH\ is therefore
-\emph{not} free of growing modes, but their growth is slower than that of \PM\ by a factor
-of $2$--$3$ at $p=2$, $10$--$30$ at $p=3$ and up to four orders of magnitude ($g$) at
-$p=7$, and $g_\Delta$ does not increase with $p$.
+$p=6,7$, and $g_\Delta$ reaches $5$--$33$ per period. Thus, a perturbation at round-off
+level is amplified to $\mathcal O(1)$ within a few periods. For \PH, $g\le0.65$ and
+$g_\Delta\le0.16$ on all meshes and for all $p$ ($\le0.11$ for $p\ge3$). Therefore, we
+have to admit that \PH\ is \emph{not} free of growing modes. Their growth is, however,
+slower than that of \PM\ by a factor of $2$--$3$ at $p=2$, $10$--$30$ at $p=3$ and up to
+four orders of magnitude ($g$) at $p=7$, and $g_\Delta$ does not increase with $p$.
 
 \Cref{fig:transient} shows the free vibration from a smooth initial displacement,
 $\vect u_0=(\sin\frac{\pi x}{3}\sin\frac{\pi y}{2},\ \sin\frac{2\pi x}{3}\sin\frac{\pi y}{2})$,
 perturbed by $10^{-10}$ (relative) to emulate round-off, over $50\,T_1$ with the trapezoidal
-rule and $\Delta t=T_1/20$. For \PM\ the response grows exponentially and exceeds $10^{29}$
+rule and $\Delta t=T_1/20$. For \PM, the response grows exponentially and exceeds $10^{29}$
 (the computation is stopped at $10^{30}$) for every $p=4,\dots,8$ on both meshes, including
 $p=4$, where all eigenvalues have positive real part. \PH\ and \PP\ remain bounded
 ($\max|\vect u(t)|/\max|\vect u_0|\le1.81$ for all $p$), and their responses are
-indistinguishable in the plot; over $50\,T_1$ the residual growth of \PH\ amplifies the
-round-off perturbation by at most $e^{50g_\Delta}\le e^{4.4}$ ($p=4,\dots,8$), which is invisible at
-the scale of the response. For very long integration times, or for time steps that resolve
-the growing high-frequency modes, this residual growth of \PH\ would eventually become
-visible; a dissipative integrator or an energy-consistent formulation
-\citep{Wang2022Temporal,Zaehringer2026On} would be needed to remove it.
+indistinguishable in the plot. Over $50\,T_1$, the residual growth of \PH\ amplifies the
+round-off perturbation by at most $e^{50g_\Delta}\le e^{4.4}$ ($p=4,\dots,8$), which is
+invisible at the scale of the response. For very long integration times, or for time steps
+that resolve the growing high-frequency modes, this residual growth of \PH\ would
+eventually become visible. In order to remove it, a dissipative integrator or an
+energy-consistent formulation \citep{Wang2022Temporal,Zaehringer2026On} would be needed.
 
 \begin{table}[htbp]
   \centering\small
@@ -453,15 +465,16 @@ visible; a dissipative integrator or an energy-consistent formulation
 \label{sec:num-cost}
 
 Run times of the reference implementation (GNU Octave~8.4, one core, median of seven
-runs, general element) are listed in \cref{tab:timing}. The Lagrange basis costs
+runs, general element) are compiled in \cref{tab:timing}. The Lagrange basis costs
 $1.0$--$1.35$ times as much as the monomials. The hybrid shape functions are $2$--$35$
 times more expensive to evaluate in this implementation, because the Jacobian at the query
 points is recomputed from the parametric shape-function derivatives and the basis matrix is
-assembled column by column; both are implementation details, not inherent costs, since the
-element routines already have $\matr J(\bxi_q)$. At the level of the element stiffness
-matrix, which is dominated by the quadrature loop, the overhead of \PH\ is $7$--$46\,\%$
-over the classical element and $18$--$33\,\%$ over \PM\ ($p=2,\dots,12$); the solution of the unsymmetric
-global system (LU instead of Cholesky) is the same for \PM\ and \PH.
+assembled column by column. Both are implementation details rather than inherent
+costs, since the element routines already provide $\matr J(\bxi_q)$. At the level of the
+element stiffness matrix, which is dominated by the quadrature loop, the overhead of \PH\
+is $7$--$46\,\%$ over the classical element and $18$--$33\,\%$ over \PM\ ($p=2,\dots,12$).
+The cost of solving the unsymmetric global system (LU instead of Cholesky) is the same for
+\PM\ and \PH.
 
 \begin{table}[htbp]
   \centering\small
@@ -486,23 +499,25 @@ global system (LU instead of Cholesky) is the same for \PM\ and \PH.
 \subsection{Thick cylinder}
 \label{sec:num-cylinder}
 
-\paragraph{Set-up} As a benchmark with curved boundaries and non-polynomial solutions we
-use the thick cylinder under internal pressure of \citet[Sec.~5.9]{Rajendran2010technique}
-(quarter annulus $1\le r\le3$, $E=1000$, $\nu=0.25$, plane stress, internal pressure
-$1000$), computed with all three formulations in the companion study of the code base
-(\texttt{studies/thick\_cylinder}, $1512$ solutions). The meshes consist of $2N\times2N$
-eight-node elements generated with gmsh \citep{Geuzaine2009Gmsh}, $N=1,2,4,8$, lifted to
-degree $p=2,\dots,8$ with the arcs represented exactly (Gordon--Hall blending
-\citep{Gordon1973Transfinite}); in every $2\times2$ super-element the internal mid-side
-nodes are rotated by $\alpha\in\{0^\circ,15^\circ,30^\circ,45^\circ,60^\circ,90^\circ\}$
-(mesh sequence B of \citet{Rajendran2010technique}, \cref{fig:meshes}), so that the relative
-distortion is the same on every mesh and the element maps are not asymptotically affine.
+\paragraph{Set-up} As a last example, we use the thick cylinder under internal pressure of
+\citet[Sec.~5.9]{Rajendran2010technique} as a benchmark with curved boundaries and
+non-polynomial solutions (quarter annulus $1\le r\le3$, $E=1000$, $\nu=0.25$, plane
+stress, internal pressure $1000$). It is computed with all three formulations in the
+companion study of the code base (\texttt{studies/thick\_cylinder}, $1512$ solutions).
+The meshes consist of $2N\times2N$ eight-node elements, $N=1,2,4,8$, generated with gmsh
+\citep{Geuzaine2009Gmsh}. They are lifted to degree $p=2,\dots,8$ with the arcs
+represented exactly (Gordon--Hall blending \citep{Gordon1973Transfinite}). In every
+$2\times2$ super-element, the internal mid-side nodes are rotated by
+$\alpha\in\{0^\circ,15^\circ,30^\circ,45^\circ,60^\circ,90^\circ\}$ (mesh sequence B of
+\citet{Rajendran2010technique}, \cref{fig:meshes}), so that the relative distortion
+is the same on every mesh and the element maps are not asymptotically affine.
 Elements fold for $\alpha=45^\circ$ ($N\ge2$) and $\alpha\ge60^\circ$. Three fields are
-computed: the Lam\'e solution, a manufactured polynomial of total degree~5, and the analytic
-field $u_x=\tfrac1{10}(\sin3X\cos2Y+e^{XY})$, $u_y=\tfrac1{10}(\cos2X\sin3Y+Ye^{-X})$,
-$X=x/3$, $Y=y/3$, with body forces and tractions derived from the exact fields. Errors: the
-relative energy norm $\eE$ (strains of the respective trial functions) and the maximum
-relative nodal error $e_n$; on folded meshes only $e_n$ is meaningful. Cases in which the code
+computed, namely the Lam\'e solution, a manufactured polynomial of total degree~5 and the
+analytic field $u_x=\tfrac1{10}(\sin3X\cos2Y+e^{XY})$, $u_y=\tfrac1{10}(\cos2X\sin3Y+Ye^{-X})$,
+$X=x/3$, $Y=y/3$. The body forces and tractions are derived from the exact fields. The
+errors are measured in the relative energy norm $\eE$ (strains of the respective trial
+functions) and as the maximum relative nodal error $e_n$. Note that on folded meshes only
+$e_n$ is meaningful. Cases in which the code
 base finds the interpolation matrix singular to working precision
 ($\mathrm{rcond}<\varepsilon_{\mathrm{mach}}$) are rejected.
 
@@ -516,10 +531,11 @@ base finds the interpolation matrix singular to working precision
 \end{figure}
 
 \paragraph{Polynomial field} \Cref{tab:cylpoly} gives the maximum nodal error for the degree-5
-field over all meshes and $p=5,\dots,8$. Both unsymmetric elements are exact in exact
-arithmetic; in floating point the error of \PM\ grows with the distortion to $1.1\cdot10^{-4}$
-($45^\circ$) and $1.6\cdot10^{-2}$ ($90^\circ$), that of \PH\ stays $\le9.9\cdot10^{-10}$ on every mesh on
-which it can be built, including the folded ones.
+field over all meshes and $p=5,\dots,8$. In exact arithmetic, both unsymmetric elements
+are exact. In floating-point arithmetic, the error of \PM\ grows with the
+distortion to $1.1\cdot10^{-4}$ ($45^\circ$) and $1.6\cdot10^{-2}$ ($90^\circ$), whereas that of
+\PH\ stays $\le9.9\cdot10^{-10}$ on every mesh on which it can be built, including the
+folded ones.
 
 \begin{table}[htbp]
   \centering\small
@@ -529,25 +545,27 @@ which it can be built, including the folded ones.
   \begin{adjustbox}{max width=\linewidth}\input{generated/tab_cylpoly}\end{adjustbox}
 \end{table}
 
-\paragraph{Convergence on valid meshes} \Cref{fig:cyl-h} shows the energy error of the
-analytic and of the Lam\'e field at $\alpha=30^\circ$, \cref{tab:cylrates} the observed rates
-between $N=4$ and $N=8$, and \cref{tab:cylinder} the errors on the finest mesh for all
-angles. Without distortion the three formulations are equivalent ($\eE=2.7\cdot10^{-6}$,
+\paragraph{Convergence on valid meshes} The energy error of the analytic and of the
+Lam\'e field at $\alpha=30^\circ$ is depicted in \cref{fig:cyl-h}. The observed rates
+between $N=4$ and $N=8$ are compiled in \cref{tab:cylrates}, and the errors on the finest
+mesh for all angles in \cref{tab:cylinder}. Without distortion, the three formulations are
+equivalent ($\eE=2.7\cdot10^{-6}$,
 $2.7\cdot10^{-9}$, $2.7\cdot10^{-12}$ for the Lam\'e field and $p=4,6,8$). With distortion, \PP\
 converges with about half the optimal order, as expected from
 $\Pp_{\lfloor p/2\rfloor}(x,y)\subset\Qp_p(\xi,\eta)\circ\vect F_e^{-1}$. \PH\ converges with
 the optimal order $p$ for all $p$ at $15^\circ$ and $30^\circ$ (Lam\'e: $1.96$--$7.87$; analytic:
 $2.00$--$6.02$) and keeps $\Lam_T\le95$ (\cref{tab:cyllebesgue}). \PM\ is the most accurate
 element at $\alpha=15^\circ$ for $p\le7$ (by a factor $1.1$--$4.3$ over \PH\ for the Lam\'e field),
-consistent with \cref{sec:num-convergence}, but its rate drops at $p=8$
-($\Lam_Q=1.3\cdot10^{4}$), where \PH\ becomes more accurate ($3.1\cdot10^{-11}$ versus
-$1.2\cdot10^{-10}$). At $\alpha=30^\circ$, \PM\ is optimal only for $p\le3$; beyond, its error is
-erratic and can increase under refinement (analytic field, $p=4$: $\eE=2.2\cdot10^{-4}$ at $N=4$,
-$4.3\cdot10^{-4}$ at $N=8$), and at $p=8$ (Lam\'e) it is less accurate than \PP\ ($4.8\cdot10^{-8}$
-versus $3.0\cdot10^{-8}$); $\Lam_Q$ reaches $4.2\cdot10^{6}$ ($p=7$) on these meshes. At $\alpha=30^\circ$, $p=8$, \PH\ is
+which is consistent with \cref{sec:num-convergence}. At $p=8$, however, its rate drops
+($\Lam_Q=1.3\cdot10^{4}$), and \PH\ becomes more accurate ($3.1\cdot10^{-11}$ versus
+$1.2\cdot10^{-10}$). At $\alpha=30^\circ$, \PM\ is optimal only for $p\le3$. For higher degrees,
+its error is erratic and can even increase under refinement (analytic field, $p=4$:
+$\eE=2.2\cdot10^{-4}$ at $N=4$, $4.3\cdot10^{-4}$ at $N=8$). At $p=8$ (Lam\'e), it is less
+accurate than \PP\ ($4.8\cdot10^{-8}$ versus $3.0\cdot10^{-8}$), and on these meshes $\Lam_Q$
+reaches $4.2\cdot10^{6}$ ($p=7$). At $\alpha=30^\circ$, $p=8$, \PH\ is
 $390$ times more accurate than \PM\ and $245$ times more accurate than \PP\ for the Lam\'e
-field; for the analytic field its energy error at $N=8$ is $8$--$2.6\cdot10^4$ times smaller than
-that of \PP\ ($p=2,\dots,8$).
+field. For the analytic field, its energy error at $N=8$ is $8$--$2.6\cdot10^4$ times smaller
+than that of \PP\ ($p=2,\dots,8$).
 
 \begin{figure}[htbp]
   \centering
@@ -575,16 +593,16 @@ that of \PP\ ($p=2,\dots,8$).
   \begin{adjustbox}{max width=\linewidth}\input{generated/cyl-lame}\end{adjustbox}
 \end{table}
 
-\paragraph{Approximation versus stability} Inserting the exact nodal values into the trial
-functions gives the interpolation error of each space; the ratio of discretisation to
-interpolation error separates stability from approximation (\cref{tab:quasiopt}). For \PH\ the
-ratio lies between $0.78$ and $1.00$ in all $158$ cases on the meshes without folds with errors
-above round-off level, for \PP\ between $0.84$ and $1.00$ ($165$ cases): both are
-quasi-optimal with a constant close to one in this example. For \PM\ it ranges from $0.07$ to
-$10^5$; at $\alpha=30^\circ$, $p\ge3$, the discrete \PM\ solution is up to $64$ times worse
-\emph{or} up to five times better than its interpolant, i.e.\ it does not inherit the
-approximation property of its space. This is the mesh-level manifestation of the loss of
-stability observed in \cref{sec:num-convergence}.
+\paragraph{Approximation versus stability} In order to separate stability from
+approximation, the discretisation error is compared with the interpolation error of each
+space (\cref{tab:quasiopt}). To this end, the exact nodal values are inserted into the
+trial functions. For \PH, the ratio lies between $0.78$ and $1.00$ in all $158$ cases on
+the meshes without folds with errors above round-off level, and for \PP\ between $0.84$ and
+$1.00$ ($165$ cases). Thus, both are quasi-optimal with a constant close to one in this
+example. For \PM, the ratio ranges from $0.07$ to $10^5$. At $\alpha=30^\circ$, $p\ge3$, the
+discrete \PM\ solution is up to $64$ times worse \emph{or} up to five times better than its
+interpolant, i.e.\ it does not inherit the approximation property of its space. This is
+consistent with the loss of stability observed in \cref{sec:num-convergence}.
 
 \begin{table}[htbp]
   \centering\small
@@ -596,17 +614,18 @@ stability observed in \cref{sec:num-convergence}.
 
 \paragraph{Lebesgue constants, conditioning and spectra} \Cref{tab:cyllebesgue} lists the
 maxima over the elements of the finest mesh. The Lebesgue constant of \PM\ reaches $10^3$ at
-$30^\circ$, $p=4$, and $1.3\cdot10^8$ at $45^\circ$, $p=8$; that of \PH\ stays within $30\,\%$ of the
-GLL value up to $15^\circ$ and $\le95$ at $30^\circ$. $\cond_2(\matr V)$ of \PM\ exceeds its
-Lebesgue constant by up to two orders of magnitude at $30^\circ$ and almost four at $45^\circ$
-(extrapolation to the bounding box,
-\cref{prop:kappa}); that of \PH\ is $10^2$--$10^5$ times smaller than that of \PM\ at $30^\circ$,
-$p\ge6$. The companion study also analysed the global stiffness matrices
-($\alpha\le30^\circ$): their smallest singular values agree to $1\,\%$ for the three elements,
-but the largest singular value of \PM\ exceeds that of \PP\ by up to a factor $344$, whereas
-that of \PH\ stays within a factor $1.2$; in the expansion of the \PM\ error in the singular
-triplets, a single one of the six lowest triplets carries $21$--$68\,\%$ of the error in four of
-five cases with $\alpha\ge30^\circ$, while for \PH\ and \PP\ the error is spread over the spectrum.
+$30^\circ$, $p=4$, and $1.3\cdot10^8$ at $45^\circ$, $p=8$. In contrast, that of \PH\ stays
+within $30\,\%$ of the GLL value up to $15^\circ$ and $\le95$ at $30^\circ$. The condition
+number $\cond_2(\matr V)$ of \PM\ exceeds its Lebesgue constant by up to two orders of
+magnitude at $30^\circ$ and almost four at $45^\circ$ (extrapolation to the bounding box,
+\cref{prop:kappa}). The condition number of \PH\ is $10^2$--$10^5$ times smaller than that
+of \PM\ at $30^\circ$, $p\ge6$. In the companion study, the global stiffness matrices were
+analysed as well ($\alpha\le30^\circ$). Their smallest singular values agree to $1\,\%$ for the
+three elements, but the largest singular value of \PM\ exceeds that of \PP\ by up to a
+factor $344$, whereas that of \PH\ stays within a factor $1.2$. If the \PM\ error
+is expanded in the singular triplets, a single one of the six lowest triplets carries
+$21$--$68\,\%$ of the error in four of five cases with $\alpha\ge30^\circ$. For \PH\ and \PP,
+on the other hand, the error is spread over the spectrum.
 
 \begin{table}[htbp]
   \centering\small
@@ -618,22 +637,22 @@ five cases with $\alpha\ge30^\circ$, while for \PH\ and \PP\ the error is spread
 \end{table}
 
 \paragraph{Folded meshes and unisolvence} \Cref{fig:cylinder} shows $e_n$ on the finest mesh
-versus $\alpha$. On the folded meshes \PH\ is the most accurate element in most cases with
+versus $\alpha$. On the folded meshes, \PH\ is the most accurate element in most cases with
 $3\le p\le6$, often by two orders of magnitude (e.g.\ $\alpha=45^\circ$, $p=6$:
 $e_n=2.9\cdot10^{-9}$ versus $2.9\cdot10^{-7}$ for \PP\ and $3.5\cdot10^{-5}$ for \PM;
-$\alpha=90^\circ$, $p=6$: $2.0\cdot10^{-7}$ versus $1.1\cdot10^{-4}$ and $3.0\cdot10^{-4}$), whereas
-\PM\ is less accurate than \PP\ in almost all folded cases and is rejected for $p\ge6$ at
-$\alpha=60^\circ$. The limits discussed in \cref{sec:num-convergence} appear here as well: at
-$p=2$ ($\alpha=60^\circ,90^\circ$) and at $\alpha=90^\circ$, $p=4$, \PH\ is less accurate than \PP\
-(errors of order $10^{-2}$--$1$, non-monotone in $N$, as for the other two elements); at
-$\alpha=45^\circ$, $p=8$, it stagnates at the level of \PP\ ($2.4\cdot10^{-9}$ versus
-$4.0\cdot10^{-9}$); and for $p\ge7$ at $\alpha=60^\circ,90^\circ$ its interpolation matrix is singular
-to working precision on some folded elements, so that only \PP\ can be used.
-\Cref{tab:unisolvence} confirms \cref{prop:factor}: $\mathrm{rcond}(\matr A)$ follows
-$\mathrm{rcond}(\matr V_T)$ within a factor $30$, and the singular cases are exactly those with
-$\mathrm{rcond}(\matr A)\le4\cdot10^{-16}$ (all other cases: $\ge2\cdot10^{-15}$). On folded meshes,
-the hybrid space therefore extends the range of usable degrees compared with $\Qp_p(s,t)$, but
-it is not a general remedy.
+$\alpha=90^\circ$, $p=6$: $2.0\cdot10^{-7}$ versus $1.1\cdot10^{-4}$ and $3.0\cdot10^{-4}$). \PM,
+on the other hand, is less accurate than \PP\ in almost all folded cases and is rejected
+for $p\ge6$ at $\alpha=60^\circ$. The limits discussed in \cref{sec:num-convergence} appear
+here as well. First, at $p=2$ ($\alpha=60^\circ,90^\circ$) and at $\alpha=90^\circ$, $p=4$, \PH\
+is less accurate than \PP\ (errors of order $10^{-2}$--$1$, non-monotone in $N$, as for the
+other two elements). Second, at $\alpha=45^\circ$, $p=8$, it stagnates at the level of \PP\
+($2.4\cdot10^{-9}$ versus $4.0\cdot10^{-9}$). Finally, for $p\ge7$ at $\alpha=60^\circ,90^\circ$,
+its interpolation matrix is singular to working precision on some folded elements, so that
+only \PP\ can be used. The results in \cref{tab:unisolvence} confirm \cref{prop:factor}.
+Here, $\mathrm{rcond}(\matr A)$ follows $\mathrm{rcond}(\matr V_T)$ within a factor $30$, and
+the singular cases are exactly those with $\mathrm{rcond}(\matr A)\le4\cdot10^{-16}$ (all
+other cases: $\ge2\cdot10^{-15}$). Therefore, the hybrid space extends the range of usable
+degrees on folded meshes compared with $\Qp_p(s,t)$, but it is not a general remedy.
 
 \begin{figure}[htbp]
   \centering

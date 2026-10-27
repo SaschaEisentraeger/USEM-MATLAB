@@ -2,10 +2,10 @@
 \label{sec:implementation}
 
 Both improvements are local to the routine that evaluates the metric shape
-functions at a set of query points; assembly, loads, boundary conditions and solvers
-are unchanged. \Cref{alg:metric} summarises the evaluation for one element; the
-query points are passed with their reference coordinates, which the element routines
-know (images of quadrature or plotting points).
+functions at a set of query points. Assembly, loads, boundary conditions and solvers
+remain unchanged. \Cref{alg:metric} summarises the evaluation for one element. Here, the
+query points are passed with their reference coordinates, which are known to the element
+routines (images of quadrature or plotting points).
 
 \begin{algorithm}[htbp]
 \caption{Metric shape functions of one element at query points $\bxi_q$
@@ -42,13 +42,13 @@ know (images of quadrature or plotting points).
 \paragraph{Cost} The 1D Lagrange basis costs $\mathcal O(p)$ operations per
 function and point (product formula, with prefix and suffix products for the
 derivative, so that query points may coincide with nodes), compared with
-$\mathcal O(1)$ for monomials or recurrences; the hybrid space additionally needs
-$\matr J(\bxi_q)$, which the element routines compute anyway. The dominant cost, the
-LU factorisation of the $n\times n$ matrix $\matr V$ ($\mathcal O(p^6)$) and the
+$\mathcal O(1)$ for monomials or recurrences. The hybrid space additionally needs
+$\matr J(\bxi_q)$, which is computed by the element routines anyway. The dominant cost --
+the LU factorisation of the $n\times n$ matrix $\matr V$ ($\mathcal O(p^6)$) and the
 solves with the $\mathcal O(p^2)$ right-hand sides of $\matr P$ and its gradients
-($\mathcal O(p^6)$), is the same for all variants. Measured run times are given in
+($\mathcal O(p^6)$) -- is the same for all variants. Measured run times are given in
 \cref{sec:num-cost}.
 
 \paragraph{Anisotropic degrees} For $p_\xi\ne p_\eta$, $\Qp_{p_\xi,p_\eta}(s,t)$ contains
-$\Pp_{\min(p_\xi,p_\eta)}(x,y)$, and so does $\Tp_p$ with $m=\min(p_\xi,p_\eta)$; both
-spaces have the same completeness degree.
+$\Pp_{\min(p_\xi,p_\eta)}(x,y)$, and so does $\Tp_p$ with $m=\min(p_\xi,p_\eta)$. That
+is, both spaces have the same completeness degree.

@@ -17,15 +17,15 @@ consists of quadrilaterals $\Omega_e=\vect F_e(\hat\Omega)$,
 $\hat\Omega=[-1,1]^2$, with an isoparametric geometry map $\vect F_e$ of degree $p$
 in each reference coordinate $\bxi=(\xi,\eta)$. The element nodes are the images
 $\bx_k=\vect F_e(\bxi_k)$, $k=1,\dots,n=(p+1)^2$, of the tensor-product GLL nodes
-$\bxi_k$; for simplicity of notation $p_\xi=p_\eta=p$ unless stated otherwise.
+$\bxi_k$. For the sake of simplicity, we set $p_\xi=p_\eta=p$ if not stated otherwise.
 
 The \emph{parametric} functions $N_k=\hat N_k\circ\vect F_e^{-1}$, where $\hat
 N_k\in\Qp_p(\xi,\eta)$ are the Lagrange polynomials through the GLL nodes, span the
 conforming test space $\mathcal W_h\subset H^1(\Omega)$. The \emph{metric} trial
 functions $M_k^e$ span an element space $\mathcal U_e$ of dimension $n$ and are
-interpolatory, $M_k^e(\bx_l)=\delta_{kl}$; the global trial function is
+interpolatory, $M_k^e(\bx_l)=\delta_{kl}$. The global trial function is
 $\vect u_h|_{\Omega_e}=\sum_k \hat{\vect u}_k M_k^e$ with the nodal displacements
-$\hat{\vect u}_k$ shared by adjacent elements. The trial functions are in general
+$\hat{\vect u}_k$ shared by adjacent elements. Note that the trial functions are in general
 discontinuous across element edges (they coincide only at the nodes). The
 discrete problem reads: find the nodal values such that
 \begin{equation}
@@ -34,7 +34,7 @@ discrete problem reads: find the nodal values such that
   \quad\forall\,\vect w_h\in\mathcal W_h,\ \vect w_h|_{\Gamma_u}=\vect 0 .
   \label{eq:pg}
 \end{equation}
-In matrix form the element stiffness is
+In matrix form, the element stiffness matrix reads
 \begin{equation}
   \matr K_e=\int_{\hat\Omega}\tilde{\matr B}_L^\T\,\matr C\,\matr B_R\dd\xi\dd\eta,
   \qquad \tilde{\matr B}_L=\det\matr J\,\matr B_L ,
@@ -42,13 +42,13 @@ In matrix form the element stiffness is
 \end{equation}
 where $\matr B_L$ contains the Cartesian derivatives of the parametric functions and
 $\matr B_R$ those of the metric functions, evaluated at $\vect F_e(\bxi)$.
-$\tilde{\matr B}_L$ is assembled from $\adj\matr J\,\nabla_{\bxi}\hat N_k$, so
-$\det\matr J$ does not appear in a denominator. $\matr K_e$ is unsymmetric unless
-$\mathcal U_e=\mathcal W_h|_{\Omega_e}$. The consistent mass matrix is
+Since $\tilde{\matr B}_L$ is assembled from $\adj\matr J\,\nabla_{\bxi}\hat N_k$,
+$\det\matr J$ does not appear in a denominator. The element stiffness matrix is
+unsymmetric unless $\mathcal U_e=\mathcal W_h|_{\Omega_e}$. The consistent mass matrix is
 $\matr M_e=\int_{\hat\Omega}\rho\,\matr N^\T\matr M\det\matr J\dd\xi\dd\eta$ with
-the parametric ($\matr N$) and metric ($\matr M$) function values; with GLL nodal
-quadrature it is diagonal, because both families are interpolatory at the GLL nodes.
-We refer to the formulation as \PP\ (parametric test and trial functions, i.e.\ the
+the parametric ($\matr N$) and metric ($\matr M$) function values. With GLL nodal
+quadrature, it is diagonal, because both families are interpolatory at the GLL nodes.
+In the following, we refer to the formulation as \PP\ (parametric test and trial functions, i.e.\ the
 classical spectral element) or \PM\ (parametric test, metric trial functions), and to
 \PM\ with the hybrid trial space of \cref{sec:hybrid} as \PH.
 
@@ -79,17 +79,18 @@ If $\vect F_e$ is not injective (``folded'' elements, $\det\matr J$ changing sig
 parametric functions are not well defined in physical space and the argument above does
 not apply. The element matrices \eqref{eq:Ke}, however, are defined in reference
 coordinates with the signed $\det\matr J$ (through $\adj\matr J$), as are the loads. For
-such elements exactness of polynomial solutions has been observed for low-order elements
+such elements, exactness of polynomial solutions has been observed for low-order elements
 \citep{Rajendran2010technique} and is confirmed by our patch tests
-(\cref{sec:num-patch}); we do not give a proof here.
+(\cref{sec:num-patch}). A proof is not given here.
 \end{remark}
-This is the higher-order form of the conditions of \citet{Rajendran2010technique}.
-The parametric space violates the hypothesis on curved elements: for a geometry map
-of degree $g$ in each variable, $x^ay^b\circ\vect F_e\in\Qp_{g(a+b)}$, so that
+\Cref{prop:immunity} is the higher-order form of the conditions of
+\citet{Rajendran2010technique}. The parametric space, on the other hand, violates the
+hypothesis on curved elements. For a geometry map of degree $g$ in each variable,
+$x^ay^b\circ\vect F_e\in\Qp_{g(a+b)}$, and therefore
 $\Pp_k(x,y)\circ\vect F_e\subset\Qp_p(\xi,\eta)$ is guaranteed only for $gk\le p$
 \citep[cf.][]{Arnold2002Approximation}. For bilinear maps ($g=1$), the classical
-tensor-product element is complete of degree $p$; the loss of completeness under
-purely angular distortion reported by \citet{Lee1993effects} concerns serendipity
+tensor-product element is complete of degree $p$. Note that the loss of completeness
+under purely angular distortion reported by \citet{Lee1993effects} concerns serendipity
 spaces.
 
 \subsection{Metric shape functions in skew coordinates}
@@ -119,14 +120,14 @@ The transformed map is $\vect F_e'=\matr A\vect F_e+\vect c$, hence
 $\matr J_0'^\T=\matr A\matr J_0^\T$ and $\bx'-\bx_0'=\matr A(\bx-\bx_0)$, so
 $\vect s'=\matr J_0^{-\T}\matr A^{-1}\matr A(\bx-\bx_0)=\vect s$.
 \end{proof}
-Because $\vect s$ is affine in $\bx$, $\Qp_p(s,t)\supset\Pp_{p}(s,t)=\Pp_p(x,y)$, so
-the space $\mathcal U_e=\Qp_p(s,t)$ satisfies the hypothesis of \cref{prop:immunity}
-with $q=p$ on every element. On an affine element (parallelogram), $\vect F_e$ is
-affine and $\vect s=\bxi$, so the metric and parametric functions coincide. Tensor
-products of monomials in centroid-shifted Cartesian coordinates
-\citep{Rajendran2003novel} span $\Qp_p(x,y)$, which contains $\Pp_p(x,y)$ as well but
-depends on the orientation of the Cartesian frame (e.g.\ $xy$ versus $st$); this
-makes the element frame dependent \citep{Ooi2008Remedies}.
+Since $\vect s$ is affine in $\bx$, $\Qp_p(s,t)\supset\Pp_{p}(s,t)=\Pp_p(x,y)$, and
+therefore the space $\mathcal U_e=\Qp_p(s,t)$ satisfies the hypothesis of
+\cref{prop:immunity} with $q=p$ on every element. On an affine element (parallelogram),
+$\vect F_e$ is affine and $\vect s=\bxi$. Consequently, the metric and parametric
+functions coincide. Tensor products of monomials in centroid-shifted Cartesian
+coordinates \citep{Rajendran2003novel} span $\Qp_p(x,y)$. This space contains
+$\Pp_p(x,y)$ as well, but it depends on the orientation of the Cartesian frame (e.g.\ $xy$
+versus $st$), which makes the element frame dependent \citep{Ooi2008Remedies}.
 
 Given a basis $\{\phi_c\}_{c=1}^n$ of $\mathcal U_e$, the metric functions are
 computed from the generalised Vandermonde matrix and the basis values at the query
@@ -136,17 +137,17 @@ points $\bx_q$ (e.g.\ the images of the quadrature points),
   \matr N=\matr V^{-1}\matr P,\qquad N_{lq}=M_l^e(\bx_q),
   \label{eq:vandermonde}
 \end{equation}
-and analogously for the derivatives. Throughout, $\Lam_N$ denotes the Lebesgue
-constant of tensor-product GLL interpolation on $\hat\Omega$, and for an
-interpolatory space $\mathcal U_e$ with shape functions $M_l^e$
+and analogously for the derivatives. In the remainder of this article, $\Lam_N$ denotes
+the Lebesgue constant of tensor-product GLL interpolation on $\hat\Omega$. For an
+interpolatory space $\mathcal U_e$ with shape functions $M_l^e$,
 \begin{equation}
   \lambda_{\mathcal U}(\bx)=\sum_{l=1}^n|M_l^e(\bx)|,\qquad
   \Lam_{\mathcal U}=\max_{\bx\in\Omega_e}\lambda_{\mathcal U}(\bx)
   \label{eq:lebesgue}
 \end{equation}
-are its Lebesgue function and Lebesgue constant. $\Lam_{\mathcal U}=\|\mathcal
-I_{\mathcal U}\|_{L^\infty\to L^\infty}$ is the norm of the nodal interpolation
-operator $\mathcal I_{\mathcal U}$, so that
+are its Lebesgue function and Lebesgue constant. The Lebesgue constant
+$\Lam_{\mathcal U}=\|\mathcal I_{\mathcal U}\|_{L^\infty\to L^\infty}$ is the norm of the
+nodal interpolation operator $\mathcal I_{\mathcal U}$, so that
 $\|f-\mathcal I_{\mathcal U}f\|_\infty\le(1+\Lam_{\mathcal U})\inf_{v\in\mathcal
 U_e}\|f-v\|_\infty$ \citep{Brutman1997Lebesgue}. Note that the parametric Lebesgue constant is independent of the
 element map, because $\sum_k|N_k(\vect F_e(\bxi))|=\sum_k|\hat N_k(\bxi)|$.

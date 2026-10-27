@@ -2,36 +2,37 @@
 Unsymmetric (Petrov--Galerkin) finite elements with parametric test and metric trial
 functions reproduce all polynomial displacement fields of the completeness degree
 exactly on arbitrarily distorted meshes. For spectral elements of high degree $p$,
-the standard metric trial space---tensor-product polynomials $\Qp_p(s,t)$ in corotational
-skew coordinates, constructed by inverting a monomial Vandermonde matrix---suffers from
-two distinct deficiencies: an exponentially ill-conditioned construction, and an
-interpolation problem whose Lebesgue constant grows exponentially with $p$ and with
-the distortion. We propose one remedy for each. (1) The metric shape functions are
-independent of the polynomial basis; using the Lagrange polynomials through the
-reference Gauss--Lobatto--Legendre nodes in bounding-box scaled skew coordinates makes
-the Vandermonde matrix a permutation matrix on affine elements and reduces the
-condition number on distorted elements by three to four orders of magnitude at $p=16$
-compared with monomials. We prove that its condition number equals the Lebesgue function
-of the metric interpolation on the reference grid of the element's bounding box, which
-identifies the remaining ill-conditioning as an extrapolation effect, and that no basis
-can reduce the Lebesgue constant itself. (2) We introduce a hybrid trial space in which only the complete polynomials
+however, the standard metric trial space -- tensor-product polynomials $\Qp_p(s,t)$ in
+corotational skew coordinates, constructed by inverting a monomial Vandermonde matrix --
+suffers from two distinct deficiencies: (i) an exponentially ill-conditioned construction
+and (ii) an interpolation problem whose Lebesgue constant grows exponentially with $p$
+and with the distortion. In the article at hand, we propose one remedy for each.
+First, the metric shape functions are independent of the polynomial basis. Therefore, we
+employ the Lagrange polynomials through the reference Gauss--Lobatto--Legendre nodes in
+bounding-box scaled skew coordinates. This basis makes the Vandermonde matrix a
+permutation matrix on affine elements and reduces the condition number on distorted
+elements by three to four orders of magnitude at $p=16$ compared with monomials. We prove
+that its condition number equals the Lebesgue function of the metric interpolation on the
+reference grid of the element's bounding box. Thus, the remaining ill-conditioning is an
+extrapolation effect, and no basis can reduce the Lebesgue constant itself.
+Second, we introduce a hybrid trial space in which only the complete polynomials
 $\Pp_p(x,y)$, which are required for distortion immunity, are written in metric
-coordinates, while the remaining approximation is the $L^2$-orthogonal complement of
+coordinates. The remaining approximation is the $L^2$-orthogonal complement of
 $\Pp_p(\xi,\eta)$ in $\Qp_p(\xi,\eta)$, written in parametric coordinates. The space is
-complete, affine invariant and interpolatory, coincides with the classical spectral
-element on straight-edged quadrilaterals, and its interpolant is the GLL interpolant
-plus a correction driven only by the completeness defect of the classical element;
+complete, affine invariant and interpolatory, and it coincides with the classical spectral
+element on straight-edged quadrilaterals. Its interpolant is the GLL interpolant plus a
+correction driven only by the completeness defect of the classical element, and
 unisolvence is equivalent to the non-singularity of a small matrix of the size of
 $\dim\Pp_p$.
-Numerical studies up to $p=16$ show condition numbers reduced by up to five orders of
-magnitude, Lebesgue constants at or close to the GLL level for moderate curved-edge
-distortion where those of $\Qp_p(s,t)$ reach $10^{4}$--$10^{7}$, patch tests on non-folded
-meshes passed at round-off level up to $p=10$,
-optimal convergence on meshes with persistent curved-edge distortion where the
-$\Qp_p(s,t)$ element diverges for $p\ge5$, errors up to $390$ times smaller than with
-$\Qp_p(s,t)$ for the distorted thick-cylinder benchmark, and the removal of the strongly complex and
-negative eigenvalues that make the $\Qp_p(s,t)$ element exponentially unstable in
-transient analysis. The price is a larger error constant (factor $1.3$--$5.5$) for smooth
-static solutions where $\Qp_p(s,t)$ is stable, and, on folded elements, singular
-integrands that limit the attainable accuracy.
+The numerical studies up to $p=16$ show condition numbers reduced by up to five orders of
+magnitude and Lebesgue constants at or close to the GLL level for moderate curved-edge
+distortion, where those of $\Qp_p(s,t)$ reach $10^{4}$--$10^{7}$. Patch tests on
+non-folded meshes are passed at round-off level up to $p=10$. On meshes with persistent
+curved-edge distortion, the hybrid element converges with the optimal order, whereas the
+$\Qp_p(s,t)$ element diverges for $p\ge5$. For the distorted thick-cylinder benchmark, the
+errors are up to $390$ times smaller than with $\Qp_p(s,t)$. Moreover, the strongly
+complex and negative eigenvalues that make the $\Qp_p(s,t)$ element exponentially unstable
+in transient analysis are removed. The price we have to pay is a larger error constant
+(factor $1.3$--$5.5$) for smooth static solutions where $\Qp_p(s,t)$ is stable and, on
+folded elements, singular integrands that limit the attainable accuracy.
 \end{abstract}

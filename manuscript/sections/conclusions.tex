@@ -1,38 +1,40 @@
 \section{Conclusions}
 \label{sec:conclusions}
 
-Two improvements of the metric trial functions of unsymmetric spectral elements were
-presented, analysed and tested.
+In the article at hand, two improvements of the metric trial functions of unsymmetric
+spectral elements have been presented, analysed and tested. The most important
+conclusions can be summarised as follows:
 \begin{enumerate}
 \item \emph{Basis of the metric Vandermonde matrix.} The metric shape functions are
-  basis independent. The Lagrange polynomials through the reference GLL nodes, in
-  bounding-box scaled skew coordinates, give $\cond(\matr V)=1$ on affine elements; on
-  distorted ones the condition number equals the Lebesgue function of the metric
-  interpolation on the reference grid of the bounding box (up to a bounded factor).
-  Compared with monomials this reduces the error of the computed shape functions by two to
-  four orders of magnitude on distorted elements at $p=16$ and restores the symmetry of
-  $\matr K_e$ on affine elements to round-off. The Lebesgue
-  constant, and with it everything that depends only on the space, is unaffected by
-  any choice of basis.
+  basis independent. Therefore, the Lagrange polynomials through the reference GLL nodes,
+  in bounding-box scaled skew coordinates, can be employed, which give
+  $\cond(\matr V)=1$ on affine elements. On distorted ones, the condition number equals
+  the Lebesgue function of the metric interpolation on the reference grid of the bounding
+  box (up to a bounded factor). Compared with monomials, this reduces the error of the
+  computed shape functions by two to four orders of magnitude on distorted elements at
+  $p=16$ and restores the symmetry of $\matr K_e$ on affine elements to round-off. The
+  Lebesgue constant, and with it everything that depends only on the space, is
+  unaffected by any choice of basis.
 \item \emph{Hybrid trial space.} Writing only $\Pp_p(x,y)$ in metric coordinates and the
   canonical ($L^2$-orthogonal) complement in parametric coordinates retains completeness,
-  affine invariance and distortion immunity, reduces to the classical element on
-  straight-edged quadrilaterals, and keeps the Lebesgue constant at or close to the GLL
-  value for moderate curved-edge distortion. In the tests it removed the divergence under
-  mesh refinement and the negative and strongly complex eigenvalues of the $\Qp_p(s,t)$
-  element, reduced the exponential growth in time by orders of magnitude (a slow residual
-  growth remains), and converged with the optimal order on non-folded meshes; for the thick
-  cylinder its error was $0.78$--$1.00$ times its interpolation error on all valid meshes.
-  Unisolvence reduces to the non-singularity of a $\dim\Pp_m\times\dim\Pp_m$ matrix, which
-  fails only on some folded elements at high degree. The hybrid space trades this
-  robustness for a moderately larger error constant on smooth static problems where
-  $\Qp_p(s,t)$ is stable.
+  affine invariance and distortion immunity. Moreover, the hybrid space reduces to the
+  classical element on straight-edged quadrilaterals and keeps the Lebesgue constant at or
+  close to the GLL value for moderate curved-edge distortion. In the numerical tests, it
+  removed the divergence under mesh refinement and the negative and strongly complex
+  eigenvalues of the $\Qp_p(s,t)$ element. It also reduced the exponential growth in time
+  by orders of magnitude, although a slow residual growth remains. On non-folded meshes,
+  it converged with the optimal order, and for the thick cylinder its error was
+  $0.78$--$1.00$ times its interpolation error on all valid meshes. Unisolvence reduces to
+  the non-singularity of a $\dim\Pp_m\times\dim\Pp_m$ matrix, which fails only on some
+  folded elements at high degree. The price for this robustness is a moderately larger
+  error constant on smooth static problems where $\Qp_p(s,t)$ is stable.
 \end{enumerate}
-For high-order unsymmetric spectral elements we therefore recommend the reference-node
-Lagrange basis for any metric space in skew coordinates, and the hybrid space whenever
-$p\gtrsim4$, the curved-edge distortion is not small, or the spectrum matters (transient,
-modal and frequency-domain analyses).
-Open questions are a stability theory (discrete inf-sup condition) for both metric spaces,
-an accurate treatment of the singular integrands of the hybrid space on folded elements,
-the residual (slow) growth of the hybrid element in long-time transient analysis, and the
-extension to three dimensions, triangles and nonlinear problems.
+Overall, we therefore recommend the reference-node Lagrange basis for any metric space in
+skew coordinates of high-order unsymmetric spectral elements. The hybrid space is
+recommended whenever $p\gtrsim4$, the curved-edge distortion is not small or the spectrum
+matters (transient, modal and frequency-domain analyses).
+Several questions are still open and left for future research: a stability theory
+(discrete inf-sup condition) for both metric spaces, an accurate treatment of the singular
+integrands of the hybrid space on folded elements, the residual (slow) growth of the hybrid
+element in long-time transient analysis and the extension to three dimensions, triangles
+and nonlinear problems.

@@ -3,108 +3,118 @@
 
 Isoparametric finite elements lose accuracy on distorted meshes because the
 isoparametric map destroys the completeness of the approximation space in
-Cartesian coordinates: under angular distortion, serendipity elements no longer
+Cartesian coordinates. Under angular distortion, serendipity elements no longer
 contain all quadratic polynomials \citep{Lee1993effects,Rajendran2000completeness},
 and under curved-edge distortion even full tensor-product (Lagrange) elements of
 degree $p$ with a geometry map of degree $g$ are guaranteed to contain $\Pp_k(x,y)$ only
 for $gk\le p$ \citep[cf.][]{Arnold2002Approximation}.
 MacNeal's theorem \citep{MacNeal1992On} shows that, within the class of symmetric
 (Bubnov--Galerkin) elements, distortion insensitivity and passing the patch test
-cannot be combined in general. The unsymmetric finite element method (UFEM) of
-\citet{Rajendran2003novel} circumvents this restriction by a Petrov--Galerkin
-formulation: the test functions are the usual parametric (isoparametric)
-functions, which guarantee inter-element compatibility, whereas the trial
-functions are \emph{metric} functions, i.e.\ polynomials in Cartesian
-coordinates that are interpolatory at the element nodes. \Citet{Rajendran2010technique}
-formulated three sufficient conditions for \emph{distortion immunity}:
-compatible test functions, trial functions that are complete in Cartesian
-coordinates, and an element stiffness integrand free of $\det\matr J$ in the
-denominator. Elements satisfying them reproduce every displacement field of the
-completeness degree exactly on arbitrarily distorted meshes, including meshes with
-$\det\matr J\le0$. The approach has been extended to frame-invariant formulations
-in skew coordinates \citep{Yuan1993New,Ooi2008Remedies,Xie2016Modified}, to
+cannot be combined in general. To circumvent this restriction,
+\citet{Rajendran2003novel} proposed the unsymmetric finite element method (UFEM), a
+Petrov--Galerkin formulation in which test and trial functions differ. Here, the test
+functions are the usual parametric (isoparametric) functions, which guarantee
+inter-element compatibility. The trial functions, on the other hand, are \emph{metric}
+functions, i.e.\ polynomials in Cartesian coordinates that are interpolatory at the
+element nodes. \Citet{Rajendran2010technique} formulated three sufficient conditions for
+\emph{distortion immunity}: (i) compatible test functions, (ii) trial functions that are
+complete in Cartesian coordinates and (iii) an element stiffness integrand free of
+$\det\matr J$ in the denominator. Elements satisfying them reproduce every displacement
+field of the completeness degree exactly on arbitrarily distorted meshes, including
+meshes with $\det\matr J\le0$. The approach has been extended to frame-invariant
+formulations in skew coordinates \citep{Yuan1993New,Ooi2008Remedies,Xie2016Modified}, to
 analytical trial functions \citep{Cen2012shape,Cen2015unsymmetric,Cen2019Some}, to
 orthotropic and incompatible-mode elements \citep{Shang2018airy,Huang2022Unsymmetric}, to
 solids \citep{Ooi2004hexahedron}, to enhanced assumed strain formulations
 \citep{Pfefferkorn2021mesh,Pfefferkorn2023hourglassing}, to geometrically nonlinear
-problems \citep{Ooi2007extension,Li2018high}, and to elastodynamics
-\citep{Liew2006quadratic,Wang2022Temporal,Zaehringer2026On}; the
+problems \citep{Ooi2007extension,Li2018high} and to elastodynamics
+\citep{Liew2006quadratic,Wang2022Temporal,Zaehringer2026On}, to name just a few. The
 non-variational character of the formulation was analysed by
 \citet{Prathap2006mesh,Prathap2007The}.
 
-Almost all of this work concerns low-order elements (4 to 20 nodes). We consider
-the generalisation to spectral elements of arbitrary degree $p$: parametric test
-functions are Lagrange polynomials on Gauss--Lobatto--Legendre (GLL) nodes, and the
-metric trial functions are the unique functions of a $(p+1)^2$-dimensional space
-that interpolate the GLL nodes in physical space. In the standard construction the
-metric space is $\Qp_p(s,t)$, the tensor-product polynomials in the non-dimensional
-corotational skew coordinates $(s,t)$ of \citet{Xie2016Modified}, and the shape
-functions are obtained by inverting a generalised Vandermonde matrix built from the
-monomials $s^at^b$ \citep{Rajendran2003novel,Ooi2006unsymmetric}. Two difficulties
-appear at high order, and they are of different nature:
+Almost all of this work concerns low-order elements (4 to 20 nodes). In the article at
+hand, we consider the generalisation to spectral elements of arbitrary degree $p$. Here,
+the parametric test functions are Lagrange polynomials on Gauss--Lobatto--Legendre (GLL)
+nodes, and the metric trial functions are the unique functions of a
+$(p+1)^2$-dimensional space that interpolate the GLL nodes in physical space. In the
+standard construction, the metric space is $\Qp_p(s,t)$, the tensor-product polynomials in
+the non-dimensional corotational skew coordinates $(s,t)$ of \citet{Xie2016Modified}, and
+the shape functions are obtained by inverting a generalised Vandermonde matrix built from
+the monomials $s^at^b$ \citep{Rajendran2003novel,Ooi2006unsymmetric}. At high order,
+however, two difficulties of a different nature appear:
 \begin{enumerate}
 \item \emph{Ill-conditioning of the construction.} The monomial Vandermonde matrix
   is exponentially ill-conditioned in $p$ already on undistorted elements
-  \citep{Gautschi1988Lower}. The computed shape functions then carry round-off errors
-  of order $\cond(\matr V)\,u$, $u$ being the unit round-off, which destroy, for
-  instance, the symmetry of the stiffness matrix on affine elements and the
+  \citep{Gautschi1988Lower}. Consequently, the computed shape functions carry round-off
+  errors of order $\cond(\matr V)\,u$, where $u$ denotes the unit round-off. These errors
+  destroy, for instance, the symmetry of the stiffness matrix on affine elements and the
   Kronecker property on which the diagonal GLL mass matrix relies.
 \item \emph{Ill-conditioning of the interpolation problem itself.} On non-affine
-  elements the images of the GLL nodes do not form a tensor grid in $(s,t)$. The
+  elements, the images of the GLL nodes do not form a tensor grid in $(s,t)$. The
   Lebesgue constant of the interpolation in $\Qp_p(s,t)$ then grows exponentially with
-  $p$ and with the amount of distortion. It is a property of the space and of the
-  node set, independent of how the shape functions are computed. It amplifies
-  round-off, enters the interpolation error, and---as we show---is accompanied by a
-  loss of stability of the Petrov--Galerkin operator: strongly complex and negative
-  generalised eigenvalues, which make the semi-discrete equations of motion
-  exponentially unstable, and divergence under mesh refinement in statics.
+  $p$ and with the amount of distortion. Note that this is a property of the space and of
+  the node set, independent of how the shape functions are computed. The Lebesgue
+  constant amplifies round-off, enters the interpolation error and -- as we show in
+  \cref{sec:numerics} -- is accompanied by a loss of stability of the Petrov--Galerkin
+  operator. That is to say, strongly complex and negative generalised eigenvalues appear,
+  which make the semi-discrete equations of motion exponentially unstable, and the static
+  solution diverges under mesh refinement.
 \end{enumerate}
 
-This paper presents two improvements of the metric shape functions that address
-these two difficulties separately.
+Therefore, the overarching goal of this paper is to present two improvements of the
+metric shape functions that address these two difficulties separately.
 
-\paragraph{Contribution 1: polynomial basis of the metric Vandermonde matrix
-(\cref{sec:basis})} We show that the metric shape functions are independent of
-the polynomial basis used to construct them (\cref{prop:invariance}), so that the
-basis is a purely numerical choice, and we propose the Lagrange polynomials through
-the reference GLL nodes in bounding-box scaled skew coordinates. On affine elements
-the Vandermonde matrix becomes a permutation matrix ($\cond=1$ for every $p$); on
-distorted elements its condition number equals, up to a factor bounded by the
-reference Lebesgue constant, the Lebesgue function of the metric interpolation on the
-reference grid of the bounding box (\cref{prop:kappa}), which traces the remaining
-ill-conditioning to the extrapolation of the interpolant beyond the element. Numerically,
-the condition number at $p=16$ drops by three to four orders of magnitude relative to
-monomials. The same analysis shows that \emph{no} choice of basis can reduce the
-Lebesgue constant.
+The first improvement concerns the polynomial basis of the metric Vandermonde matrix
+(\cref{sec:basis}). We show that the metric shape functions are independent of the
+polynomial basis used to construct them (\cref{prop:invariance}). Thus, the basis is a
+purely numerical choice, and we propose the Lagrange polynomials through the reference
+GLL nodes in bounding-box scaled skew coordinates. On affine elements, the Vandermonde
+matrix then becomes a permutation matrix ($\cond=1$ for every $p$). On distorted
+elements, its condition number equals the Lebesgue function of the metric interpolation
+on the reference grid of the bounding box, up to a factor bounded by the reference
+Lebesgue constant (\cref{prop:kappa}). This traces the remaining ill-conditioning back to
+the extrapolation of the interpolant beyond the element. Numerically, the condition
+number at $p=16$ drops by three to four orders of magnitude relative to monomials. The
+same analysis also shows that \emph{no} choice of basis can reduce the Lebesgue
+constant.
 
-\paragraph{Contribution 2: hybrid metric--parametric trial space
-(\cref{sec:hybrid})} Distortion immunity requires only that the trial space
-contain the complete polynomials $\Pp_p(x,y)$, i.e.\ $(p+1)(p+2)/2$ of the
-$(p+1)^2$ functions. We propose the trial space
+The second improvement is a hybrid metric--parametric trial space (\cref{sec:hybrid}).
+Distortion immunity requires only that the trial space contain the complete polynomials
+$\Pp_p(x,y)$, i.e.\ $(p+1)(p+2)/2$ of the $(p+1)^2$ functions. Therefore, we propose the
+trial space
 \[
   \Tp_p = \Pp_p(x,y)\big|_{\Omega_e}\;\oplus\;\Cp_p\circ\vect F_e^{-1},
 \]
-in which the complete polynomials are written in metric (skew) coordinates and the
+in which only the complete polynomials are written in metric (skew) coordinates. The
 remaining approximation, $\Cp_p$, is the $L^2$-orthogonal complement of
 $\Pp_p(\xi,\eta)$ in $\Qp_p(\xi,\eta)$, written in the parametric coordinates, in
 which the nodes form an exact tensor grid. We prove that $\Tp_p$ is complete,
-affine invariant and interpolatory, that it coincides with the classical spectral
-element space on every straight-edged quadrilateral, and we derive an exact
-representation of its interpolation operator as the GLL interpolant plus a
-correction that is driven only by the completeness defect of the classical element
-(\cref{prop:representation}), together with a factorisation of its Vandermonde determinant
-that reduces unisolvence to the non-singularity of a $\dim\Pp_p\times\dim\Pp_p$ matrix
-(\cref{prop:factor}). Numerically, its Lebesgue constant stays at the level
-of GLL interpolation for moderate curved-edge distortion and remains orders of
-magnitude below that of $\Qp_p(s,t)$ for strong distortion. On all meshes tested,
-the eigenvalues with negative real part of the $\Qp_p(s,t)$ element disappear and the
-relative imaginary parts drop from $\mathcal O(1)$ to below $2\cdot10^{-2}$.
+affine invariant and interpolatory and that it coincides with the classical spectral
+element space on every straight-edged quadrilateral. Furthermore, we derive an exact
+representation of its interpolation operator as the GLL interpolant plus a correction
+that is driven only by the completeness defect of the classical element
+(\cref{prop:representation}). A factorisation of its Vandermonde determinant reduces
+unisolvence to the non-singularity of a $\dim\Pp_p\times\dim\Pp_p$ matrix
+(\cref{prop:factor}). Numerically, its Lebesgue constant stays at the level of GLL
+interpolation for moderate curved-edge distortion and remains orders of magnitude below
+that of $\Qp_p(s,t)$ for strong distortion. On all meshes tested, the eigenvalues with
+negative real part of the $\Qp_p(s,t)$ element disappear, and the relative imaginary
+parts drop from $\mathcal O(1)$ to below $2\cdot10^{-2}$.
 
 The numerical studies (\cref{sec:numerics}) quantify conditioning, accuracy of the
 shape functions, Lebesgue constants versus degree and distortion, patch tests on
 distorted and folded meshes, $h$-convergence on meshes whose distortion persists
 under refinement, eigenvalue spectra, transient stability and the thick-cylinder
-benchmark of \citet{Rajendran2010technique}. They also document
-where the hybrid space is \emph{less} accurate than $\Qp_p(s,t)$ (static problems
-with smooth solutions at moderate degree and distortion), so that the trade-off is
-explicit. The paper is restricted to linear plane elasticity on quadrilaterals.
+benchmark of \citet{Rajendran2010technique}. In order to make the trade-off explicit,
+they also document where the hybrid space is \emph{less} accurate than $\Qp_p(s,t)$
+(static problems with smooth solutions at moderate degree and distortion). Note that only
+linear plane elasticity on quadrilaterals is considered.
+
+The outline of the remainder of the present article is as follows: First, the
+unsymmetric spectral element formulation and the metric shape functions in skew
+coordinates are briefly summarised in \cref{sec:formulation}. Thereafter, the polynomial
+basis of the metric Vandermonde matrix is discussed in \cref{sec:basis}, before the
+hybrid trial space is introduced and analysed in \cref{sec:hybrid}. The implementation is
+outlined in \cref{sec:implementation}, and the numerical studies are presented in
+\cref{sec:numerics}. Finally, the results are discussed in \cref{sec:discussion}, and the
+most important conclusions are summarised in \cref{sec:conclusions}.
