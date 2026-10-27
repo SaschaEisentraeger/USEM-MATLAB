@@ -267,7 +267,7 @@ $1.5$. Compared with \PP, \PH\ is $3.6$--$150$ times more accurate for $p=5,\dot
 
 \paragraph{Folded elements} The nodal rotation patch test of
 \citet[Secs.~5.5--5.7]{Rajendran2010technique} uses the panel $[0,2]\times[-1,1]$
-discretised by $2\times2$ quadratic elements whose nodes are rotated with the angle
+discretised by $2\times2$ quadratic elements whose nodes are rotated by the angle
 $\theta$ (meshes a--f of that paper). For $\theta\ge90^\circ$, all four elements fold
 ($\det\matr J\le0$ in parts of each element). The elements are lifted to degree $p$ with
 the interior nodes taken from the bilinear corner map. The load cases tension, pure bending
@@ -504,7 +504,7 @@ The cost of solving the unsymmetric global system (LU instead of Cholesky) is th
 non-polynomial solutions (quarter annulus $1\le r\le3$, $E=1000$, $\nu=0.25$, plane
 stress, internal pressure $1000$). It is computed with all three formulations in the
 companion study of the code base (\texttt{studies/thick\_cylinder}, $1512$ solutions).
-The meshes consist of $2N\times2N$ eight-node elements, $N=1,2,4,8$, generated with gmsh
+The meshes consist of $2N\times2N$ 8-node elements, $N=1,2,4,8$, generated with gmsh
 \citep{Geuzaine2009Gmsh}. They are lifted to degree $p=2,\dots,8$ with the arcs
 represented exactly (Gordon--Hall blending \citep{Gordon1973Transfinite}). In every
 $2\times2$ super-element, the internal mid-side nodes are rotated by
