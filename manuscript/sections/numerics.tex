@@ -37,7 +37,7 @@ $\Cp_p$ of the hybrid space interpolates, they form the exact GLL grid.
 
 \Cref{fig:kappa} shows $\cond_2(\matr V)$ for the four bases of $\Qp_p(s,t)$ and for
 the hybrid space. \Cref{fig:kron} depicts the error of the Kronecker property of the
-computed shape functions, $e_\delta=\max_{l,k}|M_l^e(\bx_k)-\delta_{lk}|$, which is the
+computed shape functions, $e_K=\max_{l,k}|M_l^e(\bx_k)-\delta_{lk}|$, which is the
 error for unit nodal data (\cref{rem:reproduction}).
 
 \paragraph{Affine element} With monomials, $\cond_2(\matr V)$ grows from
@@ -45,11 +45,11 @@ $2.9\cdot10^{2}$ ($p=4$) over $2.9\cdot10^{5}$ ($p=8$) to $3.5\cdot10^{11}$ ($p=
 i.e.\ by a factor of about $5.8\approx(1+\sqrt2)^2$ per degree, the square of the 1D
 growth. Legendre polynomials give $\cond_2=10.2$, $24.4$, $55.3$, Chebyshev
 polynomials $\cond_2\le3$, and the Lagrange basis yields $\cond_2=1$ for every $p$, as
-expected from \cref{cor:affine}. Accordingly, $e_\delta$ grows with $p$ as $\cond_2(\matr V)u$ for
+expected from \cref{cor:affine}. Accordingly, $e_K$ grows with $p$ as $\cond_2(\matr V)u$ for
 the monomials ($2.0\cdot10^{-12}$ at $p=8$, $1.1\cdot10^{-6}$ at $p=16$) and is at most
 $1.1\cdot10^{-28}$ for the Lagrange basis. The asymmetry
 $\|\matr K_e-\matr K_e^\T\|_F/\|\matr K_e\|_F$, zero in exact arithmetic, follows
-$e_\delta$:
+$e_K$:
 \begin{center}
   \small
   \begin{tabular}{@{}lcccc@{}}
@@ -72,7 +72,7 @@ about~3 of one another. Compared with the monomials, they improve the condition 
 a factor of 4--13 at $p=4$ and of $4.6\cdot10^{3}$--$4.5\cdot10^{4}$ at $p=16$ (general element: $\cond_2=1.7\cdot10^{6}$ versus $4.7$--$8.4\cdot10^{4}$ at
 $p=8$, $9.0\cdot10^{14}$ versus $0.9$--$2.0\cdot10^{11}$ at $p=16$). With monomials,
 the trapezoid at $p=16$ is rejected as singular to working precision. In the Lagrange
-basis, $e_\delta$ is reduced accordingly (trapezoid, curved and general element at
+basis, $e_K$ is reduced accordingly (trapezoid, curved and general element at
 $p=16$: $7.1\cdot10^{-6}$, $6.0\cdot10^{-9}$ and $1.8\cdot10^{-6}$, versus rejection,
 $4.9\cdot10^{-5}$ and $6.5\cdot10^{-4}$ with monomials). The remaining growth is caused by
 the extrapolation of the metric interpolant to the bounding box (\cref{prop:kappa}). On
@@ -86,7 +86,7 @@ $\Qp_p(s,t)$ in any basis, namely by a factor
 of $2$--$6$ at $p=4$ and of $1.6\cdot10^{3}$--$1.9\cdot10^{5}$ at $p=16$. For instance, we
 obtain $\cond_2=7.8\cdot10^{2}$ versus $\ge1.3\cdot10^{5}$ (trapezoid, $p=8$) and
 $1.7$--$2.0\cdot10^{6}$ versus $\ge8.5\cdot10^{10}$ (trapezoid and general element,
-$p=16$). The error of the Kronecker property satisfies $e_\delta\le3.2\cdot10^{-11}$ for
+$p=16$). The error of the Kronecker property satisfies $e_K\le3.2\cdot10^{-11}$ for
 all elements and $p\le16$.
 
 \begin{figure}[htbp]
@@ -102,9 +102,9 @@ all elements and $p\le16$.
 \begin{figure}[htbp]
   \centering
   \input{figures/fig-kron}
-  \caption{Error $e_\delta$ of the Kronecker property of the computed metric shape
+  \caption{Error $e_K$ of the Kronecker property of the computed metric shape
     functions (values below $10^{-17}$ are not shown; for the Lagrange basis on the
-    parallelogram $e_\delta\le1.1\cdot10^{-28}$).}
+    parallelogram $e_K\le1.1\cdot10^{-28}$).}
   \label{fig:kron}
 \end{figure}
 
@@ -267,8 +267,8 @@ $1.5$. Compared with \PP, \PH\ is $3.6$--$150$ times more accurate for $p=5,\dot
 
 \paragraph{Folded elements} The nodal rotation patch test of
 \citet[Secs.~5.5--5.7]{Rajendran2010technique} uses the panel $[0,2]\times[-1,1]$
-discretised by $2\times2$ quadratic elements whose nodes are rotated by the angle
-$\theta$ (meshes a--f of that paper). For $\theta\ge90^\circ$, all four elements fold
+discretised by $2\times2$ quadratic elements whose internal mid-side nodes are rotated by the angle
+$\theta$ about the centre node (meshes a--f of that paper). For $\theta\ge90^\circ$, all four elements fold
 ($\det\matr J\le0$ in parts of each element). The elements are lifted to degree $p$ with
 the interior nodes taken from the bilinear corner map. The load cases tension, pure bending
 and end shear have exact solutions of degree $1$, $2$ and $3$, and therefore all of them
@@ -282,7 +282,7 @@ on the folded meshes ($p=3,\dots,8$).
 \begin{table}[htbp]
   \centering\small
   \caption{Patch tests on the folded panel meshes of \citet{Rajendran2010technique}
-    ($2\times2$ elements, interior node rotated by $\theta$): maximum relative nodal error
+    ($2\times2$ elements, internal mid-side nodes rotated by $\theta$): maximum relative nodal error
     over the tension, bending and shear load cases.}
   \label{tab:panel}
   \begin{adjustbox}{max width=\linewidth}\input{generated/panel}\end{adjustbox}
@@ -417,17 +417,17 @@ $\operatorname{Re}\lambda$ alone: every eigenvalue that is not real and positive
 solutions $e^{\pm\mathrm i\sqrt\lambda t}\bm\phi$, one of which grows with the rate
 $|\operatorname{Im}\sqrt\lambda|$. \Cref{tab:growth} lists the largest growth exponent per
 fundamental period $T_1=2\pi/\omega_1$ (of \PP),
-$g=T_1\max|\operatorname{Im}\sqrt\lambda|$, and the corresponding exponent of the
+$\mu=T_1\max|\operatorname{Im}\sqrt\lambda|$, and the corresponding exponent of the
 trapezoidal rule (Newmark, $\beta=1/4$, $\gamma=1/2$, $\Delta t=T_1/20$),
-$g_\Delta=20\ln\max|z|$ with the amplification factors
+$\mu_\Delta=20\ln\max|z|$ with the amplification factors
 $z=(1+\mathrm ic)/(1-\mathrm ic)$, $c=\pm\sqrt\lambda\,\Delta t/2$. \PP\ is stable
-($g=0$). For \PM, $g$ grows from $\mathcal O(1)$ at $p=2$ to $10^{2}$--$10^{4}$ at
-$p=6,7$, and $g_\Delta$ reaches $5$--$33$ per period. Thus, a perturbation at round-off
-level is amplified to $\mathcal O(1)$ within a few periods. For \PH, $g\le0.65$ and
-$g_\Delta\le0.16$ on all meshes and for all $p$ ($\le0.11$ for $p\ge3$). Therefore, we
+($\mu=0$). For \PM, $\mu$ grows from $\mathcal O(1)$ at $p=2$ to $10^{2}$--$10^{4}$ at
+$p=6,7$, and $\mu_\Delta$ reaches $5$--$33$ per period. Thus, a perturbation at round-off
+level is amplified to $\mathcal O(1)$ within a few periods. For \PH, $\mu\le0.65$ and
+$\mu_\Delta\le0.16$ on all meshes and for all $p$ ($\le0.11$ for $p\ge3$). Therefore, we
 have to admit that \PH\ is \emph{not} free of growing modes. Their growth is, however,
 slower than that of \PM\ by a factor of $2$--$3$ at $p=2$, $10$--$30$ at $p=3$ and up to
-four orders of magnitude ($g$) at $p=7$, and $g_\Delta$ does not increase with $p$.
+four orders of magnitude ($\mu$) at $p=7$, and $\mu_\Delta$ does not increase with $p$.
 
 \Cref{fig:transient} shows the free vibration from a smooth initial displacement,
 $\vect u_0=(\sin\frac{\pi x}{3}\sin\frac{\pi y}{2},\ \sin\frac{2\pi x}{3}\sin\frac{\pi y}{2})$,
@@ -437,7 +437,7 @@ rule and $\Delta t=T_1/20$. For \PM, the response grows exponentially and exceed
 $p=4$, where all eigenvalues have positive real part. \PH\ and \PP\ remain bounded
 ($\max|\vect u(t)|/\max|\vect u_0|\le1.81$ for all $p$), and their responses are
 indistinguishable in the plot. Over $50\,T_1$, the residual growth of \PH\ amplifies the
-round-off perturbation by at most $e^{50g_\Delta}\le e^{4.4}$ ($p=4,\dots,8$), which is
+round-off perturbation by at most $e^{50\mu_\Delta}\le e^{4.4}$ ($p=4,\dots,8$), which is
 invisible at the scale of the response. For very long integration times, or for time steps
 that resolve the growing high-frequency modes, this residual growth of \PH\ would
 eventually become visible. In order to remove it, a dissipative integrator or an
@@ -446,8 +446,8 @@ energy-consistent formulation \citep{Wang2022Temporal,Zaehringer2026On} would be
 \begin{table}[htbp]
   \centering\small
   \caption{Largest growth exponent per fundamental period of the semi-discrete free
-    vibration ($g$) and of the trapezoidal rule with $\Delta t=T_1/20$ ($g_\Delta$) on the
-    distorted $3\times2$ meshes. \PP: $g=0$, $g_\Delta<10^{-14}$ in all cases.}
+    vibration ($\mu$) and of the trapezoidal rule with $\Delta t=T_1/20$ ($\mu_\Delta$) on the
+    distorted $3\times2$ meshes. \PP: $\mu=0$, $\mu_\Delta<10^{-14}$ in all cases.}
   \label{tab:growth}
   \begin{adjustbox}{max width=\linewidth}\input{generated/growth}\end{adjustbox}
 \end{table}
@@ -515,7 +515,7 @@ Elements fold for $\alpha=45^\circ$ ($N\ge2$) and $\alpha\ge60^\circ$. Three fie
 computed, namely the Lam\'e solution, a manufactured polynomial of total degree~5 and the
 analytic field $u_x=\tfrac1{10}(\sin3X\cos2Y+e^{XY})$, $u_y=\tfrac1{10}(\cos2X\sin3Y+Ye^{-X})$,
 $X=x/3$, $Y=y/3$. The body forces and tractions are derived from the exact fields. The
-errors are measured in the relative energy norm $\eE$ (strains of the respective trial
+errors are measured as the relative energy-norm error $\eE$ (strains of the respective trial
 functions) and as the maximum relative nodal error $e_n$. Note that on folded meshes only
 $e_n$ is meaningful. Cases in which the code
 base finds the interpolation matrix singular to working precision
@@ -525,7 +525,7 @@ base finds the interpolation matrix singular to working precision
   \centering
   \input{figures/fig-meshes}
   \caption{Top: panel meshes of the nodal rotation patch test (\cref{sec:num-patch};
-    internal nodes rotated by $\theta$). Bottom: thick-cylinder meshes for $N=2$
+    internal mid-side nodes rotated by $\theta$). Bottom: thick-cylinder meshes for $N=2$
     ($4\times4$ elements); the finer meshes repeat the pattern on $N^2$ super-elements.}
   \label{fig:meshes}
 \end{figure}
@@ -650,8 +650,8 @@ other two elements). Second, at $\alpha=45^\circ$, $p=8$, it stagnates at the le
 ($2.4\cdot10^{-9}$ versus $4.0\cdot10^{-9}$). Finally, for $p\ge7$ at $\alpha=60^\circ,90^\circ$,
 its interpolation matrix is singular to working precision on some folded elements, so that
 only \PP\ can be used. The results in \cref{tab:unisolvence} confirm \cref{prop:factor}.
-Here, $\mathrm{rcond}(\matr A)$ follows $\mathrm{rcond}(\matr V_T)$ within a factor $30$, and
-the singular cases are exactly those with $\mathrm{rcond}(\matr A)\le4\cdot10^{-16}$ (all
+Here, $\mathrm{rcond}(\matr S)$ follows $\mathrm{rcond}(\matr V_T)$ within a factor $30$, and
+the singular cases are exactly those with $\mathrm{rcond}(\matr S)\le4\cdot10^{-16}$ (all
 other cases: $\ge2\cdot10^{-15}$). Therefore, the hybrid space extends the range of usable
 degrees on folded meshes compared with $\Qp_p(s,t)$, but it is not a general remedy.
 
@@ -666,7 +666,7 @@ degrees on folded meshes compared with $\Qp_p(s,t)$, but it is not a general rem
 \begin{table}[htbp]
   \centering\small
   \caption{Unisolvence of the hybrid space on the thick-cylinder meshes: minimum over the
-    elements of $\mathrm{rcond}$ of $\matr V_T$, of $\matr A$ (\cref{prop:factor}) and of the
+    elements of $\mathrm{rcond}$ of $\matr V_T$, of $\matr S$ (\cref{prop:factor}) and of the
     Vandermonde matrix $\matr V_Q$ of $\Qp_p(s,t)$; number of elements with
     $\mathrm{rcond}(\matr V_T)<\varepsilon_{\mathrm{mach}}$.}
   \label{tab:unisolvence}

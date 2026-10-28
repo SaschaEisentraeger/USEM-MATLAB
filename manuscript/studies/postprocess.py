@@ -47,6 +47,12 @@ def sci(v, digits=1):
     return '$%.*f{\\cdot}10^{%d}$' % (digits, m, e)
 
 
+def num(v, fmt):
+    """Fixed-point number; negative values in math mode (minus sign, not hyphen)."""
+    s = fmt % v
+    return '$%s$' % s if s.startswith('-') else s
+
+
 def convergence(tag):
     path = os.path.join(DATA, 'conv-%s.dat' % tag)
     if not os.path.exists(path):
@@ -75,7 +81,7 @@ def convergence(tag):
             line = '%d' % p
             for fm in ('PP', 'PM', 'PH'):
                 r, e = rates[(p, fm)]
-                line += ' & %.2f & %.2f & %s' % (r[-2], r[-1], sci(e))
+                line += ' & %s & %s & %s' % (num(r[-2], '%.2f'), num(r[-1], '%.2f'), sci(e))
             f.write(line + '\\\\\n')
         f.write('\\bottomrule\n\\end{tabular}\n')
 
@@ -153,7 +159,7 @@ def growth():
         f.write('\\begin{tabular}{@{}ll' + 'cc' * len(show) + '@{}}\n\\toprule\n')
         f.write('& & ' + ' & '.join('\\multicolumn{2}{c}{$p=%d$}' % p for p in show) + '\\\\\n')
         f.write(''.join('\\cmidrule(lr){%d-%d}' % (3 + 2 * i, 4 + 2 * i) for i in range(len(show))) + '\n')
-        f.write('mesh & & ' + ' & '.join(['$g$ & $g_\\Delta$'] * len(show)) + '\\\\\n\\midrule\n')
+        f.write('mesh & & ' + ' & '.join(['$\\mu$ & $\\mu_\\Delta$'] * len(show)) + '\\\\\n\\midrule\n')
         for m, label in have:
             T = tabs[m]
             for k, (fm, name) in enumerate((('PM', '\\PM'), ('PH', '\\PH'))):
@@ -215,7 +221,7 @@ def cylinder(raw=CYL, problem='lame'):
                     e8, e4 = get(a, 8, p, fm, key), get(a, 4, p, fm, key)
                     r = math.log2(e4 / e8) if e4 > 0 and e8 > 0 else float('nan')
                     leb = get(a, 8, p, fm, 'lebesgue')
-                    vals += [sci(e8), '--' if math.isnan(r) else '%.1f' % r,
+                    vals += [sci(e8), '--' if math.isnan(r) else num(r, '%.1f'),
                              '--' if fm == 'PP' or math.isnan(leb) else sci(leb, 1)]
                 f.write('%s & %s & %s\\\\\n' % (first, name, ' & '.join(vals)))
             f.write('\\midrule\n' if a != alphas[-1] else '')

@@ -109,21 +109,21 @@ property.
 Let $\hat\Pi$ denote GLL interpolation on $\hat\Omega$ (onto
 $\Qp=\Qp_{p_\xi,p_\eta}(\xi,\eta)$), $\pi$ the projector of $\Qp$ onto
 $\Pp_m(\xi,\eta)$ along $\Cp_p$ (truncation of the Legendre expansion), and
-$\mathcal P=\{q\circ\vect F_e: q\in\Pp_m(x,y)\}$, $\hat\Qp=\{q\circ\vect F_e:
+$\hat\Pp_m=\{q\circ\vect F_e: q\in\Pp_m(x,y)\}$, $\hat\Qp_p=\{q\circ\vect F_e:
 q\in\Qp_p(s,t)\}$. Define
 \begin{equation}
-  S=\pi\hat\Pi\big|_{\mathcal P}:\ \mathcal P\to\Pp_m(\xi,\eta),\qquad
-  S_Q=\hat\Pi\big|_{\hat\Qp}:\ \hat\Qp\to\Qp,
+  S=\pi\hat\Pi\big|_{\hat\Pp_m}:\ \hat\Pp_m\to\Pp_m(\xi,\eta),\qquad
+  S_Q=\hat\Pi\big|_{\hat\Qp_p}:\ \hat\Qp_p\to\Qp,
   \label{eq:S}
 \end{equation}
 and denote by $\mathcal I_T$, $\mathcal I_Q$ the nodal interpolation operators of
-$\hat\Tp_p$ and $\hat\Qp$ (all functions pulled back to $\hat\Omega$) and by $\Lam_T$,
+$\hat\Tp_p$ and $\hat\Qp_p$ (all functions pulled back to $\hat\Omega$) and by $\Lam_T$,
 $\Lam_Q$ the corresponding Lebesgue constants \eqref{eq:lebesgue}.
 
 \begin{proposition}[Representation of the metric interpolants]
 \label{prop:representation}
 Assume that $\vect F_e$ has a point with $\det\matr J\ne0$, so that
-$\dim\mathcal P=\dim\Pp_m$.
+$\dim\hat\Pp_m=\dim\Pp_m$.
 \begin{enumerate}
 \item[(a)] $\hat\Tp_p$ is unisolvent at the GLL nodes if and only if $S$ is invertible,
   and then, for every $f\in C(\hat\Omega)$,
@@ -131,7 +131,7 @@ $\dim\mathcal P=\dim\Pp_m$.
     \mathcal I_Tf=\hat\Pi f+(I-\hat\Pi)\,S^{-1}\pi\,\hat\Pi f .
     \label{eq:repT}
   \end{equation}
-\item[(b)] $\hat\Qp$ is unisolvent if and only if $S_Q$ is invertible, and then
+\item[(b)] $\hat\Qp_p$ is unisolvent if and only if $S_Q$ is invertible, and then
   \begin{equation}
     \mathcal I_Qf=\hat\Pi f+(I-\hat\Pi)\,S_Q^{-1}\,\hat\Pi f .
     \label{eq:repQ}
@@ -143,30 +143,30 @@ $\dim\mathcal P=\dim\Pp_m$.
     \label{eq:lebbound}
   \end{equation}
   and the shape functions are
-  $\hat M_k^T=\hat N_k+(I-\hat\Pi)S^{-1}\pi\hat N_k$,
-  $\hat M_k^Q=\hat N_k+(I-\hat\Pi)S_Q^{-1}\hat N_k$.
+  $\hat M_{k,T}=\hat N_k+(I-\hat\Pi)S^{-1}\pi\hat N_k$,
+  $\hat M_{k,Q}=\hat N_k+(I-\hat\Pi)S_Q^{-1}\hat N_k$.
 \end{enumerate}
 \end{proposition}
 \begin{proof}
-The nodal values of a function $g$ are in one-to-one correspondence with
-$\hat\Pi g\in\Qp$, and $\hat\Pi c=c$ for $c\in\Cp_p\subset\Qp$.
-(a) Let $g=q+c$ with $q\in\mathcal P$, $c\in\Cp_p$, have the nodal values of $f$, i.e.\
+The nodal values of a function $\hat v$ are in one-to-one correspondence with
+$\hat\Pi\hat v\in\Qp$, and $\hat\Pi c=c$ for $c\in\Cp_p\subset\Qp$.
+(a) Let $\hat v=q+c$ with $q\in\hat\Pp_m$, $c\in\Cp_p$, have the nodal values of $f$, i.e.\
 $\hat\Pi q+c=\hat\Pi f$. Applying $\pi$ (whose kernel is $\Cp_p$) gives
 $Sq=\pi\hat\Pi f$. Conversely, for any $q$ with $Sq=\pi\hat\Pi f$, the function
 $c=\hat\Pi f-\hat\Pi q$ lies in $\ker\pi=\Cp_p$. If $S$ is invertible, $q$ and $c$ are
 thus uniquely determined for every $f$ (existence and uniqueness of the interpolant), and
-$g=q+\hat\Pi f-\hat\Pi q$, which is \eqref{eq:repT}. If $S$ is singular, take
-$0\ne q\in\ker S$ and $c=-\hat\Pi q\in\Cp_p$. The function $g=q+c$ then vanishes at all
-nodes. Either $g\ne0$, or $q=-c\in\mathcal P\cap\Cp_p$ and the sum is not direct, so that
+$\hat v=q+\hat\Pi f-\hat\Pi q$, which is \eqref{eq:repT}. If $S$ is singular, take
+$0\ne q\in\ker S$ and $c=-\hat\Pi q\in\Cp_p$. The function $\hat v=q+c$ then vanishes at all
+nodes. Either $\hat v\ne0$, or $q=-c\in\hat\Pp_m\cap\Cp_p$ and the sum is not direct, so that
 $\dim\hat\Tp_p<n$. In both cases, $\hat\Tp_p$ is not unisolvent.
-(b) An interpolant $g\in\hat\Qp$ satisfies $\hat\Pi g=\hat\Pi f$, i.e.\ $S_Qg=\hat\Pi f$,
-and $g=\hat\Pi g+(I-\hat\Pi)g$. (c) follows from $\|\hat\Pi f\|\le\Lam_N\|f\|$ and,
+(b) An interpolant $\hat v\in\hat\Qp_p$ satisfies $\hat\Pi\hat v=\hat\Pi f$, i.e.\ $S_Q\hat v=\hat\Pi f$,
+and $\hat v=\hat\Pi\hat v+(I-\hat\Pi)\hat v$. (c) follows from $\|\hat\Pi f\|\le\Lam_N\|f\|$ and,
 for the shape functions, from $\hat\Pi f=\hat N_k$ for the nodal data $\delta_{\cdot k}$.
 \end{proof}
 
 \begin{corollary}
 \label{cor:defect}
-If $\mathcal P\subset\Qp$ -- in particular for every bilinear map -- the correction in
+If $\hat\Pp_m\subset\Qp$ -- in particular for every bilinear map -- the correction in
 \eqref{eq:repT} vanishes, $\mathcal I_T=\hat\Pi$ and $\Lam_T=\Lam_N$, independently of
 the amount of (angular) distortion. In general, the deviation of $\mathcal I_T$ from
 GLL interpolation is the GLL interpolation error of a complete polynomial of degree $m$,
@@ -183,7 +183,7 @@ space and involves the GLL interpolation error of Cartesian polynomials of tenso
 $p$ (total degree up to $2p$) as well as the inverse of the full matrix $S_Q$. In
 particular, this correction does not vanish even on bilinear elements, because
 $s^at^b\circ\vect F_e\in\Qp_{a+b}(\xi,\eta)\not\subset\Qp_p(\xi,\eta)$ for $a+b>p$ in general.
-For a smooth perturbation $\vect F_e=\vect F_{\mathrm{bil}}+\delta\,\vect g$ of a bilinear
+For a smooth perturbation $\vect F_e=\vect F_{\mathrm{bil}}+\delta\,\tilde{\vect F}$ of a bilinear
 map, on the other hand, the correction of $\Tp_p$ is $\mathcal O(\delta)$, since
 $q\circ\vect F_{\mathrm{bil}}\in\Qp_p(\xi,\eta)$ for $q\in\Pp_m(x,y)$. The bounds
 \eqref{eq:lebbound} are not sharp enough to quantify the difference a priori.
@@ -194,35 +194,35 @@ in $p$ and in the distortion.
 
 \paragraph{Unisolvence} The operator $S$ has a simple matrix form. Let $\matr V_{\mathrm{ref}}$
 be the Legendre Vandermonde matrix of the GLL grid (rows $L_a(\xi_k)L_b(\eta_k)$, all
-$a\le p_\xi$, $b\le p_\eta$). Its rows are ordered as the $d=\dim\Pp_m$ low-order rows
+$a\le p_\xi$, $b\le p_\eta$). Its rows are ordered as the $n_m=\dim\Pp_m$ low-order rows
 $\matr L$ ($a+b\le m$), followed by the rows $\matr R$ of the complement. The hybrid
 Vandermonde matrix is ordered alike, $\matr V_T=[\matr Q;\matr R]$, where the rows of
-$\matr Q$ are the nodal values of a basis $\{q_j\}$ of $\mathcal P$. Let
-$\matr A\in\R^{d\times d}$ be the matrix of $S$, i.e.\ $A_{ij}$ is the coefficient of the
+$\matr Q$ are the nodal values of a basis $\{q_j\}$ of $\hat\Pp_m$. Let
+$\matr S\in\R^{n_m\times n_m}$ be the matrix of $S$, i.e.\ $S_{ij}$ is the coefficient of the
 $i$-th low-order Legendre product in $\hat\Pi q_j$.
 
 \begin{proposition}[Factorisation of the hybrid Vandermonde matrix]
 \label{prop:factor}
-$|\det\matr V_T|=|\det\matr V_{\mathrm{ref}}|\,|\det\matr A|$. Hence the nodes are unisolvent
-for $\hat\Tp_p$ if and only if $\matr A$ is non-singular, and they are unisolvent for every
+$|\det\matr V_T|=|\det\matr V_{\mathrm{ref}}|\,|\det\matr S|$. Hence the nodes are unisolvent
+for $\hat\Tp_p$ if and only if $\matr S$ is non-singular, and they are unisolvent for every
 element map sufficiently close to an affine one.
 \end{proposition}
 \begin{proof}
 Every row of $\matr Q$ is a vector of nodal values and has a unique expansion in the rows of
 the non-singular matrix $\matr V_{\mathrm{ref}}$, whose coefficients are the Legendre
-coefficients of $\hat\Pi q_j$: $\matr Q=\matr A^\T\matr L+\matr B\matr R$. Hence
-$\matr V_T=\bigl[\begin{smallmatrix}\matr A^\T&\matr B\\\matr0&\matr I\end{smallmatrix}\bigr]
+coefficients of $\hat\Pi q_j$: $\matr Q=\matr S^\T\matr L+\matr B\matr R$. Hence
+$\matr V_T=\bigl[\begin{smallmatrix}\matr S^\T&\matr B\\\matr0&\matr I\end{smallmatrix}\bigr]
 \bigl[\begin{smallmatrix}\matr L\\\matr R\end{smallmatrix}\bigr]$, and the determinant identity
 follows. On an affine element $q\circ\vect F_e\in\Pp_m(\xi,\eta)$, $\hat\Pi$ is exact and
-$\matr A$ is the matrix of the invertible composition with an affine map; $\det\matr A$
+$\matr S$ is the matrix of the invertible composition with an affine map; $\det\matr S$
 depends continuously on the nodes.
 \end{proof}
 
-Since $\matr V_{\mathrm{ref}}$ is fixed and well conditioned, $\mathrm{rcond}(\matr A)$ is a
-cheap element-level indicator of unisolvence ($d\times d$ instead of $n\times n$). On
+Since $\matr V_{\mathrm{ref}}$ is fixed and well conditioned, $\mathrm{rcond}(\matr S)$ is a
+cheap element-level indicator of unisolvence ($n_m\times n_m$ instead of $n\times n$). On
 strongly non-affine (folded) elements, however, unisolvence is not guaranteed. In
 \cref{sec:num-cylinder}, we show that it fails on some folded elements at $p\ge7$, exactly
-where $\matr A$ becomes singular.
+where $\matr S$ becomes singular.
 
 \subsection{Approximation}
 

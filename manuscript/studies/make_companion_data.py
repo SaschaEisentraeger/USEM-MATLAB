@@ -39,6 +39,12 @@ def sci(v, nd=1):
     return f"${m:.{nd}f}\\cdot10^{{{e}}}$" if e != 0 else f"${m:.{nd}f}$"
 
 
+def num(v, nd=2):
+    """Fixed-point number; negative values in math mode (minus sign, not hyphen)."""
+    s = f"{v:.{nd}f}"
+    return f"${s}$" if s.startswith("-") else s
+
+
 def write(name, lines):
     with open(os.path.join(GEN, name), "w") as f:
         f.write("\n".join(lines) + "\n")
@@ -136,7 +142,7 @@ def main():
                     if min(e1, e2) < floor(a, fo, 8, p) or math.isnan(e1) or math.isnan(e2):
                         cells.append("--")
                     else:
-                        cells.append(f"{math.log2(e1 / e2):.2f}")
+                        cells.append(num(math.log2(e1 / e2)))
                 lab = f"{prn}, $\\alpha={a}^\\circ$" if fo == "PM" else ""
                 L.append(lab + " & " + "\\" + fo + " & " + " & ".join(cells) + "\\\\")
             L.append("\\addlinespace[2pt]")
@@ -158,7 +164,7 @@ def main():
                         cells.append("--")
                     else:
                         r = ed / ei
-                        cells.append(f"{r:.2f}" if r < 100 else sci(r, 0))
+                        cells.append(num(r) if r < 100 else sci(r, 0))
                 lab = f"{prn}, $\\alpha={a}^\\circ$" if fo == "PM" else ""
                 L.append(lab + " & \\" + fo + " & " + " & ".join(cells) + "\\\\")
             L.append("\\addlinespace[2pt]")
@@ -227,7 +233,7 @@ def main():
     with open(os.path.join(DATA, "unisolvence.txt")) as f:
         U = list(csv.DictReader(f, delimiter=" "))
     L = ["\\begin{tabular}{@{}rrrcccc@{}}", "\\toprule",
-         "$\\alpha$ & $N$ & $p$ & $\\min\\mathrm{rcond}(\\bm V_T)$ & $\\min\\mathrm{rcond}(\\bm A)$ & "
+         "$\\alpha$ & $N$ & $p$ & $\\min\\mathrm{rcond}(\\bm V_T)$ & $\\min\\mathrm{rcond}(\\bm S)$ & "
          "$\\min\\mathrm{rcond}(\\bm V_Q)$ & singular\\\\", "\\midrule"]
     for r in U:
         L.append(f"${r['alpha']}^\\circ$ & {r['N']} & {r['p']} & {sci(float(r['rcondVT']))} & "

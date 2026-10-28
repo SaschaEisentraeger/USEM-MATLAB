@@ -16,6 +16,7 @@
 \usepackage{algpseudocode}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
   urlcolor=blue!50!black]{hyperref}
+\pdfstringdefDisableCommands{\def\corref#1{}}  % no footnote mark in the PDF metadata
 \usepackage[capitalise,noabbrev]{cleveref}
 
 % Theorem environments
@@ -30,7 +31,7 @@
 % Notation
 \newcommand{\vect}[1]{\bm{#1}}
 \newcommand{\matr}[1]{\bm{#1}}
-\newcommand{\T}{\mathsf{T}}
+\newcommand{\T}{\top}
 \newcommand{\dd}{\,\mathrm{d}}
 \newcommand{\bx}{\vect x}
 \newcommand{\bxi}{\bm\xi}

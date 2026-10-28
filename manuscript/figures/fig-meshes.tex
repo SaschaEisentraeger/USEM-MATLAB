@@ -1,3 +1,6 @@
+% blank lines in the mesh data (empty line=jump) make pgfplots log harmless
+% "Missing character" messages; silence them within this figure
+\tracinglostchars=0
 \begin{tikzpicture}
     \begin{groupplot}[group style={group size=6 by 1, horizontal sep=3mm}, meshplot, title style={font=\tiny},
         xmin=-0.05, xmax=2.05, ymin=-1.05, ymax=1.05, width=2.55cm, height=2.55cm]
