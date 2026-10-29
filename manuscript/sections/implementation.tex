@@ -1,54 +1,36 @@
 \section{Implementation}
 \label{sec:implementation}
-
-Both improvements are local to the routine that evaluates the metric shape
-functions at a set of query points. Assembly, loads, boundary conditions and solvers
-remain unchanged. \Cref{alg:metric} summarises the evaluation for one element. Here, the
-query points are passed with their reference coordinates, which are known to the element
-routines (images of quadrature or plotting points).
+%
+Both improvements are local to the routine that evaluates the metric shape functions at a set of query points. Assembly, loads, boundary conditions and solvers remain unchanged. \Cref{alg:metric} summarizes the evaluation for one element. Here, the query points are passed with their reference coordinates, which are known to the element routines, e.g., as quadrature or plotting points.
 
 \begin{algorithm}[htbp]
-\caption{Metric shape functions of one element at query points $\bxi_q$
-  (\PM: $\Qp_p(s,t)$, Lagrange basis; \PH: hybrid space $\Tp_p$).}
+\caption{Metric shape functions of one element at the query points $\bxi_r$ (\PM: $\Qsk$, Lagrange basis; \PH: hybrid space $\Tp_p$).}
 \label{alg:metric}
 \begin{algorithmic}[1]
-\Require nodes $\bx_k$, reference nodes $\bxi_k$, query points $\bxi_q$, $\bx_q=\vect F_e(\bxi_q)$
-\State $\bx_0\gets\vect F_e(\vect 0)$, $\matr J_0\gets\matr J(\vect 0)$;
-  $\vect s_k\gets\matr J_0^{-\T}(\bx_k-\bx_0)$, $\vect s_q\gets\matr J_0^{-\T}(\bx_q-\bx_0)$
-  \Comment{skew coordinates \eqref{eq:skew}}
-\State scale $\vect s_k,\vect s_q$ with the bounding box of $\{\vect s_k\}$ \eqref{eq:bbox}
+\Require nodes $\bx_j$, reference nodes $\bxi_j$, query points $\bxi_r$, $\bx_r=\bx_K(\bxi_r)$
+\State $\bx_0\gets\bx_K(\vect 0)$, $\matr J_0\gets\matr J(\vect 0)$; $\bxib_j\gets\matr J_0^{-\T}(\bx_j-\bx_0)$, $\bxib_r\gets\matr J_0^{-\T}(\bx_r-\bx_0)$
+  \Comment{skew coordinates \cref{eq:skew}}
+\State scale $\bxib_j,\bxib_r$ with the bounding box of $\{\bxib_j\}$ \Comment{\cref{eq:bbox}}
 \If{\PM}
-  \State $V_{ck}\gets\ell_a(\tilde s_k)\ell_b(\tilde t_k)$,
-    $P_{cq}\gets\ell_a(\tilde s_q)\ell_b(\tilde t_q)$, $0\le a,b\le p$
+  \State $V_{cj}\gets\ell_a(\tilde\xi_j)\ell_b(\tilde\eta_j)$, $P_{cr}\gets\ell_a(\tilde\xi_r)\ell_b(\tilde\eta_r)$, $0\le a,b\le p$
     \Comment{1D GLL Lagrange polynomials}
-  \State gradients: $\nabla_{\bx}=\matr J_0^{-1}\mathrm{diag}(r_s^{-1},r_t^{-1})\nabla_{\tilde{\vect s}}$
+  \State gradients: $\nabla_{\bx}=\matr J_0^{-1}\operatorname{diag}(r_{\xi}^{-1},r_{\eta}^{-1})\nabla_{\bxit}$
 \Else \Comment{\PH}
   \For{$0\le a\le p_\xi$, $0\le b\le p_\eta$}
     \If{$a+b\le m$}
-      \State $V_{ck}\gets L_a(\tilde s_k)L_b(\tilde t_k)$,
-        $P_{cq}\gets L_a(\tilde s_q)L_b(\tilde t_q)$; gradient as in line 5
+      \State $V_{cj}\gets L_a(\tilde\xi_j)L_b(\tilde\eta_j)$, $P_{cr}\gets L_a(\tilde\xi_r)L_b(\tilde\eta_r)$; gradient as in line 5
     \Else
-      \State $V_{ck}\gets L_a(\xi_k)L_b(\eta_k)$,
-        $P_{cq}\gets L_a(\xi_q)L_b(\eta_q)$; $\nabla_{\bx}=\matr J(\bxi_q)^{-1}\nabla_{\bxi}$
+      \State $V_{cj}\gets L_a(\xi_j)L_b(\eta_j)$, $P_{cr}\gets L_a(\xi_r)L_b(\eta_r)$; $\nabla_{\bx}=\matr J(\bxi_r)^{-1}\nabla_{\bxi}$
     \EndIf
   \EndFor
 \EndIf
 \State stop if $\mathrm{rcond}(\matr V)<\varepsilon_{\mathrm{mach}}$ \Comment{nodes not unisolvent}
-\State LU factorisation of $\matr V$; $\matr N_R\gets\matr V^{-1}\matr P$,
-  $\nabla\matr N_R\gets\matr V^{-1}\nabla\matr P$
+\State LU factorization of $\matr V$; $\matr N_{\mathrm M}\gets\matr V^{-1}\matr P$, $\nabla\matr N_{\mathrm M}\gets\matr V^{-1}\nabla\matr P$
 \end{algorithmic}
 \end{algorithm}
 
-\paragraph{Cost} The 1D Lagrange basis costs $\mathcal O(p)$ operations per
-function and point (product formula, with prefix and suffix products for the
-derivative, so that query points may coincide with nodes), compared with
-$\mathcal O(1)$ for monomials or recurrences. The hybrid space additionally needs
-$\matr J(\bxi_q)$, which is computed by the element routines anyway. The dominant cost --
-the LU factorisation of the $n\times n$ matrix $\matr V$ ($\mathcal O(p^6)$) and the
-solves with the $\mathcal O(p^2)$ right-hand sides of $\matr P$ and its gradients
-($\mathcal O(p^6)$) -- is the same for all variants. Measured run times are given in
-\cref{sec:num-cost}.
+The one-dimensional Lagrange basis costs $\mathcal O(p)$ operations per function and point (product formula, with prefix and suffix products for the derivative, so that query points may coincide with nodes), compared with $\mathcal O(1)$ for monomials or recurrences. The hybrid space additionally needs $\matr J(\bxi_r)$, which is computed by the element routines anyway. The dominant cost, i.e., the LU factorization of the $n\times n$ matrix $\matr V$ and the solves with the $\mathcal O(p^2)$ right-hand sides of $\matr P$ and its gradients, is of the order of $p^6$ for all variants. Measured run times are given in \cref{sec:num-cost}.
 
-\paragraph{Anisotropic degrees} For $p_\xi\ne p_\eta$, $\Qp_{p_\xi,p_\eta}(s,t)$ contains
-$\Pp_{\min(p_\xi,p_\eta)}(x,y)$, and so does $\Tp_p$ with $m=\min(p_\xi,p_\eta)$. That
-is, both spaces have the same completeness degree.
+If $\matr V$ is singular to working precision, the element is rejected. The companion paper, in contrast, moves a corner node of such an element by a small fraction of its shortest adjacent edge \citep{Eisentraeger2026axisymmetric}. Since this changes the mesh, we do not use it here and report rejected cases instead (\cref{sec:num-cylinder}).
+
+For anisotropic degrees $p_\xi\ne p_\eta$, $\Qp_{p_\xi,p_\eta}(\bar\xi,\bar\eta)$ contains $\Pp_{\min(p_\xi,p_\eta)}(x,y)$, and so does $\Tp_p$ with $m=\min(p_\xi,p_\eta)$. That is to say, both spaces have the same complete degree.

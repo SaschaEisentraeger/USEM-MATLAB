@@ -22,9 +22,9 @@
 \input{sections/abstract}
 
 \begin{keyword}
-unsymmetric finite element method \sep Petrov--Galerkin \sep spectral element
-method \sep mesh distortion \sep metric shape functions \sep Lebesgue constant
-\sep generalised Vandermonde matrix
+unsymmetric finite element method \sep Petrov-Galerkin method \sep spectral element
+method \sep curved-edge distortion \sep metric shape functions \sep Lebesgue constant
+\sep generalized Vandermonde matrix
 \end{keyword}
 
 \end{frontmatter}
@@ -41,9 +41,11 @@ method \sep mesh distortion \sep metric shape functions \sep Lebesgue constant
 \input{sections/appendix}
 
 \section*{Data availability}
-The implementation (MATLAB/GNU Octave), the scripts that produce every number and
-figure of this paper (\texttt{manuscript/studies}) and the raw data
-(\texttt{manuscript/data}) are contained in the USEM code repository.
+The implementation (MATLAB/GNU Octave), the scripts that produce every number and figure of this paper (\texttt{manuscript/studies}) and the raw data (\texttt{manuscript/data}) are contained in the USEM code repository. The generated tables (\texttt{manuscript/generated}) are written by these scripts, and the source of every table is noted in the LaTeX source.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+During the preparation of this work, the author used \texttt{Claude} (Anthropic), accessed through \texttt{Claude Code}, as an AI-assisted tool and retained full control over its use. The research ideas, methodology and numerical studies were defined by the author, who specified each task and reviewed, tested and approved all changes before their adoption. The tool was used to extend and document the \texttt{MATLAB}/GNU Octave code, to execute the numerical studies and post-process the results, to generate figures from computed data with reproducible scripts, to draft and revise the manuscript text in accordance with the author's instructions and to check the cited literature. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
+% CHECK: adapted from the companion paper; confirm that it describes how the tool was used for this paper (and switch to "authors" once co-authors are added)
 
 \bibliographystyle{elsarticle-harv}
 \bibliography{references}

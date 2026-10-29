@@ -1,38 +1,3 @@
 \begin{abstract}
-Unsymmetric (Petrov--Galerkin) finite elements with parametric test and metric trial
-functions reproduce all polynomial displacement fields of the completeness degree
-exactly on arbitrarily distorted meshes. For spectral elements of high degree $p$,
-however, the standard metric trial space -- tensor-product polynomials $\Qp_p(s,t)$ in
-corotational skew coordinates, constructed by inverting a monomial Vandermonde matrix --
-suffers from two distinct deficiencies: (i) an exponentially ill-conditioned construction
-and (ii) an interpolation problem whose Lebesgue constant grows exponentially with $p$
-and with the distortion. In the article at hand, we propose one remedy for each.
-First, the metric shape functions are independent of the polynomial basis. Therefore, we
-employ the Lagrange polynomials through the reference Gauss--Lobatto--Legendre nodes in
-bounding-box scaled skew coordinates. This basis makes the Vandermonde matrix a
-permutation matrix on affine elements and reduces the condition number on distorted
-elements by three to four orders of magnitude at $p=16$ compared with monomials. We prove
-that its condition number equals the Lebesgue function of the metric interpolation on the
-reference grid of the element's bounding box. Thus, the remaining ill-conditioning is an
-extrapolation effect, and no basis can reduce the Lebesgue constant itself.
-Second, we introduce a hybrid trial space in which only the complete polynomials
-$\Pp_p(x,y)$, which are required for distortion immunity, are written in metric
-coordinates. The remaining approximation is the $L^2$-orthogonal complement of
-$\Pp_p(\xi,\eta)$ in $\Qp_p(\xi,\eta)$, written in parametric coordinates. The space is
-complete, affine invariant and interpolatory, and it coincides with the classical spectral
-element on straight-edged quadrilaterals. Its interpolant is the GLL interpolant plus a
-correction driven only by the completeness defect of the classical element, and
-unisolvence is equivalent to the non-singularity of a small matrix of the size of
-$\dim\Pp_p$.
-The numerical studies up to $p=16$ show condition numbers reduced by up to five orders of
-magnitude and Lebesgue constants at or close to the GLL level for moderate curved-edge
-distortion, where those of $\Qp_p(s,t)$ reach $10^{4}$--$10^{7}$. Patch tests on
-non-folded meshes are passed at round-off level up to $p=10$. On meshes with persistent
-curved-edge distortion, the hybrid element converges with the optimal order, whereas the
-$\Qp_p(s,t)$ element diverges for $p\ge5$. For the distorted thick-cylinder benchmark, the
-errors are up to $390$ times smaller than with $\Qp_p(s,t)$. Moreover, the strongly
-complex and negative eigenvalues that make the $\Qp_p(s,t)$ element exponentially unstable
-in transient analysis are removed. The price we have to pay is a larger error constant
-(factor $1.3$--$5.5$) for smooth static solutions where $\Qp_p(s,t)$ is stable and, on
-folded elements, singular integrands that limit the attainable accuracy.
+Unsymmetric (Petrov-Galerkin) spectral elements use conforming parametric test functions and metric trial functions that are complete in the physical coordinates. On meshes whose edge curvature persists under refinement, they therefore converge with the optimal rate, whereas the conventional spectral element of degree $p$ with a quadratic geometry is complete only to degree $\lfloor p/2\rfloor$. The metric trial functions are, however, obtained by nodal interpolation in the tensor-product polynomials of skew coordinates, and on strongly distorted elements they overshoot between the nodes, increasingly with the degree. In the paper at hand, we separate two causes of this behavior and propose one remedy for each. The first cause is the conditioning of the construction. Since the metric shape functions do not depend on the polynomial basis of the generalized Vandermonde matrix, we use the Lagrange polynomials through the reference Gauss-Lobatto-Legendre (GLL) points in skew coordinates scaled to the bounding box of the nodes. On parallelograms, the Vandermonde matrix is then a permutation matrix, and on distorted elements its condition number at $p=16$ is three to four orders of magnitude smaller than with monomials. Its condition number equals the Lebesgue function of the metric interpolation at the reference grid of the bounding box, so that no basis can reduce the Lebesgue constant itself. The second cause is the interpolation problem. Since exact reproduction requires only the complete polynomials of degree $p$ in the physical coordinates, we write only these in skew coordinates and the remaining functions, the $L^2$-orthogonal complement of the complete polynomials in the tensor-product space, in the reference coordinates, in which the nodes form the exact GLL grid. The resulting hybrid element coincides with the conventional spectral element on every straight-sided quadrilateral, and its unisolvence reduces to the regularity of a matrix of the size of the complete polynomial space. Its Lebesgue constant stays at or close to the GLL value for moderate edge curvature, where that of the tensor-product metric space reaches $10^4$--$10^7$ at $p=16$. On meshes with persistent edge curvature, the hybrid element converges with the optimal rate for $p\le6$, whereas the original unsymmetric element diverges for $p=5,6$. For a distorted thick cylinder, its error is up to 390 times smaller, and it is 0.78 to 1.00 times the interpolation error of its trial space on all meshes without folded elements. Moreover, the eigenvalues with negative real part of the original element are removed, although a slow growth of the transient response remains. The price is an error that is 1.3 to 5.5 times larger where the original element is stable and, on folded elements, singular integrands that limit the attainable accuracy.
 \end{abstract}

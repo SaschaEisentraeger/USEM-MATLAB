@@ -1,154 +1,117 @@
 \section{Unsymmetric spectral elements}
 \label{sec:formulation}
-
-\subsection{Problem and Petrov--Galerkin discretisation}
-
-We consider linear plane elasticity on $\Omega\subset\R^2$,
+%
+In this section, we briefly summarize the unsymmetric (Petrov-Galerkin) spectral element and the properties of the metric trial functions on which the remainder of the paper relies. For the sake of self-containedness, the main ingredients of the companion paper \citep{Eisentraeger2026axisymmetric} are recalled for plane elasticity.
+%
+\subsection{Discretization with different test and trial functions}
+\label{sec:pg}
+%
+We consider a linear elastic body in plane stress or plane strain that occupies the domain $\Omega\subset\R^2$. With the strain vector $\bm\varepsilon=[\varepsilon_{xx},\varepsilon_{yy},\gamma_{xy}]^\T$ and the elasticity matrix $\matr C$, the internal and external virtual work read
+%
 \begin{equation}
-  -\nabla\cdot\bm\sigma(\vect u) = \vect b \ \text{in } \Omega,\qquad
-  \bm\sigma = \matr C\,\bm\varepsilon(\vect u),\qquad
-  \vect u = \bar{\vect u}\ \text{on } \Gamma_u,\qquad
-  \bm\sigma\vect n = \bar{\vect t}\ \text{on } \Gamma_t ,
-  \label{eq:strong}
+  a(\vect u,\vect v)=\int\limits_\Omega\bm\varepsilon(\vect v)^\T\matr C\,\bm\varepsilon(\vect u)\dd A\qquad\text{and}\qquad
+  \ell(\vect v)=\int\limits_\Omega\vect v\cdot\vect b\dd A+\int\limits_{\Gamma_{\mathrm N}}\vect v\cdot\bar{\vect t}\dd s ,
+  \label{eq:forms}
 \end{equation}
-with the strain vector $\bm\varepsilon=[\varepsilon_{xx},\varepsilon_{yy},
-\gamma_{xy}]^\T$ and the plane stress or plane strain matrix $\matr C$. The mesh
-consists of quadrilaterals $\Omega_e=\vect F_e(\hat\Omega)$,
-$\hat\Omega=[-1,1]^2$, with an isoparametric geometry map $\vect F_e$ of degree $p$
-in each reference coordinate $\bxi=(\xi,\eta)$. The element nodes are the images
-$\bx_k=\vect F_e(\bxi_k)$, $k=1,\dots,n=(p+1)^2$, of the tensor-product GLL nodes
-$\bxi_k$. For the sake of simplicity, we set $p_\xi=p_\eta=p$ if not stated otherwise.
+%
+where $\vect b$ is the body force and $\bar{\vect t}$ the traction prescribed on the Neumann boundary $\Gamma_{\mathrm N}$. The exact displacement field $\vect u$ satisfies the principle of virtual work $a(\vect u,\vect v)=\ell(\vect v)$ for all admissible virtual displacements $\vect v$. The energy norm is $\enorm{\vect v}^2=a(\vect v,\vect v)$.
 
-The \emph{parametric} functions $N_k=\hat N_k\circ\vect F_e^{-1}$, where $\hat
-N_k\in\Qp_p(\xi,\eta)$ are the Lagrange polynomials through the GLL nodes, span the
-conforming test space $\mathcal W_h\subset H^1(\Omega)$. The \emph{metric} trial
-functions $M_k^e$ span an element space $\mathcal U_e$ of dimension $n$ and are
-interpolatory, $M_k^e(\bx_l)=\delta_{kl}$. The global trial function is
-$\vect u_h|_{\Omega_e}=\sum_k \hat{\vect u}_k M_k^e$ with the nodal displacements
-$\hat{\vect u}_k$ shared by adjacent elements. Note that the trial functions are in general
-discontinuous across element edges (they coincide only at the nodes). The
-discrete problem reads: find the nodal values such that
+The domain is divided into quadrilaterals $K=\bx_K(\Kh)$, which are the images of the reference square $\Kh=[-1,1]^2$ under the geometry map $\bx_K(\xi,\eta)$. The map is a polynomial of degree $q$ in each reference coordinate. In the numerical studies, the geometry is described by 8-node (quadratic Serendipity) elements, so that $q\le2$, and the elements of degree $p>2$ are subparametric. The $n=(p+1)^2$ nodes of an element are the images $\bx_j=\bx_K(\bxi_j)$ of the tensor-product GLL points $\bxi_j$ of $\Kh$. On $\Kh$, we use the tensor-product Lagrange polynomials $\hat N_i(\xi,\eta)$ through these points, i.e., the shape functions of the spectral element \citep{Patera1984spectral} in its Legendre form \citep{Ronquist1987legendre}, see also \citet{Karniadakis2005spectral}. They span the space $\Qp_p(\xi,\eta)$ of all polynomials of degree $p$ in each reference coordinate. Mapped to the physical element, these \emph{parametric} shape functions $N_i=\hat N_i\circ\bx_K^{-1}$ are continuous across element edges. They are used as \emph{test functions}, i.e., for the virtual displacements $\vect v_h=\sum_iN_i\,\delta\vect d_i$, which are therefore admissible virtual displacements of the continuous problem.
+
+The displacements themselves are approximated with \emph{trial functions} $M_i^K$ that span an element space $\mathcal U_K$ of dimension $n$ and interpolate the same nodal values, $M_i^K(\bx_j)=\delta_{ij}$. Hence, the displacement field in element $K$ is $\vect u_h|_K=\sum_iM_i^K\,\vect d_i$ with the nodal displacements $\vect d_i$, which are shared by neighboring elements. Since only the virtual displacements have to be admissible \citep{Rajendran2003novel}, the trial functions need not be continuous across element edges, and the internal virtual work is evaluated element by element, $a_h(\vect u_h,\vect v_h)=\sum_Ka_K(\vect u_h,\vect v_h)$. The discrete equations read
+%
 \begin{equation}
-  \sum_e\int_{\Omega_e}\bm\varepsilon(\vect w_h)^\T\matr C\,\bm\varepsilon(\vect u_h)\dd\Omega
-  = \int_\Omega\vect w_h^\T\vect b\dd\Omega + \int_{\Gamma_t}\vect w_h^\T\bar{\vect t}\dd\Gamma
-  \quad\forall\,\vect w_h\in\mathcal W_h,\ \vect w_h|_{\Gamma_u}=\vect 0 .
+  a_h(\vect u_h,\vect v_h)=\ell(\vect v_h)\qquad\text{for all test functions }\vect v_h ,
   \label{eq:pg}
 \end{equation}
-In matrix form, the element stiffness matrix reads
+%
+with the nodal displacements prescribed on the Dirichlet boundary. The element stiffness matrix is evaluated with the adjugate of the Jacobian matrix in the test functions,
+%
 \begin{equation}
-  \matr K_e=\int_{\hat\Omega}\tilde{\matr B}_L^\T\,\matr C\,\matr B_R\dd\xi\dd\eta,
-  \qquad \tilde{\matr B}_L=\det\matr J\,\matr B_L ,
+  \matr K_K=\int\limits_{\Kh}\bar{\matr B}_{\mathrm N}^\T\,\matr C\,\matr B_{\mathrm M}\dd\xi\dd\eta\qquad\text{and}\qquad
+  \bar{\matr B}_{\mathrm N}=\det(\matr J)\,\matr B_{\mathrm N} ,
   \label{eq:Ke}
 \end{equation}
-where $\matr B_L$ contains the Cartesian derivatives of the parametric functions and
-$\matr B_R$ those of the metric functions, evaluated at $\vect F_e(\bxi)$.
-Since $\tilde{\matr B}_L$ is assembled from $\adj\matr J\,\nabla_{\bxi}\hat N_k$,
-$\det\matr J$ does not appear in a denominator. The element stiffness matrix is
-unsymmetric unless $\mathcal U_e=\mathcal W_h|_{\Omega_e}$. The consistent mass matrix is
-$\matr M_e=\int_{\hat\Omega}\rho\,\matr N_L^\T\matr N_R\det\matr J\dd\xi\dd\eta$, where
-$\matr N_L$ and $\matr N_R$ contain the values of the parametric and of the metric
-functions, respectively. With GLL nodal
-quadrature, it is diagonal, because both families are interpolatory at the GLL nodes.
-In the following, we refer to the formulation as \PP\ (parametric test and trial functions, i.e.\ the
-classical spectral element) or \PM\ (parametric test, metric trial functions), and to
-\PM\ with the hybrid trial space of \cref{sec:hybrid} as \PH.
+%
+where $\matr B_{\mathrm N}$ and $\matr B_{\mathrm M}$ contain the Cartesian derivatives of the test and the trial functions, respectively, and $\matr J=\bigl[\begin{smallmatrix}x_{,\xi}&y_{,\xi}\\x_{,\eta}&y_{,\eta}\end{smallmatrix}\bigr]$ is the Jacobian matrix. Since $\bar{\matr B}_{\mathrm N}$ is assembled from $\adj(\matr J)\,\nabla_{\bxi}\hat N_i$, $\det(\matr J)$ does not appear in the denominator of the test part \citep{Rajendran2010technique}. The consistent mass matrix is $\matr M_K=\int_{\Kh}\rho\,\matr N_{\mathrm N}^\T\matr N_{\mathrm M}\det(\matr J)\dd\xi\dd\eta$, where $\matr N_{\mathrm N}$ and $\matr N_{\mathrm M}$ contain the values of the test and the trial functions. With GLL quadrature, it is diagonal, since both families are interpolatory at the GLL points. In the following, we denote by \PP\ the conventional (symmetric) spectral element with $M_i^K=N_i$, by \PM\ the unsymmetric element with the metric trial space of the companion paper (\cref{sec:skew}) and by \PH\ the unsymmetric element with the hybrid trial space introduced in \cref{sec:hybrid}.
+%
+\subsection{Exact reproduction and quasi-optimality}
+\label{sec:exact}
+%
+The distortion immunity of unsymmetric elements rests on the following argument \citep{Eisentraeger2026axisymmetric}, cf.\ the sufficient conditions of \citet{Rajendran2010technique}. The exact solution satisfies the principle of virtual work for every admissible virtual displacement, in particular for every test function of \cref{eq:pg}, since the test functions are conforming. Suppose now that the following four conditions hold:
+\begin{enumerate}
+  \item[(C1)] \emph{Representation:} in every element, the exact displacement field can be represented by the trial functions, with the exact nodal displacements as coefficients;
+  \item[(C2)] \emph{Boundary data:} the prescribed nodal displacements are exact;
+  \item[(C3)] \emph{Integration:} all integrals of the stiffness matrix and the load vector are evaluated exactly;
+  \item[(C4)] \emph{Regularity:} the system of equations has a unique solution.
+\end{enumerate}
+Then the nodal displacements of the exact solution satisfy \cref{eq:pg}, and since the solution is unique, $\vect u_h=\vect u$. Nothing in this argument depends on the shape of the elements. Whether a formulation is distortion-immune for a class of solutions is therefore decided by condition (C1), up to quadrature: the class has to be contained in the trial space $\mathcal U_K$ of every element. If $\Pp_k(x,y)\subset\mathcal U_K$ for all elements, every polynomial solution of degree $k$ is reproduced on arbitrarily distorted meshes. In particular, the trial space has to contain $\Pp_1(x,y)$, i.e., the rigid-body modes and the constant strain states.
 
-\subsection{Distortion immunity}
+If an element map is not injective (\emph{folded} element, $\det(\matr J)$ changes sign within the element), the parametric functions are not well defined in physical space, and the argument does not apply. The element matrices \cref{eq:Ke} and the loads are, however, still defined in the reference coordinates with the signed $\det(\matr J)$. For such elements, exact reproduction of polynomial solutions was observed for low-order elements by \citet{Rajendran2010technique}, and it is confirmed by the patch tests of \cref{sec:num-patch}. We do not give a proof.
 
-\begin{proposition}[Distortion immunity]
-\label{prop:immunity}
-Let every element map $\vect F_e$ be bijective, let $\Pp_k(x,y)\subset\mathcal U_e$ for
-every element, let the exact solution of \eqref{eq:strong} satisfy
-$\vect u\in[\Pp_k(x,y)]^2$, let the quadrature of \eqref{eq:Ke} and of the load vector be
-exact for the resulting integrands, and let the global system matrix (after imposing the
-Dirichlet conditions) be non-singular. Then the solution of \eqref{eq:pg} is
-$\vect u_h=\vect u$, independently of the shape of the elements.
-\end{proposition}
-\begin{proof}
-Because $\mathcal U_e$ is interpolatory and contains $\vect u|_{\Omega_e}$, the
-interpolant of the exact nodal values is $\vect u$ itself on every element, so
-$\bm\varepsilon(\vect u_h)=\bm\varepsilon(\vect u)$. As $\vect w_h$ is continuous,
-integration by parts over $\Omega$ gives
-$\int_\Omega\bm\varepsilon(\vect w_h)^\T\bm\sigma(\vect u)\dd\Omega
-=\int_\Omega\vect w_h^\T\vect b\dd\Omega+\int_{\Gamma_t}\vect w_h^\T\bar{\vect t}\dd\Gamma$.
-Hence the exact nodal values satisfy \eqref{eq:pg}, and they are its unique solution.
-\end{proof}
+A general solution is not contained in the trial space. Since the trial field can be discontinuous, its error is measured in the broken energy norm $\enormh{\vect v}^2=\sum_Ka_K(\vect v,\vect v)$. Following the argument of \citet[Theorem~2.2]{Babuska1971Error} – it carries over to the non-conforming trial space, since the exact solution satisfies the discrete equations with the conforming test functions \citep{Eisentraeger2026axisymmetric} – the error is bounded by
+%
+\begin{equation}
+  \enormh{\vect u-\vect u_h}\;\le\;\Bigl(1+\frac{1}{\beta_h}\Bigr)\min_{\vect w_h}\enormh{\vect u-\vect w_h} .
+  \label{eq:quasiopt}
+\end{equation}
+%
+Here, the minimum is taken over all trial fields $\vect w_h$ with the prescribed nodal values, and $\beta_h>0$ is the stability factor of the unsymmetric system, i.e., a measure of how well the test functions control the trial functions. For the symmetric formulation, $\beta_h=1$. For unsymmetric elements, however, $\beta_h$ depends on the trial and test functions and on the element shapes, and we do not have a proof that it stays above a fixed positive value under mesh refinement. Therefore, we use \cref{eq:quasiopt} only to interpret the numerical results. It shows that the error of a general solution consists of two factors: the error of the best fit, which is controlled by the completeness and the interpolation properties of the trial space (\cref{lem:interp}), and the factor $1+1/\beta_h$. A large Lebesgue constant of the trial space can enlarge the former, and an unstable pair of test and trial spaces the latter. The thick-cylinder study in \cref{sec:num-cylinder} separates the two numerically by comparing the discrete solution with the interpolant of the exact solution in the same trial space.
+%
+\subsection{Completeness of the mapped spectral element}
+\label{sec:completeness}
+%
+For a geometry map of degree $q$ in each reference coordinate, a monomial $x^ay^b$ becomes a polynomial of degree $q(a+b)$ in each of $\xi$ and $\eta$, which is contained in $\Qp_p(\xi,\eta)$ only if $q(a+b)\le p$. Thus, on a curved element with the 8-node geometry ($q=2$), the conventional spectral element represents the complete polynomials only up to degree $\lfloor p/2\rfloor$. For the bilinear map of a straight-sided quadrilateral ($q=1$), in contrast, the mapped space contains $\Pp_p(x,y)$, so that spectral elements, unlike Serendipity elements, keep their completeness under angular distortion \citep{Lee1993effects,Arnold2002Approximation}.
 
-\begin{remark}[Folded elements]
-\label{rem:folded}
-If $\vect F_e$ is not injective (``folded'' elements, $\det\matr J$ changing sign), the
-parametric functions are not well defined in physical space and the argument above does
-not apply. The element matrices \eqref{eq:Ke}, however, are defined in reference
-coordinates with the signed $\det\matr J$ (through $\adj\matr J$), as are the loads. For
-such elements, exactness of polynomial solutions has been observed for low-order elements
-\citep{Rajendran2010technique} and is confirmed by our patch tests
-(\cref{sec:num-patch}). A proof is not given here.
-\end{remark}
-\Cref{prop:immunity} is the higher-order form of the conditions of
-\citet{Rajendran2010technique}. The parametric space, on the other hand, violates the
-hypothesis on curved elements. For a geometry map of degree $g$ in each variable,
-$x^ay^b\circ\vect F_e\in\Qp_{g(a+b)}$, and therefore
-$\Pp_k(x,y)\circ\vect F_e\subset\Qp_p(\xi,\eta)$ is guaranteed only for $gk\le p$
-\citep[cf.][]{Arnold2002Approximation}. For bilinear maps ($g=1$), the classical
-tensor-product element is complete of degree $p$. Note that the loss of completeness
-under purely angular distortion reported by \citet{Lee1993effects} concerns serendipity
-spaces.
-
+Whether the loss of completeness reduces the convergence rate depends on how the curvature behaves under refinement. To this end, a curved edge is described by its chord length $L$ and its sagitta $f$, i.e., the largest distance between the edge and its chord. For the 8-node geometry, $f$ is the distance by which the mid-side node is moved normal to the chord, and the distortion measure is the relative sagitta
+%
+\begin{equation}
+  \delta=\frac{f}{L} .
+  \label{eq:delta}
+\end{equation}
+%
+If $\delta$ is fixed under refinement, the part of a smooth solution that the conventional element misses decreases only with $h^{\lfloor p/2\rfloor+1}$, and the energy-norm error converges with $h^{\lfloor p/2\rfloor}$ instead of $h^p$ \citep{Eisentraeger2026axisymmetric}. If, however, a curved boundary is resolved by refinement, $\delta$ decreases in proportion to the element size, the missed part is of the order of the truncation error, and the optimal rate is retained \citep{Ciarlet1972Interpolation,Lenoir1986optimal}. Meshes of a resolved curved geometry therefore do not reveal the loss of completeness. A fixed $\delta$, on the other hand, represents elements whose edges are curved for reasons unrelated to a resolved geometry, e.g., by high-order mesh generation with curved interior edges, by untangling or by the deformation of a curved mesh. The distorted meshes of \cref{sec:numerics} are of this type.
+%
 \subsection{Metric shape functions in skew coordinates}
 \label{sec:skew}
-
-Following \citet{Yuan1993New} and \citet{Xie2016Modified}, the metric functions are
-written in the corotational skew coordinates
+%
+In the original element of \citet{Rajendran2003novel}, the metric functions are polynomials in the global Cartesian coordinates, and their incomplete terms make the element stiffness matrix depend on the orientation of the element \citep{Ooi2008Remedies}. For the spectral element, this problem is even more pronounced, since the tensor-product monomials of degree $p$ contain incomplete terms up to the total degree $2p$. Therefore, we follow \citet{Xie2016Modified} and the companion paper and write the metric functions in the skew coordinates of \citet{Yuan1993New},
+%
 \begin{equation}
-  \vect s=(s,t)^\T=\matr J_0^{-\T}(\bx-\bx_0),\qquad
-  \bx_0=\vect F_e(\vect 0),\quad
-  \matr J_0=\frac{\partial(x,y)}{\partial(\xi,\eta)}\Big|_{\bxi=\vect 0},
+  \bxib=\begin{pmatrix}\bar\xi\\\bar\eta\end{pmatrix}=\matr J_0^{-\T}(\bx-\bx_0),\qquad
+  \bx_0=\bx_K(\vect 0),\qquad
+  \matr J_0=\matr J\big|_{\xi=\eta=0},
   \label{eq:skew}
 \end{equation}
-which require $\det\matr J_0\ne0$, with the Jacobian convention
-$\matr J=\bigl[\begin{smallmatrix}x_{,\xi}&y_{,\xi}\\x_{,\eta}&y_{,\eta}\end{smallmatrix}\bigr]$.
+%
+where $\bx_0$ is the position of the element center and $\matr J_0$ the Jacobian matrix there, which has to be regular.
 
 \begin{lemma}[Affine invariance]
 \label{lem:affine}
-Let $\bx\mapsto\matr A\bx+\vect c$ with $\det\matr A\ne0$ be applied to all nodes of
-an element. Then the skew coordinates of every material point are unchanged. In
-particular, any space defined in $(s,t)$ (or in $(\xi,\eta)$) is invariant under
-rigid-body motions, uniform scaling and every other affine transformation of the
-element.
+If the nodes of an element are transformed by $\bx\mapsto\matr A\bx+\vect c$ with $\det(\matr A)\ne0$, the skew coordinates of every material point are unchanged. Consequently, every space defined in $(\bar\xi,\bar\eta)$ or in $(\xi,\eta)$ is invariant under rigid-body motions, uniform scaling and every other affine transformation of the element.
 \end{lemma}
 \begin{proof}
-The transformed map is $\vect F_e'=\matr A\vect F_e+\vect c$, hence
-$\matr J_0'^\T=\matr A\matr J_0^\T$ and $\bx'-\bx_0'=\matr A(\bx-\bx_0)$, so
-$\vect s'=\matr J_0^{-\T}\matr A^{-1}\matr A(\bx-\bx_0)=\vect s$.
+The transformed map is $\bx_K'=\matr A\bx_K+\vect c$. Hence, $\matr J_0'^\T=\matr A\matr J_0^\T$ and $\bx'-\bx_0'=\matr A(\bx-\bx_0)$, so that $\bxib'=\matr J_0^{-\T}\matr A^{-1}\matr A(\bx-\bx_0)=\bxib$.
 \end{proof}
-Since $\vect s$ is affine in $\bx$, $\Qp_p(s,t)\supset\Pp_{p}(s,t)=\Pp_p(x,y)$, and
-therefore the space $\mathcal U_e=\Qp_p(s,t)$ satisfies the hypothesis of
-\cref{prop:immunity} with $k=p$ on every element. On an affine element (parallelogram),
-$\vect F_e$ is affine and $\vect s=\bxi$. Consequently, the metric and parametric
-functions coincide. Tensor products of monomials in centroid-shifted Cartesian
-coordinates \citep{Rajendran2003novel} span $\Qp_p(x,y)$. This space contains
-$\Pp_p(x,y)$ as well, but it depends on the orientation of the Cartesian frame (e.g.\ $xy$
-versus $st$), which makes the element frame dependent \citep{Ooi2008Remedies}.
 
-Given a basis $\{\phi_c\}_{c=1}^n$ of $\mathcal U_e$, the metric functions are
-computed from the generalised Vandermonde matrix and the basis values at the query
-points $\bx_q$ (e.g.\ the images of the quadrature points),
+Since $\bxib$ is an affine function of $\bx$, the space $\mathcal U_K=\Qsk$ contains $\Pp_p(x,y)$, and condition (C1) holds for all polynomial solutions of degree $p$ on every element. On a parallelogram, $\bx_K$ is affine and $\bxib=\bxi$, so that the metric and the parametric functions coincide and \PM\ reduces to \PP. On all other elements, the two differ, also on straight-sided ones, although the parametric functions already contain $\Pp_p(x,y)$ there.
+
+Given a basis $\{\phi_c\}_{c=1}^n$ of $\mathcal U_K$, the metric functions are computed from the generalized Vandermonde matrix and the basis values at the query points $\bx_r$, e.g., the images of the quadrature points,
+%
 \begin{equation}
-  V_{ck}=\phi_c(\bx_k),\qquad P_{cq}=\phi_c(\bx_q),\qquad
-  \matr N_R=\matr V^{-1}\matr P,\qquad (\matr N_R)_{lq}=M_l^e(\bx_q),
+  V_{cj}=\phi_c(\bx_j),\qquad P_{cr}=\phi_c(\bx_r)\qquad\text{and}\qquad
+  \matr N_{\mathrm M}=\matr V^{-1}\matr P ,
   \label{eq:vandermonde}
 \end{equation}
-and analogously for the derivatives. In the remainder of this article, $\Lam_N$ denotes
-the Lebesgue constant of tensor-product GLL interpolation on $\hat\Omega$. For an
-interpolatory space $\mathcal U_e$ with shape functions $M_l^e$,
+%
+where $(\matr N_{\mathrm M})_{ir}=M_i^K(\bx_r)$, and analogously for the derivatives. In the companion paper and in the original construction \citep{Rajendran2003novel,Ooi2006unsymmetric}, $\phi_c$ are the monomials $\bar\xi^a\bar\eta^b$, $0\le a,b\le p$. The metric functions of two neighboring elements are interpolants in different skew coordinates. Along the common edge, they agree at the edge nodes but not between them, so that the trial field is discontinuous across element edges unless both elements are parallelograms. Note that no trial space that contains $\Pp_p(x,y)$ on curved elements can be continuous with nodal unknowns alone, since on a parabolic edge the polynomials of degree $p$ in $(x,y)$ reduce to polynomials of degree $2p$ in the edge parameter, which $p+1$ edge nodes cannot determine \citep{Eisentraeger2026axisymmetric}. This affects neither the exactness argument nor \cref{eq:quasiopt}, which rely only on the conformity of the test functions.
+
+The stability of the nodal interpolation is measured by the Lebesgue function and the Lebesgue constant of the trial space,
+%
 \begin{equation}
-  \lambda_{\mathcal U}(\bx)=\sum_{l=1}^n|M_l^e(\bx)|,\qquad
-  \Lam_{\mathcal U}=\max_{\bx\in\Omega_e}\lambda_{\mathcal U}(\bx)
+  \lambda_{\mathcal U}(\bx)=\sum_{i=1}^n\bigl|M_i^K(\bx)\bigr|\qquad\text{and}\qquad
+  \Lam_{\mathcal U}=\max_{\bx\in K}\lambda_{\mathcal U}(\bx) .
   \label{eq:lebesgue}
 \end{equation}
-are its Lebesgue function and Lebesgue constant. The Lebesgue constant
-$\Lam_{\mathcal U}=\|\mathcal I_{\mathcal U}\|_{L^\infty\to L^\infty}$ is the norm of the
-nodal interpolation operator $\mathcal I_{\mathcal U}$, so that
-$\|f-\mathcal I_{\mathcal U}f\|_\infty\le(1+\Lam_{\mathcal U})\inf_{v\in\mathcal
-U_e}\|f-v\|_\infty$ \citep{Brutman1997Lebesgue}. Note that the parametric Lebesgue constant is independent of the
-element map, because $\sum_k|N_k(\vect F_e(\bxi))|=\sum_k|\hat N_k(\bxi)|$.
+%
+That is to say, $\Lam_{\mathcal U}$ is the largest value that the trial field of the element can take if all nodal values lie between $-1$ and $1$. It is the norm of the nodal interpolation operator $\mathcal I_{\mathcal U}$ in the maximum norm, so that $\|f-\mathcal I_{\mathcal U}f\|_\infty\le(1+\Lam_{\mathcal U})\inf_{v\in\mathcal U_K}\|f-v\|_\infty$ \citep{Brutman1997Lebesgue}. In the remainder of this article, $\Lam_N$ denotes the Lebesgue constant of the tensor-product GLL interpolation on $\Kh$, and $\Lam_Q$ and $\Lam_T$ those of $\Qsk$ and of the hybrid space $\Tp_p$ of \cref{sec:hybrid}. Note that the Lebesgue constant of the parametric functions does not depend on the element map, since $\sum_i|N_i(\bx_K(\bxi))|=\sum_i|\hat N_i(\bxi)|$. For the metric functions, in contrast, it grows strongly on elements whose nodes do not form a tensor-product grid in the skew coordinates \citep{Eisentraeger2026axisymmetric}.

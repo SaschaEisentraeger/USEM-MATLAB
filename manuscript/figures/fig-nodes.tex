@@ -5,7 +5,7 @@
   \nextgroupplot[title={physical $(x,y)$}, xlabel={$x$}, ylabel={$y$}]
     \addplot[gray, thick] table[x=x, y=y]{\data/outline-general.dat};
     \addplot[only marks, mark=*, mark size=1pt, blue] table[x=x, y=y]{\data/nodes-general-p8.dat};
-  \nextgroupplot[title={scaled skew $(\tilde s,\tilde t)$}, xlabel={$\tilde s$}, ylabel={$\tilde t$},
+  \nextgroupplot[title={scaled skew $(\tilde\xi,\tilde\eta)$}, xlabel={$\tilde\xi$}, ylabel={$\tilde\eta$},
       xmin=-1.15, xmax=1.15, ymin=-1.15, ymax=1.15]
     \addplot[black, dashed] coordinates {(-1,-1) (1,-1) (1,1) (-1,1) (-1,-1)};
     \addplot[gray, thick] table[x=s, y=t]{\data/outline-general.dat};

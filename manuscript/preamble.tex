@@ -17,7 +17,14 @@
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
   urlcolor=blue!50!black]{hyperref}
 \pdfstringdefDisableCommands{\def\corref#1{}}  % no footnote mark in the PDF metadata
-\usepackage[capitalise,noabbrev]{cleveref}
+\usepackage[capitalise]{cleveref}
+\crefname{equation}{Eq.}{Eqs.}\Crefname{equation}{Equation}{Equations}
+\crefname{section}{Sect.}{Sects.}\Crefname{section}{Section}{Sections}
+\crefname{subsection}{Sect.}{Sects.}\Crefname{subsection}{Section}{Sections}
+\crefname{figure}{Fig.}{Figs.}\Crefname{figure}{Figure}{Figures}
+\crefname{table}{Table}{Tables}\Crefname{table}{Table}{Tables}
+\crefname{appendix}{Appendix}{Appendices}\Crefname{appendix}{Appendix}{Appendices}
+\crefname{algorithm}{Algorithm}{Algorithms}
 
 % Theorem environments
 \newtheorem{proposition}{Proposition}
@@ -45,9 +52,19 @@
 \newcommand{\adj}{\operatorname{adj}}
 \newcommand{\spn}{\operatorname{span}}
 \newcommand{\cond}{\kappa}
-\newcommand{\PP}{\textsf{PP}}
-\newcommand{\PM}{\textsf{PM}}
-\newcommand{\PH}{\textsf{PH}}
+% Notation of the companion paper (Eisentraeger et al., axisymmetric solids)
+\newcommand{\Kh}{\hat K}
+\newcommand{\bxib}{\bar{\bm\xi}}
+\newcommand{\bxit}{\tilde{\bm\xi}}
+\newcommand{\Qsk}{\Qp_p(\bar\xi,\bar\eta)}
+\newcommand{\enorm}[1]{\lVert #1\rVert_{\mathrm{E}}}
+\newcommand{\enormh}[1]{\lVert #1\rVert_{\mathrm{E},h}}
+% Formulations: conventional spectral element, unsymmetric spectral element
+% with the metric space Q_p in skew coordinates (USEM of the companion paper),
+% unsymmetric spectral element with the hybrid trial space
+\newcommand{\PP}{SEM}
+\newcommand{\PM}{USEM}
+\newcommand{\PH}{USEM-H}
 \newcommand{\data}{data}   % path to the data files (relative to main.tex)
 
 % Plot styles

@@ -1,143 +1,77 @@
 \section{Improvement 1: the basis of the metric Vandermonde matrix}
 \label{sec:basis}
-
+%
 \subsection{Basis invariance and floating-point error}
+\label{sec:basis-invariance}
+%
+The point of departure is the observation that the metric shape functions are defined by the space and the nodes alone.
 
 \begin{proposition}[Basis invariance]
 \label{prop:invariance}
-If $\matr V$ in \eqref{eq:vandermonde} is non-singular, the metric functions are the
-unique functions $M_l^e\in\mathcal U_e$ with $M_l^e(\bx_k)=\delta_{lk}$; they do not
-depend on the basis $\{\phi_c\}$.
+If $\matr V$ in \cref{eq:vandermonde} is regular, the metric functions are the unique functions $M_i^K\in\mathcal U_K$ with $M_i^K(\bx_j)=\delta_{ij}$. They do not depend on the basis $\{\phi_c\}$.
 \end{proposition}
 \begin{proof}
-For another basis $\bm\psi=\matr G\bm\phi$ with $\matr G$ non-singular,
-$\matr V_\psi=\matr G\matr V_\phi$ and $\matr P_\psi=\matr G\matr P_\phi$, so
-$\matr V_\psi^{-1}\matr P_\psi=\matr V_\phi^{-1}\matr P_\phi$. Uniqueness follows from
-the non-singularity of $\matr V$.
+For another basis $\bm\psi=\matr G\bm\phi$ with a regular matrix $\matr G$, we obtain $\matr V_\psi=\matr G\matr V_\phi$ and $\matr P_\psi=\matr G\matr P_\phi$, so that $\matr V_\psi^{-1}\matr P_\psi=\matr V_\phi^{-1}\matr P_\phi$. Uniqueness follows from the regularity of $\matr V$.
 \end{proof}
 
-Completeness, affine invariance, distortion immunity and unisolvence are therefore
-properties of the space and the node set alone, and so is the Lebesgue constant
-\eqref{eq:lebesgue}. That is to say, the basis affects only the floating-point error.
-For the solution of $\matr V\matr N_R=\matr P$ by Gaussian elimination with partial
-pivoting, the standard perturbation bound \citep{Higham2002Accuracy} gives
+Completeness, affine invariance, exact reproduction and unisolvence are therefore properties of the space and the node set, and so is the Lebesgue constant \cref{eq:lebesgue}. That is to say, the basis affects only the floating-point error. For the solution of $\matr V\matr N_{\mathrm M}=\matr P$ by Gaussian elimination with partial pivoting, the standard perturbation bound \citep{Higham2002Accuracy} gives
+%
 \begin{equation}
-  \frac{\|\hat{\matr N}_R-\matr N_R\|}{\|\matr N_R\|}\lesssim c_n\,\rho_n\,\cond(\matr V)\,u ,
+  \frac{\|\hat{\matr N}_{\mathrm M}-\matr N_{\mathrm M}\|}{\|\matr N_{\mathrm M}\|}\lesssim c_n\,\rho_n\,\cond(\matr V)\,u ,
   \label{eq:fp}
 \end{equation}
-with the growth factor $\rho_n$ (moderate in practice) and the unit round-off $u\approx1.1\cdot10^{-16}$.
-Thus, the basis has to be chosen such that $\cond(\matr V)$ is minimised.
-
+%
+where $\hat{\matr N}_{\mathrm M}$ is the computed matrix, $\rho_n$ the growth factor, which is moderate in practice, $c_n$ a constant of moderate size and $u\approx1.1\cdot10^{-16}$ the unit round-off. Thus, the basis has to be chosen such that $\cond(\matr V)$ is small.
+%
 \subsection{Candidate bases and bounding-box scaling}
-
-To this end, we consider the tensor-product bases $\phi_c(\vect s)=\varphi_a(\tilde s)\varphi_b(\tilde t)$,
-$0\le a,b\le p$, with four choices of the 1D factors: (i) monomials $\varphi_a(s)=s^a$
-(the original construction), (ii) Legendre polynomials $\varphi_a=L_a$, (iii) Chebyshev
-polynomials $\varphi_a=T_a$ and (iv) the Lagrange polynomials $\varphi_a=\ell_a$ through
-the $p+1$ GLL points $\hat s_0<\dots<\hat s_p$ of $[-1,1]$, i.e.\ the 1D factors of the
-reference shape functions. The Legendre and Chebyshev polynomials are evaluated by their
-three-term recurrences, the Lagrange polynomials by the product formula.
-The last three bases are designed for $[-1,1]$, but on distorted elements the skew
-coordinates of the nodes leave $[-1,1]^2$. Outside this interval, the polynomials
-grow rapidly ($|T_p(s)|=\cosh(p\operatorname{arcosh}|s|)$ for $|s|>1$). Therefore, we
-map the bounding box of the nodes in $(s,t)$ onto $[-1,1]^2$,
+\label{sec:basis-candidates}
+%
+To this end, we consider tensor-product bases $\phi_c=\varphi_a(\tilde\xi)\,\varphi_b(\tilde\eta)$, $0\le a,b\le p$, with four choices of the one-dimensional factors: (i) the monomials $\varphi_a(\tilde\xi)=\tilde\xi^a$ of the original construction, (ii) the Legendre polynomials $\varphi_a=L_a$, (iii) the Chebyshev polynomials $\varphi_a=T_a$ and (iv) the Lagrange polynomials $\varphi_a=\ell_a$ through the $p+1$ GLL points of $[-1,1]$, i.e., the one-dimensional factors of the reference shape functions. The Legendre and Chebyshev polynomials are evaluated by their three-term recurrences and the Lagrange polynomials by the product formula. The last three bases are designed for the interval $[-1,1]$. On distorted elements, however, the skew coordinates of the nodes leave $[-1,1]^2$, and outside this interval the polynomials grow rapidly, e.g., $|T_p(\bar\xi)|=\cosh\bigl(p\operatorname{arcosh}|\bar\xi|\bigr)$ for $|\bar\xi|>1$. Therefore, we map the bounding box of the nodes in the skew coordinates onto $[-1,1]^2$,
+%
 \begin{equation}
   \begin{aligned}
-  &\tilde s=\frac{s-c_s}{r_s},\qquad \tilde t=\frac{t-c_t}{r_t},\\
-  &c_s=\tfrac12\bigl(\max_k s_k+\min_k s_k\bigr),\quad
-  r_s=\tfrac12\bigl(\max_k s_k-\min_k s_k\bigr),
+  &\tilde\xi=\frac{\bar\xi-c_{\xi}}{r_{\xi}}\qquad\text{with}\\
+  &c_{\xi}=\tfrac12\bigl(\max_j\bar\xi_j+\min_j\bar\xi_j\bigr)\quad\text{and}\quad
+  r_{\xi}=\tfrac12\bigl(\max_j\bar\xi_j-\min_j\bar\xi_j\bigr),
   \end{aligned}
   \label{eq:bbox}
 \end{equation}
-and likewise for $t$. The map is affine and computed from affine-invariant
-quantities, so the space $\Qp_p(s,t)$, completeness and the invariance of
-\cref{lem:affine} are preserved. On a parallelogram, the nodes satisfy $\vect s_k=\bxi_k$,
-whose bounding box is $\hat\Omega$, and \eqref{eq:bbox} reduces to the identity. The
-derivatives follow from $\nabla_{\bx}=\matr J_0^{-1}\,\mathrm{diag}(r_s^{-1},r_t^{-1})\,
-\nabla_{\tilde{\vect s}}$.
-
-\subsection{Affine elements}
-
-On a parallelogram, the nodes form the GLL tensor grid in $(\tilde s,\tilde t)$.
-Thus, $\matr V$ is, up to a permutation of the columns, the Kronecker product
-$\matr V_1\otimes\matr V_1$ of the 1D Vandermonde matrix, and
-$\cond_2(\matr V)=\cond_2(\matr V_1)^2$. For monomials on nodes symmetric about the
-origin, $\cond(\matr V_1)$ grows at least exponentially \citep{Gautschi1988Lower},
-and therefore the 2D condition number grows with the square of an exponential. For the
-Lagrange basis, on the other hand, $\phi_c(\tilde{\vect s}_k)=\delta_{ck}$ holds up to the
-ordering, which leads to the following result.
+%
+and likewise for $\tilde\eta$, where $\bar\xi_j$ is the first skew coordinate of node $j$. The map is affine and computed from affine-invariant quantities, so that the space $\Qsk$, its completeness and the invariance of \cref{lem:affine} are preserved. On a parallelogram, the skew coordinates of the nodes are the GLL points $\bxi_j$, whose bounding box is $\Kh$, and \cref{eq:bbox} reduces to the identity. The derivatives follow from $\nabla_{\bx}=\matr J_0^{-1}\operatorname{diag}(r_{\xi}^{-1},r_{\eta}^{-1})\,\nabla_{\bxit}$, where $\bxit=(\tilde\xi,\tilde\eta)$ denotes the scaled skew coordinates.
+%
+\subsection{Parallelograms}
+\label{sec:basis-affine}
+%
+On a parallelogram, the nodes form the GLL tensor grid in $(\tilde\xi,\tilde\eta)$. Thus, $\matr V$ is, up to a permutation of the columns, the Kronecker product $\matr V_1\otimes\matr V_1$ of the one-dimensional Vandermonde matrix, and $\cond_2(\matr V)=\cond_2(\matr V_1)^2$. For monomials on nodes that are symmetric about the origin, $\cond(\matr V_1)$ grows at least exponentially \citep{Gautschi1988Lower}, so that the condition number of $\matr V$ grows with the square of an exponential. For the Lagrange basis, on the other hand, $\phi_c(\bxit_j)=\delta_{cj}$ holds up to the ordering, which leads to the following result.
 
 \begin{corollary}
 \label{cor:affine}
-On an affine element, the Lagrange basis gives a permutation matrix $\matr V$ (up to
-the rounding of the scaled skew coordinates of the nodes), $\cond_r(\matr V)=1$ for
-every $r$-norm, and $\matr N_R=\matr V^{-1}\matr P$ is obtained without amplification of
-rounding errors. Metric and parametric
-functions then agree to round-off, and $\matr K_e$ is symmetric to round-off, for
-every $p$.
+On a parallelogram, the Lagrange basis gives a permutation matrix $\matr V$ (up to the rounding of the scaled skew coordinates of the nodes), $\cond_r(\matr V)=1$ in every $r$-norm, and $\matr N_{\mathrm M}=\matr V^{-1}\matr P$ is obtained without amplification of rounding errors. The metric and the parametric functions then agree to round-off, and $\matr K_K$ is symmetric to round-off, for every $p$.
 \end{corollary}
-
+%
 \subsection{Distorted elements}
-
-On a non-affine element, the conditioning of $\matr V$ in the Lagrange basis has a
-precise interpretation. Let $\hat{\vect s}_d$, $d=1,\dots,n$, denote the reference
-tensor grid in the scaled skew coordinates, so that $\phi_c(\hat{\vect s}_d)=\delta_{cd}$,
-and let $\lambda_{\mathrm{ref}}(\tilde{\vect s})=\sum_c|\phi_c(\tilde{\vect s})|$ be the
-Lebesgue function of the reference interpolation.
+\label{sec:basis-distorted}
+%
+On a non-affine element, the condition number of $\matr V$ in the Lagrange basis has a precise interpretation. Let $\bm g_d$, $d=1,\dots,n$, denote the GLL tensor grid placed in the plane of the scaled skew coordinates, so that $\phi_c(\bm g_d)=\delta_{cd}$, and let $\lambda_{\mathrm{ref}}(\bxit)=\sum_c|\phi_c(\bxit)|$ be the Lebesgue function of the GLL interpolation in these coordinates.
 
 \begin{proposition}[Condition number in the Lagrange basis]
 \label{prop:kappa}
-With the Lagrange basis and $\tilde{\vect s}_k$ the scaled skew coordinates of the
-element nodes,
+With the Lagrange basis and the scaled skew coordinates $\bxit_j$ of the element nodes,
+%
 \begin{equation}
-  (\matr V^{-1})_{ld}=M_l^e(\hat{\vect s}_d),\qquad
-  \cond_1(\matr V)=\max_k\lambda_{\mathrm{ref}}(\tilde{\vect s}_k)\;
-                   \max_d\lambda_{\mathcal U}(\hat{\vect s}_d) ,
+  (\matr V^{-1})_{id}=M_i^K(\bm g_d)\qquad\text{and}\qquad
+  \cond_1(\matr V)=\max_j\lambda_{\mathrm{ref}}(\bxit_j)\;\max_d\lambda_{\mathcal U}(\bm g_d) ,
   \label{eq:kappa}
 \end{equation}
-where $M_l^e$ and $\lambda_{\mathcal U}$ are understood as functions of the skew
-coordinates.
+%
+where $M_i^K$ and $\lambda_{\mathcal U}$ are understood as functions of the scaled skew coordinates.
 \end{proposition}
 \begin{proof}
-Choosing the query points $\hat{\vect s}_d$ in \eqref{eq:vandermonde} gives
-$\matr P=\matr I$ and hence $\matr N_R=\matr V^{-1}$, which is the first identity. The
-1-norm is the maximum absolute column sum: $\|\matr V\|_1=\max_k\sum_c|\phi_c(\tilde{\vect s}_k)|$
-and $\|\matr V^{-1}\|_1=\max_d\sum_l|M_l^e(\hat{\vect s}_d)|$.
+Choosing the query points $\bm g_d$ in \cref{eq:vandermonde} gives $\matr P=\matr I$ and hence $\matr N_{\mathrm M}=\matr V^{-1}$, which is the first identity. The 1-norm is the largest absolute column sum, i.e., $\|\matr V\|_1=\max_j\sum_c|\phi_c(\bxit_j)|$ and $\|\matr V^{-1}\|_1=\max_d\sum_i|M_i^K(\bm g_d)|$.
 \end{proof}
 
-By \eqref{eq:bbox}, all $\tilde{\vect s}_k\in\hat\Omega$, and therefore the first factor
-is bounded by $\Lam_N$ (e.g.\ $\Lam_N\le6.1$ for $p\le16$). The second factor is the
-Lebesgue function of the metric interpolation at the reference tensor grid of the
-bounding box. On an affine element, this grid coincides with the nodes, and the factor is
-$1$. On a distorted element, however, part of the grid lies \emph{outside} the element
-(e.g.\ the corners of the bounding box), where $\lambda_{\mathcal U}$ is an extrapolation
-and can exceed the Lebesgue constant $\Lam_{\mathcal U}$ by orders of magnitude
-(\cref{sec:num-conditioning}). Thus, \cref{prop:kappa} traces the remaining
-ill-conditioning of every tensor-product basis on the bounding box back to the
-extrapolation of the metric interpolant from the element to its bounding box. This effect
-cannot be removed by switching among the bases considered here, which lie within a factor
-of about~3 of one another numerically. It can only be removed by bases adapted to the
-node set itself, e.g.\ discretely orthogonalised bases \citep{Brubeck2021Vandermonde},
-which are out of the scope of this contribution.
+By \cref{eq:bbox}, all $\bxit_j$ lie in $\Kh$, and the first factor in \cref{eq:kappa} is bounded by $\Lam_N$ ($\Lam_N\le6.1$ for $p\le16$). The second factor is the Lebesgue function of the metric interpolation at the reference grid of the bounding box. On a parallelogram, this grid coincides with the nodes, and the factor is one. On a distorted element, however, part of the grid lies \emph{outside} the element, e.g., the corners of the bounding box. There, $\lambda_{\mathcal U}$ is an extrapolation and can exceed the Lebesgue constant $\Lam_{\mathcal U}$ by orders of magnitude (\cref{sec:num-conditioning}). Thus, \cref{prop:kappa} traces the remaining ill-conditioning of every tensor-product basis on the bounding box back to the extrapolation of the metric interpolant from the element to its bounding box. This effect cannot be removed by switching among the bases considered here, which numerically lie within a factor of about 3 of one another. It can only be removed by bases adapted to the node set itself, e.g., discretely orthogonalized bases \citep{Brubeck2021Vandermonde}, which is out of the scope of this contribution.
 
-The proposition also shows the limit of \emph{any} basis. By \cref{prop:invariance},
-$\lambda_{\mathcal U}$ and $\Lam_{\mathcal U}$ do not depend on the basis. Therefore, a
-large Lebesgue constant amplifies perturbations of the nodal values (round-off, or the
-nodal error of a discrete solution) by up to $\Lam_{\mathcal U}$, whatever basis is
-used. Reducing $\Lam_{\mathcal U}$ requires a different \emph{space}, which is the
-subject of \cref{sec:hybrid}.
+The proposition also shows the limit of \emph{any} basis. By \cref{prop:invariance}, $\lambda_{\mathcal U}$ and $\Lam_{\mathcal U}$ do not depend on the basis. Therefore, a large Lebesgue constant amplifies perturbations of the nodal values, i.e., round-off or the nodal error of a discrete solution, by up to $\Lam_{\mathcal U}$, whatever basis is used. Reducing $\Lam_{\mathcal U}$ requires a different \emph{space}, which is the subject of \cref{sec:hybrid}.
 
-\begin{remark}[Reproduction versus generic data]
-\label{rem:reproduction}
-For nodal data $\vect f=\matr V^\T\vect c$ of a function in $\mathcal U_e$ with
-coefficient vector $\vect c$, the first-order error of the computed interpolant is
-$\vect c^\T\delta\matr V\,\matr N_R$, where $\delta\matr V$ denotes the backward error of
-the factorisation. This error is bounded by $u\,\|\vect c\|\,\|\matr V\|\,\Lam_{\mathcal U}$
-up to a constant. For low-degree polynomials, $\|\vect c\|\|\matr V\|$ is moderate in
-every basis, and therefore the \emph{reproduction} of polynomials (and patch tests) is
-insensitive to $\cond(\matr V)$ and limited by $u\Lam_{\mathcal U}$. Generic nodal
-data (unit vectors, eigenvectors, wave fields), on the other hand, can have
-$\|\vect c\|\approx\|\matr V^{-1}\|\|\vect f\|$. In this case, the error is of order
-$\cond(\matr V)u$. The element matrices are built from the individual functions
-$M_l^e$, i.e.\ from unit nodal data, and therefore inherit \eqref{eq:fp}.
-\end{remark}
+Note that the effect of $\cond(\matr V)$ depends on the nodal data. For the nodal data $\vect f=\matr V^\T\vect c$ of a function in $\mathcal U_K$ with the coefficient vector $\vect c$, the first-order error of the computed interpolant is $\vect c^\T\delta\matr V\,\matr N_{\mathrm M}$, where $\delta\matr V$ denotes the backward error of the factorization. Up to a constant, this error is bounded by $u\,\|\vect c\|\,\|\matr V\|\,\Lam_{\mathcal U}$. For polynomials of low degree, $\|\vect c\|\,\|\matr V\|$ is moderate in every basis. Consequently, the reproduction of polynomials, and with it the patch test, is insensitive to $\cond(\matr V)$ and limited by $u\,\Lam_{\mathcal U}$. Generic nodal data such as unit vectors, eigenvectors or wave fields, on the other hand, can have $\|\vect c\|\approx\|\matr V^{-1}\|\,\|\vect f\|$, and the error is then of the order of $\cond(\matr V)\,u$. Since the element matrices are built from the individual functions $M_i^K$, i.e., from unit nodal data, they inherit the bound \cref{eq:fp}.
