@@ -1,171 +1,96 @@
 \section{Improvement 2: a hybrid metric-parametric trial space}
 \label{sec:hybrid}
 %
-\subsection{Requirements and freedom in the choice of the space}
+\subsection{Which trial functions are actually needed?}
 \label{sec:hybrid-requirements}
 %
-A metric trial space $\mathcal U_K$ for the formulation of \cref{sec:formulation} has to satisfy three requirements:
+The trial functions of the formulation of \cref{sec:formulation} have to satisfy three requirements:
 \begin{enumerate}
-\item[(R1)] $\dim\mathcal U_K=n=(p_\xi+1)(p_\eta+1)$ and unisolvence at the element nodes, so that the shape functions are interpolatory, the nodal unknowns are shared and the GLL mass matrix is diagonal;
-\item[(R2)] $\Pp_m(x,y)\subset\mathcal U_K$ with $m=\min(p_\xi,p_\eta)$, i.e., completeness in the sense of condition (C1) of \cref{sec:exact}, which includes the rigid-body modes;
-\item[(R3)] invariance under rigid-body motions and scaling of the element (frame invariance).
+  \item[(i)] every element has $n=(p+1)^2$ trial functions that interpolate the nodal values, so that the nodal unknowns are shared by neighboring elements and the GLL mass matrix remains diagonal;
+  \item[(ii)] they represent the complete polynomials $\Pp_p(x,y)$, so that condition (C1) of \cref{sec:exact} holds for polynomial solutions of degree $p$, which includes the rigid-body modes and the constant strain states;
+  \item[(iii)] they do not depend on the position, the orientation and the size of the element.
 \end{enumerate}
-Requirement (R2) fixes $(m+1)(m+2)/2$ of the $n$ dimensions. For $p_\xi=p_\eta=p$, the remaining $p(p+1)/2$ dimensions are free. The space $\Qsk$ fills them with Cartesian polynomials of total degree $p+1,\dots,2p$. On a non-affine element, the nodes do not form a tensor-product grid in $(\bar\xi,\bar\eta)$, and we attribute the growth of the Lebesgue constant (\cref{sec:num-lebesgue}) to the interpolation of these Cartesian polynomials of high degree on the perturbed grid (cf.\ \cref{prop:representation} below). In the reference coordinates, on the other hand, the nodes form the exact GLL tensor grid on every element. This motivates our choice to write only the complete polynomials in the skew coordinates and the remaining functions in the reference coordinates.
+Requirement (ii) fixes only $(p+1)(p+2)/2$ of the $n$ functions. The remaining $p(p+1)/2$ functions are free. The trial space $\Qsk$ of \PM\ fills them with Cartesian polynomials of total degree $p+1,\dots,2p$, e.g., $\bar\xi^p\bar\eta^p$. On a non-affine element, the nodes do not form a tensor-product grid in $(\bar\xi,\bar\eta)$, and these polynomials of high degree are only weakly determined by the nodal values. We attribute the growth of the Lebesgue constant (\cref{sec:num-lebesgue}) to their interpolation on the perturbed grid (cf.\ \cref{sec:hybrid-representation}). In the reference coordinates, on the other hand, the nodes form the exact GLL tensor grid on every element. This motivates our choice to write only the complete polynomials in the skew coordinates and the remaining functions in the reference coordinates.
 %
-\subsection{Definition}
+\subsection{Construction}
 \label{sec:hybrid-definition}
 %
-\begin{definition}[Parametric complement and hybrid space]
-Let $L_a$ denote the Legendre polynomials and
+The hybrid trial space $\Tp_p$ of an element is spanned by two groups of functions:
 %
 \begin{equation}
-  \Cp_p=\spn\bigl\{L_a(\xi)L_b(\eta):\ 0\le a\le p_\xi,\ 0\le b\le p_\eta,\ a+b>m\bigr\}.
-  \label{eq:complement}
-\end{equation}
-%
-The hybrid trial space of element $K$ is defined through its pull-back to $\Kh$,
-%
-\begin{equation}
-  \hat\Tp_p=\bigl\{q\circ\bx_K:\ q\in\Pp_m(x,y)\bigr\}+\Cp_p\qquad\text{and}\qquad
-  \Tp_p=\bigl\{\hat v\circ\bx_K^{-1}:\ \hat v\in\hat\Tp_p\bigr\},
+  \underbrace{L_a(\tilde\xi)\,L_b(\tilde\eta),\quad a+b\le p}_{\text{complete polynomials }\Pp_p(x,y)}
+  \qquad\text{and}\qquad
+  \underbrace{L_a(\xi)\,L_b(\eta),\quad a,b\le p,\quad a+b>p}_{\text{complement }\Cp_p} .
   \label{eq:hybrid}
 \end{equation}
 %
-and its shape functions are the functions $\hat M_i\in\hat\Tp_p$ with $\hat M_i(\bxi_j)=\delta_{ij}$.
-\end{definition}
+Here, $L_a$ denotes the Legendre polynomial of degree $a$, $(\tilde\xi,\tilde\eta)$ are the scaled skew coordinates \cref{eq:bbox} and $(\xi,\eta)$ the reference coordinates of the geometry map. Since the scaled skew coordinates are affine functions of $(x,y)$, the first group spans exactly the complete polynomials $\Pp_p(x,y)$. The second group, the complement $\Cp_p$, consists of the $p(p+1)/2$ products of Legendre polynomials whose total degree exceeds $p$, and these are evaluated in the reference coordinates. As for \PM, the shape functions $M_i^K$ of \PH\ are obtained from \cref{eq:vandermonde} with these $n$ functions as basis $\{\phi_c\}$. Since all functions are evaluated at the reference coordinates of the query points, only the geometry map $\bx_K(\xi,\eta)$ is required, but not its inverse.
 
-The complete polynomials are represented by $L_a(\tilde\xi)L_b(\tilde\eta)$, $a+b\le m$, in the scaled skew coordinates \cref{eq:bbox}. The definition through $\Kh$ requires only the evaluation of $\bx_K$, not of its inverse. Where $\bx_K$ is not injective (folded elements), only the pull-back $\hat\Tp_p$ is defined, whereas the physical space $\Tp_p$ and point evaluation at physical coordinates are not, and all element quantities are computed in the reference coordinates as in \cref{eq:Ke}.
+In contrast to the first group, whose basis can be chosen freely (\cref{sec:basis-invariance}), the choice of the complement is part of the definition of the trial space. On a curved element, the complete polynomials in $(x,y)$ are not polynomials of total degree $p$ in $(\xi,\eta)$, and a different complement, e.g., the monomials $\xi^a\eta^b$ with $a+b>p$, would give different shape functions. The Legendre products in \cref{eq:hybrid} are the natural choice: due to the orthogonality of the Legendre polynomials, every function of $\Cp_p$ is orthogonal on the reference square to all polynomials of total degree $p$ in $(\xi,\eta)$, i.e., $\int_{\Kh}L_a(\xi)L_b(\eta)\,\xi^i\eta^j\dd\xi\dd\eta=0$ for $a+b>p$ and $i+j\le p$. That is to say, $\Cp_p$ is the orthogonal complement of the polynomials of total degree $p$ within $\Qp_p(\xi,\eta)$, which is unique and does not depend on any basis (\cref{app:derivations}).
 
-\begin{lemma}[Canonical complement]
-\label{lem:complement}
-$\Cp_p$ is the $L^2(\Kh)$-orthogonal complement of $\Pp_m(\xi,\eta)$ in $\Qp_{p_\xi,p_\eta}(\xi,\eta)$. In particular, $\hat\Tp_p$ is defined independently of any basis.
-\end{lemma}
-\begin{proof}
-Let $a+b>m$ and $i+j\le m$. Then $i<a$ or $j<b$, and the orthogonality of $L_a$ to all polynomials of degree less than $a$ gives $\int_{\Kh}L_a(\xi)L_b(\eta)\,\xi^i\eta^j\dd\xi\dd\eta=\int L_a\xi^i\dd\xi\int L_b\eta^j\dd\eta=0$. The functions $L_aL_b$ are linearly independent, and $\dim\Cp_p=n-\dim\Pp_m$.
-\end{proof}
-
-For a non-affine map, $\Pp_m(x,y)\circ\bx_K\ne\Pp_m(\xi,\eta)$, so that a different complement of $\Pp_m(\xi,\eta)$, e.g., $\spn\{\xi^a\eta^b:a+b>m\}$, would give a different space $\hat\Tp_p$. \Cref{lem:complement} identifies \cref{eq:complement} as the canonical choice. Note that, unlike for $\Qsk$, the complement is therefore part of the definition of the space.
+For a folded element, the hybrid functions can still be evaluated at every quadrature point, since they are defined through the reference coordinates. Their values at physical points, however, are not defined where the map is not one-to-one. All element quantities are therefore computed in the reference coordinates, as in \cref{eq:Ke}.
 %
 \subsection{Properties}
 \label{sec:hybrid-properties}
 %
-\begin{proposition}[Properties of the hybrid space]
-\label{prop:hybrid}
-Let the Vandermonde matrix of the hybrid space be regular. Then
+If the Vandermonde matrix of the hybrid functions is regular, the hybrid trial space has the following four properties (\cref{app:derivations}):
 \begin{enumerate}
-\item[(i)] $\dim\Tp_p=n$, the sum in \cref{eq:hybrid} is direct, and the shape functions exist and are unique;
-\item[(ii)] $\Pp_m(x,y)\subset\Tp_p$, so that condition (C1) holds for all polynomial solutions of degree $m$, including the rigid-body modes;
-\item[(iii)] $\Tp_p$ is invariant under affine transformations of the element (\cref{lem:affine});
-\item[(iv)] if $\bx_K$ is bilinear (straight-sided quadrilateral), then $\Tp_p=\Qp_{p_\xi,p_\eta}(\xi,\eta)\circ\bx_K^{-1}$, i.e., the hybrid shape functions coincide with the parametric ones, and \PH\ is the conventional, symmetric spectral element.
+  \item[(i)] it consists of $n$ linearly independent functions, and the shape functions exist and are unique;
+  \item[(ii)] it contains $\Pp_p(x,y)$, so that condition (C1) holds for all polynomial solutions of degree $p$, including the rigid-body modes;
+  \item[(iii)] it is invariant under affine transformations of the element, i.e., under translation, rotation, scaling and shearing (\cref{sec:skew});
+  \item[(iv)] if the element is a straight-sided quadrilateral (bilinear geometry map), the hybrid shape functions coincide with the parametric ones, and \PH\ is the conventional, symmetric spectral element.
 \end{enumerate}
-\end{proposition}
-\begin{proof}
-(i) $\hat\Tp_p$ is spanned by $n$ functions whose values at the $n$ nodes form the regular matrix $\matr V$. Hence, they are linearly independent, and the nodal map is bijective. (ii) and (iii) follow immediately from \cref{eq:hybrid}, \cref{lem:affine} and the invariance of $\bxi$. (iv) For a bilinear map, $x,y\in\Qp_1(\xi,\eta)$, and hence $x^ay^b\circ\bx_K\in\Qp_{a+b}(\xi,\eta)\subset\Qp_{p_\xi,p_\eta}(\xi,\eta)$ for $a+b\le m$. With $\Cp_p\subset\Qp_{p_\xi,p_\eta}(\xi,\eta)$, we obtain $\hat\Tp_p\subset\Qp_{p_\xi,p_\eta}(\xi,\eta)$, and equality follows from (i).
-\end{proof}
+Property (iv) follows from the fact that $x$ and $y$ are bilinear functions of $(\xi,\eta)$ on such an element. Hence, every polynomial of total degree $p$ in $(x,y)$ is a polynomial of degree $p$ in each of $\xi$ and $\eta$, and both groups in \cref{eq:hybrid} lie in $\Qp_p(\xi,\eta)$. Since there are $n$ independent functions in a space of dimension $n$, the hybrid space is the whole space $\Qp_p(\xi,\eta)$ of the parametric functions.
 
-Property (iv) means that the unsymmetric formulation becomes active only where it is needed, namely on elements with curved edges. On straight-sided meshes, \PH\ inherits the symmetry, the positive definiteness and the spectral properties of the conventional element, however strong the angular distortion may be. Since the conventional spectral element keeps its completeness under angular distortion (see \cref{sec:completeness}), nothing is lost on such meshes. The space $\Qsk$ does not have this property. In the companion paper, it was exactly on straight-sided elements with interior angles close to $180^\circ$ that the metric functions of \PM\ overshot most \cite{Eisentraeger2026axisymmetric}.
+Property (iv) means that the unsymmetric formulation becomes active only where it is needed, namely on elements with curved edges. On straight-sided meshes, \PH\ inherits the symmetry, the positive definiteness and the spectral properties of the conventional element, however strong the angular distortion may be. Since the conventional spectral element keeps its completeness under angular distortion (see \cref{sec:completeness}), nothing is lost on such meshes. The trial space $\Qsk$ of \PM\ does not have this property. In the companion paper, it was exactly on straight-sided elements with interior angles close to $180^\circ$ that the metric functions of \PM\ overshot most~\cite{Eisentraeger2026axisymmetric}.
 %
-\subsection{Representation of the interpolation operator and Lebesgue constant}
+\subsection{Hybrid interpolation as a corrected GLL interpolation}
 \label{sec:hybrid-representation}
 %
-Let $\Ihat$ denote the GLL interpolation on $\Kh$ onto $\Qp=\Qp_{p_\xi,p_\eta}(\xi,\eta)$, $\pi$ the projector of $\Qp$ onto $\Pp_m(\xi,\eta)$ along $\Cp_p$ (truncation of the Legendre expansion), $\hat\Pp_m=\{q\circ\bx_K:q\in\Pp_m(x,y)\}$ and $\hat\Qp_p=\{q\circ\bx_K:q\in\Qsk\}$. We define
+In order to understand why the hybrid trial functions overshoot much less than those of \PM, we compare both with the GLL interpolation $\Ihat$ of the conventional element, all functions being considered on the reference square. The hybrid interpolant $\mathcal I_Tf$ of a function $f$, i.e., the field of the hybrid trial functions with the nodal values of $f$, can be written as the GLL interpolant plus a correction (\cref{app:derivations}),
 %
 \begin{equation}
-  S=\pi\Ihat\big|_{\hat\Pp_m}:\ \hat\Pp_m\to\Pp_m(\xi,\eta)\qquad\text{and}\qquad
-  S_Q=\Ihat\big|_{\hat\Qp_p}:\ \hat\Qp_p\to\Qp ,
-  \label{eq:S}
+  \mathcal I_Tf=\Ihat f+\bigl(q-\Ihat q\bigr) .
+  \label{eq:repT}
 \end{equation}
 %
-and denote by $\mathcal I_T$ and $\mathcal I_Q$ the nodal interpolation operators of $\hat\Tp_p$ and $\hat\Qp_p$, all functions being pulled back to $\Kh$.
+Here, $q$ is the complete polynomial of degree $p$ in $(x,y)$ whose GLL interpolant has the same low-order Legendre coefficients ($a+b\le p$) as the GLL interpolant of $f$. In practice, $q$ is computed from the nodal values of $f$ by solving a small system with the $n_p\times n_p$ matrix $\matr S$, where $n_p=(p+1)(p+2)/2$ is the number of complete polynomials. The column $k$ of $\matr S$ contains the low-order Legendre coefficients of the GLL interpolant of the $k$-th complete polynomial. The correction $q-\Ihat q$ in \cref{eq:repT} is the GLL interpolation error of a complete polynomial of degree $p$ and thus precisely the part of $q$ that the conventional element cannot represent. We therefore call it the \emph{completeness defect} of the conventional element. If the conventional element is complete, in particular for every bilinear map, the correction vanishes, the hybrid interpolant is the GLL interpolant and $\Lam_T=\Lam_N$, independently of the amount of angular distortion.
 
-\begin{proposition}[Representation of the metric interpolants]
-\label{prop:representation}
-Assume that $\bx_K$ has a point with $\det(\matr J)\ne0$, so that $\dim\hat\Pp_m=\dim\Pp_m$.
-\begin{enumerate}
-\item[(a)] $\hat\Tp_p$ is unisolvent at the GLL points if and only if $S$ is invertible, and then, for every $f\in C(\Kh)$,
-  \begin{equation}
-    \mathcal I_Tf=\Ihat f+(I-\Ihat)\,S^{-1}\pi\,\Ihat f .
-    \label{eq:repT}
-  \end{equation}
-\item[(b)] $\hat\Qp_p$ is unisolvent if and only if $S_Q$ is invertible, and then
-  \begin{equation}
-    \mathcal I_Qf=\Ihat f+(I-\Ihat)\,S_Q^{-1}\,\Ihat f .
-    \label{eq:repQ}
-  \end{equation}
-\item[(c)] Consequently, with operator norms on $(\Qp,\|\cdot\|_{L^\infty(\Kh)})$,
-  \begin{equation}
-    \Lam_T\le\Lam_N\bigl(1+\|(I-\Ihat)S^{-1}\pi\|\bigr)\qquad\text{and}\qquad
-    \Lam_Q\le\Lam_N\bigl(1+\|(I-\Ihat)S_Q^{-1}\|\bigr),
-    \label{eq:lebbound}
-  \end{equation}
-  and the shape functions are $\hat M_{i,T}=\hat N_i+(I-\Ihat)S^{-1}\pi\hat N_i$ and $\hat M_{i,Q}=\hat N_i+(I-\Ihat)S_Q^{-1}\hat N_i$.
-\end{enumerate}
-\end{proposition}
-\begin{proof}
-The nodal values of a function $\hat v$ are in one-to-one correspondence with $\Ihat\hat v\in\Qp$, and $\Ihat c=c$ for $c\in\Cp_p\subset\Qp$. (a) Let $\hat v=q+c$ with $q\in\hat\Pp_m$ and $c\in\Cp_p$ have the nodal values of $f$, i.e., $\Ihat q+c=\Ihat f$. Applying $\pi$, whose kernel is $\Cp_p$, gives $Sq=\pi\Ihat f$. Conversely, for every $q$ with $Sq=\pi\Ihat f$, the function $c=\Ihat f-\Ihat q$ lies in $\ker\pi=\Cp_p$. If $S$ is invertible, $q$ and $c$ are therefore uniquely determined for every $f$, and $\hat v=q+\Ihat f-\Ihat q$, which is \cref{eq:repT}. If $S$ is singular, we take $0\ne q\in\ker S$ and $c=-\Ihat q\in\Cp_p$. The function $\hat v=q+c$ then vanishes at all nodes. Either $\hat v\ne0$, or $q=-c\in\hat\Pp_m\cap\Cp_p$, so that the sum is not direct and $\dim\hat\Tp_p<n$. In both cases, $\hat\Tp_p$ is not unisolvent. (b) An interpolant $\hat v\in\hat\Qp_p$ satisfies $\Ihat\hat v=\Ihat f$, i.e., $S_Q\hat v=\Ihat f$, and $\hat v=\Ihat\hat v+(I-\Ihat)\hat v$. (c) follows from $\|\Ihat f\|\le\Lam_N\|f\|$ and, for the shape functions, from $\Ihat f=\hat N_i$ for the nodal data $\delta_{\cdot i}$.
-\end{proof}
+The interpolant of \PM\ can be written in the same form, $\mathcal I_Qf=\Ihat f+\bigl(v-\Ihat v\bigr)$, where $v$ is now the function of the whole trial space $\Qsk$ with the nodal values of $f$ (\cref{app:derivations}). This isolates the structural difference between the two metric trial spaces. For \PH, the correction is restricted to the $n_p$ complete polynomials and involves only the inverse of the small matrix $\matr S$. The high-order part of the GLL interpolant remains untouched. For \PM, in contrast, the correction acts on all $n$ functions. It involves the GLL interpolation error of Cartesian polynomials of degree $p$ in each skew coordinate, i.e., of total degree up to $2p$, as well as the inverse of a full $n\times n$ matrix. In particular, this correction does not vanish on straight-sided elements, since $\bar\xi^a\bar\eta^b$ with $a+b>p$ is in general not contained in $\Qp_p(\xi,\eta)$ there. For a curved element that is a small perturbation of size $\delta$ of a straight-sided one, the correction of \PH\ is of the order of $\delta$. Both representations lead to upper bounds of the Lebesgue constants in terms of $\Lam_N$ and the size of the correction (\cref{app:derivations}). These bounds are, however, not sharp enough to quantify the difference in advance. The numerical results of \cref{sec:num-lebesgue} show that $\Lam_T$ stays at or very close to $\Lam_N$ for moderate edge curvature. For strong distortion, $\Lam_T$ grows as well, but by orders of magnitude less than $\Lam_Q$, which grows exponentially in $p$ and in the distortion.
 
-\begin{corollary}
-\label{cor:defect}
-If $\hat\Pp_m\subset\Qp$, in particular for every bilinear map, the correction in \cref{eq:repT} vanishes, $\mathcal I_T=\Ihat$ and $\Lam_T=\Lam_N$, independently of the amount of angular distortion. In general, the deviation of $\mathcal I_T$ from the GLL interpolation is the GLL interpolation error of a complete polynomial of degree $m$, $(I-\Ihat)(q\circ\bx_K)$ with $q\in\Pp_m(x,y)$, i.e., precisely the \emph{completeness defect} of the conventional element.
-\end{corollary}
-
-\Cref{prop:representation} puts both metric spaces into the same framework, namely the GLL interpolation plus a correction, and it isolates the structural difference between them. For $\Tp_p$, the correction has at most the rank $\dim\Pp_m=(m+1)(m+2)/2$ and involves only the inverse $S^{-1}$ of the low-order block, so that the high-order part of the interpolant remains untouched. For $\Qsk$, in contrast, the correction acts on the whole $n$-dimensional space. It involves the GLL interpolation error of Cartesian polynomials of degree $p$ in each skew coordinate, i.e., of total degree up to $2p$, as well as the inverse of the full matrix $S_Q$. In particular, this correction does not vanish on bilinear elements, since in general $\bar\xi^a\bar\eta^b\circ\bx_K\in\Qp_{a+b}(\xi,\eta)\not\subset\Qp_p(\xi,\eta)$ for $a+b>p$. For a smooth perturbation $\bx_K=\bx_{\mathrm{bil}}+\delta\,\tilde{\bx}$ of a bilinear map, on the other hand, the correction of $\Tp_p$ is of the order of $\delta$, since $q\circ\bx_{\mathrm{bil}}\in\Qp_p(\xi,\eta)$ for $q\in\Pp_m(x,y)$. Note that the bounds \cref{eq:lebbound} are not sharp enough to quantify the difference a priori. The numerical results of \cref{sec:num-lebesgue} show that $\Lam_T$ stays at or very close to $\Lam_N$ for moderate edge curvature. For strong distortion, $\Lam_T$ grows as well, but by orders of magnitude less than $\Lam_Q$, which grows exponentially in $p$ and in the distortion.
-
-The operator $S$ has a simple matrix form. Let $\matr V_{\mathrm{ref}}$ be the Legendre Vandermonde matrix of the GLL grid with the rows $L_a(\xi_j)L_b(\eta_j)$, $a\le p_\xi$, $b\le p_\eta$. Its rows are ordered into the $n_m=\dim\Pp_m$ low-order rows $\matr L$ ($a+b\le m$) and the rows $\matr R$ of the complement. The hybrid Vandermonde matrix is ordered alike, $\matr V_T=[\matr Q;\matr R]$, where the rows of $\matr Q$ are the nodal values of a basis $\{q_k\}$ of $\hat\Pp_m$. Let $\matr S\in\R^{n_m\times n_m}$ be the matrix of $S$, i.e., $S_{lk}$ is the coefficient of the $l$-th low-order Legendre product in $\Ihat q_k$.
-
-\begin{proposition}[Factorization of the hybrid Vandermonde matrix]
-\label{prop:factor}
-$|\det(\matr V_T)|=|\det(\matr V_{\mathrm{ref}})|\,|\det(\matr S)|$. Hence, the nodes are unisolvent for $\hat\Tp_p$ if and only if $\matr S$ is regular, and they are unisolvent for every element map that is sufficiently close to an affine one.
-\end{proposition}
-\begin{proof}
-Every row of $\matr Q$ is a vector of nodal values and has a unique expansion in the rows of the regular matrix $\matr V_{\mathrm{ref}}$, whose coefficients are the Legendre coefficients of $\Ihat q_k$, i.e., $\matr Q=\matr S^\T\matr L+\matr B\matr R$. Hence, $\matr V_T=\bigl[\begin{smallmatrix}\matr S^\T&\matr B\\\matr0&\matr I\end{smallmatrix}\bigr]\bigl[\begin{smallmatrix}\matr L\\\matr R\end{smallmatrix}\bigr]$, and the determinant identity follows. On an affine element, $q\circ\bx_K\in\Pp_m(\xi,\eta)$, $\Ihat$ is exact, and $\matr S$ is the matrix of the invertible composition with an affine map. Moreover, $\det(\matr S)$ depends continuously on the nodes.
-\end{proof}
-
-Since $\matr V_{\mathrm{ref}}$ is fixed and well conditioned, $\mathrm{rcond}(\matr S)$ is a cheap element-level indicator of unisolvence, computed from an $n_m\times n_m$ instead of an $n\times n$ matrix. On strongly non-affine (folded) elements, however, unisolvence is not guaranteed. In \cref{sec:num-cylinder}, we show that it fails on some folded elements for $p\ge7$, exactly where $\matr S$ becomes singular.
-%
-\subsection{Approximation}
-\label{sec:hybrid-approximation}
-%
-The best-fit term in \cref{eq:quasiopt} is bounded by the error of the interpolant, which is a trial field with the exact nodal values. For the interpolant, the following estimate holds.
-
-\begin{lemma}[Interpolation error]
-\label{lem:interp}
-Let $\mathcal U_K\in\{\Tp_p,\Qsk\}$ be unisolvent, $k_K$ its complete degree ($m$ or $p$, respectively), $\Lam_{\mathcal U}$ its Lebesgue constant, $h_K$ the diameter of $K$ and $K^\ast$ the convex hull of $K$. Then, for $f\in W^{k_K+1,\infty}(K^\ast)$,
+The matrix $\matr S$ also decides whether the hybrid shape functions exist. Let $\matr V_{\mathrm{ref}}$ be the Legendre Vandermonde matrix of the GLL grid of the reference square, which is fixed and well conditioned, and $\matr V_T$ the Vandermonde matrix of the hybrid functions. Then (\cref{app:derivations})
 %
 \begin{equation}
-  \begin{aligned}
-  \|f-\mathcal I_{\mathcal U}f\|_{L^\infty(K)}
-  &\le(1+\Lam_{\mathcal U})\inf_{v\in\Pp_{k_K}(x,y)}\|f-v\|_{L^\infty(K)}\\
-  &\le C\,(1+\Lam_{\mathcal U})\,h_K^{k_K+1}|f|_{W^{k_K+1,\infty}(K^\ast)} .
-  \end{aligned}
+  |\det(\matr V_T)|=|\det(\matr V_{\mathrm{ref}})|\,|\det(\matr S)| .
+  \label{eq:factor}
+\end{equation}
+%
+Hence, the hybrid shape functions exist if and only if $\matr S$ is regular, and they exist on every element that is sufficiently close to a parallelogram, for which $\matr S$ is regular. Consequently, the reciprocal condition number $\mathrm{rcond}(\matr S)$ is a cheap element-level indicator, computed from an $n_p\times n_p$ instead of an $n\times n$ matrix. On strongly non-affine (folded) elements, however, the existence is not guaranteed. In \cref{sec:num-cylinder}, we show that it fails on some folded elements for $p\ge7$, exactly where $\matr S$ becomes singular.
+%
+\subsection{Accuracy of the interpolation}
+\label{sec:hybrid-approximation}
+%
+The best fit in \cref{eq:quasiopt} is at least as accurate as the interpolant, which is a trial field with the exact nodal values. For the interpolant $\mathcal I_{\mathcal U}f$ of a smooth field $f$ by the trial functions of \PM\ or \PH, the following estimates hold (\cref{app:derivations}):
+%
+\begin{equation}
+  \max_{K}\bigl|f-\mathcal I_{\mathcal U}f\bigr|\le C\,(1+\Lam_{\mathcal U})\,h_K^{p+1}\,|f|_{p+1}
+  \qquad\text{and}\qquad
+  \max_{K}\bigl|\nabla(f-\mathcal I_{\mathcal U}f)\bigr|\le C\,(1+\Lam'_{\mathcal U})\,h_K^{p}\,|f|_{p+1} .
   \label{eq:interp}
 \end{equation}
 %
-Moreover, with the derivative Lebesgue constant
+Here, $h_K$ is the diameter of the element, $|f|_{p+1}$ the largest $(p+1)$-th derivative of $f$ on the convex hull of the element, $C$ a constant that depends only on $p$, and
 %
 \begin{equation}
-  \Lam'_{\mathcal U}=h_K\max_{\bx\in K}\sum_i\bigl|\nabla M_i^K(\bx)\bigr| ,
+  \Lam'_{\mathcal U}=h_K\max_{\bx\in K}\sum_i\bigl|\nabla M_i^K(\bx)\bigr|
   \label{eq:lebesgue1}
 \end{equation}
 %
-we obtain
-%
-\begin{equation}
-  |f-\mathcal I_{\mathcal U}f|_{W^{1,\infty}(K)}
-  \le C\,(1+\Lam'_{\mathcal U})\,h_K^{k_K}|f|_{W^{k_K+1,\infty}(K^\ast)} .
-  \label{eq:interp1}
-\end{equation}
-%
-For a family of elements obtained from a fixed element by similarity transformations (self-similar refinement), $\Lam_{\mathcal U}$ and $\Lam'_{\mathcal U}$ do not depend on $h_K$.
-\end{lemma}
-\begin{proof}
-$\mathcal I_{\mathcal U}$ reproduces $\Pp_{k_K}(x,y)$, so that $f-\mathcal I_{\mathcal U}f=(f-v)-\mathcal I_{\mathcal U}(f-v)$ for every such $v$. We choose $v$ as the Taylor polynomial of degree $k_K$ of $f$ about a point of $K^\ast$. Then, $\|f-v\|_{L^\infty}\le Ch_K^{k_K+1}|f|_{W^{k_K+1,\infty}}$ and $|f-v|_{W^{1,\infty}}\le Ch_K^{k_K}|f|_{W^{k_K+1,\infty}}$ on $K^\ast$, with $C$ depending only on $k_K$. The $L^\infty$ estimate follows from $\|\mathcal I_{\mathcal U}(f-v)\|_\infty\le\Lam_{\mathcal U}\|f-v\|_\infty$ and the $W^{1,\infty}$ estimate from $|\nabla\mathcal I_{\mathcal U}(f-v)|\le\|f-v\|_\infty\sum_i|\nabla M_i^K|\le h_K^{-1}\Lam'_{\mathcal U}\|f-v\|_\infty$. Under a similarity $\bx\mapsto\alpha\matr R\bx+\vect c$, the shape functions are unchanged as functions of the material point (\cref{lem:affine}), their gradients scale with $\alpha^{-1}$ and $h_K$ with $\alpha$, so that $\Lam'_{\mathcal U}$ is invariant.
-\end{proof}
+is the Lebesgue constant of the derivatives. The estimates follow from the reproduction of the complete polynomials: the interpolation error of $f$ equals that of the difference between $f$ and its Taylor polynomial of degree $p$, which is of the order of $h_K^{p+1}$. If a mesh is refined such that the element shapes do not change (self-similar refinement), $\Lam_{\mathcal U}$ and $\Lam'_{\mathcal U}$ do not depend on $h_K$.
 
-Thus, both metric spaces have the optimal order of interpolation in $L^\infty$ and in $W^{1,\infty}$, and hence in the energy norm, on meshes whose distortion persists under refinement, on which the conventional element is limited to $\Pp_{\lfloor p/q\rfloor}(x,y)$ (\cref{sec:completeness}). The two metric spaces differ in the constants $1+\Lam_{\mathcal U}$ and $1+\Lam'_{\mathcal U}$. Within \cref{eq:quasiopt}, these constants enter the best-fit term only, while the stability factor $\beta_h$ depends on the pair of test and trial spaces and is not covered by \cref{lem:interp}. An error estimate for the discrete solution would therefore require a discrete inf-sup condition for the pair of the conforming test space and the non-conforming trial space together with a consistency estimate in the sense of Strang. We do not prove such an estimate for either space. Instead, the stability is assessed numerically in \cref{sec:num-convergence,sec:num-spectra,sec:num-cylinder}.
+Thus, both metric trial spaces have the optimal order of interpolation for the displacements and their derivatives, and hence in the energy norm, on meshes whose distortion persists under refinement, on which the conventional element is limited to $\Pp_{\lfloor p/q\rfloor}(x,y)$ (\cref{sec:completeness}). The two metric trial spaces differ in the constants $1+\Lam_{\mathcal U}$ and $1+\Lam'_{\mathcal U}$. Within \cref{eq:quasiopt}, these constants enter the best-fit term only. The stability factor $\beta_h$, on the other hand, depends on the pair of test and trial functions and is not covered by \cref{eq:interp}. An error estimate for the finite element solution would therefore require a discrete inf-sup condition for the pair of the conforming test functions and the discontinuous trial functions together with a consistency estimate in the sense of Strang. We do not prove such an estimate for either trial space. Instead, the stability is assessed numerically in \cref{sec:num-convergence,sec:num-spectra,sec:num-cylinder}.
 %
 \subsection{Gradients, stiffness matrix and folded elements}
 \label{sec:hybrid-gradients}
 %
-For $\phi=L_a(\tilde\xi)L_b(\tilde\eta)$ with $a+b\le m$, the gradient is given by $\nabla_{\bx}\phi=\matr J_0^{-1}\operatorname{diag}(r_{\xi}^{-1},r_{\eta}^{-1})\,\nabla_{\bxit}\phi$. For $\phi\in\Cp_p$, on the other hand, $\nabla_{\bx}\phi=\matr J(\bxi)^{-1}\nabla_{\bxi}\phi$ at the quadrature point $\bxi$. Since the hybrid functions are evaluated through $\bxi$, the stiffness matrix \cref{eq:Ke} requires no inverse map, and post-processing at arbitrary physical points requires $\bx_K^{-1}$ only as for the conventional element. The complement contributes rational integrands to $\matr K_K$, as for curved isoparametric elements. This does not affect the exact reproduction of polynomial solutions, since for $\vect u\in[\Pp_m(x,y)]^2$ the coefficients of the interpolant on $\Cp_p$ vanish (direct sum). Then, $\matr B_{\mathrm M}\vect d=\bm\varepsilon(\vect u)$, and the integrand $\bar{\matr B}_{\mathrm N}^\T\matr C\,\bm\varepsilon(\vect u)$ is the same polynomial as for $\Qsk$, so that condition (C3) can be met by Gauss quadrature. Note that the sign of $\det(\matr J)$ is irrelevant for the function values. A vanishing $\det(\matr J)$ at a quadrature point, however, has to be excluded, since the gradients of the complement functions involve $\matr J^{-1}$. On a folded element, $\det(\matr J)$ changes sign along a curve inside the element, and the complement part of the integrand behaves like $1/\det(\matr J)$ near this curve. This singularity is not integrable. Consequently, the stiffness matrix of the hybrid space, like that of the conventional element, does not exist on folded elements, and its Gauss approximations do not converge (\cref{sec:num-quadrature}). Only the product of the stiffness matrix with the nodal values of a polynomial field of degree $m$ remains well defined, since the complement does not contribute to it.
+For the functions of the first group in \cref{eq:hybrid}, the Cartesian gradient is given by $\nabla_{\bx}\phi=\matr J_0^{-1}\operatorname{diag}(r_{\xi}^{-1},r_{\eta}^{-1})\,\nabla_{\bxit}\phi$, as for \PM. For the functions of the complement, on the other hand, $\nabla_{\bx}\phi=\matr J(\bxi)^{-1}\nabla_{\bxi}\phi$ at the quadrature point $\bxi$, as for the conventional element. Hence, the stiffness matrix \cref{eq:Ke} requires no inverse map, and post-processing at arbitrary physical points requires $\bx_K^{-1}$ only as for the conventional element. Since $\matr J^{-1}$ contains $1/\det(\matr J)$, the complement contributes rational integrands to $\matr K_K$, as for curved isoparametric elements. This does not affect the exact reproduction of polynomial solutions. For a polynomial displacement field of degree $p$, the coefficients of the interpolant on the complement vanish, so that $\matr B_{\mathrm M}\vect d=\bm\varepsilon(\vect u)$, and the integrand $\bar{\matr B}_{\mathrm N}^\T\matr C\,\bm\varepsilon(\vect u)$ is the same polynomial as for \PM. Consequently, condition (C3) can be met by Gauss quadrature. Note that the sign of $\det(\matr J)$ is irrelevant for the function values. A vanishing $\det(\matr J)$ at a quadrature point, however, has to be excluded, since the gradients of the complement functions involve $\matr J^{-1}$. On a folded element, $\det(\matr J)$ changes sign along a curve inside the element, and the complement part of the integrand behaves like $1/\det(\matr J)$ near this curve. This singularity is not integrable. Consequently, the stiffness matrix of \PH, like that of the conventional element, does not exist on folded elements, and its Gauss approximations do not converge (\cref{sec:num-quadrature}). Only the product of the stiffness matrix with the nodal values of a polynomial field of degree $p$ remains well defined, since the complement does not contribute to it.

@@ -1,0 +1,80 @@
+% Single test elements (a)-(d) with the GLL nodes for p = 8 and the input
+% nodes of the geometry (open circles), and the three one-parameter
+% distortion families of the Lebesgue-constant sweep on the reference square
+% (e)-(g), for c = 0 (dashed) and c = 0.5 (solid).
+% data: shape-<shape>-outline.dat, shape-<shape>-p8.dat (studies/ms_mesh_figures.m);
+% families: studies/ms_distortion_sweep.m (familyNodes)
+\begin{tikzpicture}[plabel/.style={anchor=north, font=\small, inner sep=0pt}]
+\begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.2cm, vertical sep=0.9cm},
+    hide axis, clip=false, x=2.4cm, y=2.4cm,
+    gll/.style={only marks, mark=*, mark size=0.7pt, black},
+    geo/.style={only marks, mark=*, mark size=1.7pt, mark options={fill=white, draw=black, line width=0.5pt}},
+    outline/.style={black, line width=0.7pt}]
+  \nextgroupplot[xmin=-0.1, xmax=2.7, ymin=-0.05, ymax=1.55]
+    \addplot[outline] table {\data/shape-parallelogram-outline.dat};
+    \addplot[gll] table {\data/shape-parallelogram-p8.dat};
+    \addplot[geo] coordinates {(0,0) (2,0.3) (2.6,1.5) (0.6,1.2)};
+    \node[plabel] at (rel axis cs:0.5,-0.06) {(a) parallelogram};
+  \nextgroupplot[xmin=-0.4, xmax=2.4, ymin=-0.15, ymax=1.45]
+    \addplot[outline] table {\data/shape-trapezoid-outline.dat};
+    \addplot[gll] table {\data/shape-trapezoid-p8.dat};
+    \addplot[geo] coordinates {(0,0) (2,0) (1.4,1) (0.2,1.3)};
+    \node[plabel] at (rel axis cs:0.5,-0.06) {(b) trapezoid};
+  \nextgroupplot[xmin=-0.275, xmax=2.525, ymin=-0.3, ymax=1.3]
+    \addplot[outline] table {\data/shape-curved-outline.dat};
+    \addplot[gll] table {\data/shape-curved-p8.dat};
+    \addplot[geo] coordinates {(0,0) (2,0) (2,1) (0,1) (1,-0.2) (2.25,0.5) (1,1) (0,0.5)};
+    \node[plabel] at (rel axis cs:0.5,-0.06) {(c) curved};
+  \nextgroupplot[xmin=-0.4, xmax=2.4, ymin=-0.25, ymax=1.35]
+    \addplot[outline] table {\data/shape-general-outline.dat};
+    \addplot[gll] table {\data/shape-general-p8.dat};
+    \addplot[geo] coordinates {(0,0) (2,0.1) (1.5,1.2) (0.2,1) (1.1,-0.15) (1.9,0.6) (0.8,1.25) (0.05,0.5)};
+    \node[plabel] at (rel axis cs:0.5,-0.06) {(d) general};
+\end{groupplot}
+\end{tikzpicture}\par\bigskip
+\begin{tikzpicture}[plabel/.style={anchor=north, font=\small, inner sep=0pt},
+    move/.style={-stealth, line width=0.6pt}, clabel/.style={font=\footnotesize, inner sep=1.5pt}]
+\begin{groupplot}[group style={group size=3 by 1, horizontal sep=1.0cm},
+    hide axis, clip=false, x=1.7cm, y=1.7cm,
+    xmin=-1.3, xmax=1.3, ymin=-1.3, ymax=1.7,
+    ref/.style={gray!70, dashed, line width=0.6pt},
+    outline/.style={black, line width=0.7pt},
+    geo/.style={only marks, mark=*, mark size=1.7pt, mark options={fill=white, draw=black, line width=0.5pt}},
+    old/.style={only marks, mark=*, mark size=1.4pt, mark options={fill=gray!40, draw=gray!70}}]
+  % (e) bent element: x = xi, y = eta + c (1 - xi^2), c = 0.5
+  \nextgroupplot
+    \addplot[ref] coordinates {(-1,-1) (1,-1) (1,1) (-1,1) (-1,-1)};
+    \addplot[outline, domain=-1:1, samples=41] ({x}, {-1 + 0.5*(1 - x*x)});
+    \addplot[outline, domain=-1:1, samples=41] ({x}, {1 + 0.5*(1 - x*x)});
+    \addplot[outline] coordinates {(1,-1) (1,1)};
+    \addplot[outline] coordinates {(-1,-1) (-1,1)};
+    \addplot[old] coordinates {(0,-1) (0,1)};
+    \draw[move] (axis cs:0,-1) -- (axis cs:0,-0.55);
+    \draw[move] (axis cs:0,1) -- (axis cs:0,1.45);
+    \node[clabel, anchor=west] at (axis cs:0.03,-0.78) {$c$};
+    \node[clabel, anchor=west] at (axis cs:0.03,1.22) {$c$};
+    \addplot[geo] coordinates {(-1,-1) (0,-0.5) (1,-1) (1,0) (1,1) (0,1.5) (-1,1) (-1,0)};
+    \node[plabel] at (rel axis cs:0.5,0) {(e) bent element};
+  % (f) one curved edge: y = eta + c (1 - xi^2)(1 - eta)/2, c = 0.5
+  \nextgroupplot
+    \addplot[ref] coordinates {(-1,-1) (1,-1) (1,1) (-1,1) (-1,-1)};
+    \addplot[outline, domain=-1:1, samples=41] ({x}, {-1 + 0.5*(1 - x*x)});
+    \addplot[outline] coordinates {(1,-1) (1,1) (-1,1) (-1,-1)};
+    \addplot[old] coordinates {(0,-1)};
+    \draw[move] (axis cs:0,-1) -- (axis cs:0,-0.55);
+    \node[clabel, anchor=west] at (axis cs:0.03,-0.78) {$c$};
+    \addplot[geo] coordinates {(-1,-1) (0,-0.5) (1,-1) (1,0) (1,1) (0,1) (-1,1) (-1,0)};
+    \node[plabel] at (rel axis cs:0.5,0) {(f) one curved edge};
+  % (g) trapezoid: top corners moved inwards by c, c = 0.5
+  \nextgroupplot
+    \addplot[ref] coordinates {(-1,-1) (1,-1) (1,1) (-1,1) (-1,-1)};
+    \addplot[outline] coordinates {(-1,-1) (1,-1) (0.5,1) (-0.5,1) (-1,-1)};
+    \addplot[old] coordinates {(-1,1) (1,1)};
+    \draw[move] (axis cs:1,1) -- (axis cs:0.55,1);
+    \draw[move] (axis cs:-1,1) -- (axis cs:-0.55,1);
+    \node[clabel, anchor=south] at (axis cs:0.77,1.03) {$c$};
+    \node[clabel, anchor=south] at (axis cs:-0.77,1.03) {$c$};
+    \addplot[geo] coordinates {(-1,-1) (0,-1) (1,-1) (0.75,0) (0.5,1) (0,1) (-0.5,1) (-0.75,0)};
+    \node[plabel] at (rel axis cs:0.5,0) {(g) trapezoid};
+\end{groupplot}
+\end{tikzpicture}

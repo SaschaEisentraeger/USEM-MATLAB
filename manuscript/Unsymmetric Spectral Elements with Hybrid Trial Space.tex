@@ -126,6 +126,12 @@
 % Paper-specific theorem environments, notation and plot styles
 \input{preamble}
 %
+% Float placement: fuller float pages and more floats per text page, so that
+% no float page is left largely empty
+\renewcommand{\floatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{totalnumber}{5}
+%
 % -----------------------------------------------------------------------------
 % Title block
 % -----------------------------------------------------------------------------
@@ -196,7 +202,8 @@
 %
 %\paragraph{Declaration of competing interest} The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 %
-\paragraph{Data availability} The implementation (MATLAB/GNU Octave), the scripts that produce every number and figure of this paper (\url{manuscript/studies}) and the raw data are contained in the USEM code repository. The raw data comprise \url{manuscript/data}, including the calibrated Gauss rules in \url{manuscript/data/quadrature}, and the results of the thick-cylinder study in \url{studies/thick_cylinder/results/raw_calibrated}. The generated tables (\texttt{manuscript/generated}) are written by these scripts, and the source of every table is noted in the LaTeX source.
+\paragraph{Data availability} The \texttt{MATLAB}/GNU Octave code, the meshes, the scripts of all numerical studies and the raw data required to reproduce the results of this paper will be archived on Zenodo and made available in the public repository \url{https://github.com/SaschaEisentraeger/USEM-MATLAB} upon acceptance of the paper. The code was developed with the assistance of \texttt{Claude} (Anthropic) via \texttt{Claude Code}. The scripts that produce every number, table and figure of this paper are contained in the folder \texttt{manuscript/studies} of the repository, the raw data in \texttt{manuscript/data} and \texttt{studies/thick\_cylinder/results/raw\_calibrated}, and the source of every table is noted in the LaTeX source.
+% CHECK: archive this state of the repository on Zenodo, make the GitHub repository public and add the Zenodo DOI here (author, 30 Oct 2026: same procedure as for the companion paper)
 %
 \paragraph{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process} During the preparation of this work, the author used \texttt{Claude} (Anthropic), accessed through \texttt{Claude Code}, as an AI-assisted tool and retained full control over its use. The research ideas, methodology and numerical studies were defined by the author, who specified each task and reviewed, tested and approved all changes before their adoption. The tool was used to extend and document the \texttt{MATLAB}/GNU Octave code, to execute the numerical studies and post-process the results, to generate figures from computed data with reproducible scripts, to draft and revise the manuscript text in accordance with the author's instructions and to check the cited literature. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 % CHECK: adapted from the companion paper; confirm that it describes how the tool was used for this paper (and switch to "authors" once co-authors are added)

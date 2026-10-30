@@ -1,0 +1,35 @@
+% Meshes of the h-convergence study with persistent curved-edge distortion
+% (studies/ms_convergence.m): unit square, N = 4, every interior mid-side
+% node moved normal to its edge by delta*h (usemDistortMesh 'curved',
+% delta/N); (a) delta = 0.1, (b) delta = 0.2, (c) delta = 0.3, (d) detail of
+% (c) (frame in (c)) with the part of the elements with det(J) < 0 of the
+% 8-node map shaded. Thick line: exact solution prescribed at all boundary nodes.
+% data: square-d<100 delta>-N4.dat, square-d030-N4-negJ.dat (studies/ms_mesh_figures.m)
+\tracinglostchars=0 % blank lines (jumps) in the mesh data
+\begin{tikzpicture}[plabel/.style={anchor=north, font=\small, inner sep=0pt}]
+\begin{groupplot}[group style={group name=sq, group size=4 by 1, horizontal sep=0.55cm},
+    hide axis, clip=false, x=3.8cm, y=3.8cm, xmin=0, xmax=1, ymin=0, ymax=1,
+    mesh/.style={black, line width=0.4pt},
+    bnd/.style={black, line width=1.2pt},
+    neg/.style={fill=red!50, draw=red!70!black, line width=0.3pt}]
+  \nextgroupplot
+    \addplot[mesh] table {\data/square-d010-N4.dat};
+    \addplot[bnd] coordinates {(0,0) (1,0) (1,1) (0,1) (0,0)};
+    \node[plabel] at (axis cs:0.5,-0.06) {(a) $\delta=0.1$};
+  \nextgroupplot
+    \addplot[mesh] table {\data/square-d020-N4.dat};
+    \addplot[bnd] coordinates {(0,0) (1,0) (1,1) (0,1) (0,0)};
+    \node[plabel] at (axis cs:0.5,-0.06) {(b) $\delta=0.2$};
+  \nextgroupplot
+    \addplot[neg] table {\data/square-d030-N4-negJ.dat};
+    \addplot[mesh] table {\data/square-d030-N4.dat};
+    \addplot[bnd] coordinates {(0,0) (1,0) (1,1) (0,1) (0,0)};
+    \addplot[blue, line width=0.6pt] coordinates {(0.45,0.45) (0.55,0.45) (0.55,0.55) (0.45,0.55) (0.45,0.45)};
+    \node[plabel] at (axis cs:0.5,-0.06) {(c) $\delta=0.3$};
+  \nextgroupplot[x=38cm, y=38cm, xmin=0.45, xmax=0.55, ymin=0.45, ymax=0.55, clip=true]
+    \addplot[neg] table {\data/square-d030-N4-negJ.dat};
+    \addplot[mesh, line width=0.6pt] table {\data/square-d030-N4.dat};
+    \addplot[blue, line width=1.2pt] coordinates {(0.45,0.45) (0.55,0.45) (0.55,0.55) (0.45,0.55) (0.45,0.45)};
+\end{groupplot}
+\node[plabel, yshift=-0.228cm] at (sq c4r1.south) {(d) detail, shaded: $\det\matr J<0$};
+\end{tikzpicture}

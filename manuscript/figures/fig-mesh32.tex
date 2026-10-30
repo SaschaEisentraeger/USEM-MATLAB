@@ -1,0 +1,35 @@
+% 3 x 2 meshes on [0,3] x [0,2] of the patch test, the eigenvalue study and the
+% transient study (studies/ms_spectrum.m): (a) curved 0.15, (b) curved 0.20,
+% (c) angular 0.3 + curved 0.15 (usemDistortMesh 'combined', 0.30).
+% Thick boundary line (hatched in (a)): u prescribed at all boundary nodes.
+% data: mesh32-<mesh>.dat (studies/ms_mesh_figures.m)
+\tracinglostchars=0 % blank lines (jumps) in the mesh data
+\begin{tikzpicture}[plabel/.style={anchor=north, font=\small, inner sep=0pt}]
+\begin{groupplot}[group style={group name=m32, group size=3 by 1, horizontal sep=0.9cm},
+    hide axis, clip=false, x=1.62cm, y=1.62cm, xmin=0, xmax=3, ymin=0, ymax=2,
+    mesh/.style={black, line width=0.4pt},
+    bnd/.style={black, line width=1.2pt}]
+  \nextgroupplot
+    \addplot[mesh] table {\data/mesh32-curved15.dat};
+    \addplot[bnd] coordinates {(0,0) (3,0) (3,2) (0,2) (0,0)};
+    % hatching (clamped boundary)
+    \pgfplotsinvokeforeach{0.1,0.25,...,3.0}{
+      \draw[line width=0.3pt] (axis cs:#1,0) -- (axis cs:#1-0.1,-0.1);
+      \draw[line width=0.3pt] (axis cs:#1-0.1,2) -- (axis cs:#1,2.1);}
+    \pgfplotsinvokeforeach{0.1,0.25,...,2.0}{
+      \draw[line width=0.3pt] (axis cs:0,#1-0.1) -- (axis cs:-0.1,#1);
+      \draw[line width=0.3pt] (axis cs:3,#1) -- (axis cs:3.1,#1-0.1);}
+    \node[plabel] at (axis cs:1.5,-0.22) {(a) curved, $0.15$};
+  \nextgroupplot
+    \addplot[mesh] table {\data/mesh32-curved20.dat};
+    \addplot[bnd] coordinates {(0,0) (3,0) (3,2) (0,2) (0,0)};
+    \node[plabel] at (axis cs:1.5,-0.22) {(b) curved, $0.20$};
+  \nextgroupplot
+    \addplot[mesh] table {\data/mesh32-combined30.dat};
+    \addplot[bnd] coordinates {(0,0) (3,0) (3,2) (0,2) (0,0)};
+    \node[plabel] at (axis cs:1.5,-0.22) {(c) angular $0.3$ + curved $0.15$};
+\end{groupplot}
+\node[anchor=north, font=\footnotesize, yshift=-0.75cm] at (m32 c2r1.south)
+  {thick (hatched) boundary: $\vect u$ prescribed at all boundary nodes (patch test, smooth field);
+   $\vect u=\vect 0$ (eigenvalue and transient study)};
+\end{tikzpicture}
