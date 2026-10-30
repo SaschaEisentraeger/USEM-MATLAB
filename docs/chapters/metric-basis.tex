@@ -107,8 +107,8 @@ round-off, and $\matr K_e$ is symmetric to round-off for every $p$.
 interpolation is the sum of the absolute values of all its shape functions at a
 point; its maximum over the element, the Lebesgue constant, is the factor by
 which the interpolation can amplify errors in the nodal values. Let
-$\lambda_\mathrm{M}(\vect s)=\sum\limits_{l=1}^{n}|M_l(\vect s)|$ and
-$\lambda_\mathrm{ref}(\vect s)=\sum\limits_{c=1}^{n}|\phi_c(\vect s)|$ be the
+$\lambda_\mathrm{M}(\vect s)=\sum\limits^{n}_{l=1}|M_l(\vect s)|$ and
+$\lambda_\mathrm{ref}(\vect s)=\sum\limits^{n}_{c=1}|\phi_c(\vect s)|$ be the
 Lebesgue functions of the metric and of the reference interpolation, and let
 $\hat{\vect s}_d$ be the reference nodes in the scaled skew coordinates (the
 points where the Lagrange basis function $\phi_d$ is $1$). Then
@@ -321,7 +321,7 @@ $\epsilon\,\Lambda_\mathrm{M}$ (trapezoid, $p=16$, Legendre, Chebyshev and
 Lagrange basis: $e_\mathrm{P}=2$--$5\times10^{-9}$,
 $e_{\nabla\mathrm{P}}=0.8$--$8\times10^{-8}$; at $p=15$ all four bases give
 $e_\mathrm{P}=2$--$4\times10^{-10}$). The reason is the following. A polynomial
-$g=\sum\limits_{c=1}^{n}c_c\,\phi_c$ of the space has the nodal values
+$g=\sum\limits^{n}_{c=1}c_c\,\phi_c$ of the space has the nodal values
 $\vect f=\matr V^{\T}\vect c$. Its interpolant, computed with the LU factors of
 $\matr V$, differs from $g$ by about $\vect c^{\T}\delta\matr V\,\matr N$, where
 $\delta\matr V$ is the backward error of the LU decomposition; this is bounded by

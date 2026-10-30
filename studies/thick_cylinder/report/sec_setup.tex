@@ -65,7 +65,7 @@ $E=1000$, $\nu=0.25$, plane stress, internal pressure $p_{\mathrm i}=1000$, symm
 $u_x=0$ on $x=0$ and $u_y=0$ on $y=0$. The geometry (exact circular arcs, built-in
 kernel) and the structured mesh are generated with \texttt{Gmsh}~\cite{Geuzaine2009Gmsh}
 (\texttt{mesh/gen\_cylinder\_meshes.py}): a transfinite mesh of $2N\times2N$
-eight-node quadrilaterals, i.e., $N\times N$ super-elements of $2\times2$ elements
+8-node quadrilaterals, i.e., $N\times N$ super-elements of $2\times2$ elements
 ($N=1,2,4,8$; element size $h\propto1/N$). Mesh distortion follows mesh
 sequence~B of \citep[Fig.~19]{Rajendran2010technique}: in every super-element the
 mid-side nodes of the four internal edges are rotated counter-clockwise about the
@@ -76,7 +76,7 @@ $\alpha\in\{0^\circ,15^\circ,30^\circ,45^\circ,60^\circ,90^\circ\}$ (\cref{fig:m
 \emph{relative} distortion does not decrease under refinement: the element maps are
 not asymptotically affine. For $\alpha\ge60^\circ$ (and $\alpha=45^\circ$ for $N\ge2$),
 $\det(\bm J)$ changes sign inside elements (folded elements, \cref{tab:folded}). Each mesh is written as
-an ABAQUS input file (corner nodes first, node and element sets, pressure
+an \texttt{ABAQUS} input file (corner nodes first, node and element sets, pressure
 \texttt{*Dsload}) that also runs with \texttt{code/Start\_Sim.m}.
 
 \begin{figure}[t]

@@ -121,7 +121,7 @@ is: edges are straight (4-node input) or parabolic (8-node input, $p\ge2$).
 The elements are therefore subparametric for $p>2$, and increasing $p$ improves
 the approximation of the displacements, but not that of the geometry. This is a
 limitation of the code base: isoparametric elements would require the nodes to
-be placed on the exact geometry (e.g., by Gordon-Hall blending of exact boundary
+be placed on the exact geometry (e.g.\ by Gordon-Hall blending of exact boundary
 curves, as done outside the code base in \code{studies/thick_cylinder}).
 Curved boundaries are therefore represented only as accurately as by the input
 mesh; a degree-$p$ geometry would require an input mesh of degree $p$.
@@ -131,7 +131,7 @@ For degree $p$ an element has $(p+1)^2$ nodes: the 4 corners, then the interior
 nodes of edge~1 ($\eta=-1$), edge~2 ($\xi=+1$), edge~3 ($\eta=+1$) and edge~4
 ($\xi=-1$), each in the direction of increasing $\xi$ or $\eta$, and finally the
 interior nodes row by row ($\xi$ fastest), see \cref{fig:nodes}. Global degrees
-of freedom are interleaved: node $n$ has $u_x$ at DOF $2n-1$ and $u_y$ at DOF
+of freedom (DOFs) are interleaved: node $n$ has $u_x$ at DOF $2n-1$ and $u_y$ at DOF
 $2n$ (\code{Topology_DoF_2D}).
 
 \begin{figure}[htbp]
@@ -233,7 +233,7 @@ The Jacobian is used in the convention (\code{Jacobi_Matrix})
 
 \paragraph{Stiffness} (\code{Ke_2D}):
 \begin{equation}
-  \matr K_e = \int\limits_{-1}^{1}\int\limits_{-1}^{1}\matr B_\mathrm{L}^{\T}\matr C\,
+  \matr K_e = \int\limits^{1}_{-1}\int\limits^{1}_{-1}\matr B_\mathrm{L}^{\T}\matr C\,
   \matr B_\mathrm{R}\,\det(\matr J)\dd\xi\dd\eta,
 \end{equation}
 where $\matr B_\mathrm{L}$ holds the derivatives of the parametric (test) and
@@ -251,7 +251,7 @@ evaluated at the physical positions of the Gauss points. Consequences:
 
 \paragraph{Mass} (\code{Me_2D}, and \code{KMe_2D} together with the stiffness):
 \begin{equation}
-  \matr M_e = \int\limits_{-1}^{1}\int\limits_{-1}^{1}\rho\,\matr N^{\T}\matr M\,
+  \matr M_e = \int\limits^{1}_{-1}\int\limits^{1}_{-1}\rho\,\matr N^{\T}\matr M\,
   \det(\matr J)\dd\xi\dd\eta ,
 \end{equation}
 where $\matr N$ holds the parametric and $\matr M$ the metric functions.

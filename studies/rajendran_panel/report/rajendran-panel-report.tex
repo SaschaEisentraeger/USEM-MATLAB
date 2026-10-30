@@ -26,7 +26,7 @@ $2.11$ and $1.97$). For $p\ge3$ the unsymmetric spectral element reproduces the 
 the shear test on every mesh, including fully folded ones, up to round-off. The hybrid trial
 space of the code base (\PH: metric polynomials only for $P_p(\bx)$, parametric functions for the
 remainder) passes the constant and linear strain patch tests at $p=2$ on all meshes, converges
-with rate $2.02$ and $2.21$ on sequences B and C, and reproduces the cubic field for $p\ge3$; at $p=8$
+with rates $2.02$ and $2.21$ on sequences B and C, and reproduces the cubic field for $p\ge3$; at $p=8$
 its round-off level on Meshes c and e is $220$--$260$ times lower than that of \PM. The code base
 places all new nodes with the map of the 8-node (Serendipity) element, so the geometry stays
 quadratic for every $p$ (subparametric elements for $p>2$); on these meshes this makes interior
@@ -148,7 +148,7 @@ $P_2(\bx)$ is contained in its trial space; for the shear test it is less accura
 The displacements of sequence A and of PP9 and MM9 for B and C agree with the paper. PM9 on
 sequence B yields the values the paper lists for sequence C and vice versa (\cref{sec:paper}).
 PM9 converges with the optimal rate $2$ on the folded meshes of B and C, as reported in the paper,
-and so do \PM\ in skew coordinates ($2.02$, $2.13$) and \PH\ ($2.02$, $2.21$); \PP9 does not ($0.70$,
+and so do \PM\ in skew coordinates ($2.02$, $2.13$) and \PH\ ($2.02$, $2.21$); PP9 does not ($0.70$,
 $2.50$ from a negative displacement at $1\times1$). For $p=3$ both unsymmetric elements reproduce
 the field on all meshes (error at round-off level, ``--''), whereas \PP\ ($p=3$) still has
 energy-norm errors of $9$--$80\,\%$.
@@ -213,7 +213,7 @@ check is triggered. The study results with interior nodes from the bilinear corn
 
 \section{Inconsistencies in the paper}\label{sec:paper}
 \begin{enumerate}
-\item $E=1500$ is stated, the exact values correspond to $E=2000$ (\cref{sec:setup}).
+\item $E=1500$ is stated; the exact values correspond to $E=2000$ (\cref{sec:setup}).
 \item Fig.~8, moment loading: nodal forces at nodes 8/9 and 14/13 interchanged (\cref{sec:setup}).
 \item Table~16, PP-QUAD9, Meshes b and f: $1.9088$; the present value $3.0033$ equals the paper's
   own PP-QUAD9 value for the same mesh in Table~18 ($1\times1$ super-element of sequence B).
