@@ -393,7 +393,7 @@ def fig_alpha(problems, N, titles):
          "tick label style={font=\\scriptsize}, label style={font=\\small}, title style={font=\\small}, "
          "unbounded coords=jump, every axis plot/.append style={line width=0.7pt, mark size=1.3pt}, grid=major, grid style={gray!20}]"]
     for i, (pr, t) in enumerate(zip(problems, titles)):
-        L.append(f"\\nextgroupplot[title={{{t}}}" + (", ylabel={$e_n$}" if i == 0 else "") + "]")
+        L.append(f"\\nextgroupplot[title={{{t}}}" + (", ylabel={$\\en$}" if i == 0 else "") + "]")
         for p in (2, 4, 6, 8):
             L.append(f"\\addplot[pline={p}] table[x=alpha, y=eN{p}] {{\\tab/alpha_{pr}_PM_N{N}.dat}};")
             L.append(f"\\addplot[phyb={p}] table[x=alpha, y=eN{p}] {{\\tab/alpha_{pr}_PH_N{N}.dat}};")
@@ -418,7 +418,7 @@ def fig_pconv(problems, titles, N):
          "tick label style={font=\\scriptsize}, label style={font=\\small}, title style={font=\\small}, "
          "unbounded coords=jump, every axis plot/.append style={line width=0.7pt, mark size=1.3pt}, grid=major, grid style={gray!20}]"]
     for i, (pr, t) in enumerate(zip(problems, titles)):
-        L.append(f"\\nextgroupplot[title={{{t}}}" + (", ylabel={$e_n$}" if i == 0 else "") + "]")
+        L.append(f"\\nextgroupplot[title={{{t}}}" + (", ylabel={$\\en$}" if i == 0 else "") + "]")
         for a, c in sty.items():
             L.append(f"\\addplot[color={c}, mark=*, mark options={{solid, fill={c}}}] table[x=p, y=eNN{N}] {{\\tab/p_{pr}_PM_a{a:03d}.dat}};")
             L.append(f"\\addplot[color={c}, mark=square*, dashdotted, mark options={{solid, fill={c}}}] table[x=p, y=eNN{N}] {{\\tab/p_{pr}_PH_a{a:03d}.dat}};")
@@ -439,9 +439,9 @@ def write_figures():
     os.makedirs(GEN, exist_ok=True)
     out = {
         "fig_meshes.tex": fig_meshes(),
-        "fig_h_lame_eN.tex": fig_hconv("lame", "eN", "$e_n$"),
-        "fig_h_smooth_eN.tex": fig_hconv("smooth", "eN", "$e_n$"),
-        "fig_h_poly_eN.tex": fig_hconv("poly", "eN", "$e_n$"),
+        "fig_h_lame_eN.tex": fig_hconv("lame", "eN", "$\\en$"),
+        "fig_h_smooth_eN.tex": fig_hconv("smooth", "eN", "$\\en$"),
+        "fig_h_poly_eN.tex": fig_hconv("poly", "eN", "$\\en$"),
         "fig_h_eE.tex": fig_hconv(None, "eE", "$\\eE$",
                                   alphas=[("smooth", a, "MMS ") for a in (0, 15, 30)] +
                                          [("lame", a, "Lam\\'e ") for a in (0, 15, 30)]),

@@ -128,17 +128,22 @@ def main():
     with open(os.path.join(GEN, "rates.tex"), "w") as f:
         f.write("\n".join(L) + "\n")
 
-    # mesh figure (gmsh meshes)
-    L = ["\\begin{tikzpicture}",
-         "\\begin{groupplot}[group style={group size=5 by 2, horizontal sep=2mm, vertical sep=6mm},"
-         " width=3.6cm, height=3.6cm, axis equal image, hide axis, xmin=-0.03, xmax=2.03, ymin=-1.03, ymax=1.03,"
-         " title style={font=\\scriptsize, yshift=-1ex}]"]
-    for N, t, ttl in [(1, t, f"{MESH[t]}: $\\theta={t}^\\circ$") for t in (0, 90, 135, 175, 225)] + \
-                     [(1, 270, "f: $\\theta=270^\\circ$"), (2, 90, "B, $2\\times2$"), (4, 90, "B, $4\\times4$"),
-                      (2, 135, "C, $2\\times2$"), (4, 135, "C, $4\\times4$")]:
-        L.append(f"\\nextgroupplot[title={{{ttl}}}]")
-        L.append(f"\\addplot[black, line width=0.3pt] table {{../mesh/plotdata/mesh_N{N}_t{t:03d}.dat}};")
-    L += ["\\end{groupplot}", "\\end{tikzpicture}"]
+    # mesh figure (gmsh meshes), full text width: Meshes a-f in 3 x 2 panels,
+    # sequences B and C in a row of 4 panels
+    def meshgroup(cols, rows, w, sep, panels):
+        G = ["\\begin{tikzpicture}",
+             f"\\begin{{groupplot}}[group style={{group size={cols} by {rows}, horizontal sep={sep}\\textwidth,"
+             " vertical sep=7mm}, scale only axis,"
+             f" width={w}\\textwidth, height={w}\\textwidth, hide axis, xmin=-0.03, xmax=2.03, ymin=-1.03, ymax=1.03,"
+             " title style={font=\\small, yshift=-0.5ex}]"]
+        for N, t, ttl in panels:
+            G.append(f"\\nextgroupplot[title={{{ttl}}}]")
+            G.append(f"\\addplot[black, line width=0.4pt] table {{../mesh/plotdata/mesh_N{N}_t{t:03d}.dat}};")
+        return G + ["\\end{groupplot}", "\\end{tikzpicture}"]
+    L = meshgroup(3, 2, 0.3, 0.05, [(1, t, f"Mesh {MESH[t]}: $\\theta={t}^\\circ$") for t in THETAS])
+    L += ["", "\\medskip", ""]
+    L += meshgroup(4, 1, 0.22, 0.04, [(2, 90, "B, $2\\times2$"), (4, 90, "B, $4\\times4$"),
+                                      (2, 135, "C, $2\\times2$"), (4, 135, "C, $4\\times4$")])
     with open(os.path.join(GEN, "fig_meshes.tex"), "w") as f:
         f.write("\n".join(L) + "\n")
     print("tables written to", GEN)

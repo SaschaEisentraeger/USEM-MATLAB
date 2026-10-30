@@ -1,6 +1,6 @@
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=6 by 3, horizontal sep=1.5mm, vertical sep=8mm, yticklabels at=edge left, xticklabels at=edge bottom}, conv, width=3.90cm, height=4.4cm, ymin=1e-15, ymax=1e2]
-\nextgroupplot[title={\PM, $\alpha=0^\circ$}, ylabel={$e_n$}]
+\nextgroupplot[title={\PM, $\alpha=0^\circ$}, ylabel={$\en$}]
 \addplot[pline=2] table[x=h, y=eN2] {\tab/h_smooth_PM_a000.dat};
 \addplot[pline=3] table[x=h, y=eN3] {\tab/h_smooth_PM_a000.dat};
 \addplot[pline=4] table[x=h, y=eN4] {\tab/h_smooth_PM_a000.dat};
@@ -48,7 +48,7 @@
 \addplot[pline=6] table[x=h, y=eN6] {\tab/h_smooth_PM_a090.dat};
 \addplot[pline=7] table[x=h, y=eN7] {\tab/h_smooth_PM_a090.dat};
 \addplot[pline=8] table[x=h, y=eN8] {\tab/h_smooth_PM_a090.dat};
-\nextgroupplot[title={\PH, $\alpha=0^\circ$}, ylabel={$e_n$}]
+\nextgroupplot[title={\PH, $\alpha=0^\circ$}, ylabel={$\en$}]
 \addplot[pline=2] table[x=h, y=eN2] {\tab/h_smooth_PH_a000.dat};
 \addplot[pline=3] table[x=h, y=eN3] {\tab/h_smooth_PH_a000.dat};
 \addplot[pline=4] table[x=h, y=eN4] {\tab/h_smooth_PH_a000.dat};
@@ -96,7 +96,7 @@
 \addplot[pline=6] table[x=h, y=eN6] {\tab/h_smooth_PH_a090.dat};
 \addplot[pline=7] table[x=h, y=eN7] {\tab/h_smooth_PH_a090.dat};
 \addplot[pline=8] table[x=h, y=eN8] {\tab/h_smooth_PH_a090.dat};
-\nextgroupplot[title={\PP, $\alpha=0^\circ$}, ylabel={$e_n$}]
+\nextgroupplot[title={\PP, $\alpha=0^\circ$}, ylabel={$\en$}]
 \addplot[pline=2] table[x=h, y=eN2] {\tab/h_smooth_PP_a000.dat};
 \addplot[pline=3] table[x=h, y=eN3] {\tab/h_smooth_PP_a000.dat};
 \addplot[pline=4] table[x=h, y=eN4] {\tab/h_smooth_PP_a000.dat};

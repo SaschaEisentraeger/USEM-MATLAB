@@ -25,26 +25,26 @@ lists the number of folded elements.
     global stiffness vs \texttt{AssemblyFEM} ($N=2$; $\alpha=0^\circ,60^\circ$; $p=2,4$)
       & $\le1.2\cdot10^{-15}$\\
     pressure load of the ABAQUS file (\texttt{NeumannBCs}/\texttt{CreatePress}) vs
-      $\int N\,\bm\sigma\bm n_h\dd s$ (Lam\'e, $N=1$, $p=2,\dots,8$)
+      $\int\limits_{\Gamma_{\mathrm N}}N\,\bm\sigma\bm n_h\dd s$ (Lam\'e, $N=1$, $p=2,\dots,8$)
       & $2\cdot10^{-3}$ ($p=2$) $\to1.7\cdot10^{-11}$ ($p=8$): geometry error of the arc;
-        resultant $1000=p_ia$ in both\\
+        resultant $1000=p_{\mathrm i}a$ in both\\
     static solution with the code-base pipeline (\texttt{AssemblyFEM},
       \texttt{NeumannBCs}, BCs of the ABAQUS file) vs study routines
       & $\le4.4\cdot10^{-11}$ ($\alpha=0^\circ$), $\le4.0\cdot10^{-7}$ ($\alpha=60^\circ$,
         round-off amplified by the conditioning)\\
     signed area $-2\pi$ ($p=8$, all meshes) & $\le2.0\cdot10^{-14}$\\
-    exact fields (Lam\'e): $\bm b=\bm0$, $\sigma_r(a)=-p_i$, $\sigma_\theta(a)=1250$,
+    exact fields (Lam\'e): $\bm b=\bm0$, $\sigma_r(a)=-p_{\mathrm i}$, $\sigma_\theta(a)=1250$,
       $\sigma_r(b)=0$, $u_r(a)=1.5$ & exact\\
     polynomial patch test, $p\ge5$ (\cref{tab:poly}): \PM, $\alpha\le30^\circ$; \PH, all
       meshes (cases not rejected)
-      & $e_n\le1.5\cdot10^{-8}$ (\PM), $e_n\le1.2\cdot10^{-9}$ (\PH)\\
+      & $\en\le1.5\cdot10^{-8}$ (\PM), $\en\le1.2\cdot10^{-9}$ (\PH)\\
     \bottomrule
   \end{tabular}
 \end{table}
 
 \begin{table}[h]
   \centering\small
-  \caption{Folded elements ($\det\bm J\le0$ somewhere in the element) / number of elements.}
+  \caption{Folded elements ($\det(\bm J)\le0$ somewhere in the element) / number of elements.}
   \label{tab:folded}
   \input{generated/folded}
 \end{table}

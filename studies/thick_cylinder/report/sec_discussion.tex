@@ -12,12 +12,12 @@ $p$:
   conventional element is $3$--$270$ times larger ($N=8$);
 \item strong distortion ($\alpha=30^\circ$ with $p\ge4$, $\alpha\ge45^\circ$) or $p\ge7$: lost. The
   \PM\ error becomes erratic and in several cases larger than that of the conventional element
-  (e.g.\ $\alpha=30^\circ$, $N=8$, $p=4$ and $8$; $\alpha=45^\circ$, $N=8$, $p=7,8$); on folded meshes its convergence
+  (e.g., $\alpha=30^\circ$, $N=8$, $p=4$ and $8$; $\alpha=45^\circ$, $N=8$, $p=7,8$); on folded meshes its convergence
   is erratic for all $p$ (\cref{tab:rates-smooth-N}), and for $p\ge7$ at $\alpha\ge15^\circ$ it stalls at an elevated round-off
   floor.
 \end{itemize}
-The loss is not tied to the sign of $\det\bm J$, the quantity the formulation was
-designed to be insensitive to: it already occurs on meshes with $\det\bm J>0$
+The loss is not tied to the sign of $\det(\bm J)$, the quantity the formulation was
+designed to be insensitive to: it already occurs on meshes with $\det(\bm J)>0$
 ($\alpha=30^\circ$) and correlates with the Lebesgue constant of the metric interpolation
 (\cref{tab:leb}).
 
@@ -33,7 +33,7 @@ can grow under $h$- and $p$-refinement.
 \paragraph{Practical benefit of \PM.}
 Where both properties hold (moderate, non-folding distortion that persists under
 refinement), the benefit over \PP\ is substantial and grows with $p$: optimal order versus
-$\lfloor p/2\rfloor$, i.e.\ an error ratio $O(h^{-\lceil p/2\rceil})$ (a factor $380$ for $p=6$,
+$\lfloor p/2\rfloor$, i.e., an error ratio $O(h^{-\lceil p/2\rceil})$ (a factor $380$ for $p=6$,
 $N=8$, $\alpha=15^\circ$, smooth). It is limited in the situations for which the formulation was
 proposed: on folded meshes \PM\ is not usable at high order; whether a mesh and degree fall into
 the benign regime cannot be inferred from the Jacobian (non-monotone convergence already at
@@ -56,13 +56,13 @@ for the remainder, \PH\
   times more accurate than \PM\ at $\alpha=30^\circ$, $N=8$ (smooth field).
 \end{itemize}
 It does not remove all limits. (a) Its error constant depends on the distortion: the
-amplification $e_n(\alpha)/e_n(0^\circ)$ for the Lam\'e field reaches $88$ at $\alpha=15^\circ$, $p=6$,
+amplification $\en(\alpha)/\en(0^\circ)$ for the Lam\'e field reaches $88$ at $\alpha=15^\circ$, $p=6$,
 and where \PM\ is stable, \PH\ can be less accurate (Lam\'e, $\alpha=15^\circ$, $p\le7$: up to a
 factor $3.7$), because the parametric complement approximates worse than the full $Q_p$ in skew
 coordinates (\cref{sec:interp}). (b) On folded meshes its low-order results ($p=2$ at
 $60^\circ$, $p\le4$ at $90^\circ$) are as unreliable as those of the other elements. (c) Its
 interpolation matrix is singular for some folded elements at $p\ge7$, and its complement
-requires $\det\bm J\ne0$ at the quadrature points. Within these limits \PH\ is the better choice
+requires $\det(\bm J)\ne0$ at the quadrature points. Within these limits \PH\ is the better choice
 than \PM\ on every mesh studied, and than \PP\ on every distorted mesh studied.
 
 \section{Limitations}\label{sec:limitations}
@@ -71,7 +71,7 @@ mid-side nodes), linear plane-stress elasticity, $p\le8$, $N\le8$, double precis
 Lebesgue constants are sampled at $16\times16$ points per element and are therefore lower
 bounds; they are basis independent, the round-off level is not (Lagrange basis on the
 bounding box of the skew coordinates, \cref{sec:elements}). The energy norm is evaluated with
-the signed $\det\bm J$; on folded meshes the nodal error is the only quantity that is defined
+the signed $\det(\bm J)$; on folded meshes the nodal error is the only quantity that is defined
 independently of the element mapping. The mechanism of the stability loss
 (\cref{sec:mechanism}) is characterised numerically, not proven.
 
@@ -86,7 +86,7 @@ cases are recorded as NaN.
 
 {\small
 \begin{tabular}{@{}p{0.5\linewidth}p{0.47\linewidth}@{}}
-\texttt{mesh/gen\_cylinder\_meshes.py} & gmsh model, meshes, ABAQUS files, plot data\\
+\texttt{mesh/gen\_cylinder\_meshes.py} & \texttt{Gmsh} model, meshes, ABAQUS files, plot data\\
 \texttt{matlab/run\_study.m} & main study\\
 \texttt{matlab/run\_interpolation\_study.m} & interpolation errors in the trial spaces\\
 \texttt{matlab/run\_quadrature\_study.m} & quadrature sensitivity\\

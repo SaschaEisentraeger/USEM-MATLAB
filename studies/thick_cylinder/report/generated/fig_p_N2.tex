@@ -1,6 +1,6 @@
 \begin{tikzpicture}
 \begin{groupplot}[group style={group size=2 by 1, horizontal sep=14mm}, width=6.2cm, height=5.2cm, ymode=log, xtick={2,...,8}, xlabel={$p$}, tick label style={font=\scriptsize}, label style={font=\small}, title style={font=\small}, unbounded coords=jump, every axis plot/.append style={line width=0.7pt, mark size=1.3pt}, grid=major, grid style={gray!20}]
-\nextgroupplot[title={Lam\'e, $N=2$}, ylabel={$e_n$}]
+\nextgroupplot[title={Lam\'e, $N=2$}, ylabel={$\en$}]
 \addplot[color=black, mark=*, mark options={solid, fill=black}] table[x=p, y=eNN2] {\tab/p_lame_PM_a000.dat};
 \addplot[color=black, mark=square*, dashdotted, mark options={solid, fill=black}] table[x=p, y=eNN2] {\tab/p_lame_PH_a000.dat};
 \addplot[color=black, mark=o, dashed, mark options={solid}] table[x=p, y=eNN2] {\tab/p_lame_PP_a000.dat};
