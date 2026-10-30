@@ -1,7 +1,8 @@
 function R = ms_timing(pvec, shape)
-%MS_TIMING Run times (median of 7 runs, otherwise idle machine) of the
-%metric shape functions at the (2p)^2 Gauss points and of the element
-%stiffness matrix (manuscript, Sec. 5.8). Writes manuscript/data/timing.dat.
+%MS_TIMING Run times (median of 7 runs after one warm-up run, otherwise idle
+%machine) of the metric shape functions at the (2p)^2 Gauss points and of
+%the element stiffness matrix (manuscript, Sec. 6). Writes
+%manuscript/data/timing.dat. Run with matlab -singleCompThread (one core).
 if nargin < 1, pvec = 2:2:12; end
 if nargin < 2, shape = 'general'; end
 [~, dataDir] = ms_setup();
@@ -35,6 +36,7 @@ R = T;
 end
 
 function t = runTime(fun)
+fun();   % untimed warm-up run (JIT compilation, file caching)
 tt = zeros(7, 1);
 for k = 1:7
     t0 = tic;
