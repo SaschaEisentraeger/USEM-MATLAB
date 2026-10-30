@@ -18,8 +18,7 @@ function R = ms_spectrum(pvec, meshes)
 %     imag    max |Im(lambda)|/|lambda| over the whole spectrum
 %     asym    ||K - K^T||_F/||K||_F of the assembled stiffness
 %   Stiffness and mass matrices are integrated with the calibrated Gauss
-%   rules (ms_rule). Same quantities as studies/metric_basis/
-%   study_hybrid_space.m, which uses the former 2p x 2p rule.
+%   rules (ms_rule).
 %   Writes manuscript/data/spectrum-<mesh>.dat.
 if nargin < 1 || isempty(pvec), pvec = 1:10; end
 if nargin < 2 || isempty(meshes), meshes = {'curved15', 'curved20', 'combined30'}; end
@@ -77,7 +76,7 @@ end
 
 function [lam, lamAll] = lowestEigenvalues(K, M, model, nEig)
 % u = 0 on the boundary; the nEig eigenvalues of smallest modulus and the
-% whole spectrum (as in study_hybrid_space)
+% whole spectrum
 x = model.xCoor; y = model.yCoor;
 tol = 1e-10*max(max(x) - min(x), max(y) - min(y));
 bnd = abs(x - min(x)) < tol | abs(x - max(x)) < tol | ...

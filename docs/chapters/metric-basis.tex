@@ -46,7 +46,7 @@ digit.
 
 \section{Bases}
 
-\code{PolynomialBasis1D(s, n, basis, ndist)} provides, for the polynomial
+\code{PolynomialBasis1D(s, n, basis)} provides, for the polynomial
 degree $p$ (argument \code{n}), with values and first derivatives,
 \begin{center}
   \begin{tabularx}{\linewidth}{@{}lL@{}}
@@ -57,7 +57,7 @@ degree $p$ (argument \code{n}), with values and first derivatives,
     \code{'legendre'} & Legendre polynomials $L_a(s)$, three-term recurrence \\
     \code{'chebyshev'} & Chebyshev polynomials $T_a(s)$, three-term recurrence \\
     \code{'lagrange'} & Lagrange polynomials $\ell_a(s)$ through the 1D reference
-      nodes \code{nodal_distribution(n, ndist)}, product formula (no division by
+      nodes \code{nodal_distribution(n)}, product formula (no division by
       the differences $s-s_m$ to the nodes $s_m$, so query points may coincide
       with nodes) \\
     \bottomrule
@@ -167,9 +167,8 @@ $\matr J^{-1}$ (error \code{ShapeFunctions2D_Metric:singularJacobian}).
 \code{p.metricMethod=2} or for a single call with
 \code{ShapeFunctions2D_Metric(..., p, 2, xiQ)}. The parametric coordinates of the
 nodes are the reference nodes (\code{ReferenceNodes2D}). Those of the query points
-are passed by the callers, which evaluate at mapped quadrature or sampling points;
-otherwise they are computed by Newton's method (\code{Global2LocalNewton}). The
-gradients of $\mathcal P_m(\tilde s,\tilde t)$ follow from the constant matrix
+are passed by the callers, which evaluate at mapped quadrature or sampling points.
+The gradients of $\mathcal P_m(\tilde s,\tilde t)$ follow from the constant matrix
 $\matr J_0^{-1}$ of the skew coordinates, those of the complement from the Jacobian
 at the query point, $\nabla_{\vect x}\phi=\matr J^{-1}\nabla_{\xi}\phi$.
 

@@ -13,9 +13,8 @@ the four internal edges of every super-element are rotated counter-
 clockwise about the centre node of the super-element by the angle alpha.
 The boundary of the domain is not changed.
 
-For every (N, alpha) an ABAQUS input file is written that can be used with
-code/Start_Sim.m directly (corner nodes numbered first, as required by
-pSpectralElement_NodesTopology). The file contains
+For every (N, alpha) an ABAQUS input file is written (corner nodes numbered
+first, as required by pSpectralElement_NodesTopology). The file contains
   * node and element sets Set-XSYM (x = 0), Set-YSYM (y = 0),
     Set-OUTER (r = b) and Pressure (r = a),
   * symmetry boundary conditions (Set-XSYM: u_x = 0, Set-YSYM: u_y = 0),

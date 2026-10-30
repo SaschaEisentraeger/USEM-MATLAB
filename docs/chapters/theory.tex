@@ -22,9 +22,8 @@ the stress and strain vectors, $\vect b$ is the body force per unit volume and
 $\matr L$ is the differential operator, with prescribed displacements
 $\bar{\vect u}$ on the Dirichlet boundary $\Gamma_\mathrm{u}$ and prescribed
 tractions $\bar{\vect t}$ on the Neumann boundary $\Gamma_\mathrm{t}$. $\matr C$ is
-the $3\times3$ plane stress or plane strain matrix (\code{HookeMatrix2d}), or the
-plane stress matrix condensed from the three-dimensional Hooke matrix
-(\code{PlaneStressConstitutiveMatrices}).
+the $3\times3$ plane stress matrix (\code{HookeMatrix2d}, or condensed from the
+three-dimensional Hooke matrix with \code{PlaneStressConstitutiveMatrices}).
 
 \section{Petrov-Galerkin weak form}
 
@@ -96,19 +95,8 @@ element edges; continuity is provided by the test functions.
 \section{Parametric (test) shape functions}
 
 \code{ShapeFunctions2D_SEM(xi, eta, p)} builds products of one-dimensional
-Lagrange polynomials through $p+1$ nodes in each direction. The node
-distribution is selected with \code{p.ndist} (\code{nodal_distribution.m}):
-\begin{center}
-  \begin{tabular}{@{}cl@{}}
-    \toprule
-    \code{ndist} & nodes \\
-    \midrule
-    1 & equidistant \\
-    2 & Gauss-Lobatto-Legendre (GLL), used in all studies of the paper \\
-    3 & Gauss-Lobatto-Chebyshev (GLC) \\
-    \bottomrule
-  \end{tabular}
-\end{center}
+Lagrange polynomials through $p+1$ Gauss-Lobatto-Legendre (GLL) nodes in each
+direction (\code{nodal_distribution.m}).
 
 \paragraph{Geometry.} The element geometry is described with the same degree-$p$
 shape functions as the displacements. The positions of the element
@@ -179,8 +167,8 @@ Properties (all covered by \code{tests/unit/MetricShapeFunctionsTest.m}):
   \item \textbf{Unisolvence.} The interpolation conditions can be singular for
     special node positions on strongly distorted elements, e.g.\ when two nodes
     coincide \parencite{Ooi2008Remedies}. The code stops with an error in this
-    case (\code{CheckCoincidentNodes}, \code{CheckUnisolvent}), and the studies
-    report such elements as rejected.
+    case (\code{CheckUnisolvent}), and the studies report such elements as
+    rejected.
 \end{itemize}
 
 \code{method=2} (\code{p.metricMethod=2}) uses the hybrid space instead of

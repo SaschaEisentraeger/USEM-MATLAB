@@ -19,7 +19,6 @@ CYL_RAW = os.path.join(CYL, "raw_calibrated")
 DATA = os.path.join(HERE, "..", "data")
 GEN = os.path.join(HERE, "..", "generated")
 FORMS = ("PM", "PH", "PP")
-NAME = {"PM": "$Q_p(\\hat x,\\hat y)$", "PH": "$T_p$ (hybrid)", "PP": "parametric"}
 
 
 def sci(v, nd=1):

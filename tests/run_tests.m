@@ -4,11 +4,6 @@ function results = run_tests(varargin)
 %   results = run_tests()                   unit and integration tests
 %   results = run_tests('unit')             only tests/unit
 %   results = run_tests('integration')      only tests/integration
-%   results = run_tests(..., 'KnownIssues', true)
-%                                           also run tests tagged
-%                                           'KnownIssue' (expected to fail
-%                                           until the bugs listed in
-%                                           docs/chapters/known-issues.tex are fixed)
 %   results = run_tests(..., 'Coverage', true)
 %                                           write a Cobertura coverage
 %                                           report for code/subroutines
@@ -22,11 +17,9 @@ import matlab.unittest.TestRunner
 import matlab.unittest.plugins.XMLPlugin
 import matlab.unittest.plugins.CodeCoveragePlugin
 import matlab.unittest.plugins.codecoverage.CoberturaFormat
-import matlab.unittest.selectors.HasTag
 
 ip = inputParser;
 ip.addOptional('scope', 'all', @(s) any(strcmpi(s, {'all', 'unit', 'integration'})));
-ip.addParameter('KnownIssues', false, @islogical);
 ip.addParameter('Coverage', false, @islogical);
 ip.parse(varargin{:});
 opt = ip.Results;
@@ -46,9 +39,6 @@ switch lower(opt.scope)
     otherwise
         suite = [TestSuite.fromFolder(fullfile(testDir, 'unit')), ...
                  TestSuite.fromFolder(fullfile(testDir, 'integration'))];
-end
-if ~opt.KnownIssues
-    suite = suite.selectIf(~HasTag('KnownIssue'));
 end
 
 runner = TestRunner.withTextOutput;

@@ -90,8 +90,8 @@ for i = 1:numel(pvec)
         fprintf('%s p=%2d %s: nG = %3d  conv = %d  dev(2p) = %8.1e  tol = %8.1e  rej = %d  (%.0f s)\n', ...
                 family, p, forms{f}, nG, conv, d2p, tl, rej, toc(t0));
     end
-    ms_write_table(fullfile(outDir, [family '.dat']), T);
 end
+ms_write_table(fullfile(outDir, [family '.dat']), T);
 end
 
 function S = meshElements(model, ids)

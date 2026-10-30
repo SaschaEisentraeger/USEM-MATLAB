@@ -1,6 +1,5 @@
 classdef ElementMatricesTest < matlab.unittest.TestCase
-    %ELEMENTMATRICESTEST Unsymmetric element stiffness and mass matrices
-    %(Ke_2D, Me_2D, KMe_2D) and the lumping schemes.
+    %ELEMENTMATRICESTEST Unsymmetric element stiffness matrix (Ke_2D).
 
     properties (TestParameter)
         p = {1, 2, 3, 4};

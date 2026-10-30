@@ -44,13 +44,11 @@ vectorized form \code{cyl_Ke_PM}) from the shape functions, and solve with
     (barycentric form) as function handles; with the helpers
     \code{LagrangeBarycentric}, \code{LagrangeBarycentricDerivative},
     \code{LagrangeNodePolynomial}, \code{LagrangeNodeDerivative} \\
-  \code{ShapeFunctions/1D/ShapeFunctions1D_SEM(p, xi, ndist)} & 1D shape
+  \code{ShapeFunctions/1D/ShapeFunctions1D_SEM(p, xi)} & 1D shape
     functions, order \code{[xi=-1, xi=+1, interior]} \\
-  \code{ShapeFunctions/1D/PolynomialBasis1D(s, n, basis, ndist)} & 1D bases
+  \code{ShapeFunctions/1D/PolynomialBasis1D(s, n, basis)} & 1D bases
     (monomial, Legendre, Chebyshev, Lagrange on the reference nodes) and their
     derivatives, vectorized \\
-  \code{GeometryMapping/Global2LocalNewton(xQ, yQ, xN, yN, p)} & inverse mapping
-    $\vect x\mapsto(\xi,\eta)$ by Newton's method, vectorized \\
   \code{GeometryMapping/Jacobi_Matrix(p, [xi, eta], x, y)} &
     $\matr J = [x_{,\xi}\ y_{,\xi};\ x_{,\eta}\ y_{,\eta}]$ \\
   \code{GeometryMapping/Local2GlobalCoordinatesQuad(p, P, [x, y])} &
@@ -59,8 +57,8 @@ vectorized form \code{cyl_Ke_PM}) from the shape functions, and solve with
     (G.~von Winckel) \\
   \code{Quadrature/lglnodes(N)} & $N+1$ Gauss-Lobatto-Legendre points and
     weights (G.~von Winckel) \\
-  \code{NodalDistribution/nodal_distribution(p, ndist)} & supporting points on
-    $[-1,1]$ (\code{equispaced_nodes}, \code{lglnodes}, \code{cgl_nodes}) \\
+  \code{NodalDistribution/nodal_distribution(p)} & GLL supporting points on
+    $[-1,1]$ \\
   \bottomrule
 \end{xltabular}
 
@@ -77,7 +75,6 @@ vectorized form \code{cyl_Ke_PM}) from the shape functions, and solve with
     edge and interior nodes of degree $p$ from the 4-node ($p_\mathrm{org}=1$) or
     8-node ($p_\mathrm{org}=2$) mesh; shared edges get the same nodes, in flipped
     order for opposite orientation \\
-  \code{Topology/CheckCoincidentNodes} & error if an element has coincident nodes \\
   \code{Topology/Topology_Edge_2D(T)} & global edge numbers \texttt{[nElem x 4]}
     (edges 1-2, 2-3, 3-4, 4-1) \\
   \code{Topology/ConnectivityEdgeElement(TE)} & elements and local edge numbers of
@@ -96,8 +93,7 @@ vectorized form \code{cyl_Ke_PM}) from the shape functions, and solve with
   \code{Material/HookeMatrix3d(E, nu)} & isotropic $6\times6$ stiffness \\
   \code{Material/PlaneStressConstitutiveMatrices(C)} & static condensation of
     $\sigma_{33}=0$, $3\times3$ matrix \\
-  \code{Material/HookeMatrix2d(E, nu, antype)} & closed-form $3\times3$ matrices
-    (1 plane stress, 2 plane strain) \\
+  \code{Material/HookeMatrix2d(E, nu)} & closed-form plane stress $3\times3$ matrix \\
   \bottomrule
 \end{xltabular}
 

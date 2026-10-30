@@ -32,7 +32,7 @@ failed test as an annotation on the run page. Every test class puts
     polynomials of degree $2n-1$ exactly; interval mapping; symmetry \\
   \code{NodalDistributionTest} & node distributions: ascending, symmetric,
     endpoints; the interior GLL nodes are the roots of $L_p'$, the derivative of
-    the Legendre polynomial of degree $p$; GLC nodes are Chebyshev extrema \\
+    the Legendre polynomial of degree $p$ \\
   \code{ShapeFunctionsTest} & 1D/2D Lagrange functions: Kronecker property,
     partition of unity, reproduction of polynomials and their derivatives,
     anisotropic degrees; bilinear and Serendipity functions \\
@@ -42,12 +42,11 @@ failed test as an annotation on the run page. Every test class puts
     invariance (rotation, translation, scaling); skew coordinates \\
   \code{MetricHybridTest} & hybrid trial space (\code{method = 2}): Kronecker
     property, completeness in $(x,y)$ with gradients, finite-difference
-    derivatives, frame invariance, Newton inversion when no local coordinates are
-    given, equality with the parametric functions (and the classical $\matr K_e$) on
-    straight-edged elements, unsymmetry on curved ones, Lebesgue constant $<7$ at
-    $p=12$; element stiffness: rigid-body modes, rank $n_\mathrm{dof}-3$
-    ($n_\mathrm{dof}$: number of DOFs of the element);
-    \code{ReferenceNodes2D}, \code{Global2LocalNewton} \\
+    derivatives, frame invariance, equality with the parametric functions (and the
+    classical $\matr K_e$) on straight-edged elements, unsymmetry on curved ones,
+    Lebesgue constant $<7$ at $p=12$; element stiffness: rigid-body modes, rank
+    $n_\mathrm{dof}-3$ ($n_\mathrm{dof}$: number of DOFs of the element);
+    \code{ReferenceNodes2D} \\
   \code{MetricBasisTest} & bases of the metric Vandermonde matrix: derivatives,
     span, closed-form values, Lagrange basis equals the parametric 1D functions;
     metric functions independent of the basis and frame invariant for every basis;
@@ -63,8 +62,7 @@ failed test as an annotation on the run page. Every test class puts
     unsymmetry on distorted elements, constant-strain energy, rotation
     invariance $\matr K' = \matr T\matr K\matr T^{\T}$ \\
   \code{TopologyTest} & DOF and edge connectivity, number and position of the
-    high-order nodes on distorted 4- and 8-node meshes, corner node numbering,
-    rejection of coincident nodes \\
+    high-order nodes on distorted 4- and 8-node meshes, corner node numbering \\
   \code{CodeHygieneTest} & every file in \code{code/} has help text, no two files
     have the same name (one would shadow the other on the path), one function per
     file \\
@@ -96,7 +94,7 @@ other loads act.
   \midrule
   \endhead
   \code{PatchTest} & displacement patch tests on regular, angular, curved and
-    combined distorted meshes for $p = 1,\dots,4$, plane stress and plane strain:
+    combined distorted meshes for $p = 1,\dots,4$ (plane stress):
     linear fields, all harmonic fields $(\operatorname{Re}(z^k), -\operatorname{Im}
     (z^k))$ with $z=x+\mathrm{i}\,y$ and $k\le p$, and pure bending are reproduced to machine precision.
     Control experiment: the classical symmetric element fails on the same curved

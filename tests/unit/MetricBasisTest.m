@@ -6,7 +6,7 @@ classdef MetricBasisTest < matlab.unittest.TestCase
     %   All bases span Q_p in skew coordinates, so the metric shape
     %   functions must not depend on the basis; the bases differ only in
     %   the conditioning of the Vandermonde matrix
-    %   (docs/chapters/metric-basis.tex, studies/metric_basis).
+    %   (docs/chapters/metric-basis.tex).
 
     properties (TestParameter)
         basis = {'monomial', 'legendre', 'chebyshev', 'lagrange'};
