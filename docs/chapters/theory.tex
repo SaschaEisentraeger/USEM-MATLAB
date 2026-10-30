@@ -109,15 +109,20 @@ distribution is selected with \code{p.ndist} (\code{nodal_distribution.m}):
   \end{tabular}
 \end{center}
 
-\paragraph{Geometry.} The element geometry is described isoparametrically,
-i.e.\ with the same degree-$p$ shape functions. The positions of the element
+\paragraph{Geometry.} The element geometry is described with the same degree-$p$
+shape functions as the displacements. The positions of the element
 nodes, however, are computed from the 4-node (bilinear) or 8-node (Serendipity)
 element of the input mesh (\code{pSpectralElement_NodesTopology}): every node is
 placed at the image of its reference coordinates under the bilinear or
-Serendipity map of the input element. The degree-$p$ isoparametric map
+Serendipity map of the input element. The degree-$p$ map
 interpolates this map exactly, so all its higher-order terms vanish and the
 geometry is the bilinear or Serendipity geometry of the input mesh, whatever $p$
 is: edges are straight (4-node input) or parabolic (8-node input, $p\ge2$).
+The elements are therefore subparametric for $p>2$, and increasing $p$ improves
+the approximation of the displacements, but not that of the geometry. This is a
+limitation of the code base: isoparametric elements would require the nodes to
+be placed on the exact geometry (e.g., by Gordon-Hall blending of exact boundary
+curves, as done outside the code base in \code{studies/thick_cylinder}).
 Curved boundaries are therefore represented only as accurately as by the input
 mesh; a degree-$p$ geometry would require an input mesh of degree $p$.
 
@@ -189,7 +194,7 @@ Properties (all covered by \code{tests/unit/MetricShapeFunctionsTest.m}):
 \subsection*{Singular interpolation matrices}
 \label{sec:node-shift}
 
-On strongly distorted elements, the isoparametric map of the input element can
+On strongly distorted elements, the geometry map of the input element can
 place two element nodes onto each other, or the nodes can take a position in
 which the polynomials of the trial space cannot interpolate arbitrary nodal
 values (the generalized Vandermonde matrix is singular). By default the code

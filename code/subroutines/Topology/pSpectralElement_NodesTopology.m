@@ -6,10 +6,15 @@
 % New nodal coordinates and a new topology for higher order spectral
 % elements is generated from the original linear/quadratic discretization. 
 %
-% All new nodes are placed isoparametrically, i.e. at the images of the
-% reference nodes under the geometry map of the original element (bilinear
-% for 4-node, serendipity for 8-node elements). The degree-p geometry
-% therefore reproduces the original element geometry exactly. For strongly
+% All new nodes are placed at the images of the reference nodes under the
+% geometry map of the original element (bilinear for 4-node, Serendipity
+% for 8-node elements). The degree-p geometry is therefore that of the
+% input mesh for every p: the elements are subparametric for p > 2 and the
+% geometry description does not improve with p. Curved boundaries are only
+% as accurate as in the input mesh; to obtain isoparametric elements, the
+% new nodes would have to be placed on the exact geometry, which is not
+% done here (see studies/thick_cylinder/matlab/cyl_model.m for a
+% Gordon-Hall correction of circular boundary edges). For strongly
 % distorted 8-node elements this map can send an interior node onto an edge
 % node of the same element; such a mesh cannot be represented by distinct
 % nodes and an error is raised (identifier

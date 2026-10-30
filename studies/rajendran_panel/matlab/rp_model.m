@@ -3,8 +3,11 @@ function model = rp_model(inpFile, pdeg, center)
 %   center = 'serendipity' : code base (usemReadAbaqus ->
 %                            pSpectralElement_NodesTopology): all nodes at
 %                            the images of the reference nodes under the
-%                            8-node (serendipity) map, i.e. the exact
-%                            isoparametric representation of the 8-node mesh.
+%                            8-node (Serendipity) map, i.e., the geometry of
+%                            the 8-node mesh for every p (subparametric for
+%                            p > 2; exact here, since the panel boundary is
+%                            straight and the curved internal edges define
+%                            the test).
 %                            Stops (coincidentNodes) if an interior node
 %                            falls onto an edge node (e.g. Mesh b, even p).
 %          | 'bilinear'    : a different geometry: edge nodes on the

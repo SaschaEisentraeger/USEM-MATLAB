@@ -17,7 +17,10 @@ open \code{KnownIssue} tests.
     corner nodes must be numbered first. Violations of the last three raise errors
     instead of producing wrong data or endless loops (\cref{ch:input}).
   \item \textbf{Geometry.} The element geometry is that of the 4-node or 8-node
-    input mesh, whatever the polynomial degree (\cref{ch:theory}).
+    input mesh, whatever the polynomial degree: the elements are subparametric for
+    $p>2$, and curved boundaries do not become more accurate under
+    $p$-refinement. Placing the nodes on the exact geometry is not implemented
+    (\cref{ch:theory}).
   \item \textbf{Numerical integration.} $2p$ Gauss points per direction do not
     integrate the element matrices of curved elements exactly
     (\cref{sec:quadrature}); the patch tests are not affected.
