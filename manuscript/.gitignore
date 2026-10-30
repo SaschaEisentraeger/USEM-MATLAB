@@ -8,7 +8,7 @@
 *.out
 *.spl
 *.synctex.gz
-main.pdf
+Unsymmetric Spectral Elements with Hybrid Trial Space.pdf
 # study logs
 studies/logs/
 # template logo (the root .gitignore excludes *.pdf)

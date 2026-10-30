@@ -95,8 +95,8 @@ integrators. GitHub Actions runs it on every push.
 
 ## Manuscript
 
-`manuscript/`: draft paper on well-conditioned bases and the hybrid metric–parametric trial
-space of the metric shape functions (LaTeX, `latexmk -pdf main.tex`); the scripts that produce
+`manuscript/`: draft paper on well-conditioned bases and the hybrid metric-parametric trial
+space of the metric shape functions (LaTeX, `latexmk -pdf "Unsymmetric Spectral Elements with Hybrid Trial Space.tex"`); the scripts that produce
 all numbers and figures are in `manuscript/studies/`, the data in `manuscript/data/`.
 
 ## Repository layout
