@@ -12,7 +12,6 @@
 The single test elements are defined by 4- or 8-node input elements (corner nodes counter-clockwise, followed by the mid-side nodes of the edges 1--2, 2--3, 3--4 and 4--1) and lifted to degree $p$ by isoparametric interpolation of the input geometry:
 \begin{center}
   \small
-  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}ll@{}}
     \toprule
     element & nodes $(x,y)$ \\
@@ -23,6 +22,5 @@ The single test elements are defined by 4- or 8-node input elements (corner node
     general & $(0,0)$, $(2,0.1)$, $(1.5,1.2)$, $(0.2,1)$; $(1.1,-0.15)$, $(1.9,0.6)$, $(0.8,1.25)$, $(0.05,0.5)$ \\
     \bottomrule
   \end{tabular}
-  \end{adjustbox}
 \end{center}
 The meshes of \cref{sec:num-convergence} consist of $N\times N$ 8-node elements on the unit square whose interior mid-side nodes are moved normal to their edge by $\delta h$ with $h=1/N$, so that the relative sagitta of every interior edge is $\delta$. The normal is oriented consistently, so that all interior horizontal edges bow in the $-y$-direction and all interior vertical edges in the $-x$-direction. The $3\times2$ meshes of \cref{sec:num-patch,sec:num-spectra} on $[0,3]\times[0,2]$ use the same curved-edge distortion with $\delta=0.15$ and $0.20$ (with $h=1$). For the mesh denoted by \emph{angular + curved $0.30$}, the interior corner nodes are first shifted alternately by $\pm0.3$ in the $x$-direction, before the curved-edge distortion with $\delta=0.15$ is applied.

@@ -126,7 +126,6 @@ On all distorted elements, $\Lam_Q$ grows exponentially with $p$: on the trapezo
   \centering\small
   \caption{Deviation of the metric shape functions from the parametric ones ($d_N$) and of $\matr K_K$ from the stiffness matrix of the conventional element ($d_K$).}
   \label{tab:deviation}
-  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}llcccccc@{}}
     \toprule
     & & \multicolumn{2}{c}{trapezoid} & \multicolumn{2}{c}{curved} & \multicolumn{2}{c}{general} \\
@@ -143,7 +142,6 @@ On all distorted elements, $\Lam_Q$ grows exponentially with $p$: on the trapezo
      & \PH & $7.8\cdot10^{-13}$ & $5.6\cdot10^{-13}$ & $5.5\cdot10^{-3}$ & $2.2\cdot10^{-3}$ & $5.0\cdot10^{-2}$ & $9.8\cdot10^{-3}$ \\
     \bottomrule
   \end{tabular}
-  \end{adjustbox}
 \end{table}
 %
 \subsection{Patch tests}
@@ -156,7 +154,7 @@ Three $3\times2$ meshes on $[0,3]\times[0,2]$ are considered, two with curved in
   \centering\small
   \caption{Patch test of degree $p$ on the distorted $3\times2$ meshes: largest relative nodal error.}
   \label{tab:patch}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/patch}\end{adjustbox}
+  \input{generated/patch}
 \end{table}
 % data: generated/patch.tex
 
@@ -166,7 +164,7 @@ The nodal rotation patch test of Rajendran~\cite[Sects.~5.5--5.7]{Rajendran2010t
   \centering\small
   \caption{Patch tests on the folded panel meshes of Rajendran~\cite{Rajendran2010technique} ($2\times2$ elements, interior mid-side nodes rotated by $\theta$): largest relative nodal error over the tension, bending and shear load cases.}
   \label{tab:panel}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/panel}\end{adjustbox}
+  \input{generated/panel}
 \end{table}
 % data: generated/panel.tex
 %
@@ -186,12 +184,10 @@ The unit square is discretized by $N\times N$ elements, $N=2,4,8,16$, whose inte
   \centering\small
   \caption{Observed energy-norm rates $r_{N,2N}=\log_2(e_E^N/e_E^{2N})$ and error on the finest mesh. Optimal rate: $p$.}
   \label{tab:rates}
-  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}c@{}}
     $\delta=0.1$\\[2pt] \input{generated/rates-d010}\\[8pt]
     $\delta=0.2$\\[2pt] \input{generated/rates-d020}
   \end{tabular}
-  \end{adjustbox}
 \end{table}
 % data: generated/rates-d010.tex, generated/rates-d020.tex, data/conv-d0*.dat
 
@@ -213,7 +209,7 @@ For the three $3\times2$ meshes of \cref{sec:num-patch} with $\vect u=\vect0$ on
   \centering\small
   \caption{Spectrum of $(\matr K,\matr M)$ on the distorted $3\times2$ meshes: number of eigenvalues with $\operatorname{Re}\lambda<0$ / $\max|\operatorname{Im}\lambda|/|\lambda|$. \PP\ has a real positive spectrum in all cases.}
   \label{tab:spectrum}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/spectrum}\end{adjustbox}
+  \input{generated/spectrum}
 \end{table}
 % data: generated/spectrum.tex
 
@@ -231,7 +227,7 @@ For the free vibration $\matr M\ddot{\vect u}+\matr K\vect u=\vect 0$, the sign 
   \centering\small
   \caption{Largest growth exponent per fundamental period of the semi-discrete free vibration ($\mu$) and of the trapezoidal rule with $\Delta t=T_1/20$ ($\mu_\Delta$) on the distorted $3\times2$ meshes. \PP: $\mu=0$ and $\mu_\Delta<10^{-14}$ in all cases.}
   \label{tab:growth}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/growth}\end{adjustbox}
+  \input{generated/growth}
 \end{table}
 % data: generated/growth.tex
 
@@ -253,7 +249,6 @@ Run times of the reference implementation (GNU Octave~8.4, one core, median of s
   \centering\small
   \caption{Run times in seconds: metric shape functions and their gradients at the $(2p)^2$ Gauss points (SF) and element stiffness matrix ($\matr K_K$), general element.}
   \label{tab:timing}
-  \begin{adjustbox}{max width=\linewidth}
   \begin{tabular}{@{}rccccccc@{}}
     \toprule
     & \multicolumn{3}{c}{SF} & \multicolumn{4}{c}{$\matr K_K$} \\
@@ -265,7 +260,6 @@ Run times of the reference implementation (GNU Octave~8.4, one core, median of s
     12 & 0.097 & 0.123 & 3.50 & 16.4 & 17.0 & 17.2 & 20.4 \\
     \bottomrule
   \end{tabular}
-  \end{adjustbox}
 \end{table}
 %
 \subsection{Thick cylinder}
@@ -286,7 +280,7 @@ As a last example, we use the thick cylinder under internal pressure of Rajendra
   \centering\small
   \caption{Thick cylinder, polynomial field of degree 5: largest relative nodal error over $N=1,\dots,8$ and $p=5,\dots,8$; in parentheses the number of rejected cases.}
   \label{tab:cylpoly}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_cylpoly}\end{adjustbox}
+  \input{generated/tab_cylpoly}
 \end{table}
 % data: generated/tab_cylpoly.tex
 
@@ -304,14 +298,14 @@ The energy-norm errors of the analytic and of the Lam\'e field at $\alpha=30^\ci
   \centering\small
   \caption{Thick cylinder: observed rates of $\eE$ between $N=4$ and $N=8$ (optimal: $p$); --: error at round-off level.}
   \label{tab:cylrates}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_rates}\end{adjustbox}
+  \input{generated/tab_rates}
 \end{table}
 
 \begin{table}[htbp]
   \centering\small
   \caption{Thick cylinder (Lam\'e solution), $N=8$: error $e$ (energy norm $\eE$ for $\alpha\le30^\circ$, largest relative nodal error $e_n$ for the folded meshes $\alpha\ge45^\circ$, marked $^\ast$), observed rate $r=\log_2(e^{N=4}/e^{N=8})$ and largest element Lebesgue constant $\Lam$ of the metric interpolation. --: element rejected. On the folded meshes, the values of \PP\ and \PH\ depend on the quadrature rule (reference rule, \cref{sec:num-quadrature}).}
   \label{tab:cylinder}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/cyl-lame}\end{adjustbox}
+  \input{generated/cyl-lame}
 \end{table}
 % data: generated/tab_rates.tex, generated/cyl-lame.tex, data/cyl_h_*.dat
 
@@ -321,7 +315,7 @@ In order to separate stability from approximation in the sense of \cref{eq:quasi
   \centering\small
   \caption{Thick cylinder, $N=8$: energy-norm error of the discrete solution divided by the energy-norm error of the interpolant of the exact field in the same trial space.}
   \label{tab:quasiopt}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_quasiopt}\end{adjustbox}
+  \input{generated/tab_quasiopt}
 \end{table}
 % data: generated/tab_quasiopt.tex
 
@@ -331,7 +325,7 @@ In order to separate stability from approximation in the sense of \cref{eq:quasi
   \centering\small
   \caption{Thick cylinder, $N=8$: Lebesgue constant $\Lam$ ($16\times16$ sample points per element, a lower bound) and condition number $\cond_2(\matr V)$ of the interpolation matrix, largest value over the elements.}
   \label{tab:cyllebesgue}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_lebesgue}\end{adjustbox}
+  \input{generated/tab_lebesgue}
 \end{table}
 % data: generated/tab_lebesgue.tex
 
@@ -349,6 +343,6 @@ In order to separate stability from approximation in the sense of \cref{eq:quasi
   \centering\small
   \caption{Unisolvence of the hybrid space on the thick-cylinder meshes: smallest value over the elements of $\mathrm{rcond}$ of $\matr V_T$, of $\matr S$ (\cref{prop:factor}) and of the Vandermonde matrix $\matr V_Q$ of $\Qsk$; number of elements with $\mathrm{rcond}(\matr V_T)<\varepsilon_{\mathrm{mach}}$.}
   \label{tab:unisolvence}
-  \begin{adjustbox}{max width=\linewidth}\input{generated/tab_unisolvence}\end{adjustbox}
+  \input{generated/tab_unisolvence}
 \end{table}
 % data: generated/tab_unisolvence.tex
