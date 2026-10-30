@@ -11,3 +11,9 @@ README.md  text eol=lf
 *.pdf      binary
 *.nb       binary
 *.png      binary
+
+# GitHub language statistics: .m is MATLAB (not Objective-C or Mathematica),
+# and the single Mathematica derivation notebook (~1 MB, as large as all .m
+# files together) is supporting material, not part of the code base.
+*.m        linguist-language=MATLAB
+*.nb       linguist-detectable=false
