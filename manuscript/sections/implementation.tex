@@ -4,7 +4,7 @@
 Both improvements are local to the routine that evaluates the metric shape functions at a set of query points. Assembly, loads, boundary conditions and solvers remain unchanged. \Cref{alg:metric} summarizes the evaluation for one element. Here, the query points are passed with their reference coordinates, which are known to the element routines, e.g., as quadrature or plotting points.
 
 \begin{algorithm}[htbp]
-\caption{Metric shape functions of one element at the query points $\bxi_r$ (\PM: trial space $\Qsk$, Lagrange basis; \PH: hybrid trial space $\Tp_p$).}
+\caption{Metric shape functions of one element at the query points $\bxi_r$ (\PM: trial space $\Qsk$, Lagrange basis; \PH: hybrid trial space $\Tp_p$). Here, $\varepsilon_{\mathrm{mach}}\approx2.2\cdot10^{-16}$ denotes the machine epsilon of double precision.}
 \label{alg:metric}
 \begin{algorithmic}[1]
 \Require nodes $\bx_j$, reference nodes $\bxi_j$, query points $\bxi_r$, $\bx_r=\bx_K(\bxi_r)$

@@ -71,7 +71,7 @@ displacements scale with $1/E$.
 lists of the paper (Fig.~8 and Sec.~5.6) except for the moment case of Fig.~8, where the
 paper lists $-250$, $-500$ at nodes 8, 9 (and $250$, $500$ at nodes 14, 13); the consistent,
 antisymmetric values are $-500$, $-250$ (and $500$, $250$). The listed values would give a
-moment of $1125$ instead of $1000$; since the paper's PM results equal the exact $1.5$, the
+moment of $1125$ instead of $1000$; since the paper's PM9 results equal the exact $1.5$, the
 consistent values were evidently used.
 
 \paragraph{Elements.} With $p=2$ (9 nodes):
@@ -124,7 +124,7 @@ PM9 passes the constant and the linear strain patch tests on all meshes, as in t
 (\cref{tab:tension,tab:moment}); for the quadratic-strain (cubic displacement) shear test, which
 lies outside $Q_2$, its results are within $1.7\,\%$ of the exact value on all meshes
 (\cref{tab:shear}). All PP9 and MM9 values for moment and shear coincide with the paper to four
-digits. The metric functions of the code base (skew coordinates) give the same results for the
+digits, except for the entries marked $^\ast$. The metric functions of the code base (skew coordinates) give the same results for the
 constant and linear strain tests and comparable ones for the shear test ($3.15$--$3.41$). \PH\
 ($p=2$, corner centroid) passes the constant and linear strain tests on all meshes as well, since
 $P_2(\bx)$ is contained in its trial space; for the shear test it is less accurate than PM9
@@ -147,7 +147,7 @@ $P_2(\bx)$ is contained in its trial space; for the shear test it is less accura
 \end{table}
 The displacements of sequence A and of PP9 and MM9 for B and C agree with the paper. PM9 on
 sequence B yields the values the paper lists for sequence C and vice versa (\cref{sec:paper}).
-PM9 converges with the optimal rate $2$ on the folded meshes of B and C, as reported in the paper,
+PM9 converges with the optimal rate $2$ on the folded meshes of B and C (\cref{tab:rates}), as reported in the paper,
 and so do \PM\ in skew coordinates ($2.02$, $2.13$) and \PH\ ($2.02$, $2.21$); PP9 does not ($0.70$,
 $2.50$ from a negative displacement at $1\times1$). For $p=3$ both unsymmetric elements reproduce
 the field on all meshes (error at round-off level, ``--''), whereas \PP\ ($p=3$) still has
@@ -174,7 +174,7 @@ the distorted meshes for all $p$.
 
 \section{Node placement of the code base}\label{sec:code}
 \texttt{pSpectralElement\_NodesTopology} places all new nodes with the geometry map of the
-original element, i.e., at the images of the GLL points under the bilinear map of a 4-node or
+original element, i.e., at the images of the Gauss-Lobatto-Legendre points under the bilinear map of a 4-node or
 the quadratic map of an 8-node (Serendipity) element. The degree-$p$ element therefore keeps the
 geometry of the input mesh for every $p$: the elements are subparametric for $p>2$, and the
 higher-order terms of an isoparametric geometry description are never used. Increasing $p$ thus
@@ -207,7 +207,7 @@ conditioned than with monomials: five \PM$_\mathrm{code}$ cases that the check r
 monomial basis ($p=3$, Mesh d; $p=6,7$, Meshes c and e) are now computed and pass the patch test
 ($\en\le5\cdot10^{-7}$), and the round-off-dominated values change towards the exact ones (e.g.,
 $p=2$, Mesh d, moment: $u_y(A)=1.49957\to1.50000$). On all meshes of the test suite, the
-Lee \& Bathe input files and the thick-cylinder meshes with $\alpha\le30^\circ$ ($p\le8$) neither
+Lee \& Bathe input files and the thick-cylinder meshes with distortion angle $\alpha\le30^\circ$ ($p\le8$) neither
 check is triggered. The study results with interior nodes from the bilinear corner map
 (\PM, $p\ge3$) show that such meshes can be computed if a different geometry is acceptable.
 

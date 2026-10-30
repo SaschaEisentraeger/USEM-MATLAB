@@ -121,7 +121,7 @@ function [T,U,V,A] = MyMethod(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
   \item Add one row to the table in \code{TimeIntegrationMethods}: code, name,
     function handle, and a function that returns the trailing arguments from
     \code{settings.TimeIntegration}, e.g.\ \texttt{@(opt) \{opt.Order\}}. Codes
-    1xx/2xx are explicit, 3xx/4xx implicit, the second digit separates
+    1xx/2xx are explicit, 3xx/4xx implicit; the first digit also separates
     second-order from higher-order methods.
   \item Add the method to the parameter list of \code{TimeIntegrationTest} with
     its expected order of convergence; the test checks free vibration, a step load

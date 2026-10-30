@@ -13,7 +13,7 @@ the examples in \code{code/InputFilesAbaqus}.
 \begin{enumerate}
   \item \code{Adjust_Set_names_input_file_ABAQUS(filename)} writes
     \code{<name>_adjusted.inp} to the current folder. In it, every \code{Set-}
-    after \texttt{End Instance} is renamed to \code{PickedSet-}, and the node/element
+    after \texttt{*End Instance} is renamed to \code{PickedSet-}, and the node/element
     set pairs named \code{Pressure} and \code{Traction} are numbered
     (\code{Pressure1}, \code{Pressure2}, \dots) in order of appearance.
   \item \code{Read_mesh_ABAQUS}: nodes $(x,y)$ and element connectivity.

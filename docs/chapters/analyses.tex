@@ -200,7 +200,7 @@ The implementation follows Table~1 of \textcite{Soares2020novel}.
     passes them to the solver (field \code{S.ElemData}). Set
     \code{flag_mRHS = false}, otherwise the method code is ignored. Use lumped
     mass matrices (\code{mass_matrix = 2}, GLL nodal quadrature): then
-    $\matr E = \matr M + \tfrac12\Delta t\,\matr C$ is diagonal and no linear
+    $\matr E = \matr M + \tfrac12\Delta t\,\matr R$ is diagonal and no linear
     solver is needed; consistent matrices work, but every step then solves with
     $\matr E$.
 \end{itemize}
