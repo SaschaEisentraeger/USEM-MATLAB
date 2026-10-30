@@ -2,7 +2,7 @@ classdef AbaqusInputTest < matlab.unittest.TestCase
     %ABAQUSINPUTTEST Reading the example ABAQUS input files end to end.
     %
     %   The input files in code/InputFilesAbaqus are read with the same
-    %   steps as in Start_Sim.m (usemReadAbaqus). The resulting model -
+    %   steps as in Start_Sim.m (ReadModel). The resulting model -
     %   high-order mesh, edge loads and boundary conditions adapted to the
     %   spectral elements - must equal the data stored in the reference
     %   workspaces (tests/fixtures/reference), and the static analysis of
@@ -38,7 +38,7 @@ classdef AbaqusInputTest < matlab.unittest.TestCase
 
     methods (TestMethodSetup)
         function useTemporaryFolder(tc)
-            % Adjust_Set_names_input_file_ABAQUS writes to the current folder
+            % Some tests write files to the current folder
             tc.applyFixture(matlab.unittest.fixtures.WorkingFolderFixture);
         end
     end
@@ -104,5 +104,5 @@ end
 function S = readCase(tc, name, p)
 base = regexprep(name, '_ndof\d+$', '');
 inp = fullfile(tc.rootDir, 'code', 'InputFilesAbaqus', [base '.inp']);
-[~, S] = evalc('usemReadAbaqus(inp, p)');
+[~, S] = evalc('ReadModel(inp, p, false)');
 end

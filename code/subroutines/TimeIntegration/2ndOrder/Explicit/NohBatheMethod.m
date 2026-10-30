@@ -42,33 +42,7 @@
 function [T,U] = NohBatheMethod(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,....
                  ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
-% (De-)activate the waitbar
-flag_wb = true;
-
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
 % Inverted mass matrix
 if isdiag(M)
@@ -80,25 +54,15 @@ else
     dM = decomposition(M);
 end
 
-% Initial conditions
-% Displacement
+% Initial conditions; acceleration from the equation of motion
 x0  = U0;
-% Velocity
 xd0 = V0;
-
-% Acceleration
 if flag_diag
-	xdd0 = Minv.*(F  - C*xd0 - K*x0                                             + ...
-				  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)        + ...
-				  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)              + ...
-                  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1)  + ...
-				  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
+    xdd0 = InitialAcceleration(@(r) Minv.*r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 else
-	xdd0 = dM\(F  - C*xd0 - K*x0                                            + ...
-			  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)        + ...
-			  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)              + ...
-              Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1)  + ...
-			  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
+    xdd0 = InitialAcceleration(@(r) dM\r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 end
 
 % Parameter for the time integration scheme
@@ -111,28 +75,7 @@ q0 = -q1-q2+1/2;
 % (dt ~= 1.8725*dt_CDM)
 gamma = 1/4 - 1/2*(1-p)*q1;
 val = 1/2*sqrt(1/(gamma*p*(1-p)));
-dtmax(2) = val*dtmax(2);
-dt = min(dtmax);
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim,val);
 
 % Parameter for the time integration scheme
 a0 = p*dt;
@@ -145,14 +88,11 @@ a6 = (1/2+q1)*a3;
 a7 = q2*a3;
 
 % Result variables
-uvec = zeros(NumTimeStep+1,NumDoFSave);
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
 % Assign the initial conditions to the results
 uvec(1,:) = x0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Noh-Bathe method (explicit): ');
-end
+pb = ProgressBar('Noh-Bathe method (explicit)',NumTimeStep);
 
 disp('Solve the equations of motion using the Noh-Bathe method (explicit)');
 disp('');
@@ -164,19 +104,10 @@ T  = (0:NumTimeStep)'*dt;
 % Steps in between
 Tp = (0:NumTimeStep)'*dt - (1-p)*dt;
 
-% Pre-compute the amplitude values for the force vectors
-Amp   = ExcitationSignal(SignalType,ExciteParam,T);
-dAmp  = ExcitationSignalDerivative(SignalType,ExciteParam,T,1);
-ddAmp = ExcitationSignalDerivative(SignalType,ExciteParam,T,2);
-Amp_p   = ExcitationSignal(SignalType,ExciteParam,Tp);
-dAmp_p  = ExcitationSignalDerivative(SignalType,ExciteParam,Tp,1);
-ddAmp_p = ExcitationSignalDerivative(SignalType,ExciteParam,Tp,2);
-
-% Parts of the force vector
-FdtN = Fdt.Neumann;
-FdtK = Fdt.K;
-FdtC = Fdt.C;
-FdtM = Fdt.M;
+% Pre-compute the amplitude values for the force vectors (at the time
+% steps and at the intermediate times t + p*dt)
+[Amp,dAmp,ddAmp]       = SignalHistory(SignalType,ExciteParam,T);
+[Amp_p,dAmp_p,ddAmp_p] = SignalHistory(SignalType,ExciteParam,Tp);
 
 % Time integration scheme
 for i = 1:NumTimeStep
@@ -184,13 +115,13 @@ for i = 1:NumTimeStep
 	% Compute the displacement at the time t + p*dt
     xp = x0 + a0*xd0 + a1*xdd0;
     % Compute the load vector at the time t + p*dt
-    F_t_pdt = F + FdtN*Amp_p(i+1) + FdtK*Amp_p(i+1) + FdtC*dAmp_p(i+1) + FdtM*ddAmp_p(i+1);
+    F_t_pdt = LoadAtTime(F,Fdt,Amp_p(i+1),dAmp_p(i+1),ddAmp_p(i+1));
     % Compute the load vector at the time t + dt
-    F_t_dt  = F + FdtN*Amp(i+1) + FdtK*Amp(i+1) + FdtC*dAmp(i+1) + FdtM*ddAmp(i+1);
+    F_t_dt  = LoadAtTime(F,Fdt,Amp(i+1),dAmp(i+1),ddAmp(i+1));
 %     % Compute the load vector at the time t
-%     F_t = F + FdtN*Amp(i) + FdtK*Amp(i) + FdtC*dAmp(i) + FdtM*ddAmp(i);
+%     F_t = LoadAtTime(F,Fdt,Amp(i),dAmp(i),ddAmp(i));
 %     % Linear interpolation of the force vector between time steps
-% 	F_t_pdt = (1-p)*F_t + p*F_t_dt;
+%     F_t_pdt = (1-p)*F_t + p*F_t_dt;
     % Compute the effective load vector at the time t + p*dt
     F_t_pdt_circ    = F_t_pdt - K*xp - C*(xd0 + a0*xdd0);
     % Solve the system of equations at the time t + p*dt to compute the
@@ -221,45 +152,16 @@ for i = 1:NumTimeStep
  	% Save variables
     uvec(i+1,:) = x1(DOFsave);
     
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-	end
-	
     % Reset variables for the next time step
     x0   = x1;
 	xd0  = xd1;
 	xdd0 = xdd1;
     
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Noh-Bathe method (explicit): ' ...
-			num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
-
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-else
-    U = uvec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+U = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec);
 
 end

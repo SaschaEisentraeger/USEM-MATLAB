@@ -9,7 +9,7 @@ classdef LeeBathePatchTest < matlab.unittest.TestCase
     %   The input data (mesh, loads, boundary conditions after they were
     %   adapted to the spectral elements) is stored in
     %   tests/fixtures/reference/*.mat; see make_reference_fixtures.m. The
-    %   tests repeat the static analysis of call_Static.m with the current
+    %   tests repeat the static analysis of StaticAnalysis with the current
     %   code and check
     %     - the quadratic test (pure bending) against the analytical
     %       solution for every p >= 2 and every mesh,
@@ -118,7 +118,7 @@ S = load(fullfile(fileparts(here), 'fixtures', 'reference', [name '.mat']));
 end
 
 function [u, F] = solveStatic(S)
-% Same steps as call_Static.m (assembly, Neumann and Dirichlet boundary
+% Same steps as StaticAnalysis (assembly, Neumann and Dirichlet boundary
 % conditions, solution of the reduced system).
 [~, K] = evalc(['AssemblyFEM(S.Topology_Node, S.p, S.xCoor, S.yCoor, ' ...
     'S.num_Elem, S.num_DoF, S.C, S.rho, numel(S.C), S.mass_matrix, ' ...

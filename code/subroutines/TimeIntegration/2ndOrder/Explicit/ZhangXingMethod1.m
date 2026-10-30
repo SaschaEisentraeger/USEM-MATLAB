@@ -52,33 +52,7 @@
 function [T,U] = ZhangXingMethod1(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
                  ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
-% (De-)activate the waitbar
-flag_wb = true;
-
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
 %% Explicit time integration scheme
 % Inverted mass matrix
@@ -113,46 +87,21 @@ tau = tauCr(zeta);
 % Determine the time increment used for the time integration:
 % 2 is the stability limit for the CDM and tau is the corresponding limit
 % for the novel explicit scheme.
-dtmax(2) = dtmax(2)*tau/2;
-dt = min(dtmax);
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim,tau/2);
 
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
-
-% Initial conditions
-% Displacement
+% Initial conditions (the method is self-starting: no initial
+% acceleration needed)
 x0  = U0;
-% Velocity
 xd0 = V0;
 
 % Result variables
 tvec = zeros(NumTimeStep+1,1);
-uvec = zeros(NumTimeStep+1,NumDoFSave);
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
 % Assign the initial conditions to the results
 tvec(1) = 0;
 uvec(1,:) = x0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Zhang-Xing method 1 (explicit): ');
-end
+pb = ProgressBar('Zhang-Xing method 1 (explicit)',NumTimeStep);
 
 disp('Solve the equations of motion using the Zhang-Xing method 1 (explicit)');
 disp('');
@@ -166,17 +115,14 @@ for i = 1:NumTimeStep
     tg = tE + (gamma-1)*dt;     % Time within the interval
 
     % Compute the force vector at the time t + gamma*dt
-    Fg = F                                                             + ...
-         Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,tg)       + ...
-         Fdt.K*ExcitationSignal(SignalType,ExciteParam,tg)             + ...
-         Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,tg,1) + ...
-         Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,tg,2) ;
+    [s,ds,dds] = SignalHistory(SignalType,ExciteParam,tg);
+    Fg = LoadAtTime(F,Fdt,s,ds,dds);
 
     % Compute the displacement vector
 	if flag_diag
 		x1 = x0 + dt*xd0 + dt^2/2*Minv.*(Fg - K*(x0 + gamma*dt*xd0) - C*xd0);
 	else
-		x1 = x0 + dt*xd0 + dt^2/2*dM\(Fg - K*(x0 + gamma*dt*xd0) - C*xd0);
+		x1 = x0 + dt*xd0 + dt^2/2*(dM\(Fg - K*(x0 + gamma*dt*xd0) - C*xd0));
 	end
 
     % Compute the velocity vector
@@ -185,47 +131,17 @@ for i = 1:NumTimeStep
     % Save variables
     tvec(i+1)   = tE;
     uvec(i+1,:) = x1(DOFsave);
-	
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-	end
-	
+
     % Update the variables
     x0 = x1;
     xd0 = xd1;
     
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/(NumTimeStep+1),h,['Zhang-Xing method 1 (explicit): '...
-			num2str(i/(NumTimeStep+1)*100,'%5.1f') '%'])
-		end
-	end
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
-
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-    T = tvec;
-else
-    U = uvec;
-    T = tvec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+U = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec);
+T = tvec;
 
 end

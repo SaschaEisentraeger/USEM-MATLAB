@@ -49,37 +49,13 @@
 function [T,U] = KimLagrange_ho(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
 				 ActiveDoFs,ExciteParam,SignalType,dtmax,tsim,pInt)
 
-% (De-)activate the waitbar
-flag_wb = true;
-
-% Decomposition method: (1) LU decomposition; (2) Matrix
-% decomposition (Matlab decides on an appropriate method)
-flag_decomp = 2;
-
 % Number of active degrees of freedom
 NumDoFActive = numel(ActiveDoFs);
 
 % Number of degrees of freedom that are saved
 NumDoFSave = numel(DOFsave);
 
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,NumDoFActive);
 
 %% Higher-order time integration algorithm
 % Set-up of the parameter of the time integrator
@@ -116,18 +92,6 @@ dt = dt*IntOrder^2;
 
 % Number of time steps
 NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
 
 % Adjusted time increment
 dt = tsim/NumTimeStep;
@@ -227,23 +191,13 @@ gamma_bar = alpha*gamma;
 % Effective (dynamic) stiffness matrix)
 Keff = kron(alpha_bar,M) + kron(alpha,C) + kron(speye(IntOrder),K);
 
-% LU-decomposition of the effective stiffness matrix
-% LTM: Lower triangular matrix 
-% UTM: Upper triangular matrix
-% A Cholesky decomposition is not possible since the effective stiffness
-% matrix is not symmetric due to the parameter matrices and vectors
-if flag_decomp == 1
-    % LU decomposition of the stiffness matrix
-    [LTM,UTM,row_order,column_order] = lu(Keff,'vector');
-elseif flag_decomp == 2
-    % Matrix decomposition for solving linear systems
-    dK_eff = decomposition(Keff);
-end
+% Decomposition of the effective stiffness matrix: a Cholesky decomposition
+% is not possible since Keff is not symmetric due to the parameter
+% matrices and vectors, so MATLAB chooses an LU decomposition; it is
+% computed once and reused in every time step
+dK_eff = decomposition(Keff);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Higher-order time FEM (Lagrange, implicit): ');
-end
+pb = ProgressBar('Higher-order time FEM (Lagrange, implicit)',NumTimeStep);
 
 disp('Solve the equations of motion using the higher-order time FEM (Lagrange)');
 disp('');
@@ -274,17 +228,14 @@ for i = 1:NumTimeStep
     t = (i-1)*dt;
     t_vec = t + tau*dt;
     
-    % Loading
-    amp_t   = ExcitationSignal(SignalType,ExciteParam,t_vec)';
-    damp_t  = ExcitationSignalDerivative(SignalType,ExciteParam,t_vec,1)';
-    ddamp_t = ExcitationSignalDerivative(SignalType,ExciteParam,t_vec,2)';
-    f0 = F + amp_t(1)*Fdt.Neumann + amp_t(1)*Fdt.K + damp_t(1)*Fdt.C + ...
-         ddamp_t(1)*Fdt.M ;
+    % Loading (excitation signal at the time nodes as row vectors)
+    [amp_t,damp_t,ddamp_t] = SignalHistory(SignalType,ExciteParam,t_vec);
+    f0 = LoadAtTime(F,Fdt,amp_t(1),damp_t(1),ddamp_t(1));
     f1 = kron(ones(IntOrder,1),F) + ...
-         kron(amp_t(2:IntOrder+1),Fdt.Neumann) + ...
-         kron(amp_t(2:IntOrder+1),Fdt.K)       + ...
-         kron(damp_t(2:IntOrder+1),Fdt.C)      + ...
-         kron(ddamp_t(2:IntOrder+1),Fdt.M)     ;
+         kron(amp_t(2:IntOrder+1)',Fdt.Neumann) + ...
+         kron(amp_t(2:IntOrder+1)',Fdt.K)       + ...
+         kron(damp_t(2:IntOrder+1)',Fdt.C)      + ...
+         kron(ddamp_t(2:IntOrder+1)',Fdt.M)     ;
 
 	% Effective dynamic force vector
 	Feff = f1 - ...
@@ -298,14 +249,7 @@ for i = 1:NumTimeStep
     % LU-decomposition is performed instead. The solution is computed by
     % means of forward and backward substitution. Solve the system of
     % equations at the time t + tau*dt to compute the displacement
-	if flag_decomp == 1
-        % LU decomposition
-        x1 = zeros(size(Feff));
-		x1(column_order) = UTM\(LTM\Feff(row_order));
-    elseif flag_decomp == 2
-        % Matrix decomposition
-        x1 = dK_eff\Feff;
-	end
+    x1 = dK_eff\Feff;
 	
     % Compute the velocity components
     xd1 = kron(alpha,speye(NumDoFActive))*x1 + ...
@@ -324,46 +268,16 @@ for i = 1:NumTimeStep
         [x0';reshape(x1,NumDoFActive,IntOrder)'];
 	end
     
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-	end
-	
     % Update the variables for the next time step
     x0  = x1(1+(IntOrder-1)*NumDoFActive:IntOrder*NumDoFActive);
     xd0 = xd1(1+(IntOrder-1)*NumDoFActive:IntOrder*NumDoFActive);
     
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Higher-order time FEM (Lagrange, '...
-			'implicit): ' num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
-
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(IntOrder*NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = Umat;
-    T = Tvec;
-else
-    U = Umat;
-    T = Tvec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+T = Tvec;
+U = ExpandToAllDoFs(NumDoF,ActiveDoFs,Umat);
 
 end

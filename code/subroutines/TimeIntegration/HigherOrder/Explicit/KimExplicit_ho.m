@@ -51,33 +51,7 @@
 function [T,U] = KimExplicit_ho(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
                  ActiveDoFs,ExciteParam,SignalType,dtmax,tsim,pInt)
 
-% (De-)activate the waitbar
-flag_wb = true;
-
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
 % Order of accuracy of the time-integrator: 3 or 4
 IntOrder = pInt;
@@ -97,33 +71,10 @@ end
 % dtmax(2) is the stability limit of the CDM: 2/omega_max
 if IntOrder == 3
 	beta = pi*0.574976;
-elseif IntOrder == 4
-	beta = pi*0.474023;
 else
-	beta = pi*0.574976;
+	beta = pi*0.474023;
 end
-dtmax(2) = dtmax(2)*beta;
-dt = min(dtmax);
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim,beta);
 
 %% Higher-order time integration algorithm
 % Set-up of the parameter of the time integrator
@@ -137,7 +88,7 @@ if IntOrder == 3
 	alpha31 =  1.0/3.0;
 	alpha32 = -2.0/3.0;
 	alpha33 =  1.0/3.0;
-elseif IntOrder == 4
+else
 	tau1    =  1.0/3.0;
 	tau2    =  1.0/2.0;
 	tau3    =  1.0;
@@ -151,16 +102,6 @@ elseif IntOrder == 4
 	alpha42 =  0.0;
 	alpha43 =  0.0;
 	alpha44 =  0.0;
-else
-	tau1    =  1.0/3.0;
-	tau2    =  2.0/3.0;
-	tau3    =  1.0;
-	alpha11 =  1.0;
-	alpha21 = -2.0/3.0;
-	alpha22 =  2.0/3.0;
-	alpha31 =  1.0/3.0;
-	alpha32 = -2.0/3.0;
-	alpha33 =  1.0/3.0;
 end
 
 % Approximation functions (0 < t < dt)
@@ -191,48 +132,29 @@ if IntOrder == 4
                   (12*tau3*( tau1*tau2-tau2*tau3-tau3*tau1+tau3^2)*dt^3);
 end
 
-% Inverted mass matrix
+% Solution with the mass matrix (the only linear system of the method;
+% element-wise division for a diagonal mass matrix)
 if isdiag(M)
-    flag_diag = true;
     Minv = 1./diag(M);
+    solveM = @(r) Minv.*r;
 else
-    flag_diag = false;
-	% Matrix decomposition for solving linear systems
     dM = decomposition(M);
+    solveM = @(r) dM\r;
 end
 
-% Initial conditions
-% Displacement
-x0  = U0;
-% Velocity
-xd0 = V0;
-
-% Initial acceleration
-if flag_diag
-    xdd0 = Minv.*(F - C*xd0 - K*x0                                             + ...
-                  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)       + ...
-                  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)             + ...
-                  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1) + ...
-                  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
-else
- 	xdd0 = dM\(F - C*xd0 - K*x0                                            + ...
-              Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)       + ...
-              Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)             + ...
-              Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1) + ...
-			  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
-end
+% Initial conditions; acceleration from the equation of motion
+x0   = U0;
+xd0  = V0;
+xdd0 = InitialAcceleration(solveM,F,Fdt,K,C,x0,xd0,SignalType,ExciteParam);
 
 % Result variables
 Tvec = zeros(NumTimeStep+1,1);
-Umat = zeros(NumTimeStep+1,NumDoFSave);
+Umat = zeros(NumTimeStep+1,numel(DOFsave));
 % Assign the initial conditions to the results
 Tvec(1)   = 0;
 Umat(1,:) = x0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Higher-order time-integration FEM (explicit): ');
-end
+pb = ProgressBar('Higher-order Kim method (explicit)',NumTimeStep);
 
 disp(['Solve the equations of motion using the higher-order explicit ' ...
       'time-integrator (Kim)']);
@@ -249,38 +171,16 @@ for i = 1:NumTimeStep
 	xtau1   = phi11(tau1*dt)*x0 + phi12(tau1*dt)*xd0 + ...
               1/2*(tau1*dt)^2*alpha11*xdd0;
 	xdtau1  = phi11(tau1*dt)*xd0 + phi12(tau1*dt)*xdd0;
-    if flag_diag
-        xddtau1 = Minv.*(F - C*xdtau1 - K*xtau1                                                   + ...
-                         Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t-(1-tau1)*dt)       + ...
-                         Fdt.K*ExcitationSignal(SignalType,ExciteParam,t-(1-tau1)*dt)             + ...
-                         Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau1)*dt,1) + ...
-                         Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau1)*dt,2));
-    else
-        xddtau1 = dM\(F - C*xdtau1 - K*xtau1                                                  + ...
-                     Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t-(1-tau1)*dt)       + ...
-                     Fdt.K*ExcitationSignal(SignalType,ExciteParam,t-(1-tau1)*dt)             + ...
-                     Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau1)*dt,1) + ...
-                     Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau1)*dt,2));
-    end
+    xddtau1 = KimStageAcceleration(solveM,F,Fdt,K,C,xtau1,xdtau1,...
+                                SignalType,ExciteParam,t-(1-tau1)*dt);
 	% Stage 2
 	xtau2   = phi21(tau2*dt)*x0 + phi22(tau2*dt)*xd0 + ...
               phi23(tau2*dt)*xdtau1 + ...
               1/2*(tau2*dt)^2*(alpha21*xdd0 + alpha22*xddtau1);
 	xdtau2  = phi21(tau2*dt)*xd0 + phi22(tau2*dt)*xdd0 + ...
               phi23(tau2*dt)*xddtau1;
-	if flag_diag
-        xddtau2 = Minv.*(F - C*xdtau2 - K*xtau2                                                   + ...
-                         Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t-(1-tau2)*dt)       + ...
-                         Fdt.K*ExcitationSignal(SignalType,ExciteParam,t-(1-tau2)*dt)             + ...
-                         Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau2)*dt,1) + ...
-                         Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau2)*dt,2));
-    else
-        xddtau2 = dM\(F - C*xdtau2 - K*xtau2                                                  + ...
-                     Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t-(1-tau2)*dt)       + ...
-                     Fdt.K*ExcitationSignal(SignalType,ExciteParam,t-(1-tau2)*dt)             + ...
-                     Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau2)*dt,1) + ...
-                     Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau2)*dt,2));
-	end
+    xddtau2 = KimStageAcceleration(solveM,F,Fdt,K,C,xtau2,xdtau2,...
+                                SignalType,ExciteParam,t-(1-tau2)*dt);
 	% Stage 3
 	xtau3   = phi31(tau3*dt)*x0 + phi32(tau3*dt)*xd0 + ...
               phi33(tau3*dt)*xdtau1 + phi34(tau3*dt)*xdtau2 + ...
@@ -288,19 +188,8 @@ for i = 1:NumTimeStep
               alpha33*xddtau2);
 	xdtau3  = phi31(tau3*dt)*xd0 + phi32(tau3*dt)*xdd0 + ...
               phi33(tau3*dt)*xddtau1 + phi34(tau3*dt)*xddtau2;
-	if flag_diag
-        xddtau3 = Minv.*(F - C*xdtau3 - K*xtau3                                                   + ...
-                         Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t-(1-tau3)*dt)       + ...
-                         Fdt.K*ExcitationSignal(SignalType,ExciteParam,t-(1-tau3)*dt)             + ...
-                         Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau3)*dt,1) + ...
-                         Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau3)*dt,2));
-    else
-        xddtau3 = dM\(F - C*xdtau3 - K*xtau3                                                  + ...
-                     Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t-(1-tau3)*dt)       + ...
-                     Fdt.K*ExcitationSignal(SignalType,ExciteParam,t-(1-tau3)*dt)             + ...
-                     Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau3)*dt,1) + ...
-                     Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t-(1-tau3)*dt,2));
-	end
+    xddtau3 = KimStageAcceleration(solveM,F,Fdt,K,C,xtau3,xdtau3,...
+                                SignalType,ExciteParam,t-(1-tau3)*dt);
 	if IntOrder == 4
 		% Stage 4
 		x1   = phi41(dt)*x0 + phi42(dt)*xd0 + phi43(dt)*xdtau1 + ...
@@ -309,19 +198,8 @@ for i = 1:NumTimeStep
                alpha43*xddtau2 + alpha44*xddtau3);
 		xd1  = phi41(dt)*xd0 + phi42(dt)*xdd0 + phi43(dt)*xddtau1 + ...
                phi44(dt)*xddtau2 + phi45(dt)*xddtau3;
-        if flag_diag
-            xdd1 = Minv.*(F - C*xd1 - K*x1                                                + ...
-                             Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t)       + ...
-                             Fdt.K*ExcitationSignal(SignalType,ExciteParam,t)             + ...
-                             Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t,1) + ...
-                             Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t,2));
-        else
-            xdd1 = dM\(F - C*xd1 - K*x1                                               + ...
-                         Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,t)       + ...
-                         Fdt.K*ExcitationSignal(SignalType,ExciteParam,t)             + ...
-                         Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,t,1) + ...
-                         Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,t,2));
-        end
+        xdd1 = KimStageAcceleration(solveM,F,Fdt,K,C,x1,xd1,...
+                                 SignalType,ExciteParam,t);
 	else
 		x1   = xtau3;
 		xd1  = xdtau3;
@@ -331,48 +209,18 @@ for i = 1:NumTimeStep
     % Save the results
  	Tvec(i+1) = t;
 	Umat(i+1,:) = x1(DOFsave)';
-    
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-	end
-	
+
     % Update the variables for the next time step
     x0   = x1;
     xd0  = xd1;
 	xdd0 = xdd1;
-    
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Higher-order time-integration FEM '...
-			'(explicit): ' num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
-end
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
+    pb.update(i);
 end
+pb.close();
 
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = Umat;
-    T = Tvec;
-else
-    U = Umat;
-    T = Tvec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+T = Tvec;
+U = ExpandToAllDoFs(NumDoF,ActiveDoFs,Umat);
 
 end

@@ -130,9 +130,9 @@ end
 
 %%
 disp('Compute element matrices in parallel')
-% Compute element matrices in parallel
+% Compute element matrices in parallel (serially without a parallel pool;
+% replace parfor by for to debug inside the loop)
 parfor i = 1:num_Elem
-% for i = 1:num_Elem
 	% Clear element matrices
     K_element = [];
     M_element = [];
@@ -152,20 +152,6 @@ parfor i = 1:num_Elem
     elseif flag_comp == 1 || flag_comp == 2
         % Element stiffness and mass matrices
 		[K_element,M_element] = KMe_2D(p,Hooke,dens,x,y,mass_matrix);
-%-------------------------------------------------------------------------%
-        % % Element stiffness matrix
-        % [K_element] = Ke_2D(p,Hooke,x,y);
-        % % Element mass matrix
-        % [M_element] = Me_2D(p,dens,x,y,mass_matrix);
-        %
-        % clear vecK vecM
-        % vecK = zeros(30,1);
-        % vecM = zeros(30,1);
-        % for j = 1:30
-        %     [K_element] = Ke_2D(p,Hooke,x,y,j,j); vecK(j,1) = sum(sum(abs(K_element)));
-        %     [M_element] = Me_2D(p,dens,x,y,mass_matrix,j,j); vecM(j,1) = sum(sum(abs(M_element)));
-        % end
-%-------------------------------------------------------------------------%
         % Damping matrix - Rayleigh hypothesis
         if z == 0
             R_element = sparse(ndof,ndof);
@@ -175,9 +161,12 @@ parfor i = 1:num_Elem
 	end
     
     if flag_comp == 2
-        % Determine the time increment based on each element --> 
-        % conservative estimation
-        % Quadratic eigenvalue problem (damping is present)
+        % Critical time step of the central difference method from the
+        % largest eigenvalue of each element, dt = 2/omega_max (a safety
+        % factor of 0.99). The element estimate bounds the global maximum
+        % eigenfrequency from above, so the minimum over the elements is
+        % conservative. With damping, omega_max follows from the quadratic
+        % eigenvalue problem in state-space form.
         if z ~= 0 && (alpha_Rayleigh ~= 0 || beta_Rayleigh~= 0)
             try
                 A = [-speye(ndof)      , sparse(ndof,ndof); ...

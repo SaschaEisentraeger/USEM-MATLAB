@@ -125,5 +125,5 @@ fid = fopen('model.inp', 'w');
 fprintf(fid, '%s', txt);
 fclose(fid);
 p.pxi = 2; p.peta = 2; p.ndist = 2;
-[~, S] = evalc('usemReadAbaqus(''model.inp'', p)');
+[~, S] = evalc('ReadModel(''model.inp'', p, false)');
 end

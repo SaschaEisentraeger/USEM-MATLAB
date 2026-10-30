@@ -123,6 +123,39 @@ classdef TopologyTest < matlab.unittest.TestCase
             tc.verifyEqual(numel(xp), 16);
         end
 
+        function coincidentNodesAreShiftedOnRequest(tc)
+            % Same element as above with p.nodeShift > 0: one interior node
+            % is moved, the element becomes regular and its metric shape
+            % functions are complete again.
+            x = [0 1 1 0 0.5 1.5 1 0]';
+            y = [-1 -1 0 0 -1 0 -0.5 -0.5]';
+            P = struct('ndist', 2, 'nodeShift', 1e-3);
+            for pdeg = [2 4]
+                P.pxi = pdeg; P.peta = pdeg;
+                [T, xp, yp] = tc.verifyWarning(@() pSpectralElement_NodesTopology( ...
+                    1:8, x, y, P, 2), 'ShiftSingularNodes:shifted');
+                xe = xp(T(1,:)); ye = yp(T(1,:));
+                tc.verifyGreaterThanOrEqual( ...
+                    MetricInterpolationCondition(xe, ye, P), 1e-12);
+                % corners and edge nodes are not moved
+                P0 = P; P0.nodeShift = 0;
+                [xi, eta] = ReferenceNodes2D(P0);
+                onEdge = abs(xi) == 1 | abs(eta) == 1;
+                [N8] = ShapeFunctions2D_8nodes(xi(onEdge), eta(onEdge));
+                tc.verifyEqual([xe(onEdge) ye(onEdge)], [N8'*x, N8'*y], 'AbsTol', 1e-12);
+                % completeness: the metric functions reproduce x^a y^b,
+                % a + b <= p, at arbitrary points of the element
+                xq = [0.4; 0.7; 0.2]; yq = [-0.6; -0.3; -0.8];
+                N = ShapeFunctions2D_Metric(xq, yq, xe, ye, P);
+                for a = 0:pdeg
+                    for b = 0:pdeg-a
+                        tc.verifyEqual(N'*(xe.^a.*ye.^b), xq.^a.*yq.^b, ...
+                            'AbsTol', 1e-8, sprintf('p = %d, x^%d y^%d', pdeg, a, b));
+                    end
+                end
+            end
+        end
+
         function linearMeshIsUnchangedForPOne(tc)
             [nodes, topo] = usemTestMesh(2, 2, 2, 2, 1);
             model = usemBuildModel(nodes, topo, 1);

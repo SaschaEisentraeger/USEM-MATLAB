@@ -50,38 +50,11 @@
 function [T,U] = SoaresMethodExplicit(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
                  ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
-% (De-)activate the waitbar
-flag_wb = true;
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
-
-% Initial conditions
-% Displacement
+% Initial conditions (the method is self-starting: no initial
+% acceleration needed)
 x0  = U0;
-% Velocity
 xd0 = V0;
 
 % Parameter for the time integration scheme
@@ -109,28 +82,7 @@ beta = 1;
 % In the case of maximal numerical dissipation the stability limit is still
 % 1.7855 times that of the CDM.
 % Stability limit dt = 1.7855*dt_CDM
-dtmax(2) = 1.7855*dtmax(2);
-dt = min(dtmax);
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim,1.7855);
 
 % Parameter for the interpolation of the force vector (trapezoidal rule)
 beta1 = 0.5;
@@ -153,37 +105,26 @@ else
 end
 
 % Result variables
-uvec = zeros(NumTimeStep+1,NumDoFSave);
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
 % Assign the initial conditions to the results
 uvec(1,:) = x0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Soares Method (explicit): ');
-end
+pb = ProgressBar('Soares method (explicit)',NumTimeStep);
 
 disp('Solve the equations of motion using the Soares method');
 disp('');
 disp('---------------------------------------------------------------------');
 disp('');
 
-% Time vector
+% Time vector and excitation signal
 T = (0:NumTimeStep)'*dt;
-
-% Pre-compute the force vector
-Amp   = ExcitationSignal(SignalType,ExciteParam,T);
-dAmp  = ExcitationSignalDerivative(SignalType,ExciteParam,T,1);
-ddAmp = ExcitationSignalDerivative(SignalType,ExciteParam,T,2);
-FdtN = Fdt.Neumann;
-FdtK = Fdt.K;
-FdtC = Fdt.C;
-FdtM = Fdt.M;
+[Amp,dAmp,ddAmp] = SignalHistory(SignalType,ExciteParam,T);
 
 % Time integration scheme
 for i = 1:NumTimeStep
     % Compute the effective force vector at the time t + 1/2*dt
-    F0 = F + FdtN*Amp(i)   + FdtK*Amp(i)   + FdtC*dAmp(i)   + FdtM*ddAmp(i);
-    F1 = F + FdtN*Amp(i+1) + FdtK*Amp(i+1) + FdtC*dAmp(i+1) + FdtM*ddAmp(i+1);
+    F0 = LoadAtTime(F,Fdt,Amp(i),dAmp(i),ddAmp(i));
+    F1 = LoadAtTime(F,Fdt,Amp(i+1),dAmp(i+1),ddAmp(i+1));
     Fstar = beta1*dt*F0 + beta2*dt*F1;
 
     if flag_diag
@@ -205,44 +146,15 @@ for i = 1:NumTimeStep
     % Save variables
     uvec(i+1,:) = x1(DOFsave);
     
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-	end
-	
     % Reset variables for the next time step
     x0   = x1;
 	xd0  = xd1;
     
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Soares method (explicit): ' ...
-			num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
-
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-else
-    U = uvec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+U = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec);
 
 end

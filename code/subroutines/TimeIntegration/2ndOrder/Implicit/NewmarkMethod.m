@@ -28,97 +28,30 @@
 % V:            Velocities
 % A:			Accelerations
 %-------------------------------------------------------------------------%
+% Trapezoidal rule (average acceleration, beta = 1/4, gamma = 1/2):
+% unconditionally stable, second-order accurate, no numerical damping.
+% The calling convention and the shared helpers (TimeIntegration/Common)
+% are described in TimeIntegrationMethods; this file is the template for
+% new implicit methods.
+%-------------------------------------------------------------------------%
 function [T,U,V,A] = NewmarkMethod(K,M,C,F,F_dt,U0,V0,NumDoF,DOFsave,...
                      ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
-% (De-)activate the waitbar
-flag_wb = true;
+% Time step (prescribed implicit step) and number of steps
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim);
 
-% Decomposition method: (1) Cholesky decomposition; (2) Matrix
-% decomposition (Matlab decides on an appropriate method)
-flag_decomp = 2;
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
-% Determine the time increment used for the time integration
-N_dt = numel(unique(dtmax));
-if N_dt == 3
-	% Deliberately described time step
-	dt = dtmax(3);
-else
-	dt = dtmax(1);
-end
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-    % Less updates of the waitbar (avoid slowing the simulation down)
-    nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
-
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
-
-% Determine if the mass matrix is in diagonal form
-if isdiag(M)
-    flag_diag = true;
-    Minv = 1./diag(M);
-else
-    flag_diag = false;
-end
-
-% Initial conditions
-% Displacement
+% Initial conditions; acceleration from the equation of motion
 x0  = U0;
-% Velocity
 xd0 = V0;
-
-% Acceleration
-if flag_diag
-	xdd0 = Minv.*(F - C*xd0 - K*x0 + ...
-				  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)        + ...
-				  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)              + ...
-				  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1)  + ...
-				  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
+if isdiag(M)
+    Minv = 1./diag(M);
+    xdd0 = InitialAcceleration(@(r) Minv.*r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 else
-	xdd0 = M\(F - C*xd0 - K*x0 + ...
-              Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)        + ...
-              Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)              + ...
-			  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1)  + ...
-			  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
+    xdd0 = InitialAcceleration(@(r) M\r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 end
 
 % Parameter for the time integration scheme:
@@ -133,128 +66,62 @@ A1 = 1/(dt^2*beta_newmark)*M + gamma_newmark/(dt*beta_newmark)*C;
 A2 = 1/(dt*beta_newmark)*M + (gamma_newmark/beta_newmark-1)*C;
 A3 = (1/(2*beta_newmark)-1)*M + dt*(gamma_newmark/(2*beta_newmark)-1)*C;
 
-if flag_decomp == 1
-    % Cholesky decomposition of the stiffness matrix
-    [R,~,order] = chol(K_eff,'vector');
-elseif flag_decomp == 2
-    % Matrix decomposition for solving linear systems
-    dK_eff = decomposition(K_eff);
-end
+% K_eff is unsymmetric in general: LU decomposition (chosen by MATLAB),
+% computed once and reused in every time step
+dK_eff = decomposition(K_eff);
 
-% Result variables
-uvec = zeros(NumTimeStep+1,NumDoFSave);
-vvec = zeros(NumTimeStep+1,NumDoFSave);
-avec = zeros(NumTimeStep+1,NumDoFSave);
-% Assign the initial conditions (displacements, velocities) and the initial
-% acceleration to the results
+% Result variables, starting with the initial values
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
+vvec = zeros(NumTimeStep+1,numel(DOFsave));
+avec = zeros(NumTimeStep+1,numel(DOFsave));
 uvec(1,:) = x0(DOFsave);
 vvec(1,:) = xd0(DOFsave);
 avec(1,:) = xdd0(DOFsave);
 
-if flag_wb
-    % Waitbar
-    h = waitbar(0,'Newmark-Method (implicit): ');
-end
+pb = ProgressBar('Newmark method (implicit)',NumTimeStep);
 
 disp('Solve the equations of motion using the Newmark method');
 disp('');
 disp('---------------------------------------------------------------------');
 disp('');
 
-% Time vector
+% Time vector and excitation signal
 T = (0:NumTimeStep)'*dt;
-
-% Pre-compute the force vector
-Amp   = ExcitationSignal(SignalType,ExciteParam,T);
-dAmp  = ExcitationSignalDerivative(SignalType,ExciteParam,T,1);
-ddAmp = ExcitationSignalDerivative(SignalType,ExciteParam,T,2);
-FdtN = Fdt.Neumann;
-FdtK = Fdt.K;
-FdtC = Fdt.C;
-FdtM = Fdt.M;
+[Amp,dAmp,ddAmp] = SignalHistory(SignalType,ExciteParam,T);
 
 % Time integration scheme
 for i = 2:NumTimeStep+1
 
-    % Compute the force vector at the time t
-    Fstar  = F + FdtN*Amp(i) + FdtK*Amp(i) + FdtC*dAmp(i) + ...
-             FdtM*ddAmp(i) + A1*x0 + A2*xd0 + A3*xdd0;
-    
-    % In each time step a system of equations has to be solved K*x = F.
-    % Since the inversion of K will result in a fully populated matrix a
-    % Cholesky decomposition is performed instead. The solution is computed
-    % by means of forward and backward substitution.
-    % Solve the system of equations at the time t + dt to compute the
-    % displacement
-    if flag_decomp == 1
-        % Cholesky decomposition
-        x1 = zeros(size(x0));
-        x1(order) = R\(R'\Fstar(order));
-    elseif flag_decomp == 2
-        % Matrix decomposition
-        x1 = dK_eff\Fstar;
-    end
-    
-    % Compute the velocity at the time t + dt
+    % Effective load at t + dt
+    Fstar = LoadAtTime(F,Fdt,Amp(i),dAmp(i),ddAmp(i)) + ...
+            A1*x0 + A2*xd0 + A3*xdd0;
+
+    % Displacement at t + dt
+    x1 = dK_eff\Fstar;
+
+    % Velocity at t + dt
     xd1 = gamma_newmark/(beta_newmark*dt)*(x1-x0)   + ...
          (1-(gamma_newmark/beta_newmark))*xd0 	    + ...
          (1-gamma_newmark/(2*beta_newmark))*dt*xdd0;
-    
-    % Compute the acceleration at the time t + dt
+
+    % Acceleration at t + dt
     xdd1 = 1/(beta_newmark*dt^2)*(x1-x0-xd0*dt)-(1/(2*beta_newmark)-1)*xdd0;
-    
+
     % Save variables
     uvec(i,:) = x1(DOFsave);
     vvec(i,:) = xd1(DOFsave);
     avec(i,:) = xdd1(DOFsave);
-    
-    if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-    end
-    
+
     % Reset variables for the next time step
     x0   = x1;
 	xd0  = xd1;
 	xdd0 = xdd1;
-    
-    if flag_wb
-        % Waitbar
-        if mod(i,nUpdate) == 0
-            waitbar(i/NumTimeStep,h,['Newmark method (implicit): ' ...
-            num2str(i/NumTimeStep*100,'%5.1f') '%'])
-        end
-    end
-end
 
-% save('Contour.mat','UAll');
-
-if flag_wb
-    % Delete the waitbar
-    close(h)
+    pb.update(i);
 end
+pb.close();
 
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    V = zeros(NumTimeStep+1,NumDoF);
-    A = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-    V(:,ActiveDoFs) = vvec;
-    A(:,ActiveDoFs) = avec;
-else
-    U = uvec;
-    V = vvec;
-    A = avec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+[U,V,A] = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec,vvec,avec);
 
 end

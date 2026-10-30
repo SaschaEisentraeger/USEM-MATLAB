@@ -337,7 +337,7 @@ while counter_bc ~= counter_bounndary_conditions + 1
     counter_old = counter_bc;
   	while ftell(fid)~=end_position || contains(TEMP,'*End Assembly')
         % node set
-        if isSetHeader(TEMP,set_name)
+        if IsSetHeader(TEMP,set_name)
             while true
                 if contains(TEMP,'generate')
                     TEMP = fgetl(fid);
@@ -356,7 +356,7 @@ while counter_bc ~= counter_bounndary_conditions + 1
             counter_bc = counter_bc + 1;
         end
         % element set
-        if isSetHeader(TEMP,set_name_el)
+        if IsSetHeader(TEMP,set_name_el)
             while true
                 if contains(TEMP,'generate')
                     TEMP = fgetl(fid);
@@ -412,18 +412,4 @@ for i = 1:NumberOfBoundaryConditions
     end
 end
 
-end
-
-
-function tf = isSetHeader(line, header)
-% True if line is the header of the set definition "header", e.g.
-% '*Nset, nset=Set-1' matches '*Nset, nset=Set-1, instance=Part-1' but not
-% '*Nset, nset=Set-10'.
-if ~ischar(line)
-    tf = false;
-    return
-end
-line = strtrim(line);
-n = numel(header);
-tf = strncmp(line, header, n) && (numel(line) == n || line(n+1) == ',');
 end

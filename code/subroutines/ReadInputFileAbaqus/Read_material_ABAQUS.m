@@ -98,7 +98,7 @@ counter = 1;
 set_name = ['*Elset, elset=' material_elem_sets_name{1}];
 while counter <= number_of_materials && ...
       ftell(fid)~=end_position
-    if ~isSetHeader(TEMP,set_name)
+    if ~IsSetHeader(TEMP,set_name)
     else
         while true
             if contains(TEMP,'generate')
@@ -322,18 +322,4 @@ material_properties = mat_props;
 
 fclose('all');
 
-end
-
-
-function tf = isSetHeader(line, header)
-% True if line is the header of the set definition "header", e.g.
-% '*Nset, nset=Set-1' matches '*Nset, nset=Set-1, instance=Part-1' but not
-% '*Nset, nset=Set-10'.
-if ~ischar(line)
-    tf = false;
-    return
-end
-line = strtrim(line);
-n = numel(header);
-tf = strncmp(line, header, n) && (numel(line) == n || line(n+1) == ',');
 end

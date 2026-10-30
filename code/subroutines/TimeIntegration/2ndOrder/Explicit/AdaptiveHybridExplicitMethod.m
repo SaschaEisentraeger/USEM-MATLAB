@@ -79,9 +79,6 @@ function [T,U,V] = AdaptiveHybridExplicitMethod(K,M,C,F,F_dt,U0,V0,...
                    NumDoF,DOFsave,ActiveDoFs,ExciteParam,SignalType,...
                    dtmax,tsim,ElemData)
 
-% (De-)activate the waitbar
-flag_wb = true;
-
 % Maximum value of the integration parameter alpha (Section 2: alpha -> inf
 % for Omega -> 0; alpha_max ~ 3 avoids excessive algorithmic damping)
 alpha_max = 3;
@@ -89,28 +86,7 @@ alpha_max = 3;
 % Number of active degrees of freedom
 NumDoFActive = numel(ActiveDoFs);
 
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-% Time-dependent force vector
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,NumDoFActive);
 
 % Initial conditions
 if numel(U0) > NumDoFActive
@@ -124,21 +100,7 @@ end
 %% Time increment
 % The stability limit of the adaptive hybrid explicit method is twice that
 % of the central difference method (CDM) -->  dt = 2.0*dt_CDM
-dtmax(2) = 2.0*dtmax(2);
-dt = min(dtmax);
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim,2.0);
 
 %% Element data
 NumElem = numel(ElemData.Ke);
@@ -227,36 +189,25 @@ else
     flag_diag = false;
 	dE = decomposition(E);
 end
-solveE = @(b) solveEffective(b,flag_diag,Einv,dE);
+solveE = @(b) AhemSolveEffective(b,flag_diag,Einv,dE);
 
 %% Time integration
 % Result variables
-uvec = zeros(NumTimeStep+1,NumDoFSave);
-vvec = zeros(NumTimeStep+1,NumDoFSave);
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
+vvec = zeros(NumTimeStep+1,numel(DOFsave));
 uvec(1,:) = x0(DOFsave);
 vvec(1,:) = xd0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Adaptive hybrid explicit method - Soares: ');
-end
+pb = ProgressBar('Adaptive hybrid explicit method - Soares',NumTimeStep);
 
 disp('Solve the equations of motion using the adaptive hybrid explicit method');
 disp('');
 disp('---------------------------------------------------------------------');
 disp('');
 
-% Time vector
+% Time vector and excitation signal
 T = (0:NumTimeStep)'*dt;
-
-% Pre-compute the force vector
-Amp   = ExcitationSignal(SignalType,ExciteParam,T);
-dAmp  = ExcitationSignalDerivative(SignalType,ExciteParam,T,1);
-ddAmp = ExcitationSignalDerivative(SignalType,ExciteParam,T,2);
-FdtN = Fdt.Neumann;
-FdtK = Fdt.K;
-FdtC = Fdt.C;
-FdtM = Fdt.M;
+[Amp,dAmp,ddAmp] = SignalHistory(SignalType,ExciteParam,T);
 
 % Oscillatory criterion of the degrees of freedom, Eq. (7): phi_i is not
 % zero if and only if the last two increments of U_i have opposite signs
@@ -267,8 +218,8 @@ oscDoF = false(NumDoFActive,1);
 
 for i = 1:NumTimeStep
     %% Step 1: time integral of the force vector (trapezoidal rule)
-    F0 = F + FdtN*Amp(i)   + FdtK*Amp(i)   + FdtC*dAmp(i)   + FdtM*ddAmp(i);
-    F1 = F + FdtN*Amp(i+1) + FdtK*Amp(i+1) + FdtC*dAmp(i+1) + FdtM*ddAmp(i+1);
+    F0 = LoadAtTime(F,Fdt,Amp(i),dAmp(i),ddAmp(i));
+    F1 = LoadAtTime(F,Fdt,Amp(i+1),dAmp(i+1),ddAmp(i+1));
     Fbar = 0.5*dt*(F0 + F1);
 
     % Oscillating elements: at least one of their DOFs oscillates
@@ -310,38 +261,11 @@ for i = 1:NumTimeStep
     uvec(i+1,:) = x1(DOFsave);
     vvec(i+1,:) = xd1(DOFsave);
 
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Adaptive hybrid explicit method - ' ...
-			'Soares: ' num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
+% Results (all DOFs if every active DOF was saved)
+[U,V] = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec,vvec);
 
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    V = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-    V(:,ActiveDoFs) = vvec;
-else
-    U = uvec;
-    V = vvec;
-end
-
-end
-
-function y = solveEffective(b,flag_diag,Einv,dE)
-% Solve E*y = b with the diagonal or the decomposed effective matrix
-if flag_diag
-    y = Einv.*b;
-else
-    y = dE\b;
-end
 end

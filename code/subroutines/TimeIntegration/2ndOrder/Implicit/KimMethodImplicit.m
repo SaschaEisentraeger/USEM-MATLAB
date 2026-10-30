@@ -49,94 +49,21 @@
 function [T,U,V,A] = KimMethodImplicit(K,M,C,F,F_dt,U0,V0,NumDoF,...
                      DOFsave,ActiveDoFs,ExciteParam,SignalType,dtmax,tsim)
 
-% (De-)activate the waitbar
-flag_wb = true;
+% Time step (prescribed implicit step) and number of steps
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim);
 
-% Decomposition method: (1) Cholesky decomposition; (2) Matrix
-% decomposition (Matlab decides on an appropriate method)
-flag_decomp = 2;
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
-% Determine the time increment used for the time integration
-N_dt = numel(unique(dtmax));
-if N_dt == 3
-	% Deliberately described time step
-	dt = dtmax(3);
-else
-	dt = dtmax(1);
-end
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
-
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
-
-% Determine if the mass matrix is in diagonal form
-if isdiag(M)
-    flag_diag = true;
-    Minv = 1./diag(M);
-else
-    flag_diag = false;
-end
-
-% Initial conditions
-% Displacement
+% Initial conditions; acceleration from the equation of motion
 x0  = U0;
-% Velocity
 xd0 = V0;
-
-% Acceleration
-if flag_diag
-	xdd0 = Minv.*(F - C*xd0 - K*x0 + ...
-				  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)        + ...
-				  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)              + ...
-				  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1)  + ...
-				  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
+if isdiag(M)
+    Minv = 1./diag(M);
+    xdd0 = InitialAcceleration(@(r) Minv.*r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 else
-	xdd0 = M\(F - C*xd0 - K*x0 + ...
-              Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)        + ...
-              Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)              + ...
-			  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1)  + ...
-			  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));
+    xdd0 = InitialAcceleration(@(r) M\r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 end
 
 % Parameter for the time integration scheme
@@ -180,9 +107,7 @@ d3 = (3-4*theta21)/((theta21-2*theta22)*dt);
 d4 = 4*(theta21-theta22)/(theta21-2*theta22);
 d5 = (1-3*theta21+2*theta22)/(theta21-2*theta22);
 
-% Effective stiffness matrices (to increase the efficiency a Cholesky- or
-% LU-decomposition of these matrices should be saved --> increases also the
-% amount of memory that is required for the simulation)
+% Effective stiffness matrices
 if SetWP ~= 3
     K_eff1 = c1^2*M + c1*C + K;
     K_eff2 = d1^2*M + d1*C + K;
@@ -190,44 +115,26 @@ elseif SetWP == 3
     K_eff1 = c1^2*M + c1*C + K;
 end
 
-% Cholesky-decomposition of the effective stiffness matrices
+% The effective matrices are unsymmetric in general: LU decompositions
+% (chosen by MATLAB), computed once and reused in every time step
 if SetWP ~= 3
-	if flag_decomp == 1
-		% Cholesky decomposition of the stiffness matrix
-		[R1,~,order1] = chol(K_eff1,'vector');
-		[R2,~,order2] = chol(K_eff2,'vector');
-	elseif flag_decomp == 2
-		% Matrix decomposition for solving linear systems
-		dK_eff1 = decomposition(K_eff1);
-		dK_eff2 = decomposition(K_eff2);
-	end
+    dK_eff1 = decomposition(K_eff1);
+    dK_eff2 = decomposition(K_eff2);
 elseif SetWP == 3
-	if flag_decomp == 1
-		% Cholesky decomposition of the stiffness matrix
-		[R1,~,order1] = chol(K_eff1,'vector');
-		R2 = R1;
-		order2 = order1;
-	elseif flag_decomp == 2
-		% Matrix decomposition for solving linear systems
-		dK_eff1 = decomposition(K_eff1);
-		dK_eff2 = dK_eff1;
-	end
+    % Both sub-steps share the same effective matrix
+    dK_eff1 = decomposition(K_eff1);
+    dK_eff2 = dK_eff1;
 end
 
-% Result variables
-uvec = zeros(NumTimeStep+1,NumDoFSave);
-vvec = zeros(NumTimeStep+1,NumDoFSave);
-avec = zeros(NumTimeStep+1,NumDoFSave);
-% Assign the initial conditions (displacements, velocities) and the initial
-% acceleration to the results
+% Result variables, starting with the initial values
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
+vvec = zeros(NumTimeStep+1,numel(DOFsave));
+avec = zeros(NumTimeStep+1,numel(DOFsave));
 uvec(1,:) = x0(DOFsave);
 vvec(1,:) = xd0(DOFsave);
 avec(1,:) = xdd0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Kim method (implicit): ');
-end
+pb = ProgressBar('Kim method (implicit)',NumTimeStep);
 
 disp('Solve the equations of motion using the Kim method (implicit)');
 disp('');
@@ -238,51 +145,29 @@ disp('');
 T = (0:NumTimeStep)'*dt;
 
 % Pre-compute the force vector
-Amp   = ExcitationSignal(SignalType,ExciteParam,T);
-dAmp  = ExcitationSignalDerivative(SignalType,ExciteParam,T,1);
-ddAmp = ExcitationSignalDerivative(SignalType,ExciteParam,T,2);
-FdtN = Fdt.Neumann;
-FdtK = Fdt.K;
-FdtC = Fdt.C;
-FdtM = Fdt.M;
+[Amp,dAmp,ddAmp] = SignalHistory(SignalType,ExciteParam,T);
 
 % Time integration scheme
 for i = 1:NumTimeStep
     % First sub-step
     % Compute the load vector
-    f1 = F + FdtN*Amp(i)   + FdtK*Amp(i)   + FdtC*dAmp(i)   + FdtM*ddAmp(i);
+    f1 = LoadAtTime(F,Fdt,Amp(i),dAmp(i),ddAmp(i));
     % Effective load vector
     f1_eff = f1 - M*(c1*c2*x0+(c1*c3+c2)*xd0+c3*xdd0) - C*(c2*x0+c3*xd0);
     % Compute the displacement, velocity and acceleration vectors
-    % x1   = K_eff1\f1_eff;
-	if flag_decomp == 1
-        % Cholesky decomposition
-        x1 = zeros(size(x0));
-		x1(order1) = R1\(R1'\f1_eff(order1));
-    elseif flag_decomp == 2
-        % Matrix decomposition
-        x1 = dK_eff1\f1_eff;
-	end
+    x1   = dK_eff1\f1_eff;
     xd1  = c1*x1 + c2*x0 + c3*xd0;
     xdd1 = c1*xd1 + c2*xd0 + c3*xdd0;
     
     % Second sub-step
     % Compute the load vector
-    f2 = F + FdtN*Amp(i+1) + FdtK*Amp(i+1) + FdtC*dAmp(i+1) + FdtM*ddAmp(i+1);
+    f2 = LoadAtTime(F,Fdt,Amp(i+1),dAmp(i+1),ddAmp(i+1));
     % Effective load vector
     f2_eff = f2 - M*(d1*d3*x0+d1*d2*x1+(d1*d5+d3)*xd0+ ...
                     (d1*d4+d2)*xd1+d5*xdd0+d4*xdd1)  - ...
                   C*(d3*x0+d2*x1+d5*xd0+d4*xd1);
     % Compute the displacement, velocity and acceleration vectors
-    % x2   = K_eff2\f2_eff;
-	if flag_decomp == 1
-        % Cholesky decomposition
-        x2 = zeros(size(x0));
-		x2(order2) = R2\(R2'\f2_eff(order2));
-    elseif flag_decomp == 2
-        % Matrix decomposition
-        x2 = dK_eff2\f2_eff;
- 	end
+    x2   = dK_eff2\f2_eff;
     xd2  = d1*x2 + d2*x1 + d3*x0 + d4*xd1 + d5*xd0;
     xdd2 = d1*xd2 + d2*xd1 + d3*xd0 + d4*xdd1 + d5*xdd0;
     
@@ -291,51 +176,16 @@ for i = 1:NumTimeStep
     vvec(i+1,:) = xd2(DOFsave);
     avec(i+1,:) = xdd2(DOFsave);
 	
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x2;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x2;
-        end
-	end
-    
     % Reset variables for the next time step
     x0   = x2;
 	xd0  = xd2;
 	xdd0 = xdd2;
     
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Kim method (implicit): ' ...
-			num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
-
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    V = zeros(NumTimeStep+1,NumDoF);
-    A = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-    V(:,ActiveDoFs) = vvec;
-    A(:,ActiveDoFs) = avec;
-else
-    U = uvec;
-    V = vvec;
-    A = avec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+[U,V,A] = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec,vvec,avec);
 
 end

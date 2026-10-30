@@ -69,6 +69,22 @@ classdef TimeIntegrationTest < matlab.unittest.TestCase
             tc.verifyLessThan(max(abs(U(:) - Uex(:))), 1e-3);
         end
 
+        function consistentMassFreeVibrationIsAccurate(tc, scheme)
+            % Non-diagonal (consistent) mass matrix: the explicit schemes
+            % then solve with M in every step. Modes [1;1] (w = 1) and
+            % [1;-1] (w = 3).
+            M = [2 1; 1 2]/3;
+            dtmax = 0.005*[1.5 1.7 1];
+            fh = scheme{1};
+            extra = scheme{2};
+            [~, T, U] = evalc(['fh(tc.K, M, zeros(2), [0;0], zeros(2,1), [1;0], ' ...
+                'zeros(2,1), 2, [1 2], [1;2], tc.tsim, 0, dtmax, tc.tsim, extra{:})']);
+            [Phi, W2] = eig(tc.K, M);
+            q0 = Phi\[1; 0];
+            Uex = (Phi*(q0.*cos(sqrt(diag(W2))*T')))';
+            tc.verifyLessThan(max(abs(U(:) - Uex(:))), 5e-3);
+        end
+
         function convergesWithExpectedOrder(tc, scheme)
             dt = [0.02 0.01];
             e = zeros(size(dt));

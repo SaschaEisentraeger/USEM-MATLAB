@@ -47,56 +47,10 @@ function [T,U] = ExplicitGeneralizedAlphaMethod(K,M,C,F,F_dt,U0,V0,...
 				 NumDoF,DOFsave,ActiveDoFs,ExciteParam,SignalType,dtmax,...
 				 tsim)
 
-% (De-)activate the waitbar
-flag_wb = true;
+% Time step: same stability limit as the CDM (factor 1)
+[dt,NumTimeStep] = TimeStepSize(dtmax,tsim,1);
 
-% Determine the time increment used for the time integration
-dt = min(dtmax);
-
-% Number of time steps
-NumTimeStep = ceil(round(tsim/dt,3,'decimal'));
-
-% Save the full displacement field for a few time steps
-nUAll = 0;
-if nUAll > 0
-    nSave = ceil(NumTimeStep/nUAll);
-    UAll = cell(nUAll,1);
-end
-
-if flag_wb
-	% Less updates of the waitbar (avoid slowing the simulation down)
-	nUpdate = ceil(NumTimeStep/1000);
-end
-
-% Adjusted time increment
-dt = tsim/NumTimeStep;
-
-fprintf('Time step size used: %6.3e\n\n',dt);
-
-% Number of active degrees of freedom
-NumDoFActive = numel(ActiveDoFs);
-
-% Number of degrees of freedom that are saved
-NumDoFSave = numel(DOFsave);
-
-% Test whether the stiffness matrix is a triangular matrix
-if (istriu(K) || istril(K)) && ~isscalar(K)
-    K = K + K';
-    M = M + M';
-    C = C + C';
-end
-
-if isstruct(F_dt)
-	Fdt.Neumann = F_dt.Neumann;
-	Fdt.K       = F_dt.K;
-	Fdt.C       = F_dt.C;
-	Fdt.M       = F_dt.M;
-else
-	Fdt.Neumann = F_dt;
-	Fdt.K       = zeros(NumDoFActive,1);
-	Fdt.C       = zeros(NumDoFActive,1);
-	Fdt.M       = zeros(NumDoFActive,1);
-end
+[K,M,C,Fdt] = PrepareSystem(K,M,C,F_dt,numel(ActiveDoFs));
 
 % Parameter for the time integration scheme:
 % one-parameter family
@@ -127,38 +81,25 @@ else
     dM = decomposition(M);
 end
 
-% Initial conditions
-% Displacement
+% Initial conditions; acceleration from the equation of motion
 x0  = U0;
-% Velocity
 xd0 = V0;
-
-% Acceleration
 if flag_diag
-	xdd0 = Minv.*(F - C*xd0 - K*x0                                             + ...
-				  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)       + ...
-				  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)             + ...
-				  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1) + ...
-				  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2));	
+    xdd0 = InitialAcceleration(@(r) Minv.*r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
 else
-	xdd0 = dM\(F - C*xd0 - K*x0                                            + ...
- 			  Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,0)       + ...
-			  Fdt.K*ExcitationSignal(SignalType,ExciteParam,0)             + ...
-			  Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,0,1) + ...
-			  Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,0,2)) ;
-end				  
+    xdd0 = InitialAcceleration(@(r) dM\r,F,Fdt,K,C,x0,xd0,...
+                               SignalType,ExciteParam);
+end
 
 % Result variables
 tvec = zeros(NumTimeStep+1,1);
-uvec = zeros(NumTimeStep+1,NumDoFSave);
+uvec = zeros(NumTimeStep+1,numel(DOFsave));
 % Assign the initial conditions to the results
 tvec(1) = 0;
 uvec(1,:) = x0(DOFsave);
 
-if flag_wb
-	% Waitbar
-	h = waitbar(0,'Explicit generalized alpha method: ');
-end
+pb = ProgressBar('Explicit generalized alpha method',NumTimeStep);
 
 disp('Solve the equations of motion using the EG-alpha (Explicit Generalized Alpha Method)');
 disp('');
@@ -177,18 +118,15 @@ for i = 1:NumTimeStep
     % sub time step
     x1malpha_f_P = (1 - alpha_f)*x1_P + alpha_f*x0;
     xd1malpha_f_P = (1 - alpha_f)*xd1_P + alpha_f*xd0;
+    % Equation of motion at the time t + (1-alpha_f)*dt (load evaluated
+    % there, not interpolated)
+    [s,ds,dds] = SignalHistory(SignalType,ExciteParam,dt*((i-1)+1-alpha_f));
 	if flag_diag
-		xdd1malpha_m = Minv.*(F - C*xd1malpha_f_P - K*x1malpha_f_P                                            + ...
-				              Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,dt*((i-1)+1-alpha_f))       + ...
-				              Fdt.K*ExcitationSignal(SignalType,ExciteParam,dt*((i-1)+1-alpha_f))             + ...
-				              Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,dt*((i-1)+1-alpha_f),1) + ...
-				              Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,dt*((i-1)+1-alpha_f),2));
+		xdd1malpha_m = Minv.*(F - C*xd1malpha_f_P - K*x1malpha_f_P + ...
+                              Fdt.Neumann*s + Fdt.K*s + Fdt.C*ds + Fdt.M*dds);
 	else
-		xdd1malpha_m = dM\(F - C*xd1malpha_f_P - K*x1malpha_f_P                                           + ...
-				          Fdt.Neumann*ExcitationSignal(SignalType,ExciteParam,dt*((i-1)+1-alpha_f))       + ...
-				          Fdt.K*ExcitationSignal(SignalType,ExciteParam,dt*((i-1)+1-alpha_f))             + ...
-				          Fdt.C*ExcitationSignalDerivative(SignalType,ExciteParam,dt*((i-1)+1-alpha_f),1) + ...
-				          Fdt.M*ExcitationSignalDerivative(SignalType,ExciteParam,dt*((i-1)+1-alpha_f),2));
+		xdd1malpha_m = dM\(F - C*xd1malpha_f_P - K*x1malpha_f_P + ...
+                           Fdt.Neumann*s + Fdt.K*s + Fdt.C*ds + Fdt.M*dds);
 	end
           
     % Acceleration
@@ -204,15 +142,6 @@ for i = 1:NumTimeStep
     tvec(i+1)   = tE;
     uvec(i+1,:) = x1(DOFsave);
     
-	if nUAll > 0
-        if mod(i,nSave) == 0
-            c = i/nSave;
-            UAll{c} = x1;
-		elseif i == NumTimeStep
-            UAll{nUAll} = x1;
-        end
-	end
-	
     % Reset variables for the next time step
     % Displacement
     x0 = x1;
@@ -220,34 +149,13 @@ for i = 1:NumTimeStep
     xd0 = xd1;
     % Acceleration
     xdd0 = xdd1;
-  
-	if flag_wb
-		% Waitbar
-		if mod(i,nUpdate) == 0
-			waitbar(i/NumTimeStep,h,['Explicit generalized alpha method: '...
-			num2str(i/NumTimeStep*100,'%5.1f') '%'])
-		end
-	end
+    
+    pb.update(i);
 end
+pb.close();
 
-if flag_wb
-	% Delete the waitbar
-	close(h)
-end
-
-% Results
-if NumDoFActive == NumDoFSave
-    U = zeros(NumTimeStep+1,NumDoF);
-    U(:,ActiveDoFs) = uvec;
-    T = tvec;
-else
-    U = uvec;
-    T = tvec;
-end
-
-if nUAll > 0
-    save(['.' filesep 'subroutines' filesep 'Results' filesep 'Dynamic' ...
-              filesep 'UAll.mat'],'-v7.3')
-end
+% Results (all DOFs if every active DOF was saved)
+U = ExpandToAllDoFs(NumDoF,ActiveDoFs,uvec);
+T = tvec;
 
 end

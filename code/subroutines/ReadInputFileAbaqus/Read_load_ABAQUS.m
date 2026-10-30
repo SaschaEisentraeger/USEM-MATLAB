@@ -344,7 +344,7 @@ for i = 1:number_of_sets
         % node set name
         set_name = ['*Nset, nset=' cload(counter_c).set_name];
         while ftell(fid)~=end_position
-            if ~isSetHeader(TEMP,set_name)
+            if ~IsSetHeader(TEMP,set_name)
             else
                 flag_generate = contains(TEMP,'generate');
                 while true
@@ -375,7 +375,7 @@ for i = 1:number_of_sets
         set_name_el = ['*Elset, elset=' dsload(counter_d).set_name];
         while ftell(fid)~=end_position
             % node set
-            if isSetHeader(TEMP,set_name)
+            if IsSetHeader(TEMP,set_name)
                 while true
                     if contains(TEMP,'generate')
                         TEMP = fgetl(fid);
@@ -393,7 +393,7 @@ for i = 1:number_of_sets
                 end
             end
             % element set
-            if isSetHeader(TEMP,set_name_el)
+            if IsSetHeader(TEMP,set_name_el)
                 while true
                     if contains(TEMP,'generate')
                         TEMP = fgetl(fid);
@@ -423,7 +423,7 @@ for i = 1:number_of_sets
         % element set name
         set_name = ['*Elset, elset=' body_force(counter_bf).set_name];
         while ftell(fid)~=end_position
-            if ~isSetHeader(TEMP,set_name)
+            if ~IsSetHeader(TEMP,set_name)
             else
                 while true
                     if contains(TEMP,'generate')
@@ -453,7 +453,7 @@ for i = 1:number_of_sets
         % element set name
         set_name = ['*Elset, elset=' gravity(counter_g).set_name];
         while ftell(fid)~=end_position
-            if ~isSetHeader(TEMP,set_name)
+            if ~IsSetHeader(TEMP,set_name)
             else
                 while true
                     if contains(TEMP,'generate')
@@ -496,18 +496,4 @@ end
 
 fclose('all');
 
-end
-
-
-function tf = isSetHeader(line, header)
-% True if line is the header of the set definition "header", e.g.
-% '*Nset, nset=Set-1' matches '*Nset, nset=Set-1, instance=Part-1' but not
-% '*Nset, nset=Set-10'.
-if ~ischar(line)
-    tf = false;
-    return
-end
-line = strtrim(line);
-n = numel(header);
-tf = strncmp(line, header, n) && (numel(line) == n || line(n+1) == ',');
 end
