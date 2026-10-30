@@ -1,34 +1,175 @@
-\documentclass[preprint,12pt,authoryear]{elsarticle}
-
+% !TeX program = pdflatex
+% !BIB program = bibtex
+% =============================================================================
+% Manuscript on the paper template of the Chair of Computational Mechanics,
+% OVGU Magdeburg. Compiles with pdfLaTeX and LuaLaTeX:
+%   latexmk -pdf main        (or: latexmk -lualatex main)
+% =============================================================================
+\documentclass{article}
+%
+% -----------------------------------------------------------------------------
+% Layout: page geometry, header, title block (do not change)
+% -----------------------------------------------------------------------------
+\usepackage{arxiv}
+%
+% -----------------------------------------------------------------------------
+% Paper metadata -- edit here only (used for title, header and PDF metadata)
+% -----------------------------------------------------------------------------
+\newcommand{\papertitle}{Well-conditioned and stable metric trial functions for unsymmetric spectral elements: reference-node Lagrange bases and a hybrid metric--parametric trial space}
+\newcommand{\papershorttitle}{}  % centre of the page header; empty, since the long
+                                % journal name on the right extends past the centre
+\newcommand{\journalname}{Computer Methods in Applied Mechanics and Engineering}  % target journal
+\newcommand{\paperauthors}{S.~Eisentr\"ager}  % PDF metadata only
+\newcommand{\paperkeywords}{unsymmetric finite element method, Petrov-Galerkin method, spectral element method, curved-edge distortion, metric shape functions, Lebesgue constant, generalized Vandermonde matrix}
+%
+% -----------------------------------------------------------------------------
+% Fonts and encoding (UTF-8 input is the LaTeX default since 2018)
+% Times-like text and math (newtx), Inconsolata as typewriter font; identical
+% output with pdfLaTeX (Type 1 fonts) and LuaLaTeX (OpenType via fontspec).
+% -----------------------------------------------------------------------------
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+\fi
+\usepackage{amsmath}    % must be loaded BEFORE newtxmath
+\usepackage{amsthm}     % theorem environments (defined in preamble.tex)
+\usepackage{newtxtext}  % with LuaLaTeX, this loads fontspec
+\usepackage{newtxmath}  % includes the AMS symbols: do NOT load amssymb/amsfonts
+\ifPDFTeX
+  \usepackage{inconsolata}  % after newtxtext, which sets its own \ttdefault
+\else
+  \setmonofont{Inconsolatazi4-Regular.otf}[BoldFont=Inconsolatazi4-Bold.otf]
+  \setsansfont{texgyreheros-regular.otf}[
+    BoldFont=texgyreheros-bold.otf, ItalicFont=texgyreheros-italic.otf,
+    BoldItalicFont=texgyreheros-bolditalic.otf]  % as newtxtext with pdfLaTeX
+  \DeclareMathAlphabet{\mathsf}{\encodingdefault}{\sfdefault}{m}{n}
+\fi
+\usepackage{microtype}
+%
+% -----------------------------------------------------------------------------
+% Mathematics
+% -----------------------------------------------------------------------------
+\usepackage{mathtools}
+\usepackage{bm}         % bold math symbols: \bm{\sigma}
+\usepackage{cancel}
+\usepackage{xfrac}      % compact fractions: \sfrac{1}{2}
+\usepackage{scalerel}
+\usepackage{mleftright} % \left( ... \right) without extra space
+\mleftright             % ... applied to all \left/\right pairs
+%
+% -----------------------------------------------------------------------------
+% Tables (booktabs rules: \toprule, \midrule, \cmidrule, \bottomrule)
+% -----------------------------------------------------------------------------
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{colortbl}
+\usepackage{arydshln}   % dashed lines; load after longtable and colortbl
+\usepackage{diagbox}
+\usepackage{multirow}
+\usepackage{adjustbox}  % wide tables scaled to the text width
+\usepackage{siunitx}    % units \qty{210}{\giga\pascal}, number columns S
+\sisetup{
+  exponent-product     = \cdot,   % 1.2 \cdot 10^{-3} instead of 1.2 \times 10^{-3}
+  separate-uncertainty = true,
+  range-phrase         = --,
+}
+%
+% -----------------------------------------------------------------------------
+% Figures
+% -----------------------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{./figs/}}
+\usepackage{overpic}    % LaTeX labels on top of graphics
+\usepackage{caption}
+\captionsetup[table]{position=top, skip=7pt}  % caption above tables
+\usepackage{subcaption} % subfigures: subfigure environment or \subfloat
+\usepackage{pgfplots}   % plots from data files
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{groupplots}
+\usepackage{placeins}   % \FloatBarrier
+%
+% -----------------------------------------------------------------------------
+% Algorithms
+% -----------------------------------------------------------------------------
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+%
+% -----------------------------------------------------------------------------
+% Footnotes, citations, line numbers
+% -----------------------------------------------------------------------------
+\usepackage[bottom,symbol]{footmisc}  % footnotes below floats
+\usepackage[noadjust]{cite}           % sorted and compressed [1-3]
+\usepackage{lineno}                   % \linenumbers (see below)
+%
+% -----------------------------------------------------------------------------
+% Hyperlinks (load late) and clever references (load last)
+% -----------------------------------------------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+  pdftitle    = {\papertitle},
+  pdfauthor   = {\paperauthors},
+  pdfsubject  = {Computational Mechanics},
+  pdfkeywords = {\paperkeywords},
+  hidelinks,
+}
+\usepackage[capitalise]{cleveref}  % \cref: Fig. 1, Eq. (1), Table 1, Section 1;
+                                    % \Cref at the start of a sentence: Figure 1, Equation (1)
+%
+% -----------------------------------------------------------------------------
+% Notation -- define symbols once, use them consistently
+% -----------------------------------------------------------------------------
+\newcommand{\vect}[1]{\bm{#1}}                       % vectors and matrices
+\newcommand{\dd}{\mathop{}\!\mathrm{d}}              % differential: \dd x
+\DeclareRobustCommand{\transp}{\mathsf{T}}             % transpose: \vect{u}^\transp (overrides newtxmath)
+\newcommand{\dof}{\mathrm{DOF}}
+%
+% Paper-specific theorem environments, notation and plot styles
 \input{preamble}
-
-\journal{Computer Methods in Applied Mechanics and Engineering}
-
+%
+% -----------------------------------------------------------------------------
+% Title block
+% -----------------------------------------------------------------------------
+\title{\papertitle}
+%\date{}                         % no date
+%\date{September 9, 1985}        % fixed date
+%
+\author{
+  \href{https://orcid.org/0000-0001-8774-9732}{\includegraphics[scale=0.06]{./logo/orcid.pdf}\hspace{1mm}S.~Eisentr\"ager\textsuperscript{1,$*$}}\\
+  \href{mailto:sascha.eisentraeger@ovgu.de}{\texttt{sascha.eisentraeger@ovgu.de}}\\
+  Faculty of Mechanical Engineering\\
+  Institute of Mechanics\\
+  Chair of Computational Mechanics\\
+  Otto von Guericke University Magdeburg\\
+  Magdeburg, 39106, Germany
+%  % further authors to be added (side by side: \And; new row: \AND)
+%  \And
+%  \href{https://orcid.org/0000-0000-0000-0000}{\includegraphics[scale=0.06]{./logo/orcid.pdf}\hspace{1mm}F.~Surname\textsuperscript{2}}\\
+%  \href{mailto:firstname.surname@ovgu.de}{\texttt{firstname.surname@ovgu.de}}\\
+%  Faculty of Mechanical Engineering\\
+%  Institute of Mechanics\\
+%  Otto von Guericke University Magdeburg\\
+%  Magdeburg, 39106, Germany
+}
+%
+\renewcommand{\headeright}{Preprint submitted to \textnormal{\itshape\journalname}}
+\renewcommand{\undertitle}{Preprint submitted to \textnormal{\itshape\journalname}}
+\renewcommand{\shorttitle}{\papershorttitle}
+%
+% =============================================================================
 \begin{document}
-
-\begin{frontmatter}
-
-\title{Well-conditioned and stable metric trial functions for unsymmetric
-  spectral elements: reference-node Lagrange bases and a hybrid
-  metric--parametric trial space}
-
-\author[ovgu]{Sascha Eisentr\"ager\corref{cor}}
-\ead{sascha.eisentraeger@ovgu.de}
-% further authors to be added
-\cortext[cor]{Corresponding author}
-\affiliation[ovgu]{organization={Otto von Guericke University Magdeburg},
-  city={Magdeburg}, country={Germany}}
-
+%
+%\linenumbers   % line numbers, e.g. for the review version
+%
+\maketitle
+%
 \input{sections/abstract}
-
-\begin{keyword}
-unsymmetric finite element method \sep Petrov-Galerkin method \sep spectral element
-method \sep curved-edge distortion \sep metric shape functions \sep Lebesgue constant
-\sep generalized Vandermonde matrix
-\end{keyword}
-
-\end{frontmatter}
-
+%
+\keywords{Unsymmetric finite element method \and Petrov-Galerkin method \and Spectral element method \and Curved-edge distortion \and Metric shape functions \and Lebesgue constant \and Generalized Vandermonde matrix}
+%
+\footnote[0]{$^*$Corresponding author. The superscript numbers indicate the order of the authors.}
+\renewcommand*{\thefootnote}{\arabic{footnote}}
+\setcounter{footnote}{0}
+%
 \input{sections/introduction}
 \input{sections/formulation}
 \input{sections/basis}
@@ -37,17 +178,38 @@ method \sep curved-edge distortion \sep metric shape functions \sep Lebesgue con
 \input{sections/numerics}
 \input{sections/discussion}
 \input{sections/conclusions}
-
-\input{sections/appendix}
-
-\section*{Data availability}
-The implementation (MATLAB/GNU Octave), the scripts that produce every number and figure of this paper (\url{manuscript/studies}) and the raw data are contained in the USEM code repository. The raw data comprise \url{manuscript/data}, including the calibrated Gauss rules in \url{manuscript/data/quadrature}, and the results of the thick-cylinder study in \url{studies/thick_cylinder/results/raw_calibrated}. The generated tables (\texttt{manuscript/generated}) are written by these scripts, and the source of every table is noted in the LaTeX source.
-
-\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
-During the preparation of this work, the author used \texttt{Claude} (Anthropic), accessed through \texttt{Claude Code}, as an AI-assisted tool and retained full control over its use. The research ideas, methodology and numerical studies were defined by the author, who specified each task and reviewed, tested and approved all changes before their adoption. The tool was used to extend and document the \texttt{MATLAB}/GNU Octave code, to execute the numerical studies and post-process the results, to generate figures from computed data with reproducible scripts, to draft and revise the manuscript text in accordance with the author's instructions and to check the cited literature. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
+%
+% CHECK: acknowledge funding, if any, e.g.:
+%\paragraph{Acknowledgment} The authors gratefully acknowledge the financial support provided by the German Research Foundation (Deutsche Forschungsgemeinschaft -- DFG) through the research grant EI 1188/3-1 (project number: 497531141).
+%
+% -----------------------------------------------------------------------------
+% Statements required by many journals at submission (uncomment and adapt)
+% -----------------------------------------------------------------------------
+%
+% CRediT author contributions (https://credit.niso.org); use only these 14 roles:
+% Conceptualization, Data curation, Formal analysis, Funding acquisition,
+% Investigation, Methodology, Project administration, Resources, Software,
+% Supervision, Validation, Visualization, Writing -- original draft,
+% Writing -- review & editing
+%\paragraph{CRediT authorship contribution statement}
+%\textbf{Sascha Eisentr\"ager:} Conceptualization, Methodology, Software, Formal analysis, Investigation, Writing -- original draft, Writing -- review \& editing.
+%
+%\paragraph{Declaration of competing interest} The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+%
+\paragraph{Data availability} The implementation (MATLAB/GNU Octave), the scripts that produce every number and figure of this paper (\url{manuscript/studies}) and the raw data are contained in the USEM code repository. The raw data comprise \url{manuscript/data}, including the calibrated Gauss rules in \url{manuscript/data/quadrature}, and the results of the thick-cylinder study in \url{studies/thick_cylinder/results/raw_calibrated}. The generated tables (\texttt{manuscript/generated}) are written by these scripts, and the source of every table is noted in the LaTeX source.
+%
+\paragraph{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process} During the preparation of this work, the author used \texttt{Claude} (Anthropic), accessed through \texttt{Claude Code}, as an AI-assisted tool and retained full control over its use. The research ideas, methodology and numerical studies were defined by the author, who specified each task and reviewed, tested and approved all changes before their adoption. The tool was used to extend and document the \texttt{MATLAB}/GNU Octave code, to execute the numerical studies and post-process the results, to generate figures from computed data with reproducible scripts, to draft and revise the manuscript text in accordance with the author's instructions and to check the cited literature. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 % CHECK: adapted from the companion paper; confirm that it describes how the tool was used for this paper (and switch to "authors" once co-authors are added)
-
-\bibliographystyle{elsarticle-harv}
-\bibliography{references}
-
+%
+\input{sections/appendix}
+%
+% -----------------------------------------------------------------------------
+% References
+% -----------------------------------------------------------------------------
+\cleardoublepage
+\bibliographystyle{./bib/IEEEtranDOI}
+\phantomsection
+\addcontentsline{toc}{section}{References}
+\bibliography{./bib/references}
+%
 \end{document}

@@ -1,32 +1,11 @@
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-\usepackage{lmodern}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{bm}
-\usepackage{booktabs}
-\usepackage{multirow}
-\usepackage{adjustbox}
-\usepackage{graphicx}
-\usepackage{xcolor}
-\usepackage{tikz}
-\usepackage{pgfplots}
-\usepgfplotslibrary{groupplots}
-\pgfplotsset{compat=1.18}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
-\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
-  urlcolor=blue!50!black]{hyperref}
-\pdfstringdefDisableCommands{\def\corref#1{}}  % no footnote mark in the PDF metadata
-\usepackage[capitalise]{cleveref}
-\crefname{equation}{Eq.}{Eqs.}\Crefname{equation}{Equation}{Equations}
-\crefname{section}{Sect.}{Sects.}\Crefname{section}{Section}{Sections}
-\crefname{subsection}{Sect.}{Sects.}\Crefname{subsection}{Section}{Sections}
-\crefname{figure}{Fig.}{Figs.}\Crefname{figure}{Figure}{Figures}
-\crefname{table}{Table}{Tables}\Crefname{table}{Table}{Tables}
-\crefname{appendix}{Appendix}{Appendices}\Crefname{appendix}{Appendix}{Appendices}
-\crefname{algorithm}{Algorithm}{Algorithms}
-
-% Theorem environments
+% =============================================================================
+% Paper-specific definitions (input from main.tex after the template packages;
+% the template notation \vect, \dd, \transp and \dof is defined in main.tex)
+% =============================================================================
+%
+% -----------------------------------------------------------------------------
+% Theorem environments (amsthm is loaded in main.tex)
+% -----------------------------------------------------------------------------
 \newtheorem{proposition}{Proposition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
@@ -34,12 +13,12 @@
 \newtheorem{definition}{Definition}
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
-
+%
+% -----------------------------------------------------------------------------
 % Notation
-\newcommand{\vect}[1]{\bm{#1}}
+% -----------------------------------------------------------------------------
 \newcommand{\matr}[1]{\bm{#1}}
-\newcommand{\T}{\top}
-\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\T}{\transp}
 \newcommand{\bx}{\vect x}
 \newcommand{\bxi}{\bm\xi}
 \newcommand{\R}{\mathbb{R}}
@@ -67,8 +46,10 @@
 \newcommand{\PM}{USEM}
 \newcommand{\PH}{USEM-H}
 \newcommand{\data}{data}   % path to the data files (relative to main.tex)
-
+%
+% -----------------------------------------------------------------------------
 % Plot styles
+% -----------------------------------------------------------------------------
 \pgfplotscreateplotcyclelist{bases}{%
   {red,mark=*},{blue,mark=square*},{black,mark=triangle*},
   {green!50!black,mark=diamond*},{orange,mark=pentagon*}}
@@ -81,7 +62,6 @@
   styPH/.style={blue,mark=triangle*,mark size=1.8pt,thick},
   styLN/.style={black,dashed,thick},
 }
-
 
 % Styles of the thick-cylinder figures (colours for p = 2..8, dark = high p)
 \newcommand{\eE}{e_{E}}
@@ -105,6 +85,3 @@
   meshplot/.style={width=3.0cm, height=3.0cm, axis equal image, hide axis,
     title style={font=\scriptsize, yshift=-1.2ex}},
 }
-
-% Avoid overfull lines with long unbreakable math/macros
-\setlength{\emergencystretch}{2em}

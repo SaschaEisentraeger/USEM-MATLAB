@@ -11,3 +11,5 @@
 main.pdf
 # study logs
 studies/logs/
+# template logo (the root .gitignore excludes *.pdf)
+!logo/orcid.pdf

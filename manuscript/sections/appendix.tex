@@ -1,4 +1,11 @@
+% Equations, figures and tables are numbered per appendix section: (A.1),
+% Figure A.1, Table A.1.
+\clearpage    % appendix on a new page (optional)
 \appendix
+\numberwithin{equation}{section}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+%
 \section{Test elements and meshes}
 \label{app:elements}
 %
