@@ -1,0 +1,61 @@
+% Submission items for Computers & Mathematics with Applications (CAMWA),
+% special issue of the conference HOFEIM 2026 (Siena, Italy).
+% Requirements taken from the CAMWA guide for authors (ScienceDirect, read on 30 Oct 2026).
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\setlist{nosep,leftmargin=*}
+\emergencystretch=1.5em
+\title{Submission items for CAMWA (special issue HOFEIM 2026)}
+\author{Unsymmetric spectral elements with hybrid trial space (branch \texttt{manuscript-companion-rewrite})}
+\date{30 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1em}
+
+\section{Requirements of the guide for authors}
+
+\begin{center}\small
+\begin{tabular}{@{}p{0.22\linewidth}p{0.48\linewidth}p{0.24\linewidth}@{}}
+\toprule
+Item & Requirement (guide for authors) & Status \\
+\midrule
+Article type & Regular Article, or Regular Article with Available Code (public code required; code availability statement at revision); special-issue article type & to be selected at submission \\
+Abstract & at most 250 words; no references; abbreviations defined & fulfilled (249 words) \\
+Keywords & 1 to 7, in English; avoid multi-word keywords with ``and'' or ``of'' & fulfilled (7 keywords) \\
+Highlights & optional, encouraged; separate editable file with ``highlights'' in the name; 3 to 5 bullet points, at most 85 characters each & \texttt{highlights.tex} (Sect.~2) \\
+Title page & title, author names, affiliations with postal address and country, corresponding author with e-mail & fulfilled \\
+CRediT statement & encouraged for co-author contributions & not needed (single author) \\
+Competing interests & declarations tool at submission; statement in the manuscript & in the manuscript \\
+Funding & funding sources in a standard form; role of the sponsor & in the acknowledgment \\
+Generative AI & declaration in a new section before the reference list & in the manuscript \\
+Research data & Option C: deposit in a repository and cite it, or explain why not & data availability statement; Zenodo DOI after acceptance \\
+References & numbered in square brackets in order of appearance; DOIs where available; style applied at proof stage & fulfilled \\
+Appendices & numbering A, B, \dots; equations (A.1), tables and figures A.1 & fulfilled \\
+Footnotes & sparingly, numbered consecutively & fulfilled \\
+LaTeX & editable source files; Elsevier template encouraged, not required & author's own template (\texttt{arxiv.sty}) kept \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Highlights (separate file \texttt{highlights.tex})}
+
+\begin{itemize}
+  \item A Lagrange basis lowers the Vandermonde condition number up to $10^4$-fold at $p=16$.
+  \item Hybrid trial space: complete polynomials in skew, others in reference coordinates.
+  \item The hybrid element equals the conventional spectral element on straight-sided meshes.
+  \item Optimal convergence on curved meshes where the original metric element diverges.
+  \item Eigenvalues with negative real part of the original metric element are removed.
+\end{itemize}
+
+\section{Open points}
+
+\begin{itemize}
+  \item Exact title of the special issue and its article type in the submission system (the special-issue page could not be retrieved).
+  \item Zenodo DOI of the archived repository state (after acceptance).
+\end{itemize}
+
+\end{document}

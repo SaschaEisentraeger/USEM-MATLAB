@@ -26,7 +26,7 @@ The hybrid trial space $\Tp_p$ of an element is spanned by two groups of functio
 %
 Here, $L_a$ denotes the Legendre polynomial of degree $a$, $(\tilde\xi,\tilde\eta)$ are the scaled skew coordinates \cref{eq:bbox} and $(\xi,\eta)$ the reference coordinates of the geometry map. Since the scaled skew coordinates are affine functions of $(x,y)$, the first group spans exactly the complete polynomials $\Pp_p(x,y)$. The second group, the complement $\Cp_p$, consists of the $p(p+1)/2$ products of Legendre polynomials whose total degree exceeds $p$, and these are evaluated in the reference coordinates. As for \PM, the shape functions $M_i^K$ of \PH\ are obtained from \cref{eq:vandermonde} with these $n$ functions as basis $\{\phi_c\}$. Since all functions are evaluated at the reference coordinates of the query points, only the geometry map $\bx_K(\xi,\eta)$ is required, but not its inverse.
 
-In contrast to the first group, whose basis can be chosen freely (\cref{sec:basis-invariance}), the choice of the complement is part of the definition of the trial space. On a curved element, the complete polynomials in $(x,y)$ are not polynomials of total degree $p$ in $(\xi,\eta)$, and a different complement, e.g., the monomials $\xi^a\eta^b$ with $a+b>p$, would give different shape functions. The Legendre products in \cref{eq:hybrid} are the natural choice: due to the orthogonality of the Legendre polynomials, every function of $\Cp_p$ is orthogonal on the reference square to all polynomials of total degree $p$ in $(\xi,\eta)$, i.e., $\int_{\Kh}L_a(\xi)L_b(\eta)\,\xi^i\eta^j\dd\xi\dd\eta=0$ for $a+b>p$ and $i+j\le p$. That is to say, $\Cp_p$ is the orthogonal complement of the polynomials of total degree $p$ within $\Qp_p(\xi,\eta)$, which is unique and does not depend on any basis.
+In contrast to the first group, whose basis can be chosen freely (\cref{sec:basis-invariance}), the choice of the complement is part of the definition of the trial space. On a curved element, the complete polynomials in $(x,y)$ are not polynomials of total degree $p$ in $(\xi,\eta)$, and a different complement, e.g., the monomials $\xi^a\eta^b$ with $a+b>p$, would give different shape functions. The Legendre products in \cref{eq:hybrid} are the natural choice: due to the orthogonality of the Legendre polynomials, every function of $\Cp_p$ is orthogonal on the reference square to all polynomials of total degree $p$ in $(\xi,\eta)$, i.e., $\int\limits_{\Kh}L_a(\xi)L_b(\eta)\,\xi^i\eta^j\dd\xi\dd\eta=0$ for $a+b>p$ and $i+j\le p$. That is to say, $\Cp_p$ is the orthogonal complement of the polynomials of total degree $p$ within $\Qp_p(\xi,\eta)$, which is unique and does not depend on any basis.
 %
 \subsection{Properties}
 \label{sec:hybrid-properties}
@@ -80,7 +80,7 @@ The best fit in \cref{eq:quasiopt} is at least as accurate as the interpolant, w
 Here, $h_K$ is the diameter of the element, $|f|_{p+1}$ the largest $(p+1)$-th derivative of $f$ on the convex hull of the element, $C$ a constant that depends only on $p$, and
 %
 \begin{equation}
-  \Lam'_{\mathcal U}=h_K\max_{\bx\in K}\sum_i\bigl|\nabla M_i^K(\bx)\bigr|
+  \Lam'_{\mathcal U}=h_K\max_{\bx\in K}\sum\limits_{i}\bigl|\nabla M_i^K(\bx)\bigr|
   \label{eq:lebesgue1}
 \end{equation}
 %
