@@ -8,7 +8,7 @@ function K = cyl_Ke_PM(p, C, x, y, nq)
 %   hybrid), nq x nq Gauss points. As in Ke_2D, the local coordinates of
 %   the integration points are passed to ShapeFunctions2D_Metric. The loop
 %   over the integration points is vectorized; the result agrees with
-%   Ke_2D(p,C,x,y,nq,nq) to round-off (see cyl_verify.m).
+%   Ke_2D(p,C,x,y,nq,nq) to round-off.
 nn = numel(x);  ndof = 2*nn;
 Qd = cyl_quad(p, nq);
 W = Qd.W.';  N = Qd.N;  dNxi = Qd.dNxi;  dNeta = Qd.dNeta;

@@ -12,9 +12,6 @@ function results = run_tests(varargin)
 %   results = run_tests(..., 'Coverage', true)
 %                                           write a Cobertura coverage
 %                                           report for code/subroutines
-%   results = run_tests(..., 'Parallel', true)
-%                                           allow parfor loops in the code
-%                                           to start a parallel pool
 %
 %   JUnit XML (and the coverage report) are written to tests/results/.
 %   The function errors if any test fails, so it can be used in CI:
@@ -31,7 +28,6 @@ ip = inputParser;
 ip.addOptional('scope', 'all', @(s) any(strcmpi(s, {'all', 'unit', 'integration'})));
 ip.addParameter('KnownIssues', false, @islogical);
 ip.addParameter('Coverage', false, @islogical);
-ip.addParameter('Parallel', false, @islogical);
 ip.parse(varargin{:});
 opt = ip.Results;
 
@@ -40,16 +36,6 @@ rootDir = fileparts(testDir);
 outDir  = fullfile(testDir, 'results');
 if ~exist(outDir, 'dir')
     mkdir(outDir);
-end
-
-% Several routines use parfor. Without an open pool MATLAB would start one
-% automatically, which costs more time than the tests themselves. Disable
-% the automatic pool creation for the duration of the run (restored below).
-if ~opt.Parallel && ~isempty(ver('parallel'))
-    ps = parallel.Settings;
-    autoCreate = ps.Pool.AutoCreate;
-    ps.Pool.AutoCreate = false;
-    restorePool = onCleanup(@() set(ps.Pool, 'AutoCreate', autoCreate));
 end
 
 switch lower(opt.scope)

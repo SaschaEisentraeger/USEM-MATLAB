@@ -2,9 +2,7 @@ function prob = cyl_problem(kind, E, nu)
 %CYL_PROBLEM Exact solution, strains, stresses and body force.
 %
 %   prob = cyl_problem(kind, E, nu) for plane stress with Young's modulus E
-%   and Poisson's ratio nu. The fields are derived symbolically with the
-%   differential operators of the MMS module (code/subroutines/MMS_2D:
-%   grad, div) in the same way as MMS_2D/examples/examples_Elasticity.m:
+%   and Poisson's ratio nu. The fields are derived symbolically:
 %       epsilon = sym(grad u),  sigma = 2 mu epsilon + lambda tr(epsilon) I,
 %       f = -div(sigma).
 %
@@ -35,14 +33,16 @@ switch kind
         error('cyl_problem:kind', 'Unknown problem "%s".', kind);
 end
 
-% Plane stress Lame parameters (as in examples_Elasticity.m)
+% Plane stress Lame parameters
 Es = sym(E);  nus = sym(nu);
 lambda = Es*nus/(1 - nus^2);
 mu = Es/(2*(1 + nus));
 
+grad = @(u) [diff(u(1), x), diff(u(2), x); diff(u(1), y), diff(u(2), y)];
 epsilon = @(u) 1/2*(grad(u) + (grad(u)).');
 sigma = @(u) 2*mu*epsilon(u) + lambda*trace(epsilon(u))*eye(2);
-fFun = @(u) -div(sigma(u));
+divergence = @(s) [diff(s(1,1), x) + diff(s(2,1), y); diff(s(1,2), x) + diff(s(2,2), y)];
+fFun = @(u) -divergence(sigma(u));
 
 epsS = epsilon(u);
 sigS = sigma(u);

@@ -47,7 +47,6 @@ end
 
 for alpha = alphas
     fname = fullfile(outdir, sprintf('study_a%03d.csv', alpha));
-    % The ABAQUS readers close all files, so the rows are appended per case
     fid = fopen(fname, 'w');
     fprintf(fid, ['problem,form,alpha,N,p,ndof,energy,L2,nodal,energySigned,' ...
                   'minDetJ,negDetJ,area,lebesgue,lebesgueGLL,condV,condKe,condK\n']);

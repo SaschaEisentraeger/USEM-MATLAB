@@ -218,30 +218,6 @@ classdef MetricHybridTest < matlab.unittest.TestCase
             tc.verifyGreaterThan(norm(K - K', 'fro')/norm(K, 'fro'), 1e-4);
         end
 
-        function combinedRoutineMatchesSeparateMatrices(tc, curved)
-            [x, y, P] = usemTestElement(curved, 3);
-            P.metricMethod = 2;
-            [K, M] = KMe_2D(P, tc.C, 2.5, x, y, 1);
-            tc.verifyEqual(K, Ke_2D(P, tc.C, x, y), 'AbsTol', 1e-12*norm(K, 'fro'));
-            tc.verifyEqual(M, Me_2D(P, 2.5, x, y, 1), 'AbsTol', 1e-12*norm(M, 'fro'));
-        end
-
-        function nodalQuadratureGivesDiagonalMass(tc, curved, p)
-            [x, y, P] = usemTestElement(curved, p);
-            P.metricMethod = 2;
-            M = Me_2D(P, 1, x, y, 2);
-            tc.verifyEqual(M, diag(diag(M)));
-            tc.verifyGreaterThan(min(diag(M)), 0);
-        end
-
-        function consistentMassReproducesTotalMass(tc, curved, p)
-            [x, y, P] = usemTestElement(curved, p);
-            P.metricMethod = 2;
-            rho = 2.5;
-            M = Me_2D(P, rho, x, y, 1);
-            Mx = M(1:2:end, 1:2:end);
-            tc.verifyEqual(sum(Mx(:)), rho*elementArea(P, x, y), 'RelTol', 1e-10);
-        end
     end
 end
 

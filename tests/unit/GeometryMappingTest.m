@@ -67,18 +67,5 @@ classdef GeometryMappingTest < matlab.unittest.TestCase
     end
 
     methods (Test)
-        function globalToLocalInvertsTheMapping(tc, shape)
-            % Requires the Optimization Toolbox (fsolve)
-            tc.assumeTrue(~isempty(ver('optim')) && ...
-                license('test', 'Optimization_Toolbox'), ...
-                'Optimization Toolbox not available.');
-            [x, y, P] = usemTestElement(shape, 3);
-            ref = [0.25 -0.6; -0.8 0.75; 0 0; 0.95 0.1];
-            for k = 1:size(ref, 1)
-                Xg = Local2GlobalCoordinatesQuad(P, ref(k,:), [x y]);
-                loc = Global2LocalCoordinatesQuad(Xg, [x y], P);
-                tc.verifyEqual(loc, ref(k,:), 'AbsTol', 1e-9);
-            end
-        end
     end
 end

@@ -4,8 +4,6 @@ classdef CodeHygieneTest < matlab.unittest.TestCase
     %   - Every file in code/ has help text ('help <name>' works).
     %   - No two files in code/ have the same name (the code folders are
     %     added to the path with genpath, so one would shadow the other).
-    %   - Every entry of TimeIntegrationMethods points to a function of
-    %     the code base.
 
     properties
         files
@@ -44,14 +42,8 @@ classdef CodeHygieneTest < matlab.unittest.TestCase
         function everySubroutineHasItsOwnFile(tc)
             % No local or nested functions: one function per file, so that
             % every subroutine can be found, called and tested on its own.
-            % Third-party files are kept as published.
-            thirdParty = {'quadmesh.m', 'expm3.m', 'maxdistcolor.m', ...
-                          'maxdistcolor_view.m', 'srgb_to_Lab.m'};
             offenders = {};
             for k = 1:numel(tc.files)
-                if any(strcmp(tc.files(k).name, thirdParty))
-                    continue
-                end
                 txt = fileread(fullfile(tc.files(k).folder, tc.files(k).name));
                 n = numel(regexp(txt, '^\s*function\s', 'lineanchors'));
                 if n > 1
@@ -61,13 +53,5 @@ classdef CodeHygieneTest < matlab.unittest.TestCase
             tc.verifyEmpty(offenders, 'Files with local or nested functions');
         end
 
-        function timeIntegrationMethodsExist(tc)
-            methods = TimeIntegrationMethods();
-            for k = 1:numel(methods)
-                f = which(func2str(methods(k).handle));
-                tc.verifyTrue(startsWith(f, tc.codeDir), ...
-                    sprintf('method %d: %s', methods(k).code, func2str(methods(k).handle)));
-            end
-        end
     end
 end

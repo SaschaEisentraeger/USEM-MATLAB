@@ -11,7 +11,8 @@ run "ms_cylinder([0 90]);" cyl_a000_a090 &
 run "ms_cylinder([15 60]);" cyl_a015_a060 &
 run "ms_cylinder(30);" cyl_a030 &
 run "ms_cylinder(45);" cyl_a045 &
+# thick cylinder with the former 2p rule (values quoted in the text)
+run "addpath('../../studies/thick_cylinder/matlab'); run_study(90, 8, 6, '$(pwd -W)/../../studies/thick_cylinder/results/raw');" cyl_2p &
+run "addpath('../../studies/thick_cylinder/matlab'); cyl_smin([0 2 4; 0 4 4; 0 8 4; 15 2 4; 15 4 4; 15 8 4; 30 2 4; 30 4 4; 30 8 4; 30 2 3; 30 4 3; 30 8 3; 30 2 6; 30 4 6], '$(pwd -W)/../../studies/thick_cylinder/results/smin.txt'); cyl_spectrum_check([0 4 4; 15 4 4; 30 4 4; 30 2 4; 45 2 4; 45 4 4; 30 4 6], '$(pwd -W)/../../studies/thick_cylinder/results/spectrum_smooth.txt');" cyl_svd &
 wait
-# restore the automatic parallel pool (disabled by ms_setup in batch sessions)
-matlab -batch "ps = parallel.Settings; ps.Pool.AutoCreate = true;"
 echo RERUNS DONE

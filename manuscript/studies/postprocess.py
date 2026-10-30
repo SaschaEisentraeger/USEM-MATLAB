@@ -235,6 +235,5 @@ if __name__ == '__main__':
     patch()
     panel()
     growth()
-    cylinder(os.environ.get('CYL_RAW', CYL))
-    cylinder(os.environ.get('CYL_RAW', CYL), 'smooth')
+    cylinder()
     print('done')

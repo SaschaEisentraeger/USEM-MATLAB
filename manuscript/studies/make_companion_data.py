@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
-"""Thick-cylinder, panel and affine-element tables of the manuscript
-(originally from a second draft, merged into this manuscript).
+"""Thick-cylinder tables of the manuscript.
 
 Collects the results of
-  docs/figures/data/metric-*.dat            element- and mesh-level studies
-                                            (studies/metric_basis/*.m)
-  studies/rajendran_panel/results/*.csv     Jacobian-unlimited patch tests
   studies/thick_cylinder/results/            distortion and convergence study
   data/unisolvence.txt                       studies/unisolvence_check.m
 and writes data/*.dat (plot data) and generated/*.tex (tables).
@@ -17,14 +13,9 @@ import shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))  # repository root
-DOCS = os.path.join(ROOT, "docs", "figures", "data")
 CYL = os.path.join(ROOT, "studies", "thick_cylinder", "results")
-# rerun of the thick-cylinder study with the calibrated Gauss rules
-# (ms_cylinder.m; tables written by studies/thick_cylinder/postprocess.py with
-# CYL_RAW/CYL_TAB pointing to these folders, see run_postprocess.sh)
+# rerun of the thick-cylinder study with the calibrated Gauss rules (ms_cylinder.m)
 CYL_RAW = os.path.join(CYL, "raw_calibrated")
-CYL_TAB = os.path.join(CYL, "tables_calibrated")
-PANEL = os.path.join(ROOT, "studies", "rajendran_panel", "results")
 DATA = os.path.join(HERE, "..", "data")
 GEN = os.path.join(HERE, "..", "generated")
 FORMS = ("PM", "PH", "PP")
@@ -66,20 +57,30 @@ def read_interp(alpha):
                 for r in csv.DictReader(f)}
 
 
+def write_convergence_tables(pr, fo, a):
+    """data/cyl_h_* (rows: N) and data/cyl_p_* (rows: p), NaN: case rejected."""
+    Ns, ps = (1, 2, 4, 8), range(2, 9)
+    D = read_cyl(a)
+    get = lambda N, p, k: float(D[(pr, fo, N, p)][k])
+    line = lambda vals: " ".join("nan" if math.isnan(v) else f"{v:.6e}" for v in vals) + "\n"
+    with open(os.path.join(DATA, f"cyl_h_{pr}_{fo}_a{a:03d}.dat"), "w") as f:
+        f.write(" ".join(["N", "h"] + [f"{k}{p}" for k in ("eE", "eL", "eN") for p in ps]) + "\n")
+        for N in Ns:
+            f.write(line([N, 1.0 / N] + [get(N, p, k) for k in ("energy", "L2", "nodal") for p in ps]))
+    with open(os.path.join(DATA, f"cyl_p_{pr}_{fo}_a{a:03d}.dat"), "w") as f:
+        f.write(" ".join(["p"] + [f"{k}N{N}" for k in ("eE", "eL", "eN", "dof") for N in Ns]) + "\n")
+        for p in ps:
+            f.write(line([p] + [get(N, p, k) for k in ("energy", "L2", "nodal", "ndof") for N in Ns]))
+
+
 def main():
     os.makedirs(DATA, exist_ok=True)
     os.makedirs(GEN, exist_ok=True)
-    # element- and mesh-level data (copied unchanged)
-    for f in sorted(os.listdir(DOCS)):
-        if f.startswith("metric-") and f.endswith(".dat"):
-            shutil.copy(os.path.join(DOCS, f), os.path.join(DATA, f))
-    # thick cylinder: h- and p-convergence tables (copied unchanged)
+    # thick cylinder: h- and p-convergence tables
     for pr in ("smooth", "lame"):
         for fo in FORMS:
             for a in (0, 15, 30, 45):
-                for kind in ("h", "p"):
-                    src = os.path.join(CYL_TAB, f"{kind}_{pr}_{fo}_a{a:03d}.dat")
-                    shutil.copy(src, os.path.join(DATA, f"cyl_{kind}_{pr}_{fo}_a{a:03d}.dat"))
+                write_convergence_tables(pr, fo, a)
 
     # mesh plots (gmsh meshes of the two studies)
     for a in (0, 15, 30, 45, 60, 90):
@@ -88,38 +89,6 @@ def main():
     for t in (0, 90, 135, 175, 225, 270):
         shutil.copy(os.path.join(ROOT, "studies", "rajendran_panel", "mesh", "plotdata", f"mesh_N1_t{t:03d}.dat"),
                     os.path.join(DATA, f"panel_mesh_N1_t{t:03d}.dat"))
-
-    # Table: asymmetry of K_e on the parallelogram (affine element)
-    rows = {}
-    with open(os.path.join(DOCS, "metric-basis-parallelogram.dat")) as f:
-        for r in csv.DictReader(f, delimiter=" ", skipinitialspace=True):
-            r = {k: v for k, v in r.items() if k}
-            rows[int(float(r["p"]))] = r
-    ps = (4, 6, 8, 10, 12, 16)
-    L = ["\\begin{tabular}{@{}l" + "c" * len(ps) + "@{}}", "\\toprule",
-         "$p$ & " + " & ".join(str(p) for p in ps) + "\\\\", "\\midrule"]
-    for key, name in (("mon", "monomial"), ("lag", "Lagrange (scaled)")):
-        L.append(name + " & " + " & ".join(sci(float(rows[p][f"asym_{key}"])) for p in ps) + "\\\\")
-    L.append("\\midrule")
-    for key, name in (("mon", "monomial"), ("lag", "Lagrange (scaled)")):
-        L.append("$\\kappa_2(\\bm V)$, " + name + " & " + " & ".join(sci(float(rows[p][f"kappa_{key}"])) for p in ps) + "\\\\")
-    L += ["\\bottomrule", "\\end{tabular}"]
-    write("tab_affine.tex", L)
-
-    # Table: Jacobian-unlimited patch test (shear field, cubic), max over Meshes b-f
-    with open(os.path.join(PANEL, "patch.csv")) as f:
-        P = [r for r in csv.DictReader(l for l in f if not l.startswith("#"))]
-    L = ["\\begin{tabular}{@{}l" + "c" * 6 + "@{}}", "\\toprule",
-         " & " + " & ".join(f"$p={p}$" for p in range(3, 9)) + "\\\\", "\\midrule"]
-    for fo, name in (("PP", "parametric (\\PP)"), ("PM", "$Q_p(\\hat x,\\hat y)$ (\\PM)"), ("PH", "$T_p$ (\\PH)")):
-        cells = []
-        for p in range(3, 9):
-            v = [float(r["nodal"]) for r in P if r["variant"] == f"{fo}{p}" and r["load"] == "shear"
-                 and int(r["theta"]) != 0]
-            cells.append(sci(max(v)) if not any(math.isnan(x) for x in v) else "rej.")
-        L.append(name + " & " + " & ".join(cells) + "\\\\")
-    L += ["\\bottomrule", "\\end{tabular}"]
-    write("tab_panel.tex", L)
 
     # Thick cylinder tables
     D = {a: read_cyl(a) for a in (0, 15, 30, 45, 60, 90)}
@@ -205,34 +174,6 @@ def main():
             L.append("\\midrule")
     L += ["\\bottomrule", "\\end{tabular}"]
     write("tab_lebesgue.tex", L)
-
-    # distortion sensitivity and accuracy at N = 8
-    L = ["\\begin{tabular}{@{}ll" + "r" * 7 + "@{}}", "\\toprule",
-         " & & " + " & ".join(f"$p={p}$" for p in range(2, 9)) + "\\\\", "\\midrule"]
-    for pr, prn in (("smooth", "analytic"), ("lame", "Lam\\'e")):
-        for a in (30, 45):
-            for fo in FORMS:
-                cells = [sci(g(a, pr, fo, 8, p, "nodal")) for p in range(2, 9)]
-                lab = f"{prn}, $\\alpha={a}^\\circ$" if fo == "PM" else ""
-                L.append(lab + " & \\" + fo + " & " + " & ".join(cells) + "\\\\")
-            L.append("\\addlinespace[2pt]")
-    L.pop()
-    L += ["\\bottomrule", "\\end{tabular}"]
-    write("tab_nodal.tex", L)
-
-    # polynomial patch test on the cylinder meshes: max nodal error over N for p >= 5
-    L = ["\\begin{tabular}{@{}l" + "r" * 6 + "@{}}", "\\toprule",
-         " & " + " & ".join(f"$\\alpha={a}^\\circ$" for a in (0, 15, 30, 45, 60, 90)) + "\\\\", "\\midrule"]
-    for fo in ("PM", "PH"):
-        cells = []
-        for a in (0, 15, 30, 45, 60, 90):
-            v = [g(a, "poly", fo, N, p, "nodal") for N in (1, 2, 4, 8) for p in range(5, 9)]
-            vv = [x for x in v if not math.isnan(x)]
-            nrej = len(v) - len(vv)
-            cells.append(sci(max(vv)) + (f" ({nrej})" if nrej else ""))
-        L.append("\\" + fo + " & " + " & ".join(cells) + "\\\\")
-    L += ["\\bottomrule", "\\end{tabular}"]
-    write("tab_cylpoly.tex", L)
 
     # unisolvence check
     with open(os.path.join(DATA, "unisolvence.txt")) as f:

@@ -6,7 +6,7 @@ function K = ms_Ke(P, C, x, y, nq, form)
 %          'PM' : unsymmetric element, trial space Q_p in skew coordinates
 %          'PH' : unsymmetric element, hybrid trial space
 %   The unsymmetric matrices are computed with cyl_Ke_PM (vectorized
-%   Ke_2D; agreement to round-off is checked in cyl_verify.m).
+%   Ke_2D).
 if strcmp(form, 'PP')
     K = cyl_Ke_PP(P, C, x, y, nq);
 else

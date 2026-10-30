@@ -34,7 +34,7 @@ Res = cell(NumEdges,1);
 Res2 = cell(NumEdges,1);
 
 % Determine which elements share a specific edge
-parfor i = 1:NumEdges
+for i = 1:NumEdges
 	[row,col] = find(Topology_Edge == i);
 	[Res{i},idx] = unique(row);
     Res2{i} = col(idx);

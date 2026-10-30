@@ -3,8 +3,7 @@ function model = cyl_model(inpFile, pdeg, ndist)
 %
 %   model = cyl_model(inpFile, pdeg, ndist) reads the ABAQUS input file
 %   (8-node elements) and lifts it to spectral elements of degree pdeg with
-%   the routines of the code base (usemReadAbaqus ->
-%   pSpectralElement_NodesTopology). The lifted edges on the circular arcs
+%   the routines of the code base (Read_mesh_ABAQUS -> usemBuildModel). The lifted edges on the circular arcs
 %   r = a and r = b are parabolas through the three CPS8 nodes; they are
 %   replaced by the exact arcs (interpolated at the GLL points of the edge)
 %   by a Gordon-Hall (linear blending) correction. Element edges in the
@@ -17,28 +16,23 @@ function model = cyl_model(inpFile, pdeg, ndist)
 if nargin < 3, ndist = 2; end
 A_IN = 1;  B_OUT = 3;
 
-p = struct('pxi', pdeg, 'peta', pdeg, 'ndist', ndist);
-tmp = tempname;  mkdir(tmp);  old = cd(tmp);
-try
-    evalc('S = usemReadAbaqus(inpFile, p);');
-catch err
-    cd(old);  rmdir(tmp, 's');  rethrow(err);
-end
-cd(old);  rmdir(tmp, 's');
+[nodes, topo] = Read_mesh_ABAQUS(inpFile);
+S = usemBuildModel(nodes, topo, pdeg, ndist);
+p = S.p;
 
 model = S;
-model.nodes8 = S.nodes;
-model.topo8 = S.topology;
+model.nodes8 = nodes;
+model.topo8 = topo;
 x = S.xCoor;  y = S.yCoor;
 [xiN, etaN] = cyl_local_coords(p);
 pairs = [1 2; 2 3; 4 3; 1 4];         % edge k runs from pairs(k,1) to pairs(k,2)
 model.arcEdges = zeros(0, 3);
 for e = 1:S.num_Elem
-    c = S.topology(e, :);
+    c = topo(e, :);
     for k = 1:4
-        Xs = S.nodes(c(pairs(k,1)), 1:2);
-        Xe = S.nodes(c(pairs(k,2)), 1:2);
-        Xm = S.nodes(c(4+k), 1:2);
+        Xs = nodes(c(pairs(k,1)), :);
+        Xe = nodes(c(pairs(k,2)), :);
+        Xm = nodes(c(4+k), :);
         R = [];
         for Rc = [A_IN, B_OUT]
             if abs(norm(Xs) - Rc) < 1e-10 && abs(norm(Xe) - Rc) < 1e-10

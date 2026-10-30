@@ -32,7 +32,6 @@ import numpy as np
 LX, Y0, Y1 = 2.0, -1.0, 1.0
 E_MOD, NU = 2000.0, 0.25     # E = 2000 reproduces the exact values of the paper
 CASES = [(1, t) for t in (0, 90, 135, 175, 225, 270)] + \
-        [(N, t) for N in (2, 4) for t in (0, 90, 135)]
 EDGES = [(0, 1), (1, 2), (2, 3), (3, 0)]
 
 
