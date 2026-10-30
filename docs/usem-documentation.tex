@@ -59,6 +59,9 @@
   frame=single, framesep=4pt, rulecolor=\color{black!25},
   backgroundcolor=\color{black!3}, upquote=true}
 \lstset{style=matlab}
+% Keep every listing on one page, so that its frame is never split
+\BeforeBeginEnvironment{lstlisting}{\par\nopagebreak\noindent\begin{minipage}{\linewidth}}
+\AfterEndEnvironment{lstlisting}{\end{minipage}\par}
 
 % Table columns
 \newcolumntype{L}{>{\raggedright\arraybackslash}X}
