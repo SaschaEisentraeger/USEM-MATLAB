@@ -23,3 +23,33 @@ The single test elements are defined by 4- or 8-node input elements (corner node
   \end{tabular}
 \end{center}
 The meshes of \cref{sec:num-convergence} consist of $N\times N$ 8-node elements on the unit square whose interior mid-side nodes are moved normal to their edge by $\delta h$ with $h=1/N$, so that the relative sagitta of every interior edge is $\delta$. The normal is oriented consistently, so that all interior horizontal edges bow in the $-y$-direction and all interior vertical edges in the $-x$-direction. The $3\times2$ meshes of \cref{sec:num-patch,sec:num-spectra} on $[0,3]\times[0,2]$ use the same curved-edge distortion with $\delta=0.15$ and $0.20$ (with $h=1$). For the mesh denoted by \emph{angular + curved $0.30$}, the interior corner nodes are first shifted alternately by $\pm0.3$ in the $x$-direction, before the curved-edge distortion with $\delta=0.15$ is applied.
+%
+\section{Coordinates of the complete polynomials}
+\label{app:frames}
+%
+Since all affine coordinates span the same space $\Pp_p(x,y)$, the coordinates of the first group in \cref{eq:hybrid} do not affect the hybrid shape functions, but only the conditioning of $\matr V_{\mathrm{T}}$. The singular matrices of \PH\ in \cref{tab:unisolvence} are a consequence of the skew coordinates: on folded elements, the Jacobian matrix at the element center is poorly conditioned, and the skew coordinates of the nodes almost collapse onto a line. We have therefore tested two alternatives that do not rely on the Jacobian matrix at a single point, both with the bounding-box scaling \cref{eq:bbox}. The first are the principal axes of the nodes, obtained from a singular value decomposition of the node coordinates relative to their centroid $\bx_{\mathrm{m}}$. The second is the affine least-squares fit of the reference coordinates to the nodes, i.e., the coordinates $\matr B(\bx-\bx_{\mathrm{m}})$, where the matrix $\matr B$ minimizes $\sum_j\lVert\matr B(\bx_j-\bx_{\mathrm{m}})-(\xi_j,\eta_j)^\top\rVert^2$.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Condition number $\cond_2(\matr V_{\mathrm{T}})$ of the hybrid Vandermonde matrix with the complete polynomials in three coordinate systems; thick cylinder: largest value over the elements. Singular: $\mathrm{rcond}<\varepsilon_{\mathrm{mach}}$ on some elements.}
+  \label{tab:frames}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    case & skew coordinates & principal axes & least-squares fit \\
+    \midrule
+    parallelogram, $p=16$ & $5.5\cdot10^{1}$ & $2.9\cdot10^{7}$ & $5.5\cdot10^{1}$ \\
+    trapezoid, $p=16$ & $2.0\cdot10^{6}$ & $8.8\cdot10^{7}$ & $4.0\cdot10^{6}$ \\
+    curved, $p=16$ & $1.9\cdot10^{5}$ & $1.9\cdot10^{5}$ & $1.9\cdot10^{5}$ \\
+    general, $p=16$ & $1.7\cdot10^{6}$ & $1.0\cdot10^{6}$ & $1.1\cdot10^{6}$ \\
+    cylinder, $\alpha=15^\circ$, $N=8$, $p=8$ & $6.0\cdot10^{2}$ & $7.3\cdot10^{3}$ & $6.0\cdot10^{2}$ \\
+    cylinder, $\alpha=45^\circ$, $N=8$, $p=8$ & $4.0\cdot10^{6}$ & $3.0\cdot10^{4}$ & $1.7\cdot10^{4}$ \\
+    cylinder, $\alpha=60^\circ$, $N=8$, $p=8$ & singular & $3.2\cdot10^{5}$ & $1.7\cdot10^{5}$ \\
+    cylinder, $\alpha=90^\circ$, $N=8$, $p=8$ & singular & $6.8\cdot10^{6}$ & $1.7\cdot10^{5}$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+% data: data/frames.txt (studies/frame_check.m)
+
+As shown in \cref{tab:frames}, both alternatives remove all singular matrices on the thick-cylinder meshes. The principal axes, however, do not preserve the tensor-product grid of the nodes on affine elements, which degrades the conditioning on regular elements. On the parallelogram at $p=16$, e.g., the error of the Kronecker property increases from $1.1\cdot10^{-14}$ to $2.1\cdot10^{-10}$. The least-squares fit reproduces the reference coordinates exactly on affine elements and therefore does not have this drawback. With the principal axes, we repeated the studies of \cref{sec:num-cylinder}: on the meshes without folded elements, the errors of \PH\ changed only at the round-off level. The least-squares fit has only been evaluated in terms of the Vandermonde matrix.
+
+The benefit of both alternatives is thus limited to folded elements. There, the shape functions exist, but the stiffness integrals of \PH\ still do not (\cref{sec:hybrid-gradients}), so that its errors continue to depend on the quadrature rule. We therefore retain the skew coordinates, which \PH\ shares with \PM.

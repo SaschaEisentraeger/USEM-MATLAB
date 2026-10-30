@@ -53,8 +53,10 @@ avoids it.
   of $Q_p(\hat x,\hat y)$ beyond $P_p$, which are not needed for completeness. On folded
   elements (\cref{tab:leb}, $\alpha=90^\circ$: $\Lambda_{\mathrm H}\le4.8\cdot10^3$) and for $p=2$ at
   $\alpha\ge30^\circ$ (\cref{tab:cond}: $23$--$117$) also \PH\ is degraded, and for some folded
-  elements with $p\ge7$ its interpolation matrix is singular (\cref{sec:poly}): there the nodes
-  are not unisolvent for $T_p^e$ either.
+  elements with $p\ge7$ its interpolation matrix is singular to working precision (\cref{sec:poly}).
+  This is caused by the skew coordinates of $P_p(\bx)$, not by the trial space: in the principal
+  axes of the nodes, the matrix is regular on all meshes ($\mathrm{rcond}\ge1.4\cdot10^{-8}$,
+  \texttt{manuscript/studies/frame\_check.m}).
 \end{enumerate}
 
 \begin{table}[t]
