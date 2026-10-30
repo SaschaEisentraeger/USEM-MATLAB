@@ -8,7 +8,7 @@ Both improvements are local to the routine that evaluates the metric shape funct
 \label{alg:metric}
 \begin{algorithmic}[1]
 \Require nodes $\bx_j$, reference nodes $\bxi_j$, query points $\bxi_r$, $\bx_r=\bx_K(\bxi_r)$
-\State $\bx_0\gets\bx_K(\vect 0)$, $\matr J_0\gets\matr J(\vect 0)$; $\bxib_j\gets\matr J_0^{-\T}(\bx_j-\bx_0)$, $\bxib_r\gets\matr J_0^{-\T}(\bx_r-\bx_0)$
+\State $\bx_0\gets\bx_K(\vect 0)$, $\matr J_0\gets\matr J(\vect 0)$; $\bxib_j\gets\matr J_0^{-\top}(\bx_j-\bx_0)$, $\bxib_r\gets\matr J_0^{-\top}(\bx_r-\bx_0)$
   \Comment{skew coordinates \cref{eq:skew}}
 \State scale $\bxib_j,\bxib_r$ with the bounding box of $\{\bxib_j\}$ \Comment{\cref{eq:bbox}}
 \If{\PM}

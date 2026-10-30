@@ -76,7 +76,7 @@ def convergence(tag):
         f.write('& \\multicolumn{3}{c}{\\PP} & \\multicolumn{3}{c}{\\PM} '
                 '& \\multicolumn{3}{c}{\\PH}\\\\\n')
         f.write('\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}\n')
-        f.write('$p$' + ' & $r_{4,8}$ & $r_{8,16}$ & $e_E^{16}$' * 3 + '\\\\\n\\midrule\n')
+        f.write('$p$' + ' & $r_{4,8}$ & $r_{8,16}$ & $e_{\\mathrm{E}}^{16}$' * 3 + '\\\\\n\\midrule\n')
         for p in ps:
             line = '%d' % p
             for fm in ('PP', 'PM', 'PH'):

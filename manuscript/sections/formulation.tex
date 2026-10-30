@@ -6,10 +6,10 @@ In this section, we briefly summarize the unsymmetric (Petrov-Galerkin) spectral
 \subsection{Discretization with different test and trial functions}
 \label{sec:pg}
 %
-We consider a linear elastic body in plane stress or plane strain that occupies the domain $\Omega$. With the strain vector $\bm\varepsilon=[\varepsilon_{xx},\varepsilon_{yy},\gamma_{xy}]^\T$ and the elasticity matrix $\matr C$, the internal and external virtual work read
+We consider a linear elastic body in plane stress or plane strain that occupies the domain $\Omega$. With the strain vector $\bm\varepsilon=[\varepsilon_{xx},\varepsilon_{yy},\gamma_{xy}]^\top$ and the elasticity matrix $\matr C$, the internal and external virtual work read
 %
 \begin{equation}
-  a(\vect u,\vect v)=\int\limits_\Omega\bm\varepsilon(\vect v)^\T\matr C\,\bm\varepsilon(\vect u)\dd A\qquad\text{and}\qquad
+  a(\vect u,\vect v)=\int\limits_\Omega\bm\varepsilon(\vect v)^\top\matr C\,\bm\varepsilon(\vect u)\dd A\qquad\text{and}\qquad
   \ell(\vect v)=\int\limits_\Omega\vect v\cdot\vect b\dd A+\int\limits_{\Gamma_{\mathrm N}}\vect v\cdot\bar{\vect t}\dd s ,
   \label{eq:forms}
 \end{equation}
@@ -28,12 +28,12 @@ The displacements themselves are approximated with \emph{trial functions} $M_i^K
 with the nodal displacements prescribed on the Dirichlet boundary. The element stiffness matrix is evaluated with the adjugate of the Jacobian matrix in the test functions,
 %
 \begin{equation}
-  \matr K_K=\int\limits_{\Kh}\bar{\matr B}_{\mathrm N}^\T\,\matr C\,\matr B_{\mathrm M}\dd\xi\dd\eta\qquad\text{and}\qquad
+  \matr K_K=\int\limits_{\Kh}\bar{\matr B}_{\mathrm N}^\top\,\matr C\,\matr B_{\mathrm M}\dd\xi\dd\eta\qquad\text{and}\qquad
   \bar{\matr B}_{\mathrm N}=\det(\matr J)\,\matr B_{\mathrm N} ,
   \label{eq:Ke}
 \end{equation}
 %
-where $\matr B_{\mathrm N}$ and $\matr B_{\mathrm M}$ are the strain-displacement matrices of the test and the trial functions, respectively, and $\matr J=\bigl[\begin{smallmatrix}x_{,\xi}&y_{,\xi}\\x_{,\eta}&y_{,\eta}\end{smallmatrix}\bigr]$ is the Jacobian matrix. Since $\bar{\matr B}_{\mathrm N}$ is assembled from $\adj(\matr J)\,\nabla_{\bxi}\hat N_i$ instead of $\matr J^{-1}\nabla_{\bxi}\hat N_i=\adj(\matr J)\,\nabla_{\bxi}\hat N_i/\det(\matr J)$, $\det(\matr J)$ does not appear in the denominator of the test part~\cite{Rajendran2010technique}. The consistent mass matrix is $\matr M_K=\int_{\Kh}\rho\,\matr N_{\mathrm N}^\T\matr N_{\mathrm M}\det(\matr J)\dd\xi\dd\eta$, where $\rho$ is the mass density and $\matr N_{\mathrm N}$ and $\matr N_{\mathrm M}$ contain the values of the test and the trial functions. With GLL quadrature, it is diagonal, since both families are interpolatory at the GLL points. In the following, we denote by \PP\ the conventional (symmetric) spectral element with $M_i^K=N_i$, by \PM\ the unsymmetric element with the metric trial functions of the companion paper (\cref{sec:skew}) and by \PH\ the unsymmetric element with the hybrid trial functions introduced in \cref{sec:hybrid}.
+where $\matr B_{\mathrm N}$ and $\matr B_{\mathrm M}$ are the strain-displacement matrices of the test and the trial functions, respectively, and $\matr J=\bigl[\begin{smallmatrix}x_{,\xi}&y_{,\xi}\\x_{,\eta}&y_{,\eta}\end{smallmatrix}\bigr]$ is the Jacobian matrix. Since $\bar{\matr B}_{\mathrm N}$ is assembled from $\adj(\matr J)\,\nabla_{\bxi}\hat N_i$ instead of $\matr J^{-1}\nabla_{\bxi}\hat N_i=\adj(\matr J)\,\nabla_{\bxi}\hat N_i/\det(\matr J)$, $\det(\matr J)$ does not appear in the denominator of the test part~\cite{Rajendran2010technique}. The consistent mass matrix is $\matr M_K=\int_{\Kh}\rho\,\matr N_{\mathrm N}^\top\matr N_{\mathrm M}\det(\matr J)\dd\xi\dd\eta$, where $\rho$ is the mass density and $\matr N_{\mathrm N}$ and $\matr N_{\mathrm M}$ contain the values of the test and the trial functions. With GLL quadrature, it is diagonal, since both families are interpolatory at the GLL points. In the following, we denote by \PP\ the conventional (symmetric) spectral element with $M_i^K=N_i$, by \PM\ the unsymmetric element with the metric trial functions of the companion paper (\cref{sec:skew}) and by \PH\ the unsymmetric element with the hybrid trial functions introduced in \cref{sec:hybrid}.
 %
 \subsection{Exact reproduction and error of a general solution}
 \label{sec:exact}
@@ -78,7 +78,7 @@ If $\delta$ is fixed under refinement, the part of a smooth solution that the co
 In the original element of Rajendran \& Liew~\cite{Rajendran2003novel}, the metric functions are polynomials in the global Cartesian coordinates, and their incomplete terms make the element stiffness matrix depend on the orientation of the element~\cite{Ooi2008Remedies}. For the spectral element, this problem is even more pronounced, since the tensor-product monomials of degree $p$ in each coordinate contain incomplete terms up to the total degree $2p$. Therefore, we follow Xie et al.~\cite{Xie2016Modified} and the companion paper and write the metric functions in the skew coordinates of Yuan et al.~\cite{Yuan1993New},
 %
 \begin{equation}
-  \bxib=\begin{pmatrix}\bar\xi\\\bar\eta\end{pmatrix}=\matr J_0^{-\T}(\bx-\bx_0),\qquad
+  \bxib=\begin{pmatrix}\bar\xi\\\bar\eta\end{pmatrix}=\matr J_0^{-\top}(\bx-\bx_0),\qquad
   \bx_0=\bx_K(\vect 0),\qquad
   \matr J_0=\matr J\big|_{\xi=\eta=0},
   \label{eq:skew}
@@ -106,4 +106,4 @@ How strongly the trial functions overshoot between the nodes is measured by the 
   \label{eq:lebesgue}
 \end{equation}
 %
-That is to say, $\Lam_{\mathcal U}$ is the largest value that the trial field of the element can take if all nodal values lie between $-1$ and $1$. For well-behaved shape functions, it is a small number, e.g., $3.2$ for the GLL shape functions of degree $p=5$. The Lebesgue constant is also the factor by which the nodal interpolation can amplify an error. If the nodal values of a smooth field $f$ are interpolated, the largest error of the interpolant in the element is at most $1+\Lam_{\mathcal U}$ times the largest error of the best possible fit of $f$ by the trial functions~\cite{Brutman1997Lebesgue}. Likewise, an error in the nodal values, e.g., round-off or the nodal error of a finite element solution, is amplified by up to $\Lam_{\mathcal U}$ between the nodes. In the remainder of this article, $\Lam_N$ denotes the Lebesgue constant of the GLL shape functions of \PP, and $\Lam_Q$ and $\Lam_T$ those of the trial functions of \PM\ and \PH, respectively. Note that $\Lam_N$ does not depend on the element shape, since the parametric functions are the GLL shape functions on the reference square. For the metric functions, in contrast, the Lebesgue constant grows strongly on elements whose nodes do not form a tensor-product grid in the skew coordinates~\cite{Eisentraeger2026axisymmetric}.
+That is to say, $\Lam_{\mathcal U}$ is the largest value that the trial field of the element can take if all nodal values lie between $-1$ and $1$. For well-behaved shape functions, it is a small number, e.g., $3.2$ for the GLL shape functions of degree $p=5$. The Lebesgue constant is also the factor by which the nodal interpolation can amplify an error. If the nodal values of a smooth field $f$ are interpolated, the largest error of the interpolant in the element is at most $1+\Lam_{\mathcal U}$ times the largest error of the best possible fit of $f$ by the trial functions~\cite{Brutman1997Lebesgue}. Likewise, an error in the nodal values, e.g., round-off or the nodal error of a finite element solution, is amplified by up to $\Lam_{\mathcal U}$ between the nodes. In the remainder of this article, $\Lam_{\mathrm{N}}$ denotes the Lebesgue constant of the GLL shape functions of \PP, and $\Lam_{\mathrm{Q}}$ and $\Lam_{\mathrm{T}}$ those of the trial functions of \PM\ and \PH, respectively. Note that $\Lam_{\mathrm{N}}$ does not depend on the element shape, since the parametric functions are the GLL shape functions on the reference square. For the metric functions, in contrast, the Lebesgue constant grows strongly on elements whose nodes do not form a tensor-product grid in the skew coordinates~\cite{Eisentraeger2026axisymmetric}.

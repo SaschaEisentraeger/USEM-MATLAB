@@ -6,7 +6,7 @@
     xtick={0.5,0.25,0.125,0.0625}, xticklabels={$\frac12$,$\frac14$,$\frac18$,$\frac1{16}$},
     ytick={1e-12,1e-9,1e-6,1e-3,1},
     unbounded coords=discard, every axis plot/.append style={thick, mark size=1.4pt}]
-  \nextgroupplot[title={\PP, $\delta=0.1$}, ylabel={$e_E$}, legend to name=leg:conv, legend columns=6]
+  \nextgroupplot[title={\PP, $\delta=0.1$}, ylabel={$e_{\mathrm{E}}$}, legend to name=leg:conv, legend columns=6]
     \addplot[red, mark=*] table[x=h, y=energy_PP]{\data/conv-d010-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=energy_PP]{\data/conv-d010-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=energy_PP]{\data/conv-d010-p4.dat};
@@ -26,7 +26,7 @@
     \addplot[black, mark=triangle*] table[x=h, y=energy_PH]{\data/conv-d010-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PH]{\data/conv-d010-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=energy_PH]{\data/conv-d010-p6.dat};
-  \nextgroupplot[title={\PP, $\delta=0.2$}, ylabel={$e_E$}]
+  \nextgroupplot[title={\PP, $\delta=0.2$}, ylabel={$e_{\mathrm{E}}$}]
     \addplot[red, mark=*] table[x=h, y=energy_PP]{\data/conv-d020-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=energy_PP]{\data/conv-d020-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=energy_PP]{\data/conv-d020-p4.dat};
@@ -44,7 +44,7 @@
     \addplot[black, mark=triangle*] table[x=h, y=energy_PH]{\data/conv-d020-p4.dat};
     \addplot[green!50!black, mark=diamond*] table[x=h, y=energy_PH]{\data/conv-d020-p5.dat};
     \addplot[orange, mark=pentagon*] table[x=h, y=energy_PH]{\data/conv-d020-p6.dat};
-  \nextgroupplot[title={\PP, $\delta=0.3$ (folded)}, ylabel={$e_n$}]
+  \nextgroupplot[title={\PP, $\delta=0.3$ (folded)}, ylabel={$e_{\mathrm{n}}$}]
     \addplot[red, mark=*] table[x=h, y=nodal_PP]{\data/conv-d030-p2.dat};
     \addplot[blue, mark=square*] table[x=h, y=nodal_PP]{\data/conv-d030-p3.dat};
     \addplot[black, mark=triangle*] table[x=h, y=nodal_PP]{\data/conv-d030-p4.dat};

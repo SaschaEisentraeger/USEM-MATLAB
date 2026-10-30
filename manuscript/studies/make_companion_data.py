@@ -238,8 +238,8 @@ def main():
     with open(os.path.join(DATA, "unisolvence.txt")) as f:
         U = list(csv.DictReader(f, delimiter=" "))
     L = ["\\begin{tabular}{@{}rrrcccc@{}}", "\\toprule",
-         "$\\alpha$ & $N$ & $p$ & $\\min\\mathrm{rcond}(\\bm V_T)$ & $\\min\\mathrm{rcond}(\\bm S)$ & "
-         "$\\min\\mathrm{rcond}(\\bm V_Q)$ & singular\\\\", "\\midrule"]
+         "$\\alpha$ & $N$ & $p$ & $\\min\\mathrm{rcond}(\\bm V_{\\mathrm{T}})$ & $\\min\\mathrm{rcond}(\\bm S)$ & "
+         "$\\min\\mathrm{rcond}(\\bm V_{\\mathrm{Q}})$ & singular\\\\", "\\midrule"]
     for r in U:
         L.append(f"${r['alpha']}^\\circ$ & {r['N']} & {r['p']} & {sci(float(r['rcondVT']))} & "
                  f"{sci(float(r['rcondA']))} & {sci(float(r['rcondVQ']))} & {r['nsingular']}\\\\")

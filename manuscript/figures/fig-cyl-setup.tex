@@ -23,7 +23,7 @@
     arc[start angle=90, end angle=0, radius=1] -- cycle;
   \foreach \t in {9,27,...,81}
     \draw[-stealth, line width=0.5pt] ({0.55*cos(\t)},{0.55*sin(\t)}) -- ({0.98*cos(\t)},{0.98*sin(\t)});
-  \node[slabel] at (0.2,0.2) {$p_i$};
+  \node[slabel] at (0.2,0.2) {$p_{\mathrm{i}}$};
   \foreach \s in {1.25,1.75,2.25,2.75} {
     \pic at (0,\s) {roller};
     \pic[rotate=90] at (\s,0) {roller};}
@@ -33,7 +33,7 @@
   \draw[-stealth, line width=0.5pt] (0,3.15) -- (0,3.6) node[slabel, left] {$y$};
   \node[slabel, anchor=west, align=left] at (2.2,2.55) {traction-free};
   \node[slabel, align=left, anchor=west] at (3.05,1.25)
-    {$p_i=1000$\\$E=1000$\\$\nu=0.25$\\plane stress};
+    {$p_{\mathrm{i}}=1000$\\$E=1000$\\$\nu=0.25$\\plane stress};
   \node[plabel] at (1.8,-0.85) {(a) quarter annulus $1\le r\le3$};
 \end{scope}
 % (b) super-element: interior mid-side nodes rotated by alpha (schematic)
