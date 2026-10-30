@@ -1,35 +1,42 @@
-% Program flow of Start_Sim.m
+% Program flow of Start_Sim.m / RunSimulation
 \begin{tikzpicture}[node distance=5mm and 6mm, every node/.style={font=\small},
                     >={Stealth[length=2mm]}]
-  \node[box, fill=blue!8, text width=6.2cm] (start)
-    {\code{Start_Sim.m}\\ settings, parallel pool (if available)};
-  \node[box, below=of start, text width=6.8cm] (read)
-    {\code{Adjust_Set_names_input_file_ABAQUS}\\ \code{Read_*_ABAQUS}\\ ABAQUS input file (\cref{ch:input})};
-  \node[box, below=of read, text width=6.2cm] (lift)
-    {\code{pSpectralElement_NodesTopology}, \code{pSpectralElement_BCs}\\ mesh and edge sets of degree $p$};
-  \node[box, below=of lift, text width=6.2cm, fill=blue!8] (call)
-    {\code{call_Static} \,|\, \code{call_Dynamic} \,|\, \code{call_Modal} \,|\, \code{call_FrequencyDomain}\\ (\cref{ch:analyses})};
-  % sub-steps of the analysis drivers
-  \node[box, below left=7mm and -18mm of call, text width=4.6cm] (mat)
-    {\code{HookeMatrix3d} $\to$ plane stress/strain};
-  \node[box, below=of mat, text width=4.6cm] (asm)
-    {\code{AssemblyFEM} $\to$ \code{Ke_2D} / \code{KMe_2D}};
-  \node[box, below=of asm, text width=4.6cm] (bc)
-    {\code{DirichletBCs_*}, \code{NeumannBCs}};
-  \node[box, below right=7mm and -18mm of call, text width=4.6cm] (solve)
-    {solver: \texttt{\textbackslash}, \code{eigs},\\ \code{Solver_Transient} $\to$ time integrator};
-  \node[box, below=of solve, text width=4.6cm] (post)
-    {\code{Contour_plot} $\to$ \code{Calc_results},\\ \code{Results_Stress_Strain}};
-  \node[box, below=of post, text width=4.6cm] (save)
-    {\code{subroutines/Results/...}};
+  % main column
+  \node[box, fill=blue!8, text width=7.0cm] (start)
+    {\code{Start_Sim.m}: \code{SetupPaths}, \code{DefaultSettings}\\
+     parameters of this simulation $\to$ \code{settings}};
+  \node[box, below=of start, text width=7.0cm] (read)
+    {\code{ReadModel}: \code{Read_*_ABAQUS} (\cref{ch:input}),\\
+     \code{AlignPolynomialDegrees}, \code{pSpectralElement_*}
+     $\to$ \code{model}};
+  \node[box, below=of read, text width=7.0cm] (mat)
+    {\code{MaterialMatrices}, \code{RayleighDamping}\\
+     $\to$ \code{model.C}, \code{rho}, \code{zeta}, Rayleigh parameters};
+  \node[box, below=of mat, text width=7.0cm, fill=blue!8] (ana)
+    {\code{StaticAnalysis} \,|\, \code{DynamicAnalysis} \,|\,
+     \code{ModalAnalysis} \,|\, \code{FrequencyDomainAnalysis}\\
+     (\cref{ch:analyses}) $\to$ \code{results}};
+  % building blocks of the analyses
+  \node[box, below left=8mm and -22mm of ana, text width=4.8cm] (asm)
+    {\code{AssembleSystem} $\to$ \code{AssemblyFEM}\\
+     $\to$ \code{Ke_2D} / \code{KMe_2D}};
+  \node[box, below=of asm, text width=4.8cm] (bc)
+    {\code{DirichletBCs_*},\\ \code{LoadVectors} $\to$ \code{NeumannBCs}};
+  \node[box, below right=8mm and -22mm of ana, text width=4.8cm] (solve)
+    {solver: \texttt{\textbackslash}, \code{eigs},\\
+     \code{Solver_Transient} $\to$ \code{TimeIntegrationMethods}
+     $\to$ time integrator};
+  % output
+  \node[box, anchor=north, text width=7.0cm, fill=blue!8] (out)
+    at ($(bc.south -| ana.south) + (0,-6mm)$)
+    {\code{SaveResults} $\to$ \code{subroutines/Results/...}\\
+     \code{PlotResults} $\to$ \code{Contour_plot}};
   \draw[->] (start) -- (read);
-  \draw[->] (read) -- (lift);
-  \draw[->] (lift) -- (call);
-  \draw[->] (call.south) -- ++(0,-3mm) -| (mat.north);
-  \draw[->] (mat) -- (asm);
+  \draw[->] (read) -- (mat);
+  \draw[->] (mat) -- (ana);
+  \draw[->] (ana.south) -- ++(0,-3mm) -| (asm.north);
   \draw[->] (asm) -- (bc);
-  \draw[->] (bc.east) -- ++(4mm,0) |- (solve.west);
-  \draw[->] (call.south) -- ++(0,-3mm) -| (solve.north);
-  \draw[->] (solve) -- (post);
-  \draw[->] (post) -- (save);
+  \draw[->] (bc.east) -- ++(3mm,0) |- (solve.west);
+  \draw[->] (ana.south) -- ++(0,-3mm) -| (solve.north);
+  \draw[->] (solve.south) |- (out.east);
 \end{tikzpicture}

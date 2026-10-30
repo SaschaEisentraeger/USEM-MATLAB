@@ -1,18 +1,20 @@
 \chapter{Getting started}
 \label{ch:start}
 
-\section{Requirements}
+\section{Requirements and installation}
 
 \begin{xltabular}{\linewidth}{@{}P{5.2cm}L@{}}
   \toprule
   Product & needed for \\
   \midrule
-  MATLAB R2018b or newer (developed and tested with R2026a) & everything \\
-  Parallel Computing Toolbox (optional) & \code{Start_Sim.m} opens a parallel
-    pool if the toolbox is available; otherwise the \code{parfor} loops run
-    serially \\
+  \endhead
+  \texttt{MATLAB} R2018b or newer (developed and tested with R2026a) & everything \\
+  Parallel Computing Toolbox (optional) & \code{RunSimulation} opens a parallel
+    pool if the toolbox is available (\code{settings.parallel}); otherwise the
+    \code{parfor} loops run serially \\
   Symbolic Math Toolbox & \code{MMS_2D} (manufactured solutions),
-    \code{HigherOrderDisplacementField.m}, Padé helpers \\
+    \code{HigherOrderDisplacementField.m}, the Padé derivation scripts
+    (\code{Pade/Derivations}) \\
   Signal Processing Toolbox & \code{FFT_Signal} with \code{SignalType = 5}
     (\code{findpeaks}) \\
   Optimization Toolbox & \code{Global2LocalCoordinatesQuad} (\code{fsolve}), not
@@ -21,121 +23,169 @@
     / \code{distort_single_element} \\
   \bottomrule
 \end{xltabular}
-The test suite needs only base MATLAB.
+The program flow and the test suite need only base \texttt{MATLAB}.
+
+There is nothing to compile or install. Clone or download the repository and add
+the code to the \texttt{MATLAB} path once per session:
+\begin{lstlisting}
+addpath('path/to/USEM/code');
+SetupPaths          % adds code/subroutines (all subfolders) and the input files
+\end{lstlisting}
+\code{Start_Sim.m} does this itself. To check the installation, run the test
+suite (\cref{ch:testing}):
+\begin{lstlisting}
+cd path/to/USEM/tests
+run_tests
+\end{lstlisting}
 
 \section{Running a simulation}
 
 \begin{enumerate}
-  \item Change the MATLAB current folder to \code{code/}; all paths in
-    \code{Start_Sim.m} are relative to it.
-  \item Choose an input file in \code{Start_Sim.m} (\code{filename = ...}). The
-    ABAQUS input files in \code{code/InputFilesAbaqus} are found through the
-    MATLAB path:
+  \item Open \code{code/Start_Sim.m}. It is a short script: it gets the default
+    parameters from \code{DefaultSettings}, changes those that differ for this
+    simulation and calls \code{RunSimulation}.
+  \item Choose an input file (\code{settings.filename}). The \texttt{ABAQUS} input files in
+    \code{code/InputFilesAbaqus} are found through the \texttt{MATLAB} path; other files
+    can be given with their full path:
     \begin{center}
       \begin{tabularx}{0.95\linewidth}{@{}lL@{}}
         \toprule
         file & test \\
         \midrule
-        \code{PatchTestLeeQuadratic_*.inp} & Lee \& Bathe quadratic patch test
+        \code{PatchTestLeeQuadratic_*.inp} & Lee-Bathe quadratic patch test
           (pure bending); undistorted, angular, mid-edge \\
-        \code{PatchTestLeeCubic_*.inp} & Lee \& Bathe cubic patch test;
+        \code{PatchTestLeeCubic_*.inp} & Lee-Bathe cubic patch test;
           undistorted, angular, mid-edge \\
         \code{PatchTestLeeCubic_Rajendran_adj.inp} & cubic test on five distorted
           8-node elements \\
         \bottomrule
       \end{tabularx}
     \end{center}
-  \item Set the parameters (\cref{sec:parameters}) and run \code{Start_Sim}:
+  \item Set the parameters (\cref{sec:parameters}) and run the script from any
+    folder:
 \begin{lstlisting}
-cd code
-Start_Sim
+run('path/to/USEM/code/Start_Sim.m')
 \end{lstlisting}
 \end{enumerate}
-\code{Start_Sim} clears the workspace, sets \code{dbstop if error}, deletes
-\code{subroutines/Temp/*.mat}, reads the input file, lifts the mesh to degree
-$p$ and calls one of the analysis scripts (\code{call_Static},
-\code{call_Dynamic}, \code{call_Modal}, \code{call_FrequencyDomain}). They are
-scripts, not functions, so all variables stay in the base workspace.
+\code{Start_Sim} clears the workspace and sets \texttt{dbstop if error}.
+\code{RunSimulation} reads the input file, lifts the mesh to degree $p$ and calls
+one of the analysis functions (\code{StaticAnalysis}, \code{DynamicAnalysis},
+\code{ModalAnalysis}, \code{FrequencyDomainAnalysis}), then saves and plots the
+results (\cref{fig:flow}).
 
-\section{Parameters in \texttt{Start\_Sim.m}}
+The same works from any script or study, without \code{Start_Sim}:
+\begin{lstlisting}
+settings = DefaultSettings();
+settings.filename      = 'PatchTestLeeCubic_angular.inp';
+settings.analysis_type = 'Modal_analysis';
+settings.p.pxi = 4;  settings.p.peta = 4;
+settings.saveWS = false;  settings.plot_disp = false;  settings.verbose = false;
+[model, results] = RunSimulation(settings);
+results.EF(1:5)                 % lowest eigenfrequencies [Hz]
+\end{lstlisting}
+A parameter study is a loop over such calls; every call is independent of the
+others (no global variables, no files are read back).
+
+\section{Parameters}
 \label{sec:parameters}
+
+\code{DefaultSettings} documents every parameter in its source.
 
 \begin{xltabular}{\linewidth}{@{}P{5.2cm}L@{}}
   \toprule
-  variable & meaning \\
+  field of \code{settings} & meaning \\
   \midrule
   \endhead
-  \code{filename} & ABAQUS input file (\code{.inp}, without path) \\
+  \code{filename} & \texttt{ABAQUS} input file: name of a file on the \texttt{MATLAB} path or a
+    full path \\
   \code{analysis_type} & \code{'Static_analysis'}, \code{'Dynamic_analysis'},
     \code{'Modal_analysis'}, \code{'FrequencyDomain_analysis'} \\
-  \code{saveWS} & save the workspace to \code{subroutines/Results/...} \\
-  \code{plot_mesh}, \code{plot_disp}, \code{plot_stress}, \code{plot_strain} & plots \\
   \code{antype} & 1 = plane stress, 2 = plane strain \\
   \code{p.pxi}, \code{p.peta} & polynomial degree in $\xi$ and $\eta$; if the local
     coordinate systems of neighbouring elements are not aligned, both are set to
-    the minimum \\
+    the minimum (\code{AlignPolynomialDegrees}) \\
   \code{p.ndist} & node distribution (1 equidistant, 2 GLL, 3 GLC) \\
-  \code{p.metricBasis} & optional: basis of the metric Vandermonde matrix,
+  \code{p.metricBasis} & basis of the metric Vandermonde matrix,
     \code{'lagrange'} (default), \code{'legendre'}, \code{'chebyshev'},
-    \code{'monomial'} (previous implementation); does not change the shape
+    \code{'monomial'}; does not change the shape
     functions, only their round-off (\cref{ch:metric-basis}) \\
   \code{p.metricMethod} & trial space of the metric functions: 1 = $Q_p$ in skew
     coordinates (default), 2 = hybrid space (\cref{sec:metric-hybrid}) \\
   \code{mass_matrix} & 1 consistent, 2 nodal quadrature (GLL), 3 row-sum, 4 HRZ \\
+  \code{omega_vec}, \code{zeta_vec} & Rayleigh damping: two angular frequencies
+    [rad/s] and damping ratios; \code{[0,0]}: no damping \\
+  \code{plot_damping} & plot the damping ratio over the frequency \\
+  \code{numEigen}, \code{EVP_Solver.*} & modal analysis (\code{eigs} options;
+    empty \code{EVP_Solver.p}: \code{max(2*numEigen, 20)}) \\
+  \code{fHarmonic} & excitation frequency of the frequency-domain analysis [Hz] \\
+  \code{SignalType}, \code{ExciteParam} & time signal of time-dependent loads
+    (\cref{sec:signals}); empty \code{ExciteParam}: example values of
+    \code{DefaultExcitationParameters(SignalType, tE)} \\
+  \code{tE} & duration used by the example parameters of signals 0, 3, 5 [s] \\
   \code{flag_mRHS} & dynamic analysis: one right-hand side per load case; if
     true, only the central difference (\code{Method < 300}) or HHT-$\alpha$
     (\code{Method >= 300}) solvers are used \\
-  \code{omega_vec}, \code{zeta_vec} & Rayleigh damping: two angular frequencies
-    [rad/s] and damping ratios \\
-  \code{numEigen}, \code{EVP_Solver.*} & modal analysis (\code{eigs} options) \\
-  \code{SignalType}, \code{ExciteParam} & time signal of time-dependent loads
-    (\cref{sec:signals}) \\
   \code{save_var} & dynamic analysis: 0 = save only the nodes of interest (DOF 6
     in the input file), 1 = all DOFs \\
   \code{TimeIntegration.Method} & time integration scheme (\cref{tab:methods}) \\
-  \code{TimeIntegration.Order}, \code{.rho}, \code{.dtImp}, \code{.nInterp},
-    \code{.SolverSave} & options of the time integrators \\
-  \code{fHarmonic} & excitation frequency of the frequency-domain analysis [Hz] \\
+  \code{TimeIntegration.Order}, \code{.rho}, \code{.dtImp}, \code{.nInterp} &
+    options of the time integrators \\
+  \code{TimeIntegration.SolverSave} & keep the solver input
+    (\code{TempFolder/Solver_input.mat}) to rerun \code{Solver_Transient} \\
+  \code{t_end} & simulation time [s]; empty: time period of the \texttt{ABAQUS} step \\
+  \code{saveWS} & save \code{model}, \code{settings} and \code{results} \\
+  \code{ResultsFolder}, \code{TempFolder} & output folders (default
+    \code{code/subroutines/Results} and \code{.../Temp}) \\
+  \code{plot_mesh}, \code{plot_disp}, \code{plot_stress}, \code{plot_strain} & plots \\
+  \code{verbose} & print progress information \\
+  \code{parallel} & open a parallel pool for the element loops \\
   \bottomrule
 \end{xltabular}
 
 \section{Output}
 
+\code{RunSimulation} returns three structs, which \code{Start_Sim} leaves in the
+workspace and \code{SaveResults} writes to one MAT file (if \code{saveWS}):
 \begin{center}
   \begin{tabularx}{\linewidth}{@{}lL@{}}
     \toprule
-    analysis & results file \\
+    struct & content \\
     \midrule
-    static & \code{subroutines/Results/Static/<name>_Static/<name>_ndof<N>.mat} \\
-    dynamic & \code{subroutines/Results/Dynamic/<name>_<Method>/<name>_ndof<N>_<mass>.mat} \\
-    modal & \code{subroutines/Results/Modal/<name>_Modal/<name>_ndof<N>_<mass>.mat} \\
-    frequency domain & \code{subroutines/Results/Frequency_Domain/<name>_Frequency_Domain/...} \\
+    \code{model} & input data and discretization (\code{help}~\code{ReadModel}):
+      \code{Topology_Node}, \code{xCoor}, \code{yCoor}, \code{p}, loads and
+      boundary conditions, \code{num_DoF}; material matrices \code{C},
+      \code{rho}, \code{zeta}; Rayleigh parameters \\
+    \code{results} & output of the analysis function, e.g.\ \code{K}, \code{F},
+      \code{u}, \code{ux}, \code{uy} (static); \code{EF}, \code{U} (modal);
+      \code{t_comp}, \code{y_comp} (dynamic); \code{ActiveDoF}, CPU times \\
+    \code{settings} & the parameters used, with \code{ResultsFile} \\
     \bottomrule
   \end{tabularx}
 \end{center}
-These folders are excluded from version control. The most important variables
-of a saved workspace:
 \begin{center}
   \begin{tabularx}{\linewidth}{@{}lL@{}}
     \toprule
-    variable & content \\
+    analysis & results file in \code{settings.ResultsFolder} \\
     \midrule
-    \code{Topology_Node}, \code{xCoor}, \code{yCoor} & spectral element mesh \\
-    \code{K}, \code{M}, \code{R} & stiffness, mass, damping (sparse, after the
-      Dirichlet conditions) \\
-    \code{F} & load vector \\
-    \code{u}, \code{ux}, \code{uy} & static displacements \\
-    \code{EF}, \code{U} & eigenfrequencies and mode shapes (modal analysis) \\
-    \code{t_comp}, \code{y_comp} & time and displacement history (dynamic analysis) \\
+    static & \code{Static/<name>_Static/<name>_ndof<N>.mat} \\
+    dynamic & \code{Dynamic/<name>_<Method>/<name>_ndof<N>_<mass>.mat} \\
+    modal & \code{Modal/<name>_Modal/<name>_ndof<N>_<mass>.mat} \\
+    frequency domain & \code{Frequency_Domain/<name>_Frequency_Domain/...} \\
     \bottomrule
   \end{tabularx}
 \end{center}
+\code{<mass>} is \code{CMM}, \code{LMM_NQ}, \code{LMM_RowSum} or \code{LMM_HRZ}.
+A dynamic analysis that stores the nodes of interest also writes
+\code{..._Uy.mat} with the time vector \code{T} and the $y$-displacements
+\code{U} of these nodes, sorted by $x$. The result folders are excluded from
+version control.
 
-\section{Using the building blocks without \texttt{Start\_Sim}}
+\section{Using the building blocks directly}
 
-The test helpers show how to use the routines directly:
+Below \code{RunSimulation}, every step is a function that can be called on its
+own (\cref{ch:code}). The test helpers show this for element-level studies:
 \begin{lstlisting}
-addpath(genpath('code/subroutines')); addpath('tests/helpers');
+addpath('code'); SetupPaths; addpath('tests/helpers');
 
 % 3 x 2 mesh of 8-node elements with curved edges, lifted to p = 4
 [nodes, topo] = usemTestMesh(3, 2, 3, 2, 2);
@@ -149,5 +199,5 @@ K = usemAssemble(model, HookeMatrix2d(1, 0.3, 1));
 field = @(x, y) deal(real((x + 1i*y).^4), -imag((x + 1i*y).^4));
 [u, uExact, err] = usemDirichletSolve(K, model, field);   % err ~ 1e-15
 \end{lstlisting}
-\code{usemReadAbaqus(inpFile, p)} runs the input part of \code{Start_Sim.m}
-(reading and lifting to degree $p$) and returns the model as a struct.
+\code{ReadModel(inpFile, p)} runs only the input part (reading and lifting to
+degree $p$) and returns the \code{model} struct.

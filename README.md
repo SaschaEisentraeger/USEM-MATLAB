@@ -2,12 +2,12 @@
 
 [![tests](https://github.com/SaschaEisentraeger/USEM-MATLAB/actions/workflows/tests.yml/badge.svg)](https://github.com/SaschaEisentraeger/USEM-MATLAB/actions/workflows/tests.yml)
 
-MATLAB code for **high-order unsymmetric (Petrov–Galerkin) spectral elements** for linear
+MATLAB code for **high-order unsymmetric (Petrov-Galerkin) spectral elements** for linear
 plane elasticity: static, transient, modal and frequency-domain analysis.
 
 The element combines two sets of shape functions:
 
-- **parametric test functions:** Lagrange polynomials of degree $p$ on Gauss–Lobatto–Legendre
+- **parametric test functions:** Lagrange polynomials of degree $p$ on Gauss-Lobatto-Legendre
   nodes, which keep the mesh conforming;
 - **metric trial functions:** Lagrange polynomials in corotational **skew coordinates**, which
   are complete in Cartesian coordinates and frame-invariant.
@@ -31,17 +31,39 @@ polynomial degree.
   harmonic frequency domain.
 - Contour plots of displacements, strains and stresses.
 
+## Installation
+
+Requirements: MATLAB R2018b or newer (developed with R2026a). The program and the tests
+need base MATLAB only; the Parallel Computing Toolbox is optional (parallel element
+assembly). Nothing has to be compiled: clone the repository and put the code on the path,
+
+```matlab
+addpath('path/to/USEM/code');
+SetupPaths         % adds code/subroutines (with subfolders) and the example input files
+```
+
 ## Quick start
 
 ```matlab
-cd code
-Start_Sim          % static Lee & Bathe cubic patch test on a distorted mesh, p = 3
+run('path/to/USEM/code/Start_Sim.m')   % static Lee & Bathe cubic patch test, distorted mesh, p = 3
 ```
 
-The model is defined in an ABAQUS input file (`code/InputFilesAbaqus`). The parameters
-(degree, analysis type, mass matrix, time integration, …) are set at the top of
-`Start_Sim.m`. Requirements: MATLAB R2018b or newer; the Parallel Computing Toolbox is
-optional (parallel element assembly).
+The model is defined in an ABAQUS input file (`code/InputFilesAbaqus`). `Start_Sim.m` sets
+the parameters (degree, analysis type, mass matrix, time integration, …) and calls
+`RunSimulation`; `DefaultSettings` documents every parameter. The same call works from any
+script, e.g. for a parameter study:
+
+```matlab
+settings = DefaultSettings();
+settings.filename      = 'PatchTestLeeCubic_angular.inp';
+settings.analysis_type = 'Modal_analysis';   % or Static_, Dynamic_, FrequencyDomain_analysis
+settings.p.pxi = 4;  settings.p.peta = 4;
+[model, results] = RunSimulation(settings);
+results.EF(1:5)                              % lowest eigenfrequencies [Hz]
+```
+
+`model` holds the mesh, materials, loads and boundary conditions, `results` the solution
+(see `help StaticAnalysis`, `help ModalAnalysis`, ...).
 
 ## Documentation
 
@@ -49,14 +71,15 @@ The documentation is written in LaTeX with TikZ figures (`docs/`):
 
 | Chapter | Content |
 |---|---|
-| Theory | Petrov–Galerkin weak form, test and trial spaces, skew coordinates, element matrices |
+| Theory | Petrov-Galerkin weak form, test and trial spaces, skew coordinates, element matrices |
 | Metric basis | basis of the metric Vandermonde matrix: conditioning, Lagrange basis (default), Lebesgue constant of $Q_p(s,t)$ |
-| Getting started | requirements, running a simulation, parameters, output |
+| Getting started | installation, running a simulation, parameters, output |
 | ABAQUS input files | supported keywords, conventions, data structures, Lee & Bathe example |
-| Code reference | all routines by module, third-party code |
+| Code reference | program flow, all routines by module, third-party code |
 | Analyses | static, dynamic (time integrators), modal, frequency domain |
 | Test suite | unit and integration tests, helpers, fixtures |
-| Known issues | remaining limitations and fixed bugs |
+| Developer guide | architecture, data structures, conventions; adding time integrators, analyses, loads, materials |
+| Known limitations | open limitations of the code |
 | Literature | annotated bibliography (`literature/references.bib`) |
 
 Build the PDF (TeX Live or MiKTeX with biber):
@@ -90,7 +113,7 @@ integrators. GitHub Actions runs it on every push.
   9-node and $p\le8$. Report: `studies/rajendran_panel/report/rajendran-panel-report.pdf`.
 - `studies/metric_basis/`: basis of the metric Vandermonde matrix (monomial, Legendre,
   Chebyshev, Lagrange: conditioning, Kronecker property, completeness, Lebesgue constant)
-  and comparison of the trial space $Q_p(s,t)$ with the hybrid metric–parametric space.
+  and comparison of the trial space $Q_p(s,t)$ with the hybrid metric-parametric space.
   Results: chapter "Metric basis" of the documentation.
 
 ## Manuscript
@@ -103,12 +126,21 @@ all numbers and figures are in `manuscript/studies/`, the data in `manuscript/da
 
 ```
 code/
-  Start_Sim.m              main script (settings → input → analysis)
+  Start_Sim.m              main script: parameters of one simulation → RunSimulation
+  SetupPaths.m             puts the code on the MATLAB path
   InputFilesAbaqus/        example ABAQUS input files (Lee & Bathe patch tests)
-  subroutines/             element technology, assembly, BCs, solvers, plots, ...
+  subroutines/
+    Driver/                settings, RunSimulation, model input, saving
+    AnalysisType/          static, dynamic, modal and frequency-domain analysis
+    ElementMatrices/, ShapeFunctions/, Quadrature/, ...   element technology
+    Assembly/, BoundaryConditions/, Material/, Topology/  global system
+    TimeIntegration/       Solver_Transient, method table, integrators, shared helpers
+    ReadInputFileAbaqus/   ABAQUS readers
+    Visualization/         contour and mesh plots
 docs/                      documentation (LaTeX, TikZ figures)
 tests/                     test suite (matlab.unittest)
-studies/metric_basis/      study of the basis of the metric Vandermonde matrix
+studies/                   studies with their own scripts, results and reports
+manuscript/                paper draft and the scripts that produce its data
 literature/references.bib  bibliography (the PDFs are not distributed)
 ```
 
@@ -124,6 +156,11 @@ literature/references.bib  bibliography (the PDFs are not distributed)
 - N.-S. Lee, K.-J. Bathe (1993). Effects of element distortions on the performance of
   isoparametric elements. *IJNME* 36(20):3553–3576.
   [doi:10.1002/nme.1620362009](https://doi.org/10.1002/nme.1620362009)
+
+## Contact
+
+Sascha Eisenträger (corresponding author), Otto von Guericke University Magdeburg,
+[sascha.eisentraeger@ovgu.de](mailto:sascha.eisentraeger@ovgu.de)
 
 ## Licence
 

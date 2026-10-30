@@ -17,14 +17,14 @@ metric / metric; ATF = analytical trial functions.
   \toprule
   code & references \\
   \midrule
-  unsymmetric (Petrov--Galerkin) element, adjugate form of $\matr B_L$
+  unsymmetric (Petrov-Galerkin) element, adjugate form of $\matr B_\mathrm{L}$
     (\code{Ke_2D}, \code{Me_2D}, \code{KMe_2D}) &
     \textcite{Rajendran2010technique}; \textcite{Rajendran2003novel} \\
   metric trial functions in corotational skew coordinates
     (\code{ShapeFunctions2D_Metric}, \code{CorotationalSkewCoordinates}) &
     \textcite{Xie2016Modified}; \textcite{Yuan1993New};
     \textcite{Ooi2008Remedies} \\
-  Lee \& Bathe patch tests (\code{code/InputFilesAbaqus},
+  Lee-Bathe patch tests (\code{code/InputFilesAbaqus},
     \code{SpatialLoadingFunction}) &
     \textcite{Lee1993effects}; \textcite{Rajendran2003novel} \\
   adaptive hybrid explicit method (\code{AdaptiveHybridExplicitMethod}) &
@@ -49,7 +49,7 @@ metric / metric; ATF = analytical trial functions.
 
 \subsection{Axisymmetric UFEM}
 \littable{
-  \textcite{Zaehringer2024finite} & 8-node PG-Q8: serendipity test functions, metric
+  \textcite{Zaehringer2024finite} & 8-node PG-Q8: Serendipity test functions, metric
     trial functions in skew coordinates. Exact for quadratic fields on distorted
     meshes; for the thick-walled cylinder (non-polynomial $u_r$) not generally
     better than Q8. \\
@@ -59,25 +59,27 @@ metric / metric; ATF = analytical trial functions.
     test modes that pass the axisymmetric patch test. \\
 }
 
-\subsection{Foundations of UFEM and Petrov--Galerkin elements}
+\subsection{Foundations of UFEM and Petrov-Galerkin elements}
 \littable{
-  \textcite{Rajendran2003novel} & US-QUAD8, the seminal paper: serendipity
+  \textcite{Rajendran2003novel} & US-QUAD8, the seminal paper: Serendipity
     (compatibility-enforcing) test functions with metric (completeness-enforcing)
     trial functions; exact quadratic fields under angular, curved-edge and
     mid-node distortion. \\
   \textcite{Rajendran2000completeness} & higher-order completeness conditions;
     why distorted Q8 elements lose quadratic completeness. \\
   \textcite{Rajendran2010technique} & three sufficient conditions for distortion
-    immunity (compatible test, complete trial, no $\det\matr J$ in the
+    immunity (compatible test, complete trial, no $\det(\matr J)$ in the
     denominator); PP/PM/MM naming. \\
   \textcite{Ooi2006unsymmetric} & comprehensive study of US-QUAD8/US-HEXA20:
     strong-form patch tests, geometric nonlinearity, frame dependence, P-matrix
-    singularity, complex eigenvalues. \\
+    singularity. No free-vibration analysis; complex eigenvalues are mentioned
+    only in the recommendations for future work (Ch.~8), as a possible problem
+    of the unsymmetric element in free vibration. \\
   \textcite{Prathap2007The} & the PM formulation is not variationally correct but
     recovers stresses as a best fit in metric space. \\
   \textcite{Cen2019Some} & review of hybrid stress/displacement-function elements
     and the improved UFEM (US-ATF family). \\
-  \textcite{Chen2021implementierung} & Abaqus UEL implementation of PM-QUAD8 and
+  \textcite{Chen2021implementierung} & \texttt{ABAQUS} UEL implementation of PM-QUAD8 and
     PM-HEXA20; cantilever and Kirsch-plate benchmarks under distortion. \\
 }
 
@@ -91,7 +93,7 @@ metric / metric; ATF = analytical trial functions.
     its P-matrix can become singular; remedies. \\
   \textcite{Cowan2014Rotationally} & metric trial functions in a local convected
     frame (rotational invariance); finite-deformation elasto-plasticity. \\
-  \textcite{Wisniewski2008improved} & Hellinger--Reissner 4-node elements with
+  \textcite{Wisniewski2008improved} & Hellinger-Reissner 4-node elements with
     stresses in skew coordinates. \\
 }
 
@@ -120,7 +122,7 @@ metric / metric; ATF = analytical trial functions.
   \textcite{Huang2018unsymmetric} & US-ATFHS8 solid-shell. \\
   \textcite{Wu2023unsymmetric} & UHS11 solid-shell. \\
   \textcite{He2019generalized} & generalized modal element method (US-MEM8S). \\
-  \textcite{Pfefferkorn2021mesh} & Petrov--Galerkin EAS (Q1U/E4, H1U/E12);
+  \textcite{Pfefferkorn2021mesh} & Petrov-Galerkin EAS (Q1U/E4, H1U/E12);
     MacNeal's theorem revisited. \\
 }
 
@@ -142,7 +144,7 @@ metric / metric; ATF = analytical trial functions.
     conserved and Newmark can be unconditionally unstable; energy-conserving
     scheme. \\
   \textcite{Zaehringer2026On} & UQ8* in elastodynamics: standard Newmark is
-    unstable, Wang--Hillman can drift, a mixed velocity--strain formulation
+    unstable, Wang-Hillman can drift, a mixed velocity-strain formulation
     conserves energy and stays distortion-insensitive. \\
   \textcite{Kumar2011Use} & transient (impact) application of PM20 with Newmark. \\
   \textcite{Soares2020novel} & adaptive hybrid explicit method (method 109). \\
@@ -150,7 +152,7 @@ metric / metric; ATF = analytical trial functions.
 
 \subsection{Plates, beams and shells}
 \littable{
-  \textcite{Ju2025unsymmetric} & UQP4-RPIM Reissner--Mindlin plate. \\
+  \textcite{Ju2025unsymmetric} & UQP4-RPIM Reissner-Mindlin plate. \\
   \textcite{Shang2022Trefftz} & US-TP4 Trefftz plate element. \\
 }
 
@@ -167,7 +169,7 @@ metric / metric; ATF = analytical trial functions.
 \subsection{Mesh distortion: theory and assessment}
 \littable{
   \textcite{Lee1993effects} & angular distortion destroys the quadratic
-    completeness of serendipity elements. \\
+    completeness of Serendipity elements. \\
   \textcite{MacNeal1992On} & MacNeal's theorem: a symmetric element must either
     fail the patch test or lock. \\
   \textcite{Rajendran2007Mesh} & strong-form patch tests; only PM-QUAD8 passes all. \\
@@ -178,8 +180,8 @@ metric / metric; ATF = analytical trial functions.
   \textcite{Manju2019function} & function-space analysis of the distorted 3-node
     Timoshenko metric beam. \\
   \textcite{Engvall2020Mesh} & mesh quality metrics for high-order
-    (Bernstein--Bézier) elements. \\
-  \textcite{Quiriny2024The} & tempered FEM: a lower bound on $\det\matr J$ instead of
+    (Bernstein-Bézier) elements. \\
+  \textcite{Quiriny2024The} & tempered FEM: a lower bound on $\det(\matr J)$ instead of
     a change of test/trial spaces. \\
   \textcite{Quiriny2026Taming} & tempered FEM for sliver tetrahedra. \\
 }
@@ -187,20 +189,20 @@ metric / metric; ATF = analytical trial functions.
 \section{Synthesis}
 
 \begin{enumerate}
-  \item \textbf{Why UFEM.} Conventional (Bubnov--Galerkin) serendipity elements lose
+  \item \textbf{Why UFEM.} Conventional (Bubnov-Galerkin) Serendipity elements lose
     their quadratic completeness under angular and curved-edge distortion
     \parencite{Lee1993effects}. MacNeal's theorem shows that no symmetric element
     can both pass the patch test and be distortion-insensitive in bending
-    \parencite{MacNeal1992On}. Petrov--Galerkin elements avoid this by combining
+    \parencite{MacNeal1992On}. Petrov-Galerkin elements avoid this by combining
     compatible (parametric) test functions with Cartesian-complete (metric) trial
     functions \parencite{Rajendran2003novel,Rajendran2010technique}.
   \item \textbf{Sufficient conditions for distortion immunity}
     \parencite{Rajendran2010technique}: compatible test functions, trial functions
-    complete in Cartesian coordinates, no $\det\matr J$ in the denominator of the
+    complete in Cartesian coordinates, no $\det(\matr J)$ in the denominator of the
     integrand. This code meets all three for arbitrary $p$: the trial functions are
     tensor-product Lagrange polynomials in skew coordinates, which contain all
-    polynomials of total degree $\le p$ in $(x, y)$, and $\matr B_L$ is built with
-    $\adj\matr J$. Any displacement field of total degree $\le p$ is reproduced
+    polynomials of total degree $\le p$ in $(x, y)$, and $\matr B_\mathrm{L}$ is built with
+    $\adj(\matr J)$. Any displacement field of total degree $\le p$ is reproduced
     exactly on arbitrarily distorted meshes (\code{tests/integration/PatchTest.m}).
   \item \textbf{Frame invariance.} Metric trial functions in global coordinates are
     frame-dependent and their Vandermonde matrix can become singular
@@ -210,14 +212,16 @@ metric / metric; ATF = analytical trial functions.
     degenerate elements, e.g.\ three nearly collinear corners.
   \item \textbf{Variational inconsistency.} The PM formulation is not variationally
     correct \parencite{Prathap2007The}: the stiffness matrix is unsymmetric and the
-    energy optimality of Bubnov--Galerkin is lost. For fields outside the trial
+    energy optimality of Bubnov-Galerkin is lost. For fields outside the trial
     space the unsymmetric element can be slightly less accurate than the classical
     one on coarse meshes \parencite{Zaehringer2024finite}, but it keeps the optimal
     convergence rate on distorted meshes.
   \item \textbf{Dynamics.} Unsymmetric $\matr K$ (and $\matr M$) break the
     equivalence of energy and momentum conservation; standard Newmark can become
-    unstable and generalized eigenvalues can be complex
-    \parencite{Wang2022Temporal,Ooi2006unsymmetric,Zaehringer2026On}. With GLL nodes
+    unstable \parencite{Wang2022Temporal,Zaehringer2026On}, and the generalized
+    eigenvalues can be negative \parencite{Wang2022Temporal}. Complex eigenvalues
+    are a further possible problem of the unsymmetric element in free vibration,
+    which \textcite[Ch.~8]{Ooi2006unsymmetric} names as an open question. With GLL nodes
     and nodal quadrature the unsymmetric mass matrix is nevertheless diagonal,
     because both the parametric and the metric functions are interpolatory at the
     quadrature points.
@@ -228,7 +232,8 @@ metric / metric; ATF = analytical trial functions.
     basis-independent growth on distorted elements is that of the Lebesgue constant
     of $Q_p(s,t)$-interpolation on the mapped nodes.
   \item \textbf{Hybrid trial space} (\cref{sec:metric-hybrid},
-    \code{method = 2}): $P_p(x,y)\oplus$ high-order parametric complement. It keeps
+    \code{method = 2}): $P_m(\tilde s,\tilde t)\oplus$ high-order parametric
+    complement, $m=\min(p_\upxi,p_\upeta)$. It keeps
     the Lebesgue constant at the parametric level and reduces to the classical
     element on straight-edged quadrilaterals, where full tensor-product Lagrange
     elements already contain $P_p(x,y)$ \parencite{Arnold2002Approximation}.

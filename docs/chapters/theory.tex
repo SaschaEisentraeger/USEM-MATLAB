@@ -1,42 +1,49 @@
-\chapter{Theory: the unsymmetric spectral element method}
+\chapter{Theory: The unsymmetric spectral element method}
 \label{ch:theory}
 
-This chapter describes the formulation \emph{as it is implemented} in
+This chapter describes the formulation as it is implemented in
 \code{code/subroutines}. The literature is collected in \cref{ch:literature}.
 
 \section{Problem}
 
-The code solves linear plane elasticity (plane stress or plane strain) in a
-domain $\Omega$:
+The code solves linear plane elasticity (plane stress or plane strain) on a
+domain $\Omega$ with thickness 1. In Voigt notation, the equation of motion,
+Hooke's law and the strains read
 \begin{equation}
-  \nabla\cdot\bm\sigma + \vect b = \rho\,\ddot{\vect u},\qquad
-  \bm\sigma = \matr C\,\bm\varepsilon(\vect u),\qquad
-  \bm\varepsilon = [\varepsilon_{x},\ \varepsilon_{y},\ \gamma_{xy}]^{\T},
+  \matr L^{\T}\bm\sigma + \vect b = \rho\,\ddot{\vect u},\qquad
+  \bm\sigma = \matr C\,\bm\varepsilon,\qquad
+  \bm\varepsilon = \matr L\,\vect u =
+  \begin{bmatrix}\varepsilon_{xx}\\ \varepsilon_{yy}\\ \gamma_{xy}\end{bmatrix},
+  \qquad
+  \matr L = \begin{bmatrix}\partial_x & 0\\ 0 & \partial_y\\
+                           \partial_y & \partial_x\end{bmatrix},
 \end{equation}
-with $\vect u = \bar{\vect u}$ on $\Gamma_u$ and $\bm\sigma\vect n = \bar{\vect t}$
-on $\Gamma_t$. $\matr C$ is the $3\times3$ plane stress or plane strain matrix,
-obtained from the 3D Hooke matrix (\code{PlaneStressConstitutiveMatrices},
-\code{PlaneStrainConstitutiveMatrices}). The thickness is 1.
+with prescribed displacements $\bar{\vect u}$ on the Dirichlet boundary
+$\Gamma_\mathrm{u}$ and prescribed tractions $\bar{\vect t}$ on the Neumann
+boundary $\Gamma_\mathrm{t}$. $\matr C$ is the $3\times3$ plane stress or plane
+strain matrix, obtained from the three-dimensional Hooke matrix
+(\code{PlaneStressConstitutiveMatrices}, \code{PlaneStrainConstitutiveMatrices}).
 
-\section{Petrov--Galerkin weak form}
+\section{Petrov-Galerkin weak form}
 
-The classical (Bubnov--Galerkin) finite or spectral element method uses the
-same isoparametric shape functions for the test and the trial space. The
-unsymmetric method uses two different spaces \parencite{Rajendran2010technique},
+The classical (Bubnov-Galerkin) finite or spectral element uses the same
+isoparametric shape functions to interpolate the displacements (trial
+functions) and to weight the equilibrium equation (test functions). The
+unsymmetric element uses two different sets \parencite{Rajendran2010technique},
 see \cref{tab:spaces,fig:spaces}.
 
 \begin{table}[htbp]
   \centering
-  \caption{Test and trial spaces of the unsymmetric element.}
+  \caption{Shape functions of the unsymmetric element.}
   \label{tab:spaces}
   \begin{tabular}{@{}lll@{}}
     \toprule
-    Space & Functions & Property \\
+    Role & Shape functions & Property \\
     \midrule
-    test $\vect w_h \in \mathcal W_h$ & parametric $N_i(\xi,\eta)$ &
-      inter-element compatible ($C^0$-conforming) \\
-    trial $\vect u_h \in \mathcal U_h$ & metric $M_j(x,y)$ &
-      complete in Cartesian coordinates \\
+    test (weighting) & parametric, $N_i(\xi,\eta)$ &
+      continuous across element edges \\
+    trial (displacement) & metric, $M_j(x,y)$ &
+      complete polynomials in $x$ and $y$ \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -50,60 +57,69 @@ see \cref{tab:spaces,fig:spaces}.
   \label{fig:spaces}
 \end{figure}
 
-The discrete problem is to find $\vect u_h\in\mathcal U_h$ such that for all
-$\vect w_h\in\mathcal W_h$ with $\vect w_h = \vect 0$ on $\Gamma_u$
+The displacements are interpolated with the metric functions, the virtual
+displacements with the parametric functions. The principle of virtual work then
+reads
 \begin{equation}
-  \int_\Omega \bm\varepsilon(\vect w_h)^{\T}\matr C\,\bm\varepsilon(\vect u_h)\dd\Omega
-  + \int_\Omega \rho\,\vect w_h^{\T}\ddot{\vect u}_h\dd\Omega
-  = \int_\Omega \vect w_h^{\T}\vect b\dd\Omega
-  + \int_{\Gamma_t} \vect w_h^{\T}\bar{\vect t}\dd\Gamma .
+  \int\limits_{\Omega} \bm\varepsilon(\vect w)^{\T}\matr C\,\bm\varepsilon(\vect u)\dd\Omega
+  + \int\limits_{\Omega} \rho\,\vect w^{\T}\ddot{\vect u}\dd\Omega
+  = \int\limits_{\Omega} \vect w^{\T}\vect b\dd\Omega
+  + \int\limits_{\Gamma_\mathrm{t}} \vect w^{\T}\bar{\vect t}\dd\Gamma
   \label{eq:weakform}
 \end{equation}
-Both sets of shape functions are interpolatory at the same nodes, so the
-nodal displacements are the unknowns in both cases. The element matrices are
-\emph{unsymmetric}.
+for every virtual displacement $\vect w$ (parametric) that vanishes on
+$\Gamma_\mathrm{u}$. Both sets of shape functions are interpolatory at the same
+nodes, so the nodal displacements are the unknowns, as in the classical element.
+Because the two sides of the weak form use different functions, the element
+matrices are \emph{unsymmetric}.
 
-\subsection*{Exactness on distorted meshes}
+\subsection*{Why the element is insensitive to mesh distortion}
 
-Let the exact solution $\vect u$ be a polynomial of total degree $\le p$ in
-$(x,y)$. Its metric interpolant is then $\vect u$ itself on every element, so
-the strains and stresses are exact. Because the test functions are
-conforming, integration by parts gives
-\begin{equation}
-  \int_\Omega \bm\varepsilon(\vect w_h)^{\T}\bm\sigma(\vect u)\dd\Omega
-  = \int_\Omega \vect w_h^{\T}\vect b\dd\Omega
-  + \int_{\Gamma_t}\vect w_h^{\T}\bar{\vect t}\dd\Gamma .
-\end{equation}
-The exact nodal values therefore satisfy the discrete equations, and the
-discrete solution is exact, \emph{independently of the element shape}
-(provided the quadrature is exact). This is the distortion immunity of
-Rajendran's unsymmetric elements \parencite{Rajendran2003novel,Rajendran2010technique},
-here for arbitrary $p$. The classical isoparametric element loses it as soon as
-the geometry map is non-affine and $x^p\notin\mathcal W_h$, for example for
-quadratic fields on elements with curved edges \parencite{Lee1993effects}.
-The metric functions need not be continuous across element edges;
-compatibility is provided by the test functions.
+If the exact displacement field is a polynomial of total degree $\le p$ in
+$(x,y)$, the metric functions reproduce it exactly on every element, whatever
+its shape, so the strains and stresses are exact as well. The parametric test
+functions are continuous across the element edges, so the exact stresses
+satisfy the weak form \eqref{eq:weakform} with these test functions (this is the
+principle of virtual work for the exact solution). Hence the exact nodal values
+solve the discrete equations: the solution is exact on any mesh, provided the
+integrals are evaluated exactly (\cref{sec:quadrature}). This is the distortion
+immunity of Rajendran's unsymmetric elements
+\parencite{Rajendran2003novel,Rajendran2010technique}, here for arbitrary $p$.
+The classical isoparametric element loses this property as soon as the element
+geometry is not a parallelogram, because the isoparametric functions then no
+longer contain all polynomials of degree $p$ in $(x,y)$; quadratic fields on
+elements with curved edges are the standard example \parencite{Lee1993effects}.
+The metric functions need not be continuous across element edges; continuity
+is provided by the test functions.
 
 \section{Parametric (test) shape functions}
 
-\code{ShapeFunctions2D_SEM(xi, eta, p)} builds tensor products of 1D Lagrange
-polynomials through $p+1$ nodes. The node distribution is selected with
-\code{p.ndist} (\code{nodal_distribution.m}):
+\code{ShapeFunctions2D_SEM(xi, eta, p)} builds products of one-dimensional
+Lagrange polynomials through $p+1$ nodes in each direction. The node
+distribution is selected with \code{p.ndist} (\code{nodal_distribution.m}):
 \begin{center}
   \begin{tabular}{@{}cl@{}}
     \toprule
     \code{ndist} & nodes \\
     \midrule
     1 & equidistant \\
-    2 & Gauss--Lobatto--Legendre (GLL), the default (spectral elements) \\
-    3 & Gauss--Lobatto--Chebyshev (GLC) \\
+    2 & Gauss-Lobatto-Legendre (GLL), the default (spectral elements) \\
+    3 & Gauss-Lobatto-Chebyshev (GLC) \\
     \bottomrule
   \end{tabular}
 \end{center}
-The geometry is isoparametric. The element nodes are generated from the 4-node
-(bilinear) or 8-node (serendipity) input mesh by
-\code{pSpectralElement_NodesTopology}, so the geometry of an element is at
-most quadratic, whatever $p$ is.
+
+\paragraph{Geometry.} The element geometry is described isoparametrically,
+i.e.\ with the same degree-$p$ shape functions. The positions of the element
+nodes, however, are computed from the 4-node (bilinear) or 8-node (Serendipity)
+element of the input mesh (\code{pSpectralElement_NodesTopology}): every node is
+placed at the image of its reference coordinates under the bilinear or
+Serendipity map of the input element. The degree-$p$ isoparametric map
+interpolates this map exactly, so all its higher-order terms vanish and the
+geometry is the bilinear or Serendipity geometry of the input mesh, whatever $p$
+is: edges are straight (4-node input) or parabolic (8-node input, $p\ge2$).
+Curved boundaries are therefore represented only as accurately as by the input
+mesh; a degree-$p$ geometry would require an input mesh of degree $p$.
 
 \paragraph{Local node numbering.}
 For degree $p$ an element has $(p+1)^2$ nodes: the 4 corners, then the interior
@@ -122,83 +138,116 @@ $2n$ (\code{Topology_DoF_2D}).
 
 \section{Metric (trial) shape functions in skew coordinates}
 
-\code{ShapeFunctions2D_Metric(xQ, yQ, xN, yN, p)} builds functions that are
-interpolatory at the element nodes $(x_k, y_k)$ in physical space:
+\code{ShapeFunctions2D_Metric(xQ, yQ, xN, yN, p)} builds shape functions that
+are interpolatory at the element nodes $(x_k,y_k)$ in physical space, in four
+steps:
 \begin{enumerate}
   \item \textbf{Skew coordinates} (\code{CorotationalSkewCoordinates},
-    \cite{Xie2016Modified}; \cite{Yuan1993New}). With the element centre
-    $\vect x_0 = \vect x(0,0)$ and the Jacobian there,
-    $\matr J_0 = \partial(x,y)/\partial(\xi,\eta)|_{(0,0)}$,
+    \cite{Xie2016Modified}; \cite{Yuan1993New}). The skew coordinates $(s,t)$
+    are Cartesian coordinates measured along the two element axes at the element
+    centre, scaled with the element size: with the centre
+    $\vect x_0 = \vect x(0,0)$ and the Jacobian $\matr J_0$ there,
     \begin{equation}
       \begin{bmatrix} s\\ t\end{bmatrix} = \matr J_0^{-\T}\,(\vect x - \vect x_0).
     \end{equation}
-    $(s,t)$ is an affine, non-dimensional coordinate system that moves and
-    rotates with the element; for a parallelogram it coincides with $(\xi,\eta)$.
-  \item \textbf{Basis.} $\phi_k(s,t) = \ell_a(\tilde s)\,\ell_b(\tilde t)$ with
-    $0\le a\le p_\xi$ and $0\le b\le p_\eta$ (tensor-product space $Q_p$), where
-    $\ell_a$ are the 1D Lagrange polynomials through the reference nodes and
-    $(\tilde s,\tilde t)$ are the skew coordinates mapped from the bounding box of
-    the element nodes onto $[-1,1]^2$. The space, and hence the shape functions,
-    is the same as for the monomials $s^a t^b$ of the original formulation; only
-    the conditioning of $\matr V$ differs (\cref{ch:metric-basis}).
-  \item \textbf{Interpolation.} With the generalized Vandermonde matrix
-    $V_{kl} = \phi_k(s_l,t_l)$ at the nodes,
-    $\vect M(\vect x) = \matr V^{-1}\bm\phi\bigl(s(\vect x),t(\vect x)\bigr)$, so
-    that $M_j(\vect x_k)=\delta_{jk}$.
-  \item \textbf{Derivatives.} $\nabla_{\vect x} M = \matr J_0^{-1}\nabla_{(s,t)}M$,
-    with $\partial/\partial s = r_s^{-1}\,\partial/\partial\tilde s$ (half width
-    $r_s$ of the bounding box), likewise for $t$.
+    They are linear in $x$ and $y$, move and rotate with the element, and
+    coincide with $(\xi,\eta)$ on a parallelogram.
+  \item \textbf{Polynomial space.} The shape functions are polynomials of degree
+    $p_\upxi$ in $s$ and $p_\upeta$ in $t$ (all products $s^a t^b$ with $a\le
+    p_\upxi$, $b\le p_\upeta$, the space $Q_p(s,t)$). For good conditioning they
+    are written in a Lagrange basis $\ell_a(\tilde s)\,\ell_b(\tilde t)$, where
+    $\tilde s$, $\tilde t$ are the skew coordinates scaled to the interval
+    $[-1,1]$ of the nodes; the shape functions themselves do not depend on the
+    basis (\cref{ch:metric-basis}).
+  \item \textbf{Interpolation.} The coefficients follow from the conditions
+    $M_j(\vect x_k) = \delta_{jk}$ at the nodes, a linear system with the
+    generalized Vandermonde matrix $\matr V$ (values of the basis at the nodes).
+  \item \textbf{Derivatives.} The derivatives with respect to $x$ and $y$
+    follow from those with respect to $s$ and $t$ with the constant matrix
+    $\matr J_0^{-1}$.
 \end{enumerate}
 Properties (all covered by \code{tests/unit/MetricShapeFunctionsTest.m}):
 \begin{itemize}
-  \item \textbf{Completeness.} $(s,t)$ is affine in $(x,y)$, so
-    $Q_p(s,t)\supseteq P_p(x,y)$: every polynomial of total degree $\le p$ is
-    reproduced exactly on any element shape.
-  \item \textbf{Frame invariance.} Rigid motions and uniform scaling of the
-    element do not change the function values. The older variant
-    \code{method = 0} (monomials in centroid-shifted global coordinates,
-    \cite{Rajendran2003novel}) is complete but rotation-dependent for $p\ge2$
+  \item \textbf{Completeness.} $s$ and $t$ are linear in $x$ and $y$, so every
+    polynomial of total degree $\le p$ in $(x,y)$ is a polynomial of degree $\le p$
+    in $(s,t)$ and is reproduced exactly on any element shape.
+  \item \textbf{Frame invariance.} Rigid-body motions and uniform scaling of the
+    element do not change the shape functions. Monomials in centroid-shifted
+    global coordinates (\code{method = 0}, \cite{Rajendran2003novel}) are also
+    complete, but depend on the orientation of the element for $p\ge2$
     \parencite{Ooi2008Remedies}.
-  \item \textbf{Affine elements.} On a parallelogram metric and parametric
-    functions coincide, so the element is the classical spectral element and
-    $\matr K_e$ is symmetric.
+  \item \textbf{Affine elements.} On a parallelogram the metric and the
+    parametric functions coincide, so the element is the classical spectral
+    element and $\matr K_e$ is symmetric.
+  \item \textbf{Unisolvence.} The interpolation conditions can be singular for
+    special node positions on strongly distorted elements, e.g.\ when two nodes
+    coincide \parencite{Ooi2008Remedies}. The code stops with an error in this
+    case; with \code{p.nodeShift}~$>0$ it moves one node of such an element
+    slightly instead (\cref{sec:node-shift}).
 \end{itemize}
-\code{method = 2} (or \code{p.metricMethod = 2}) replaces $Q_p(s,t)$ by the hybrid
-space $P_p(x,y)\oplus\operatorname{span}\{L_a(\xi)L_b(\eta): a+b>p\}$
-(\cref{sec:metric-hybrid}), which has the same properties, equals the parametric
-space on all straight-edged elements and avoids the exponential growth of the
-Lebesgue constant of $Q_p(s,t)$ on distorted elements.
+
+\subsection*{Singular interpolation matrices}
+\label{sec:node-shift}
+
+On strongly distorted elements, the isoparametric map of the input element can
+place two element nodes onto each other, or the nodes can take a position in
+which the polynomials of the trial space cannot interpolate arbitrary nodal
+values (the generalized Vandermonde matrix is singular). By default the code
+stops with an error message (\code{CheckCoincidentNodes},
+\code{CheckUnisolvent}). With \code{settings.p.nodeShift} $> 0$ (e.g.\
+$10^{-3}$), \code{ShiftSingularNodes} instead moves one node of such an element
+by this fraction of the element size: an interior node if the element has one
+(so the boundary of the domain stays exact), the one that gives the best
+conditioning, in a fixed direction towards the element centre. The step is
+doubled until the interpolation matrix is regular, and a warning names the
+element and the node. This is a pragmatic remedy: the geometry changes by about
+the shift near the moved node, while completeness and frame invariance are
+kept. A slight perturbation of the nodal coordinates is one of the remedies for
+singular interpolation matrices that \textcite{Ooi2008Remedies} discuss (after
+Liu and Gu, for meshless point interpolation); their own remedy, a random
+rotation of the coordinate system, does not help here, because the metric
+functions in skew coordinates are frame invariant.
+
+\code{method=2} (\code{p.metricMethod=2}) uses the hybrid space instead of
+$Q_p(s,t)$: all polynomials of total degree $\le m=\min(p_\upxi,p_\upeta)$ in
+the scaled skew coordinates $(\tilde s,\tilde t)$, $P_m(\tilde s,\tilde t)$,
+complemented by parametric functions of $(\xi,\eta)$
+(\cref{sec:metric-hybrid}). It has the same
+completeness and invariance, equals the parametric space on all straight-edged
+elements and avoids the exponential growth of the Lebesgue constant of
+$Q_p(s,t)$ on distorted elements.
 
 \section{Element matrices}
 
 The Jacobian is used in the convention (\code{Jacobi_Matrix})
 \begin{equation}
-  \matr J = \begin{bmatrix} x_{,\xi} & y_{,\xi}\\ x_{,\eta} & y_{,\eta}\end{bmatrix}.
+  \matr J = \begin{bmatrix} \partial x/\partial\xi & \partial y/\partial\xi\\
+                            \partial x/\partial\eta & \partial y/\partial\eta
+            \end{bmatrix}.
 \end{equation}
 
 \paragraph{Stiffness} (\code{Ke_2D}):
 \begin{equation}
-  \matr K_e = \int_{\hat\Omega}\matr B_L^{\T}\matr C\,\matr B_R\,\det\matr J
-  \dd\xi\dd\eta
-  = \sum_g \tilde{\matr B}_L^{\T}(\xi_g,\eta_g)\,\matr C\,\matr B_R(\vect x_g)\,w_g,
-  \qquad \tilde{\matr B}_L = \det\matr J\,\matr B_L .
+  \matr K_e = \int\limits_{-1}^{1}\int\limits_{-1}^{1}\matr B_\mathrm{L}^{\T}\matr C\,
+  \matr B_\mathrm{R}\,\det(\matr J)\dd\xi\dd\eta,
 \end{equation}
-$\tilde{\matr B}_L$ is built with the adjugate
-$\adj\matr J = \det\matr J\,\matr J^{-1}$, so $\det\matr J$ never appears in a
+where $\matr B_\mathrm{L}$ holds the derivatives of the parametric (test) and
+$\matr B_\mathrm{R}$ those of the metric (trial) functions. The product
+$\det(\matr J)\,\matr B_\mathrm{L}$ is computed with the adjugate of $\matr J$,
+$\det(\matr J)\,\matr J^{-1}$, so $\det(\matr J)$ never appears in a
 denominator; this is Rajendran's third condition for distortion immunity. The
-rule assumes $\det\matr J > 0$ (no inverted elements). $\matr B_R$ contains the
-derivatives of the metric functions at the images $\vect x_g = \vect
-x(\xi_g,\eta_g)$ of the Gauss points. Quadrature: $2p_\xi \times 2p_\eta$
-Gauss--Legendre points. Consequences:
+rule assumes $\det(\matr J) > 0$ (no inverted elements). $\matr B_\mathrm{R}$ is
+evaluated at the physical positions of the Gauss points. Consequences:
 \begin{itemize}
   \item Rigid-body modes lie in both the right and the left null space of
-    $\matr K_e$, and $\operatorname{rank}\matr K_e = n_\text{dof}-3$.
+    $\matr K_e$, and $\operatorname{rank}(\matr K_e) = n_\mathrm{dof}-3$.
   \item $\matr K_e$ is unsymmetric unless the element is a parallelogram.
 \end{itemize}
 
 \paragraph{Mass} (\code{Me_2D}, and \code{KMe_2D} together with the stiffness):
 \begin{equation}
-  \matr M_e = \int_{\hat\Omega}\rho\,\matr N^{\T}\matr M\,\det\matr J\dd\xi\dd\eta ,
+  \matr M_e = \int\limits_{-1}^{1}\int\limits_{-1}^{1}\rho\,\matr N^{\T}\matr M\,
+  \det(\matr J)\dd\xi\dd\eta ,
 \end{equation}
 where $\matr N$ holds the parametric and $\matr M$ the metric functions.
 \begin{center}
@@ -214,9 +263,62 @@ where $\matr N$ holds the parametric and $\matr M$ the metric functions.
     \bottomrule
   \end{tabularx}
 \end{center}
-\code{Me_2D} and \code{KMe_2D} use $2p$ Gauss points per direction. On
-distorted elements the metric functions are not polynomials of degree $p$ in
-$(\xi,\eta)$, so fewer points would under-integrate the mass matrix.
+
+\subsection*{Numerical integration}
+\label{sec:quadrature}
+
+\code{Ke_2D}, \code{Me_2D} and \code{KMe_2D} use $2p_\upxi\times2p_\upeta$
+Gauss-Legendre points (other numbers can be passed to \code{Ke_2D} and
+\code{Me_2D}). Whether this integrates the element matrices exactly depends on
+the element shape, because the metric functions are polynomials in $(x,y)$, and
+$x$, $y$ and $\det(\matr J)$ are polynomials in $(\xi,\eta)$ whose degree grows
+with the distortion. The integrands of the default trial space $Q_p(s,t)$ are
+polynomials in $(\xi,\eta)$, so a finite Gauss rule is exact; its size was
+determined numerically (smallest rule that reproduces the matrices of a
+40-point rule to $10^{-12}$, single elements of \cref{fig:test-elements}):
+\begin{center}
+  \begin{tabular}{@{}lccc@{}}
+    \toprule
+    element (input mesh) & $\matr K_e$ exact with & $\matr M_e$ exact with &
+      $2p$ sufficient? \\
+    \midrule
+    parallelogram & $p+1$ & $p+1$ & yes \\
+    straight edges (4-node) & $\lceil 3p/2\rceil$ & $\lceil (3p+2)/2\rceil$ &
+      yes, except $\matr M_e$ for $p = 1$ \\
+    curved edges (8-node), $p\ge2$ & $2p+1$ to $2p+2$ & $2p+2$ to $2p+3$ &
+      no \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+\begin{figure}[htbp]
+  \centering
+  \input{figures/test-elements}
+  \caption{Single test elements of the element tests, of the study of the metric
+    basis (\cref{ch:metric-basis}) and of the table on numerical integration
+    (\texttt{usemTestElement}): the square $[0,2]\times[0,1]$, a parallelogram, a
+    trapezoid with straight edges, and two 8-node elements with curved edges.
+    The dots are the nodes of the input element; the spectral element of degree
+    $p$ is generated from them.}
+  \label{fig:test-elements}
+\end{figure}
+
+For straight edges the numbers follow from the polynomial degrees: $x$ and $y$
+are linear in $\xi$ and in $\eta$, so $s^a t^b$ has degree up to $2p$ in each
+direction, $\det(\matr J)$ degree 1 and a test function degree $p$; the mass
+integrand thus has degree $3p+1$ per direction, which needs
+$\lceil(3p+2)/2\rceil$ points. On curved elements, the degrees double because
+$x$ and $y$ are quadratic, and $2p$ points under-integrate both matrices
+(\textcite{Eisentraeger2025unsymmetric} discuss the numerical integration of
+unsymmetric elements in detail).
+
+The exactness of the patch tests is not affected: a polynomial displacement field
+of degree $\le p$ produces stresses of degree $\le p-1$ in $(x,y)$, and the
+integrand of the corresponding stiffness terms has degree $\le 3p-1$ per
+direction even on curved elements, which $2p$ points integrate exactly. This is
+why the patch tests of \cref{ch:testing} are passed to machine precision on all
+meshes. For the hybrid space (\code{method = 2}), the gradients of the
+parametric part contain $\matr J^{-1}$, so the stiffness integrand is a rational
+function on non-affine elements and no Gauss rule integrates it exactly.
 
 \paragraph{Loads.} Edge loads (pressure, traction) and body loads are
 integrated with the parametric (test) functions (\code{CreatePress},
@@ -231,13 +333,21 @@ elements are evaluated with the metric (trial) functions
 \label{sec:unsymmetric}
 
 \begin{itemize}
-  \item \textbf{Linear solvers.} $\matr K$ is unsymmetric: use LU (MATLAB's
-    \texttt{\textbackslash} or \code{decomposition}), not Cholesky.
-  \item \textbf{Eigenvalues.} The generalized eigenproblem
-    $\matr K\bm\phi = \omega^2\matr M\bm\phi$ can have complex eigenvalues
-    \parencite{Ooi2006unsymmetric}.
+  \item \textbf{Linear solvers.} $\matr K$ is unsymmetric: use LU
+    decomposition (\texttt{MATLAB}'s \texttt{\textbackslash} or \code{decomposition}),
+    not Cholesky.
+  \item \textbf{Eigenvalues.} For unsymmetric $\matr K$ and $\matr M$ the
+    eigenvalues $\omega^2$ of the free vibration problem
+    $\matr K\bm\phi = \omega^2\matr M\bm\phi$ are not guaranteed to be real and
+    positive. \textcite{Wang2022Temporal} show that negative eigenvalues can
+    occur for non-symmetric discretizations of elastodynamics; complex
+    eigenvalue pairs are possible in general, a possibility that
+    \textcite[Ch.~8]{Ooi2006unsymmetric} names for the unsymmetric 8-node element
+    as an open question for free vibration problems. \code{ModalAnalysis}
+    returns the moduli.
   \item \textbf{Time integration.} Energy is not conserved, and schemes that are
-    unconditionally stable for symmetric systems (e.g.\ the trapezoidal Newmark
-    rule) can become unstable \parencite{Wang2022Temporal,Zaehringer2026On}.
-    Check dynamic results critically.
+    unconditionally stable for symmetric systems (e.g.\ the trapezoidal rule of
+    the Newmark family) can become unstable
+    \parencite{Wang2022Temporal,Zaehringer2026On}. Check dynamic results
+    critically.
 \end{itemize}

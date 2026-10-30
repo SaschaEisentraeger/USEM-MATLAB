@@ -15,13 +15,14 @@
 \usepackage[margin=25mm]{geometry}
 \usepackage{amsmath,amssymb}
 \usepackage{bm}
+\usepackage{upgreek}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{xltabular}
 \usepackage{enumitem}
 \usepackage{xcolor}
 \usepackage{listings}
-\usepackage{url}
+\usepackage[obeyspaces,spaces]{url}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,calc,shapes.geometric,fit,backgrounds}
 \usepackage{pgfplots}
@@ -43,7 +44,7 @@
 \renewcommand{\UrlBreaks}{\do\/\do\_\do\.\do\,\do\-\do\=\do\*}
 \newcommand{\vect}[1]{\mathbf{#1}}
 \newcommand{\matr}[1]{\mathbf{#1}}
-\newcommand{\T}{\mathsf{T}}
+\newcommand{\T}{\top}
 \newcommand{\dd}{\,\mathrm{d}}
 \newcommand{\adj}{\operatorname{adj}}
 
@@ -82,7 +83,9 @@
 \title{\textbf{USEM}\\[4pt]
   \large Unsymmetric spectral element method for two-dimensional elasticity\\[2pt]
   \normalsize Documentation of the MATLAB code}
-\author{Otto von Guericke University Magdeburg}
+\author{Sascha Eisenträger\thanks{Corresponding author:
+  \href{mailto:sascha.eisentraeger@ovgu.de}{sascha.eisentraeger@ovgu.de}}\\[2pt]
+  \normalsize Otto von Guericke University Magdeburg}
 \date{\today}
 
 \begin{document}
@@ -97,6 +100,7 @@
 \include{chapters/code-reference}
 \include{chapters/analyses}
 \include{chapters/testing}
+\include{chapters/developer-guide}
 \include{chapters/known-issues}
 \include{chapters/literature}
 

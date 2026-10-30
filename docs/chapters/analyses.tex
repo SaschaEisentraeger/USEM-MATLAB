@@ -1,25 +1,30 @@
 \chapter{Analysis types and time integration}
 \label{ch:analyses}
 
-\code{Start_Sim.m} selects the analysis with \code{analysis_type}. All four
-drivers (\code{subroutines/AnalysisType/call_*.m}) start the same way: they set
-up the $3\times3$ material matrix of every material (2 constants: isotropic
-\code{HookeMatrix3d}; 9 constants: orthotropic), reduce it to plane stress or
-plane strain and assemble with \code{AssemblyFEM}.
+\code{RunSimulation} selects the analysis with \code{settings.analysis_type} and
+calls one of four functions in \code{subroutines/AnalysisType}. Before that it
+sets up the $3\times3$ material matrix of every material with
+\code{MaterialMatrices} (2 constants: isotropic \code{HookeMatrix3d}; 9 constants:
+orthotropic), reduced to plane stress or plane strain, and the Rayleigh parameters
+(\code{RayleighDamping}). All four functions assemble through
+\code{AssembleSystem} (a wrapper of \code{AssemblyFEM} for the \code{model}
+struct) and return a struct \code{results}; \code{help}~\code{StaticAnalysis} etc.\ list
+its fields.
 
-\section{Static analysis (\texttt{call\_Static})}
+\section{Static analysis (\texttt{StaticAnalysis})}
 
 \begin{enumerate}
   \item Assemble $\matr K$ (\code{flag_comp = 0}).
   \item Find the homogeneous Dirichlet DOFs.
   \item Assemble the loads (\code{NeumannBCs}).
   \item Apply the prescribed displacements (\code{DirichletBCs_nonhomogeneous}).
-  \item Solve $\matr K_{aa}\vect u_a = \vect F_a$ with \texttt{\textbackslash}
+  \item Solve $\matr K_\mathrm{aa}\vect u_\mathrm{a} = \vect F_\mathrm{a}$ with \texttt{\textbackslash}
     (sparse LU, since $\matr K$ is unsymmetric).
-  \item Save and plot (\code{Contour_plot}).
 \end{enumerate}
+\code{RunSimulation} then saves the results (\code{SaveResults}) and plots them
+(\code{PlotResults} $\to$ \code{Contour_plot}).
 
-\section{Dynamic analysis (\texttt{call\_Dynamic})}
+\section{Dynamic analysis (\texttt{DynamicAnalysis})}
 \label{sec:dynamic}
 
 \begin{enumerate}
@@ -28,14 +33,25 @@ plane strain and assemble with \code{AssemblyFEM}.
   \item Assemble the loads, with one column per load case if \code{flag_mRHS}.
     Prescribed displacements are handled by lifting
     (\code{DirichletBCs_nonhomogeneous_dynamic}).
-  \item Write the matrices to \code{subroutines/Temp/} and call
-    \code{Solver_Transient}. It reduces everything to the active DOFs, chooses the
-    time step from \code{dt = [dtf, dte, TimeIntegration.dtImp]} and calls the
-    integrator. \code{dtf = 0.05/f_max} gives 20 samples per period of the
-    highest excited frequency (\code{FFT_Signal}); the simulation time is the time
-    period of the ABAQUS \code{*Dynamic} step.
-  \item Only the nodes of interest are stored (\code{save_var = 0}).
+  \item Collect the input of the solver in a struct \code{S} (matrices, loads,
+    initial conditions, DOF sets, time step candidates, signal, options) and call
+    \code{Solver_Transient(S)}. It reduces everything to the active DOFs, chooses
+    the method from \code{TimeIntegrationMethods} and passes it the time step
+    candidates \code{dt = [dtf, dte, TimeIntegration.dtImp]}.
+    \code{dtf = 0.05/f_max} gives 20 samples per period of the highest excited
+    frequency (\code{FFT_Signal}); the simulation time is \code{settings.t_end},
+    or the time period of the \texttt{ABAQUS} step if it is empty.
+  \item By default only the nodes of interest are stored (\code{save_var = 0}).
 \end{enumerate}
+With \code{TimeIntegration.SolverSave = true}, \code{S} is also written to
+\code{subroutines/Temp/Solver_input.mat}; \code{Solver_Transient} accepts this
+file name instead of the struct, so a time integration can be repeated (e.g.\
+with another method) without the preprocessing:
+\begin{lstlisting}
+S = load(fullfile(settings.TempFolder, 'Solver_input.mat'));
+S.TimeIntegration.Method = 303;          % generalized-alpha instead
+[T, U] = Solver_Transient(S);
+\end{lstlisting}
 
 \paragraph{Important.} With \code{flag_mRHS = true} (the default)
 \code{Solver_Transient} ignores the method code. It runs
@@ -46,9 +62,13 @@ plane strain and assemble with \code{AssemblyFEM}.
 \code{dt = min(dtmax)} after scaling \code{dte} by the stability factor of the
 method; implicit schemes use \code{dt = dtImp} if all three entries differ,
 otherwise \code{dtf}. The step is then adjusted to \code{tsim/ceil(tsim/dt)}.
+Both rules are implemented once, in \code{TimeIntegration/Common/TimeStepSize}.
 
 \begin{xltabular}{\linewidth}{@{}P{1.4cm}P{6.0cm}L@{}}
-  \caption{Time integration methods (\texttt{TimeIntegration.Method}).}
+  \caption{Time integration methods (\texttt{TimeIntegration.Method}); the
+    same table is in \texttt{TimeIntegrationMethods.m}, which
+    \texttt{Solver\_Transient} uses to find the routine and its extra
+    arguments.}
   \label{tab:methods}\\
   \toprule
   code & routine & remarks \\
@@ -61,13 +81,13 @@ otherwise \code{dtf}. The step is then adjusted to \code{tsim/ceil(tsim/dt)}.
   101, 601 & \code{CentralDifferenceMethod} & explicit, 2nd order \\
   102 & \code{NohBatheMethod} & explicit, $p = 0.54$ \\
   103 & \code{SoaresMethodExplicit} & \\
-  104 & \code{MirbagheriMethod} & Noh--Bathe with the factor $\eta = 1.025$ on the
+  104 & \code{MirbagheriMethod} & Noh-Bathe with the factor $\eta = 1.025$ on the
     acceleration term of the predictor (dissipation against spurious
     oscillations); first order by design \\
   105 & \code{KimMethodExplicit} & \\
   106, 107 & \code{ZhangXingMethod1}, \code{ZhangXingMethod2} & $\rho = 1$ and
     $\rho = 0$ \\
-  108 & \code{ExplicitGeneralizedAlphaMethod} & $\rho_b = 1$ \\
+  108 & \code{ExplicitGeneralizedAlphaMethod} & $\rho_\mathrm{b} = 1$ \\
   109 & \code{AdaptiveHybridExplicitMethod} & adaptive hybrid explicit method
     \parencite{Soares2020novel}, \cref{sec:ahem} \\
   201 & \code{KimExplicit_ho} & order 3 or 4 \\
@@ -83,18 +103,20 @@ otherwise \code{dtf}. The step is then adjusted to \code{tsim/ceil(tsim/dt)}.
   308, 309 & \code{KimMethodImplicit}, \code{KimMethodImplicitCollocation} & \\
   401 & \code{KimLagrange_ho} & order 1--5 \\
   402 & \code{SoaresMethodImplicit_ho} & \\
-  403 & Padé-based integrator & order \code{Order} = 2--10;
-    $\rho_\infty$ = \code{TimeIntegration.rho} (1: \code{PadeTimeIntegrator},
-    ${}<1$: \code{PadeTimeIntegrator_ND}, or the Fortran solver if it is on the
-    path) \\
-  501 & \code{HPTIM_Newmark} & highly precise time integration \\
+  403 & \code{PadeMethod} $\to$ Padé-based integrators & order \code{Order} =
+    2--10; $\rho_\infty$ = \code{TimeIntegration.rho} (1:
+    \code{PadeTimeIntegrator}, ${}<1$: \code{PadeTimeIntegrator_ND}, or the
+    \texttt{Fortran} solver if it is on the path); loads: see \cref{ch:issues} \\
+  501 & \code{HPTIM_Newmark} & highly precise time integration; currently not
+    functional (\cref{ch:issues}) \\
   \bottomrule
 \end{xltabular}
 
-\paragraph{Common calling convention.}
+\paragraph{Common calling convention.} All methods are called as
 \begin{lstlisting}
-[T, U(, V, A)] = Method(K, M, C, F, F_dt, U0, V0, NumDoF, DOFsave, ActiveDoFs, ...
-                        ExciteParam, SignalType, dtmax, tsim [, extra])
+[T, U(, V, A)] = Method(K, M, C, F, F_dt, U0, V0, NumDoF, DOFsave, ...
+                        ActiveDoFs, ExciteParam, SignalType, dtmax, ...
+                        tsim [, extra])
 \end{lstlisting}
 
 \begin{xltabular}{\linewidth}{@{}P{4.2cm}L@{}}
@@ -115,13 +137,39 @@ otherwise \code{dtf}. The step is then adjusted to \code{tsim/ceil(tsim/dt)}.
   \code{extra} & waitbar flag (central difference), order (higher-order
     methods) or element data (method 109) \\
   \code{T}, \code{U}, \code{V}, \code{A} & time vector and histories
-    \code{[nT+1 x numel(DOFsave)]}, expanded to all DOFs if all active DOFs are
+    \texttt{[nT+1 x numel(DOFsave)]}, expanded to all DOFs if all active DOFs are
     stored; the \code{_mRHS} variants return 3-D arrays (time $\times$ DOF
     $\times$ load case) \\
   \bottomrule
 \end{xltabular}
 \code{tests/unit/TimeIntegrationTest.m} verifies the accuracy and the
 convergence order of the schemes on a 2-DOF oscillator.
+
+\paragraph{Shared building blocks.} The steps that every method needs are in
+\code{TimeIntegration/Common}; \code{NewmarkMethod} (implicit) and
+\code{CentralDifferenceMethod} (explicit) show how they fit together, and
+\cref{sec:dev-integrator} explains how to add a method.
+
+\begin{xltabular}{\linewidth}{@{}P{6.4cm}L@{}}
+  \toprule
+  routine & purpose \\
+  \midrule
+  \code{[dt, n] = TimeStepSize(dtmax, tsim [, factor])} & time step: implicit
+    rule, or explicit rule with the stability factor of the method relative to
+    the central difference method \\
+  \code{[K, M, C, Fdt] = PrepareSystem(K, M, C, F_dt, nActive)} & full matrices
+    from triangular storage; load parts as a struct \\
+  \code{[s, ds, dds] = SignalHistory(SignalType, ExciteParam, t)} & excitation
+    signal and its derivatives at the times \code{t} \\
+  \code{Ft = LoadAtTime(F, Fdt, s, ds, dds)} & load vector at one instant \\
+  \code{a0 = InitialAcceleration(solveM, F, Fdt, K, C, u0, v0, ...)} &
+    acceleration at $t = 0$ from the equation of motion \\
+  \code{[U, V, A] = ExpandToAllDoFs(NumDoF, ActiveDoFs, u, v, a)} & histories
+    of all DOFs if every active DOF was stored \\
+  \code{pb = ProgressBar(name, n [, enabled])} & waitbar with
+    \code{pb.update(i)}, \code{pb.close()} \\
+  \bottomrule
+\end{xltabular}
 
 \subsection{Adaptive hybrid explicit method (109)}
 \label{sec:ahem}
@@ -135,7 +183,7 @@ The implementation follows Table~1 of \textcite{Soares2020novel}.
     stiffness product per step); elements with $2 < \Omega_e \le 4$ use the
     \emph{enhanced} formulation (stability limit 4, an additional correction of
     the displacements).
-  \item \textbf{Time step.} $\Delta t = 2\,\Delta t_\text{CDM}$, twice the
+  \item \textbf{Time step.} $\Delta t = 2\,\Delta t_\mathrm{CDM}$, twice the
     critical time step of the central difference method (\code{dte} from
     \code{AssemblyFEM}).
   \item \textbf{Adaptive dissipation.} Numerical damping is switched on only in
@@ -146,10 +194,10 @@ The implementation follows Table~1 of \textcite{Soares2020novel}.
     so the stability limit is not reduced (\cref{fig:ahem}).
   \item \textbf{Damping.} Rayleigh damping is supported; the damping ratio of
     Eqs.~(8b) and (12b) is computed from the mass-proportional part,
-    $\zeta_e = \alpha_R\,\Delta t/2$.
-  \item \textbf{Requirements.} For method 109 \code{call_Dynamic} requests the
-    element matrices from \code{AssemblyFEM} (6th output \code{ElemData}) and
-    saves them to \code{subroutines/Temp/ElemData.mat}. Set
+    $\zeta_e = \alpha_\mathrm{R}\,\Delta t/2$.
+  \item \textbf{Requirements.} For method 109 \code{DynamicAnalysis} requests
+    the element matrices from \code{AssemblyFEM} (6th output \code{ElemData}) and
+    passes them to the solver (field \code{S.ElemData}). Set
     \code{flag_mRHS = false}, otherwise the method code is ignored. Use lumped
     mass matrices (\code{mass_matrix = 2}, GLL nodal quadrature): then
     $\matr E = \matr M + \tfrac12\Delta t\,\matr C$ is diagonal and no linear
@@ -195,17 +243,20 @@ derivatives.
   \bottomrule
 \end{xltabular}
 
+\code{DefaultExcitationParameters(SignalType, tE)} returns example parameters
+(used if \code{settings.ExciteParam} is empty).
 \code{RayleighDamping(omega, zeta, flag_vis)} returns $\alpha$ and $\beta$ such
 that $\zeta(\omega) = \alpha/(2\omega) + \beta\omega/2$ matches the targets
 (closed form for two frequencies, least squares otherwise).
 
-\section{Modal analysis (\texttt{call\_Modal})}
+\section{Modal analysis (\texttt{ModalAnalysis})}
 
 \begin{enumerate}
   \item Assemble $\matr K$ and $\matr M$, apply homogeneous constraints.
   \item Undamped: \code{eigs(K_aa, M_aa, numEigen, EVP_Solver.type)}, giving
     $f = \sqrt{|\lambda|}/(2\pi)$ in Hz. The full \code{eig} is used if
-    \code{2*numEigen} exceeds the number of active DOFs.
+    \code{2*numEigen} exceeds the number of active DOFs. An empty
+    \code{EVP_Solver.p} (default) selects \code{max(2*numEigen, 20)}.
   \item Damped: state-space form of
     $\lambda^2\matr M\vect u + \lambda\matr R\vect u + \matr K\vect u = \vect 0$,
     giving $f = |\lambda|/(2\pi)$ in Hz and the displacement part of the
@@ -215,9 +266,9 @@ that $\zeta(\omega) = \alpha/(2\omega) + \beta\omega/2$ matches the targets
 Because $\matr K$ and $\matr M$ are unsymmetric on distorted meshes, eigenvalues
 can be complex.
 
-\section{Frequency-domain analysis (\texttt{call\_FrequencyDomain})}
+\section{Frequency-domain analysis (\texttt{FrequencyDomainAnalysis})}
 
 The analysis solves $(\matr K - \omega^2\matr M)\hat{\vect u} = \hat{\vect F}$ for
-$\omega = 2\pi f_\text{Harmonic}$. Constant and time-dependent loads are treated
+$\omega = 2\pi f_\mathrm{Harmonic}$. Constant and time-dependent loads are treated
 as harmonic loads with unit amplitude. Damping and prescribed displacements are
 not taken into account.
