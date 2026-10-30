@@ -15,6 +15,9 @@ function R = ms_convergence(delta, pvec, Nvec, tag)
 %     PH  unsymmetric element, hybrid trial space T_p (method 2)
 %   Errors (relative): energy norm and L2 norm with the strains/displacements
 %   of the trial functions of each formulation, maximum nodal error.
+%   The stiffness matrices are integrated with the calibrated Gauss rule of
+%   the mesh family conv<100*delta> (ms_rule), the errors with nG + 4
+%   points per direction (as in the companion paper).
 %   Writes manuscript/data/conv-<tag>.dat (one row per (p, N)).
 
 if nargin < 1 || isempty(delta), delta = 0.2; end
@@ -36,9 +39,10 @@ for p = pvec
         row = [p, N, model.num_DoF, minDetJ(model)];
         for f = 1:numel(forms)
             t0 = tic;
-            K = assemble(model, C, forms{f});
+            nG = ms_rule(sprintf('conv%03d', round(100*delta)), forms{f}, p);
+            K = assemble(model, C, forms{f}, nG);
             u = dirichletSolve(K, model);
-            [eE, eL, en] = errors(model, u, C, forms{f});
+            [eE, eL, en] = errors(model, u, C, forms{f}, nG + 4);
             row = [row, eE, eL, en]; %#ok<AGROW>
             fprintf('%s p=%d N=%2d %s: energy %9.3e  L2 %9.3e  nodal %9.3e  (%.1f s)\n', ...
                     tag, p, N, forms{f}, eE, eL, en, toc(t0));
@@ -66,7 +70,7 @@ eyy = -2*e.*cos(2*y);
 gxy = -4*e.*sin(2*y);
 end
 
-function K = assemble(model, C, form)
+function K = assemble(model, C, form, nq)
 P = model.p;
 nE = model.num_Elem;
 T = Topology_DoF_2D(model.Topology_Node);
@@ -75,16 +79,7 @@ I = zeros(nd^2, nE); J = I; V = I;
 for e = 1:nE
     nodes = model.Topology_Node(e, :);
     x = model.xCoor(nodes); y = model.yCoor(nodes);
-    switch form
-        case 'PP'
-            Ke = usemKeSymmetric(P, C, x, y);
-        case 'PM'
-            P.metricMethod = 1;
-            Ke = Ke_2D(P, C, x, y);
-        case 'PH'
-            P.metricMethod = 2;
-            Ke = Ke_2D(P, C, x, y);
-    end
+    Ke = ms_Ke(P, C, x, y, nq, form);
     [c, r] = meshgrid(T(e, :), T(e, :));
     I(:, e) = r(:); J(:, e) = c(:); V(:, e) = Ke(:);
 end
@@ -104,9 +99,8 @@ u = uEx;
 u(aD) = -K(aD, aD) \ (K(aD, bD)*uEx(bD));
 end
 
-function [eE, eL, en] = errors(model, u, C, form)
+function [eE, eL, en] = errors(model, u, C, form, nq)
 P = model.p;
-nq = 2*max(P.pxi, P.peta) + 2;
 [g, w] = lgwt(nq, -1, 1);
 [Xi, Eta] = meshgrid(g); [W1, W2] = meshgrid(w);
 IP = [Xi(:), Eta(:)]; W = W1(:).*W2(:);

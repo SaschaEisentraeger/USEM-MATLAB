@@ -1,4 +1,4 @@
-function run_study(alphas, Ns, ps, outdir)
+function run_study(alphas, Ns, ps, outdir, nqfun)
 %RUN_STUDY Distortion and MMS convergence study, thick cylinder.
 %
 %   run_study(alphas, Ns, ps, outdir) solves, for every distortion angle in
@@ -17,6 +17,12 @@ function run_study(alphas, Ns, ps, outdir)
 %   space of the row (PP: lebesgue = GLL value, condV = NaN).
 %   One CSV file per angle is written to outdir:  study_aXXX.csv
 %
+%   nqfun (optional): handle nq = nqfun(alpha, N, form, p) with the number of
+%   Gauss points per direction of the stiffness matrices (e.g. the
+%   calibrated rules of manuscript/studies/ms_rule); the loads then use
+%   max(3p+2, nq) and the error integrals max(3p+2, nq+4) points. Without
+%   nqfun, the stiffness uses 2p and loads and errors 3p+2 points.
+%
 %   Defaults: alphas = [0 15 30 45 60 90], Ns = [1 2 4 8], ps = 2:8,
 %   outdir = ../results/raw
 
@@ -25,6 +31,7 @@ if nargin < 1 || isempty(alphas), alphas = [0 15 30 45 60 90]; end
 if nargin < 2 || isempty(Ns), Ns = [1 2 4 8]; end
 if nargin < 3 || isempty(ps), ps = 2:8; end
 if nargin < 4 || isempty(outdir), outdir = fullfile(here, '..', 'results', 'raw'); end
+if nargin < 5, nqfun = []; end
 cyl_setup_paths();
 if ~exist(outdir, 'dir'), mkdir(outdir); end
 inpDir = fullfile(here, '..', 'mesh', 'inp');
@@ -56,7 +63,8 @@ for alpha = alphas
             cV = struct('PM', dg.condV, 'PH', dg.condVPH, 'PP', NaN);
             for f = 1:numel(forms)
                 try
-                    K = cyl_assemble(model, C, forms{f});
+                    nqK = cyl_rule(nqfun, alpha, N, forms{f}, pdeg);
+                    K = cyl_assemble(model, C, forms{f}, nqK);
                 catch err
                     % trial space rejected by the code base on this mesh
                     if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
@@ -68,14 +76,14 @@ for alpha = alphas
                     continue
                 end
                 for k = 1:numel(kinds)
-                    F = cyl_loads(model, prob{k});
+                    F = cyl_loads(model, prob{k}, max(3*pdeg + 2, nqK));
                     [u, uEx, act] = cyl_solve(model, K, F, prob{k});
                     if k == 1
                         % 1-norm condition estimate (symmetry BCs); costly,
                         % therefore only for the coarse meshes
                         if N <= 2, condK = condest(K(act, act)); else, condK = NaN; end
                     end
-                    er = cyl_errors(model, u, uEx, prob{k}, C, forms{f}, [], ref{k});
+                    er = cyl_errors(model, u, uEx, prob{k}, C, forms{f}, max(3*pdeg + 2, nqK + 4), ref{k});
                     rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,%.6e,%.6e,%.6e,%.6e,%.6e,%d,%.15e,%.6e,%.6e,%.6e,%.6e,%.6e\n', ...
                         kinds{k}, forms{f}, alpha, N, pdeg, model.num_DoF, ...
                         er.energy, er.L2, er.nodal, er.energySigned, ...

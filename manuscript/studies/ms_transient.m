@@ -42,7 +42,7 @@ u0 = u0 + pert*max(abs(u0));
 
 forms = {'PP', 'PM', 'PH'};
 for f = 1:numel(forms)
-    [K, M] = ms_assemble_KM(model, C, forms{f});
+    [K, M] = ms_assemble_KM(model, C, forms{f}, meshName);
     K = K(act, act); M = M(act, act);
     lam = eig(full(K), full(M));
     S.(forms{f}) = struct('neg', nnz(real(lam) < 0), ...

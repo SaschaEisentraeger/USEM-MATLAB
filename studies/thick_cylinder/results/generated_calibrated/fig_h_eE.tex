@@ -1,0 +1,151 @@
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=6 by 3, horizontal sep=1.5mm, vertical sep=8mm, yticklabels at=edge left, xticklabels at=edge bottom}, conv, width=3.90cm, height=4.4cm, ymin=1e-15, ymax=1e2]
+\nextgroupplot[title={MMS $\alpha=0^\circ$}, ylabel={\PM: $\eE$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PM_a000.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PM_a000.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PM_a000.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PM_a000.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PM_a000.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PM_a000.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PM_a000.dat};
+\nextgroupplot[title={MMS $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PM_a015.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PM_a015.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PM_a015.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PM_a015.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PM_a015.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PM_a015.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PM_a015.dat};
+\nextgroupplot[title={MMS $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PM_a030.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PM_a030.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PM_a030.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PM_a030.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PM_a030.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PM_a030.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PM_a030.dat};
+\nextgroupplot[title={Lam\'e $\alpha=0^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PM_a000.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PM_a000.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PM_a000.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PM_a000.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PM_a000.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PM_a000.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PM_a000.dat};
+\nextgroupplot[title={Lam\'e $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PM_a015.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PM_a015.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PM_a015.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PM_a015.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PM_a015.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PM_a015.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PM_a015.dat};
+\nextgroupplot[title={Lam\'e $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PM_a030.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PM_a030.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PM_a030.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PM_a030.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PM_a030.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PM_a030.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PM_a030.dat};
+\nextgroupplot[title={MMS $\alpha=0^\circ$}, ylabel={\PH: $\eE$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PH_a000.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PH_a000.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PH_a000.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PH_a000.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PH_a000.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PH_a000.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PH_a000.dat};
+\nextgroupplot[title={MMS $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PH_a015.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PH_a015.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PH_a015.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PH_a015.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PH_a015.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PH_a015.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PH_a015.dat};
+\nextgroupplot[title={MMS $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PH_a030.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PH_a030.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PH_a030.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PH_a030.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PH_a030.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PH_a030.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PH_a030.dat};
+\nextgroupplot[title={Lam\'e $\alpha=0^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PH_a000.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PH_a000.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PH_a000.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PH_a000.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PH_a000.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PH_a000.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PH_a000.dat};
+\nextgroupplot[title={Lam\'e $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PH_a015.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PH_a015.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PH_a015.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PH_a015.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PH_a015.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PH_a015.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PH_a015.dat};
+\nextgroupplot[title={Lam\'e $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PH_a030.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PH_a030.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PH_a030.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PH_a030.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PH_a030.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PH_a030.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PH_a030.dat};
+\nextgroupplot[title={MMS $\alpha=0^\circ$}, ylabel={\PP: $\eE$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PP_a000.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PP_a000.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PP_a000.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PP_a000.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PP_a000.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PP_a000.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PP_a000.dat};
+\nextgroupplot[title={MMS $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PP_a015.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PP_a015.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PP_a015.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PP_a015.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PP_a015.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PP_a015.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PP_a015.dat};
+\nextgroupplot[title={MMS $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_smooth_PP_a030.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_smooth_PP_a030.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_smooth_PP_a030.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_smooth_PP_a030.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_smooth_PP_a030.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_smooth_PP_a030.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_smooth_PP_a030.dat};
+\nextgroupplot[title={Lam\'e $\alpha=0^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PP_a000.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PP_a000.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PP_a000.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PP_a000.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PP_a000.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PP_a000.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PP_a000.dat};
+\nextgroupplot[title={Lam\'e $\alpha=15^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PP_a015.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PP_a015.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PP_a015.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PP_a015.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PP_a015.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PP_a015.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PP_a015.dat};
+\nextgroupplot[title={Lam\'e $\alpha=30^\circ$}]
+\addplot[pline=2] table[x=h, y=eE2] {\tab/h_lame_PP_a030.dat};
+\addplot[pline=3] table[x=h, y=eE3] {\tab/h_lame_PP_a030.dat};
+\addplot[pline=4] table[x=h, y=eE4] {\tab/h_lame_PP_a030.dat};
+\addplot[pline=5] table[x=h, y=eE5] {\tab/h_lame_PP_a030.dat};
+\addplot[pline=6] table[x=h, y=eE6] {\tab/h_lame_PP_a030.dat};
+\addplot[pline=7] table[x=h, y=eE7] {\tab/h_lame_PP_a030.dat};
+\addplot[pline=8] table[x=h, y=eE8] {\tab/h_lame_PP_a030.dat};
+\end{groupplot}
+\node[font=\small] at ($(group c1r3.south)!0.5!(group c6r3.south)+(0,-8mm)$) {element size $h\propto 1/N$};
+\matrix[draw=gray!50, fill=white, font=\scriptsize, column sep=1mm, inner sep=1.5pt, anchor=south] at ($(group c1r1.north)!0.5!(group c6r1.north)+(0,7mm)$) { \draw[pline=2] (0,0) -- (4mm,0) node[black, right] {$p=2$}; \pgfmatrixnextcell \draw[pline=3] (0,0) -- (4mm,0) node[black, right] {$p=3$}; \pgfmatrixnextcell \draw[pline=4] (0,0) -- (4mm,0) node[black, right] {$p=4$}; \pgfmatrixnextcell \draw[pline=5] (0,0) -- (4mm,0) node[black, right] {$p=5$}; \pgfmatrixnextcell \draw[pline=6] (0,0) -- (4mm,0) node[black, right] {$p=6$}; \pgfmatrixnextcell \draw[pline=7] (0,0) -- (4mm,0) node[black, right] {$p=7$}; \pgfmatrixnextcell \draw[pline=8] (0,0) -- (4mm,0) node[black, right] {$p=8$}; \pgfmatrixnextcell  \\ };
+
+\end{tikzpicture}

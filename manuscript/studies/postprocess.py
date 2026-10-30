@@ -174,7 +174,7 @@ def growth():
         f.write('\\bottomrule\n\\end{tabular}\n')
 
 
-CYL = os.path.join(HERE, '..', '..', 'studies', 'thick_cylinder', 'results', 'raw')
+CYL = os.path.join(HERE, '..', '..', 'studies', 'thick_cylinder', 'results', 'raw_calibrated')
 
 
 def cylinder(raw=CYL, problem='lame'):

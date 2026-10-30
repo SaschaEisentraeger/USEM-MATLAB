@@ -36,7 +36,7 @@ for im = 1:numel(meshes)
         bnd = abs(x) < 1e-10 | abs(x - 3) < 1e-10 | abs(y) < 1e-10 | abs(y - 2) < 1e-10;
         act = setdiff((1:model.num_DoF)', sort([2*find(bnd) - 1; 2*find(bnd)]));
         for f = 1:3
-            [K, M] = ms_assemble_KM(model, C, forms{f});
+            [K, M] = ms_assemble_KM(model, C, forms{f}, meshes{im});
             lam = eig(full(K(act, act)), full(M(act, act)));
             if f == 1
                 T1 = 2*pi/sqrt(min(real(lam)));

@@ -19,6 +19,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))  # repository root
 DOCS = os.path.join(ROOT, "docs", "figures", "data")
 CYL = os.path.join(ROOT, "studies", "thick_cylinder", "results")
+# rerun of the thick-cylinder study with the calibrated Gauss rules
+# (ms_cylinder.m; tables written by studies/thick_cylinder/postprocess.py with
+# CYL_RAW/CYL_TAB pointing to these folders, see run_postprocess.sh)
+CYL_RAW = os.path.join(CYL, "raw_calibrated")
+CYL_TAB = os.path.join(CYL, "tables_calibrated")
 PANEL = os.path.join(ROOT, "studies", "rajendran_panel", "results")
 DATA = os.path.join(HERE, "..", "data")
 GEN = os.path.join(HERE, "..", "generated")
@@ -51,12 +56,12 @@ def write(name, lines):
 
 
 def read_cyl(alpha):
-    with open(os.path.join(CYL, "raw", f"study_a{alpha:03d}.csv")) as f:
+    with open(os.path.join(CYL_RAW, f"study_a{alpha:03d}.csv")) as f:
         return {(r["problem"], r["form"], int(r["N"]), int(r["p"])): r for r in csv.DictReader(f)}
 
 
 def read_interp(alpha):
-    with open(os.path.join(CYL, "raw", f"interp_a{alpha:03d}.csv")) as f:
+    with open(os.path.join(CYL_RAW, f"interp_a{alpha:03d}.csv")) as f:
         return {(r["problem"], r["form"], int(r["N"]), int(r["p"])): float(r["energy"])
                 for r in csv.DictReader(f)}
 
@@ -73,7 +78,7 @@ def main():
         for fo in FORMS:
             for a in (0, 15, 30, 45):
                 for kind in ("h", "p"):
-                    src = os.path.join(CYL, "tables", f"{kind}_{pr}_{fo}_a{a:03d}.dat")
+                    src = os.path.join(CYL_TAB, f"{kind}_{pr}_{fo}_a{a:03d}.dat")
                     shutil.copy(src, os.path.join(DATA, f"cyl_{kind}_{pr}_{fo}_a{a:03d}.dat"))
 
     # mesh plots (gmsh meshes of the two studies)

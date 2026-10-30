@@ -24,9 +24,12 @@ import os
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RAW = os.path.join(HERE, "results", "raw")
-TAB = os.path.join(HERE, "results", "tables")
-GEN = os.path.join(HERE, "report", "generated")
+# Input and output folders; the manuscript post-processes the rerun with the
+# calibrated Gauss rules (results/raw_calibrated) into separate folders
+# through the environment variables CYL_RAW, CYL_TAB and CYL_GEN.
+RAW = os.environ.get("CYL_RAW", os.path.join(HERE, "results", "raw"))
+TAB = os.environ.get("CYL_TAB", os.path.join(HERE, "results", "tables"))
+GEN = os.environ.get("CYL_GEN", os.path.join(HERE, "report", "generated"))
 FLOOR = {"energy": 1e-12, "L2": 1e-13, "nodal": 1e-12}
 # For p >= 5 the polynomial field lies in the PM trial space: its computed
 # error is the round-off level of that mesh and degree. Rates of the PM
