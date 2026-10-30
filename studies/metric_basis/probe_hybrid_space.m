@@ -28,10 +28,6 @@ here = fileparts(mfilename('fullpath'));
 root = fileparts(fileparts(here));
 addpath(genpath(fullfile(root, 'code', 'subroutines')));
 addpath(fullfile(root, 'tests', 'helpers'));
-if exist('OCTAVE_VERSION', 'builtin')
-    addpath(fullfile(here, 'octave'));
-    warning('off', 'all');
-end
 
 shapes = {'trapezoid', 'curved', 'general'};
 pvec = opt.pvec(:);

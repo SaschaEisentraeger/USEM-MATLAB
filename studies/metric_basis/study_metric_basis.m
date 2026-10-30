@@ -23,6 +23,8 @@ function R = study_metric_basis(varargin)
 %             element: K_e is symmetric in exact arithmetic)
 %     time    run time of one call with (2p)^2 query points, relative to
 %             the monomial basis ('general' element)
+%   NaN: basis rejected by the unisolvence check of ShapeFunctions2D_Metric
+%   (rcond(V) < eps).
 %   Mesh level (3x2 mesh, angular + curved-edge distortion 0.3):
 %     patch   max relative nodal error of the harmonic patch test of
 %             degree p (exact in exact arithmetic)
@@ -30,9 +32,6 @@ function R = study_metric_basis(varargin)
 %
 %   With 'writeData' the tables are written to docs/figures/data/ for the
 %   plots in docs/chapters/metric-basis.tex.
-%
-%   Runs in MATLAB and in GNU Octave (studies/metric_basis/octave provides
-%   a stand-in for MATLAB's decomposition).
 
 ip = inputParser;
 ip.addParameter('pmax', 16);
@@ -45,10 +44,6 @@ here = fileparts(mfilename('fullpath'));
 root = fileparts(fileparts(here));
 addpath(genpath(fullfile(root, 'code', 'subroutines')));
 addpath(fullfile(root, 'tests', 'helpers'));
-if exist('OCTAVE_VERSION', 'builtin')
-    addpath(fullfile(here, 'octave'));
-    warning('off', 'all');
-end
 
 bases  = {'monomial', 'legendre', 'chebyshev', 'lagrange'};
 tags   = {'mon', 'leg', 'che', 'lag'};
@@ -90,7 +85,15 @@ for s = 1:numel(shapes)
 
         for b = 1:nB
             P.metricBasis = bases{b};
-            [Nk, ~, ~, V] = ShapeFunctions2D_Metric(x, y, x, y, P);
+            try
+                [Nk, ~, ~, V] = ShapeFunctions2D_Metric(x, y, x, y, P);
+            catch err
+                if ~strcmp(err.identifier, 'ShapeFunctions2D_Metric:singular'), rethrow(err); end
+                for q = {'kappa', 'eKron', 'eRep', 'eGrad', 'time'}
+                    T.([q{1} '_' tags{b}])(ii) = NaN;
+                end
+                continue
+            end
             [N, dNx, dNy] = ShapeFunctions2D_Metric(xq, yq, x, y, P);
             eRep = 0; eGrad = 0;
             for a = 0:p
@@ -150,7 +153,7 @@ for ii = 1:numel(pm)
     model = usemBuildModel(nodes, topo, pm(ii));
     for b = 1:nB
         model.p.metricBasis = bases{b};
-        K = assembleK(model, C);
+        K = usemAssemble(model, C);
         k = pm(ii);
         [~, ~, M.(['patch_' tags{b}])(ii)] = usemDirichletSolve(K, model, ...
             @(x, y) harmonicField(x - 1.3, y - 0.7, k));
@@ -181,14 +184,6 @@ if opt.writeData
     writeTable(fullfile(out, 'metric-basis-mesh.dat'), R.mesh);
 end
 
-end
-
-function K = assembleK(model, C)
-% usemAssemble without the multiple-output evalc (not supported by Octave)
-material_elset = {(1:model.num_Elem)'};
-evalc(['K = AssemblyFEM(model.Topology_Node, model.p, model.xCoor, ' ...
-    'model.yCoor, model.num_Elem, model.num_DoF, {C}, {1}, 1, 1, ' ...
-    'material_elset, 0, 0, {0}, 0);']);
 end
 
 function t = runTime(fun)

@@ -50,6 +50,3 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
-
-# --- GNU Octave ------------------------------------------------------------
-octave-workspace

@@ -27,7 +27,7 @@ the shear test on every mesh, including fully folded ones, up to round-off. The 
 space of the code base (\PH: metric polynomials only for $P_p(\bx)$, parametric functions for the
 remainder) passes the constant and linear strain patch tests at $p=2$ on all meshes, converges
 with rate $2.02$ and $2.21$ on sequences B and C, and reproduces the cubic field for $p\ge3$; at $p=8$
-its round-off level on Meshes c and e is $100$--$1000$ times lower than that of \PM. The code base places interior nodes
+its round-off level on Meshes c and e is $220$--$260$ times lower than that of \PM. The code base places interior nodes
 isoparametrically with the 8-node map; on these meshes this makes interior and edge nodes
 coincide for even $p$. The code base now stops with an error in this case and when the metric
 interpolation is singular, instead of returning a wrong (zero) solution (\cref{sec:code}).
@@ -147,10 +147,10 @@ energy-norm errors of $9$--$80\,\%$.
 With interior nodes from the bilinear corner map, both unsymmetric elements are
 Jacobian-unlimited immune for $p=3,\dots,8$ (\cref{tab:highp}): the cubic field is reproduced on
 all meshes with overlapping and folded elements. The round-off level grows with $p$ and
-distortion, for \PM\ from $10^{-13}$ to $10^{-5}$ ($p=8$, Meshes c and e), for \PH\ to $7\cdot10^{-8}$,
+distortion, for \PM\ from $10^{-13}$ to $10^{-5}$ ($p=8$, Meshes c and e), for \PH\ to $8\cdot10^{-8}$,
 in line with the thick-cylinder study. With the interior nodes of the code base, \PH\ is
 computable in more cases than \PM\ (e.g.\ $p=8$, Meshes c and e: \PM$_\mathrm{code}$ rejected,
-\PH$_\mathrm{code}$ $e_n\le3\cdot10^{-11}$). The conventional element has errors of $7$--$100\,\%$ on
+\PH$_\mathrm{code}$ $e_n\le2\cdot10^{-11}$). The conventional element has errors of $7$--$100\,\%$ on
 the distorted meshes for all $p$.
 
 \section{Interior nodes of the code base on these meshes}\label{sec:code}
@@ -173,7 +173,7 @@ accuracy had been destroyed (\cref{tab:highp}). The ``code'' columns and
 of the metric functions (bounding box of the skew coordinates) the interpolation matrix is better
 conditioned than with monomials: five \PM$_\mathrm{code}$ cases that the check rejected with the
 monomial basis ($p=3$, Mesh d; $p=6,7$, Meshes c and e) are now computed and pass the patch test
-($e_n\le4\cdot10^{-7}$), and the round-off-dominated values change towards the exact ones (e.g.\
+($e_n\le5\cdot10^{-7}$), and the round-off-dominated values change towards the exact ones (e.g.\
 $p=2$, Mesh d, moment: $u_y(A)=1.49957\to1.50000$). On all meshes of the test suite, the
 Lee \& Bathe input files and the thick-cylinder meshes with $\alpha\le30^\circ$ ($p\le8$) neither
 check is triggered. The study results with interior nodes from the bilinear corner map
@@ -199,8 +199,8 @@ four digits. The 8-node results (Tables~8--13) are not reproduced: the code base
 tensor-product (Lagrange) elements.
 
 \section{Reproduction}
-\texttt{mesh/gen\_panel\_meshes.py} (gmsh), \texttt{matlab/rp\_run.m} (all computations, GNU
-Octave 8.4 or MATLAB; code base after commit \texttt{e293da1}), \texttt{postprocess.py} (tables). Paper values:
+\texttt{mesh/gen\_panel\_meshes.py} (gmsh), \texttt{matlab/rp\_run.m} (all computations,
+\texttt{MATLAB} R2026a; code base of commit \texttt{af3e04f}), \texttt{postprocess.py} (tables). Paper values:
 \texttt{results/paper\_values.csv}, \texttt{results/paper\_rates.csv}.
 
 \bibliographystyle{plainnat}

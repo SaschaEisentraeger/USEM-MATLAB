@@ -25,21 +25,21 @@ for $\alpha\ge15^\circ$ (\cref{tab:rates-lame-E,tab:rates-lame-N}).
 \subsection{Polynomial field: distortion immunity}\label{sec:poly}
 For $p\ge5$ the degree-5 field lies in both unsymmetric trial spaces on every element.
 \Cref{tab:poly} shows the nodal error. \PM: on the meshes without folds
-($\alpha\le30^\circ$) it is $\le7.6\cdot10^{-9}$ for all $N$, i.e.\ the field is reproduced up
+($\alpha\le30^\circ$) it is $\le1.5\cdot10^{-8}$ for all $N$, i.e.\ the field is reproduced up
 to round-off, as predicted; the round-off level, however, grows with $\alpha$ and $p$ and
-reaches $1.1\cdot10^{-4}$ at $\alpha=45^\circ$, $N=8$, $p=8$, and $1.6\cdot10^{-2}$ on the folded mesh
-$\alpha=90^\circ$, $N=4$, $p=8$. \PH: the error is $\le5.1\cdot10^{-13}$ for $\alpha\le30^\circ$ and
-$\le9.9\cdot10^{-10}$ on all meshes, folded ones included, on which the element can be built,
+reaches $1.7\cdot10^{-4}$ at $\alpha=45^\circ$, $N=8$, $p=8$, and $5.6\cdot10^{-3}$ on the folded mesh
+$\alpha=90^\circ$, $N=4$, $p=8$. \PH: the error is $\le3.1\cdot10^{-13}$ for $\alpha\le30^\circ$ and
+$\le1.2\cdot10^{-9}$ on all meshes, folded ones included, on which the element can be built,
 i.e.\ distortion immunity holds also in floating point. Both elements are rejected for the
 same seven cases ($\alpha=60^\circ,90^\circ$, $p\ge6$, except \PH\ for $\alpha=60^\circ$, $N=8$, $p=6$),
 in which the interpolation matrix is singular to working precision
 ($\mathrm{rcond}=10^{-20}$--$10^{-17}$). A dedicated test (\texttt{results/conditioning.txt})
 integrates the stiffness exactly ($n_q\ge p^2+p/2$ points, \cref{sec:quad}) and evaluates the
 residual $\bm K\bm u_I-\bm F$ of the exact nodal values, which vanishes in exact arithmetic. For
-\PM\ it is $5\cdot10^{-14}$ at $\alpha=0^\circ$, $p=5$, but $9.9\cdot10^{-7}$ ($e_n=4\cdot10^{-5}$) at
+\PM\ it is $4\cdot10^{-14}$ at $\alpha=0^\circ$, $p=5$, but $6.0\cdot10^{-7}$ ($e_n=5\cdot10^{-5}$) at
 $\alpha=60^\circ$, $N=2$, $p=8$, with $\sigma_{\min}/\sigma_{\max}(\bm K_{\PM})=1.1\cdot10^{-15}$
 against $4.8\cdot10^{-8}$ for \PH\ and $2.9\cdot10^{-6}$ for \PP; for \PH\ the residual is
-$\le1.2\cdot10^{-10}$ and $e_n\le8.6\cdot10^{-10}$ in all ten cases that are not rejected. For $p<5$ the polynomial
+$\le5.7\cdot10^{-10}$ and $e_n\le8.1\cdot10^{-10}$ in all ten cases that are not rejected. For $p<5$ the polynomial
 field behaves like a non-polynomial one (rates $2,3,4$ for $\alpha\le15^\circ$, \cref{fig:h-poly}).
 
 \begin{table}[t]
@@ -62,10 +62,10 @@ error for the meshes without folded elements; the rates are collected in
 \item $\alpha=15^\circ$: \PM\ keeps the optimal rates for $p\le6$ (smooth: $2.00$,
   $2.99$, $3.99$, $4.99$, $5.98$; Lam\'e: $1.97$, $2.91$, $3.90$, $4.81$, $5.83$), and its energy
   error exceeds that on the undistorted mesh by $5$--$12\,\%$ (smooth) and $5$--$28\,\%$
-  (Lam\'e); for $p\ge7$ it reaches a round-off floor of about $10^{-10}$, two to three orders
+  (Lam\'e); for $p\ge7$ it reaches a round-off floor of a few $10^{-10}$, two to three orders
   above the floor on the undistorted mesh. \PH\ is optimal for all $p$ (smooth: $2.00$, $3.00$,
   $4.00$, $4.99$, $6.01$; Lam\'e: $1.96$, $2.94$, $3.94$, $4.92$, $5.91$, $6.88$, $7.87$) and has no
-  elevated floor ($\eE=6.7\cdot10^{-13}$ at $N=8$, $p=8$, smooth). \PP\ loses half of the order:
+  elevated floor ($\eE=6.6\cdot10^{-13}$ at $N=8$, $p=8$, smooth). \PP\ loses half of the order:
   its energy rates are $1.08$, $1.23$, $2.21$, $2.03$, $2.94$, $3.39$, $4.05$ (smooth) and, for
   the polynomial field, $0.98$, $0.95$, $1.95$, $1.94$, $2.94$, $2.95$, $3.95$, i.e.\
   $\lfloor p/2\rfloor$. This is the approximation property of the parametric space on maps that
@@ -75,15 +75,15 @@ error for the meshes without folded elements; the rates are collected in
   error is $5$--$2.6\cdot10^3$ times larger than that of \PH\ (smooth, $p=2,\dots,8$).
 \item $\alpha=30^\circ$: \PM\ is optimal only for $p\le3$; for $p\ge4$ its convergence is erratic
   and even divergent (smooth, $p=4$: $\eE=2.2\cdot10^{-4}$ at $N=4$ and $4.3\cdot10^{-4}$ at
-  $N=8$), and at $N=8$, $p=8$ it is less accurate than \PP\ ($\eE=7.3\cdot10^{-8}$ against
+  $N=8$), and at $N=8$, $p=8$ it is less accurate than \PP\ ($\eE=1.9\cdot10^{-7}$ against
   $3.5\cdot10^{-9}$). \PH\ remains optimal for all $p$ (smooth: $2.00$, $3.00$, $4.01$, $5.00$,
   $6.02$; Lam\'e: $1.96$--$7.87$); at $N=8$ its energy error is $8$--$2.6\cdot10^4$ times smaller
-  than that of \PP; compared with \PM\ it is equal at $p=2$ and $1.4$--$6.7\cdot10^4$ times smaller
+  than that of \PP; compared with \PM\ it is equal at $p=2$ and $1.4$--$2.0\cdot10^5$ times smaller
   for $p\ge3$ (smooth). \PP\ converges with $\approx\lfloor p/2\rfloor$.
 \item Folded meshes ($\alpha\ge45^\circ$; for $\alpha=45^\circ$ from $N=2$ on): \PM\ converges
   erratically in the nodal error for all $p$ (\cref{tab:rates-smooth-N}); at $\alpha=45^\circ$,
-  $N=8$, $p=8$ its error is $\eE=1.6\cdot10^{-3}$. \PH\ converges at $\alpha=45^\circ$ for all
-  $p$ (nodal rates $2.1$--$7.3$, smooth field: $2.55$, $3.66$, $4.75$, $5.55$; $\eE=2.5\cdot10^{-9}$ at
+  $N=8$, $p=8$ its error is $\eE=3.0\cdot10^{-3}$. \PH\ converges at $\alpha=45^\circ$ for all
+  $p$ (nodal rates $2.1$--$7.3$, smooth field: $2.55$, $3.66$, $4.75$, $5.55$; $\eE=1.9\cdot10^{-9}$ at
   $N=8$, $p=8$) and at $\alpha=60^\circ$, $90^\circ$ for $p\ge4$ and $p\ge5$, respectively. For $p=2$
   at $60^\circ$ and $p\le4$ at $90^\circ$ its error is non-monotone in $N$ and of order
   $10^{-2}$--$1$ (smooth, $\alpha=60^\circ$, $p=2$: $e_n=0.34$ at $N=8$; Lam\'e, $\alpha=90^\circ$, $p=4$:
@@ -97,9 +97,9 @@ Under $p$-refinement on a fixed mesh (\cref{fig:p}), \PM\ converges exponentiall
 $\alpha\le15^\circ$ down to its round-off floor (reached at $p\approx6$ for $N=8$), like \PP\ on the
 undistorted mesh; at $\alpha=30^\circ$ and $45^\circ$ its error is non-monotone in $p$ (smooth
 field, $N=8$, $\alpha=30^\circ$: $e_n$ jumps from $2.4\cdot10^{-6}$ at $p=3$ to $2.8\cdot10^{-5}$ at
-$p=4$ and grows from $5.2\cdot10^{-11}$ at $p=6$ to $4.1\cdot10^{-9}$ at $p=8$). \PH\ converges
-exponentially down to $3.5\cdot10^{-13}$ ($\alpha=30^\circ$, $p=7$) and $1.1\cdot10^{-11}$
-($\alpha=45^\circ$, $p=7$), \PP\ monotonically, but more slowly than on the undistorted mesh.
+$p=4$ and grows from $6.8\cdot10^{-11}$ at $p=6$ to $1.3\cdot10^{-8}$ at $p=8$). \PH\ converges
+exponentially down to $3.5\cdot10^{-13}$ ($\alpha=30^\circ$, $p=7$) and $1.7\cdot10^{-11}$
+($\alpha=45^\circ$, $p=6$), \PP\ monotonically, but more slowly than on the undistorted mesh.
 
 \begin{figure}[p]
   \centering
@@ -154,12 +154,12 @@ separates the stability of the discrete problem from the approximation property 
 space (\cref{tab:interp}). For \PH\ the ratio is $0.78$--$1.00$ in all $158$ cases on the meshes
 without folds in which the interpolation error is above the round-off level (all $N$, $p$, both
 non-polynomial fields), for \PP\ $0.84$--$1.00$: both are quasi-optimal with a constant close to
-one. For \PM\ it is $0.98$--$1.01$ at $\alpha=15^\circ$, $p\le6$, but ranges from $0.07$ to $10^5$
+one. For \PM\ it is $0.98$--$1.01$ at $\alpha=15^\circ$, $p\le6$, but ranges from $0.05$ to $10^5$
 overall ($0.2$--$64$ at $\alpha=30^\circ$, $N=8$); the degraded \PM\ results are therefore not
 explained by the approximation property of its space. The interpolation errors of the two
 unsymmetric spaces differ as well. For the Lam\'e field at $\alpha=15^\circ$ the \PH\ space
 approximates worse (interpolation error $1.15$--$5.7$ times that of \PM, $N=8$), which accounts for
-the larger \PH\ errors there (up to a factor $4.1$ in $\eE$ for $p\le7$); for the smooth field
+the larger \PH\ errors there (up to a factor $3.7$ in $\eE$ for $p\le7$); for the smooth field
 at $\alpha=30^\circ$ the \PM\ interpolant is up to $9$ times less accurate for $p\le6$
 because of its large Lebesgue constants (\cref{sec:mechanism}).
 
@@ -176,15 +176,15 @@ because of its large Lebesgue constants (\cref{sec:mechanism}).
 \Cref{tab:ratio} gives the error amplification $e_n(\alpha)/e_n(0^\circ)$ on the
 finest mesh, \cref{fig:alpha} the nodal error versus $\alpha$. For a non-polynomial
 field none of the elements is distortion immune: the errors depend on $\alpha$. For
-$\alpha=15^\circ$ and $p\le6$ the amplification is $1.5$--$2.6$ (smooth) and $3.2$--$4.7$ (Lam\'e)
-for \PM, $1.6$--$2.4$ and $6.4$--$93$ for \PH, against $4.8$--$99$ and $61$--$2900$ for \PP. At
-$30^\circ$ the \PM\ amplification reaches $2.2\cdot10^3$ (smooth, $p=4$) and $10^4$ (Lam\'e, $p=8$),
-whereas that of \PH\ stays $\le4.7$ (smooth) and $\le381$ (Lam\'e), that of \PP\ reaches
-$3.4\cdot10^3$ and $3.6\cdot10^4$. On the folded meshes the \PM\ amplification exceeds the \PP\
+$\alpha=15^\circ$ and $p\le6$ the amplification is $1.5$--$2.7$ (smooth) and $3.2$--$4.8$ (Lam\'e)
+for \PM, $1.6$--$2.6$ and $6.4$--$89$ for \PH, against $4.8$--$99$ and $61$--$2300$ for \PP. At
+$30^\circ$ the \PM\ amplification reaches $2.2\cdot10^3$ (smooth, $p=4$) and $1.9\cdot10^4$ (Lam\'e, $p=8$),
+whereas that of \PH\ stays $\le4.9$ (smooth) and $\le360$ (Lam\'e), that of \PP\ reaches
+$3.0\cdot10^3$ and $2.9\cdot10^4$. On the folded meshes the \PM\ amplification exceeds the \PP\
 amplification by up to six orders of magnitude (Lam\'e, $45^\circ$, $p=8$); that of \PH\ is smaller than that of
 \PP\ for all $p$ at $45^\circ$ and for all $p\ge3$ at $60^\circ$ (rejected cases excepted). (For $p\ge7$ the reference errors at $\alpha=0^\circ$
 are at round-off level, so these columns underestimate the sensitivity.) The amplification
-of \PH\ for the Lam\'e field grows with $p$ ($7.1$ at $p=2$, $93$ at $p=6$, $\alpha=15^\circ$): its
+of \PH\ for the Lam\'e field grows with $p$ ($7.1$ at $p=2$, $88$ at $p=6$, $\alpha=15^\circ$): its
 error constant depends on the distortion, its rate does not (\cref{tab:rates-lame-E}).
 
 \begin{table}[t]
@@ -223,12 +223,12 @@ complement of the \PH\ trial functions involves $\bm J^{-1}$, so its integrand i
 not integrated exactly by any rule. The default rule ($n_q=2p$) is therefore not exact.
 Repeating selected cases with $n_q=2p,3p,4p,6p$ (\texttt{results/raw/quadrature.csv};
 $\alpha=0^\circ,30^\circ$, $N=1,2$, $p=5,8$) changes $\eE$ of the non-polynomial fields by at most
-$3\cdot10^{-7}$ (relative) for \PP, $5\cdot10^{-6}$ for \PH\ and $0.5\,\%$ for \PM; the single exception
-(\PM, smooth field, $\alpha=30^\circ$, $N=2$, $p=8$: $\eE$ varies by a factor $2.7$) has an error of
+$3\cdot10^{-7}$ (relative) for \PP, $2\cdot10^{-6}$ for \PH\ and $0.5\,\%$ for \PM; the single exception
+(\PM, smooth field, $\alpha=30^\circ$, $N=2$, $p=8$: $\eE$ varies by a factor $2.1$) has an error of
 the order of the round-off level of that mesh (polynomial field with the same rules:
-$6\cdot10^{-9}$--$7\cdot10^{-8}$). For the polynomial field ($p\ge5$), whose error is pure
-round-off, the value changes by up to a factor $21$ for \PM\ and $2.7$ for \PH\ (at
-$\le10^{-13}$). The conclusions are therefore not affected by quadrature. On folded meshes the
+$6\cdot10^{-9}$--$4\cdot10^{-8}$). For the polynomial field ($p\ge5$), whose error is pure
+round-off, the value changes by up to a factor $6.8$ for \PM\ and $2.3$ for \PH\ (at
+$\le3\cdot10^{-13}$). The conclusions are therefore not affected by quadrature. On folded meshes the
 \PM\ results change erratically with $n_q$ (e.g.\ Lam\'e, $\alpha=90^\circ$, $N=1$, $p=5$:
 $\eE=38$ for $n_q=10$, $0.66$ for $n_q\ge15$), consistent with the round-off amplification of
 \cref{sec:poly}.

@@ -9,7 +9,7 @@ $p$:
 \item moderate distortion without folds ($\alpha=15^\circ$, $p\le6$; $\alpha=30^\circ$, $p\le3$):
   retained. The energy error of \PM\ exceeds the error on the undistorted mesh by
   $5$--$28\,\%$ ($15^\circ$) and $26$--$82\,\%$ ($30^\circ$, $p\le3$), whereas the nodal error of the
-  conventional element is $3$--$290$ times larger ($N=8$);
+  conventional element is $3$--$270$ times larger ($N=8$);
 \item strong distortion ($\alpha=30^\circ$ with $p\ge4$, $\alpha\ge45^\circ$) or $p\ge7$: lost. The
   \PM\ error becomes erratic and in several cases larger than that of the conventional element
   (e.g.\ $\alpha=30^\circ$, $N=8$, $p=4$ and $8$; $\alpha=45^\circ$, $N=8$, $p=7,8$); on folded meshes its convergence
@@ -25,7 +25,7 @@ designed to be insensitive to: it already occurs on meshes with $\det\bm J>0$
 For \PM\ in the moderate regime, yes: it converges with the optimal energy-norm order $p$ for
 $p=2,\dots,6$ at $\alpha=15^\circ$ (and $p=2,3$ at $30^\circ$) for the analytic manufactured field
 and for the Lam\'e field, and exponentially under $p$-refinement down to a round-off floor of
-about $10^{-10}$. The conventional element loses half of the order on the same meshes
+a few $10^{-10}$. The conventional element loses half of the order on the same meshes
 ($\eE=O(h^{\lfloor p/2\rfloor})$), because the element maps are not asymptotically affine. In the
 strong regime, optimal convergence of \PM\ is lost as well: rates are erratic and the error
 can grow under $h$- and $p$-refinement.
@@ -45,20 +45,20 @@ system requires a non-symmetric solver and a generalised Vandermonde solve per e
 To a large extent, yes. With metric polynomials only for $P_p(\bx)$ and parametric functions
 for the remainder, \PH\
 \begin{itemize}
-\item reproduces the degree-5 field to $\le9.9\cdot10^{-10}$ on all meshes, folded ones included,
+\item reproduces the degree-5 field to $\le1.2\cdot10^{-9}$ on all meshes, folded ones included,
   where \PM\ is limited to $10^{-4}$--$10^{-2}$ by round-off (\cref{sec:poly});
 \item converges with the optimal order for all $p\le8$ on all meshes without folds, and at
   $\alpha=45^\circ$ (folded for $N\ge2$) for all $p$ (\cref{sec:conv});
 \item is quasi-optimal with constant $0.78$--$1.00$ relative to its interpolation error
   (\cref{sec:interp}), and has Lebesgue constants, element condition numbers and stiffness
   spectra close to those of \PP\ (\cref{sec:mechanism});
-\item is $8$--$2.6\cdot10^4$ times more accurate than \PP\ and, for $p\ge3$, $1.4$--$6.7\cdot10^4$
+\item is $8$--$2.6\cdot10^4$ times more accurate than \PP\ and, for $p\ge3$, $1.4$--$2.0\cdot10^5$
   times more accurate than \PM\ at $\alpha=30^\circ$, $N=8$ (smooth field).
 \end{itemize}
 It does not remove all limits. (a) Its error constant depends on the distortion: the
-amplification $e_n(\alpha)/e_n(0^\circ)$ for the Lam\'e field reaches $93$ at $\alpha=15^\circ$, $p=6$,
+amplification $e_n(\alpha)/e_n(0^\circ)$ for the Lam\'e field reaches $88$ at $\alpha=15^\circ$, $p=6$,
 and where \PM\ is stable, \PH\ can be less accurate (Lam\'e, $\alpha=15^\circ$, $p\le7$: up to a
-factor $4.1$), because the parametric complement approximates worse than the full $Q_p$ in skew
+factor $3.7$), because the parametric complement approximates worse than the full $Q_p$ in skew
 coordinates (\cref{sec:interp}). (b) On folded meshes its low-order results ($p=2$ at
 $60^\circ$, $p\le4$ at $90^\circ$) are as unreliable as those of the other elements. (c) Its
 interpolation matrix is singular for some folded elements at $p\ge7$, and its complement
@@ -78,7 +78,7 @@ independently of the element mapping. The mechanism of the stability loss
 \section{Reproduction}\label{sec:reproduce}
 The first version of this report was computed with the code base of commit \texttt{2fea864}
 (monomial basis of the metric functions, no hybrid space). The present results were computed
-with the code base after commit \texttt{e293da1}, which includes the singularity checks of
+with \texttt{MATLAB} R2026a and the code base of commit \texttt{af3e04f}, which includes the singularity checks of
 \texttt{ShapeFunctions2D\_Metric} and \texttt{pSpectralElement\_NodesTopology}, the Lagrange
 basis of the metric functions and the hybrid trial space (\texttt{p.metricMethod = 2}), and a
 vectorised evaluation of \texttt{LagrangePolynomials} (bitwise identical results). Rejected
@@ -87,7 +87,7 @@ cases are recorded as NaN.
 {\small
 \begin{tabular}{@{}p{0.5\linewidth}p{0.47\linewidth}@{}}
 \texttt{mesh/gen\_cylinder\_meshes.py} & gmsh model, meshes, ABAQUS files, plot data\\
-\texttt{matlab/run\_study.m} & main study (MATLAB or GNU Octave)\\
+\texttt{matlab/run\_study.m} & main study\\
 \texttt{matlab/run\_interpolation\_study.m} & interpolation errors in the trial spaces\\
 \texttt{matlab/run\_quadrature\_study.m} & quadrature sensitivity\\
 \texttt{matlab/cyl\_verify.m} & cross-checks against the code base\\

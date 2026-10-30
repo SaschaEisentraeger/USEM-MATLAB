@@ -118,24 +118,8 @@ evalc(['K0 = AssemblyFEM(m.Topology_Node, m.p, m.xCoor, m.yCoor, m.num_Elem, ' .
 end
 
 function dofs = codeConstrainedDofs(bc)
-% Constrained DOFs from the ABAQUS boundary conditions (code base). Octave
-% does not support double.empty(0,1) used in DirichletBCs_homogeneous, so
-% its core routine CreateBoundaryConditions_Node is called directly there.
-if ~exist('OCTAVE_VERSION', 'builtin')
-    dofs = unique(DirichletBCs_homogeneous(bc));
-    return
-end
-dofs = [];
-for i = 1:numel(bc)
-    switch bc(i).type
-        case {'fixed', 'UxUy 0'}, d = 'xy';
-        case {'XSYMM', 'Ux 0'},   d = 'x';
-        case {'YSYMM', 'Uy 0'},   d = 'y';
-        otherwise, continue
-    end
-    dofs = [dofs; double(CreateBoundaryConditions_Node(bc(i).nset, d))]; %#ok<AGROW>
-end
-dofs = unique(dofs(:));
+% Constrained DOFs from the ABAQUS boundary conditions (code base)
+dofs = unique(DirichletBCs_homogeneous(bc));
 end
 
 function F0 = codeLoad(m)

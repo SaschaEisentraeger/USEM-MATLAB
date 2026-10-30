@@ -14,12 +14,12 @@ basis of the reference element was chosen as the new default, and documents a
 limitation that no choice of basis can remove, together with the hybrid trial
 space (\texttt{method = 2}) that avoids it. The numbers are produced by
 \code{studies/metric_basis/study_metric_basis.m},
-\code{probe_hybrid_space.m} and \code{study_hybrid_space.m} (MATLAB or GNU Octave);
+\code{probe_hybrid_space.m} and \code{study_hybrid_space.m};
 the tests are in \code{tests/unit/MetricBasisTest.m} and
 \code{tests/unit/MetricHybridTest.m}. The data in
-\code{docs/figures/data/metric-basis-*.dat} were computed with GNU Octave~8.4
-(IEEE double precision, LAPACK LU); values at round-off level can differ in the
-last digits in MATLAB.
+\code{docs/figures/data/metric-*.dat} were computed with \texttt{MATLAB} R2026a
+(IEEE double precision); values at round-off level can differ in the last digits
+on other platforms and releases.
 
 \section{Setting and basis invariance}
 
@@ -268,28 +268,33 @@ factors. On the parallelogram the Lagrange basis gives $\kappa_2=1$ for every
 $p$, Chebyshev $\approx2.6$, Legendre grows linearly ($55$ at $p=16$). On the
 distorted elements all three alternatives are within a factor of $3$ of one
 another; their gain over the monomials is a factor $6$--$13$ at $p=4$ and
-$1$--$5\times10^4$ at $p=16$ (trapezoid
-$5.0\times10^{15}\to3.8$--$8.6\times10^{11}$, curved
+$1$--$5\times10^4$ at $p=16$ (curved
 $1.4\times10^{13}\to3.1$--$4.8\times10^{8}$, general
-$9.0\times10^{14}\to0.9$--$2.0\times10^{11}$). Without the bounding-box scaling
+$9.0\times10^{14}\to0.9$--$2.0\times10^{11}$). On the trapezoid the monomial
+matrix at $p=16$ is rejected by the unisolvence check of
+\code{ShapeFunctions2D_Metric} ($\operatorname{rcond}(\matr V)=1.9\times10^{-17}$, below machine epsilon);
+at $p=15$ it gives $3.5\times10^{14}$, the alternatives
+$0.5$--$1.1\times10^{11}$. Without the bounding-box scaling
 the alternatives lose more than three orders of magnitude on the trapezoid
 ($\kappa_2=2.2\times10^{15}$ instead of $8.6\times10^{11}$ for the Lagrange basis
 at $p=16$).
 
 \paragraph{Accuracy of the shape functions (\cref{fig:metric-basis-kron}).}
 $e_\delta$ follows $\kappa_2(\matr V)\,u$. On the parallelogram the monomials give
-$e_\delta=2.0\times10^{-12}$ ($p=8$), $2.4\times10^{-9}$ ($p=12$) and
-$1.1\times10^{-6}$ ($p=16$); with the Lagrange basis $e_\delta\le10^{-28}$. On
-the distorted elements at $p=16$ the monomials give $3.0\times10^{-2}$
-(trapezoid), $4.9\times10^{-5}$ (curved), $6.5\times10^{-4}$ (general), the
-Lagrange basis $7.1\times10^{-6}$, $6.0\times10^{-9}$, $1.8\times10^{-6}$; the
-Legendre basis is equally good. For $p\le6$ all bases give
+$e_\delta=2.0\times10^{-12}$ ($p=8$), $2.0\times10^{-9}$ ($p=12$) and
+$1.2\times10^{-6}$ ($p=16$); with the Lagrange basis $e_\delta\le10^{-28}$. On
+the distorted elements at $p=16$ the monomials give $4.6\times10^{-5}$
+(curved) and $6.7\times10^{-4}$ (general) and are rejected on the trapezoid
+($1.8\times10^{-3}$ at $p=15$), the Lagrange basis $6.8\times10^{-6}$
+(trapezoid), $5.3\times10^{-9}$, $1.8\times10^{-6}$; the Legendre basis is
+equally good. For $p\le6$ all bases give
 $e_\delta<5\times10^{-13}$.
 
 \paragraph{Polynomial reproduction (\cref{fig:metric-basis-leb}, right).} The
 reproduction errors $e_P$ and $e_{\nabla P}$ are practically the same for all
-bases, also for the monomials, and follow $u\Lambda_M$ (trapezoid, $p=16$:
-$e_P\approx2\times10^{-9}$, $e_{\nabla P}\approx1$--$3\times10^{-8}$). The reason:
+bases, also for the monomials, and follow $u\Lambda_M$ (trapezoid, $p=16$, Legendre, Chebyshev and Lagrange basis:
+$e_P=2$--$5\times10^{-9}$, $e_{\nabla P}=0.8$--$8\times10^{-8}$; at $p=15$ all four
+bases give $e_P=2$--$4\times10^{-10}$). The reason:
 for nodal data $\vect f=\matr V^{\T}\vect c$ of a function in the space, the
 first-order error of the computed interpolant is
 $\vect c^{\T}\delta\matr V\,\matr N$ with the backward error $\delta\matr V$ of the
@@ -306,9 +311,9 @@ which is why the asymmetry of $\matr K_e$ on the parallelogram follows $e_\delta
     \toprule
     $p$ & 4 & 6 & 8 & 10 & 12 & 16 \\
     \midrule
-    monomial & $2.2\times10^{-15}$ & $8.4\times10^{-14}$ & $4.2\times10^{-12}$ &
-      $1.3\times10^{-10}$ & $2.9\times10^{-9}$ & $2.0\times10^{-6}$ \\
-    Lagrange & $1.6\times10^{-15}$ & $2.0\times10^{-15}$ & $4.6\times10^{-15}$ &
+    monomial & $4.3\times10^{-15}$ & $5.7\times10^{-14}$ & $3.8\times10^{-12}$ &
+      $9.8\times10^{-11}$ & $2.9\times10^{-9}$ & $2.2\times10^{-6}$ \\
+    Lagrange & $1.6\times10^{-15}$ & $2.1\times10^{-15}$ & $4.6\times10^{-15}$ &
       $1.5\times10^{-14}$ & $1.5\times10^{-14}$ & $3.4\times10^{-14}$ \\
     \bottomrule
   \end{tabular}
@@ -323,22 +328,22 @@ no practical difference up to $p=12$ (all four bases):
     \toprule
     $p$ & 2 & 4 & 6 & 8 & 10 & 12 \\
     \midrule
-    patch, monomial & $2.5\times10^{-16}$ & $6.6\times10^{-16}$ &
-      $1.0\times10^{-14}$ & $2.6\times10^{-14}$ & $8.3\times10^{-13}$ &
-      $1.4\times10^{-13}$ \\
-    patch, Lagrange & $2.5\times10^{-16}$ & $8.6\times10^{-16}$ &
-      $1.6\times10^{-14}$ & $3.1\times10^{-14}$ & $3.3\times10^{-13}$ &
-      $3.3\times10^{-13}$ \\
+    patch, monomial & $2.5\times10^{-16}$ & $6.9\times10^{-16}$ &
+      $8.2\times10^{-15}$ & $3.5\times10^{-14}$ & $2.2\times10^{-13}$ &
+      $3.6\times10^{-13}$ \\
+    patch, Lagrange & $2.0\times10^{-16}$ & $8.6\times10^{-16}$ &
+      $8.5\times10^{-15}$ & $1.8\times10^{-14}$ & $4.0\times10^{-13}$ &
+      $1.3\times10^{-13}$ \\
     $e^x\cos y$, monomial & $4.9\times10^{-3}$ & $2.8\times10^{-5}$ &
-      $2.0\times10^{-7}$ & $3.3\times10^{-10}$ & $1.9\times10^{-11}$ &
-      $1.1\times10^{-11}$ \\
+      $2.0\times10^{-7}$ & $3.3\times10^{-10}$ & $3.2\times10^{-11}$ &
+      $1.4\times10^{-11}$ \\
     $e^x\cos y$, Lagrange & $4.9\times10^{-3}$ & $2.8\times10^{-5}$ &
-      $2.0\times10^{-7}$ & $3.3\times10^{-10}$ & $2.1\times10^{-11}$ &
-      $1.7\times10^{-11}$ \\
+      $2.0\times10^{-7}$ & $3.3\times10^{-10}$ & $7.9\times10^{-11}$ &
+      $1.6\times10^{-11}$ \\
     \bottomrule
   \end{tabular}
 \end{center}
-(maximum relative nodal error; Legendre and Chebyshev lie in the same ranges,
+(maximum relative nodal error; Legendre and Chebyshev lie in similar ranges,
 \code{docs/figures/data/metric-basis-mesh.dat}). Both quantities are of the
 reproduction type: the exact solutions are polynomials or smooth fields with
 rapidly decaying coefficients, so, as explained above, they are insensitive to
@@ -348,13 +353,14 @@ individual shape functions and element matrices (symmetry on affine elements,
 Kronecker property used by the GLL nodal-quadrature mass matrix, generic nodal
 data such as eigenvectors or wave fields), and it becomes decisive for $p\gtrsim12$
 ($e_\delta$ of the monomials $\ge2\times10^{-9}$ on every test element, up to
-$3\times10^{-2}$ at $p=16$).
+$1.8\times10^{-3}$ at $p=15$; at $p=16$ the trapezoid is rejected).
 
 \paragraph{Cost.} All bases are evaluated with vectorized recurrences or
 products; the Lagrange basis costs $\mathcal O(p^2)$ instead of $\mathcal O(p)$
-operations per 1D function and point. Measured in GNU Octave, a call of
-\code{ShapeFunctions2D_Metric} with the $(2p)^2$ Gauss points takes
-$0.5$--$1.9$ times as long as with monomials (no systematic trend with $p$);
+operations per 1D function and point. Measured in \texttt{MATLAB} R2026a (one
+computational thread), a call of \code{ShapeFunctions2D_Metric} with the $(2p)^2$
+Gauss points takes $0.7$--$2.6$ times as long as with monomials for $p\ge4$ (no
+systematic trend with $p$);
 the solve with the $(p+1)^2\times(p+1)^2$ matrix and the evaluation of the
 parametric functions dominate the element routines in either case.
 
@@ -469,8 +475,8 @@ complement contain $\matr J^{-1}$ (error
 with $\theta=90^\circ,\dots,270^\circ$ (all elements with $\det\matr J\le0$
 somewhere, \code{studies/rajendran_panel}) the hybrid element passes the tension,
 bending and shear patch tests for $p=3,\dots,8$ like $Q_p(s,t)$; the round-off at
-$p=8$ is smaller ($\theta=135^\circ$: $7\times10^{-8}$ vs.\ $8\times10^{-6}$,
-$\theta=225^\circ$: $5\times10^{-8}$ vs.\ $1\times10^{-5}$). Where $\det\matr J$
+$p=8$ is smaller ($\theta=135^\circ$: $1\times10^{-8}$ vs.\ $3\times10^{-6}$,
+$\theta=225^\circ$: $8\times10^{-8}$ vs.\ $2\times10^{-5}$). Where $\det\matr J$
 changes sign the complement part of $\matr K_e$ has an integrand $\propto1/\det\matr
 J$; this does not affect the patch tests (the complement coefficients of a
 $P_p$ field vanish), but its effect on non-polynomial fields has not been studied.
@@ -506,7 +512,7 @@ J=0.014$), $p=1,\dots,10$ (\cref{fig:metric-hybrid-mesh}; data in
     $1.0\times10^{-8}$); the hybrid element is $2$--$50$ times more accurate than the
     classical one. At $p=9,10$ the hybrid element is as accurate or more accurate
     than $Q_p(s,t)$ (curved $0.20$, $p=10$: $3.9\times10^{-12}$ vs.\
-    $4.2\times10^{-10}$).
+    $4.1\times10^{-10}$).
   \item \textbf{Eigenvalues} ($\vect u=\vect0$ on the boundary, consistent mass).
     The 8 eigenvalues of smallest modulus of the hybrid element agree with those of
     the classical element to two digits for every $p$ (error $4.5\times10^{-7}$ at

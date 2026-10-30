@@ -9,8 +9,8 @@ space $Q_p$ in skew coordinates) and \PH\ (hybrid trial space: complete polynomi
 Cartesian coordinates, complemented by parametric functions); the conventional spectral
 element \PP\ serves as reference (1512 solutions, verified against the code base).
 \emph{Findings.} (i) Both unsymmetric elements reproduce a degree-5 polynomial field for
-$p\ge5$; for \PM\ the round-off level grows with distortion and $p$ (up to $10^{-4}$ at
-$\alpha=45^\circ$), for \PH\ it stays below $10^{-9}$ on all meshes on which the element can be
+$p\ge5$; for \PM\ the round-off level grows with distortion and $p$ (up to $2\cdot10^{-4}$ at
+$\alpha=45^\circ$), for \PH\ it stays below $2\cdot10^{-9}$ on all meshes on which the element can be
 built. (ii) For non-polynomial fields distortion immunity is lost by both. \PM\ remains
 distortion tolerant and optimally convergent only for moderate distortion ($\alpha=15^\circ$,
 $p\le6$; $\alpha=30^\circ$, $p\le3$); beyond, its convergence becomes erratic. \PH\ converges
@@ -21,6 +21,6 @@ its metric interpolation (Lebesgue constants up to $10^8$): the largest singular
 stiffness matrix grow up to $340$-fold relative to \PP, and single low singular modes carry
 $21$--$68\,\%$ of the error; \PH\ keeps Lebesgue constants and spectra close to those of \PP. (iv) \PH\ does not remove all limits: on folded meshes its error
 is still large for $p\le3$ and its interpolation matrix becomes singular for some folded
-elements at $p\ge7$; for the Lam\'e field at $\alpha=15^\circ$, $p\le7$, it is up to $4$ times
+elements at $p\ge7$; for the Lam\'e field at $\alpha=15^\circ$, $p\le7$, it is up to $3.7$ times
 less accurate than \PM.
 \end{abstract}

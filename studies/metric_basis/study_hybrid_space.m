@@ -24,7 +24,6 @@ function R = study_hybrid_space(varargin)
 %     asym    ||K - K^T||_F/||K||_F of the assembled stiffness
 %
 %   Writes docs/figures/data/metric-hybrid-<mesh>.dat ('writeData').
-%   Runs in MATLAB and in GNU Octave.
 
 ip = inputParser;
 ip.addParameter('mesh', {'curved15', 'curved20', 'combined30'});
@@ -40,10 +39,6 @@ here = fileparts(mfilename('fullpath'));
 root = fileparts(fileparts(here));
 addpath(genpath(fullfile(root, 'code', 'subroutines')));
 addpath(fullfile(root, 'tests', 'helpers'));
-if exist('OCTAVE_VERSION', 'builtin')
-    addpath(fullfile(here, 'octave'));
-    warning('off', 'all');
-end
 
 nu = 0.3;
 C = HookeMatrix2d(1, nu, 1);
@@ -72,7 +67,7 @@ for im = 1:numel(opt.mesh)
                 [K, M] = assembleClassical(model, C);
             else
                 model.p.metricMethod = t - 1;
-                [K, M] = assembleUnsymmetric(model, C);
+                [K, M] = usemAssemble(model, C, 1, 1);
             end
             [~, ~, T.(['patch_' tags{t}])(i)] = usemDirichletSolve(K, model, ...
                 @(x, y) harmonicField(x - 1.3, y - 0.7, p));
@@ -109,14 +104,6 @@ switch name
     case 'combined30', nodes = usemDistortMesh(nodes, topo, 'combined', 0.30);
     otherwise, error('study_hybrid_space:mesh', 'Unknown mesh "%s".', name);
 end
-end
-
-function [K, M] = assembleUnsymmetric(model, C)
-% AssemblyFEM with consistent mass (evalc with one output for Octave)
-material_elset = {(1:model.num_Elem)'};
-evalc(['[K, M] = AssemblyFEM(model.Topology_Node, model.p, model.xCoor, ' ...
-    'model.yCoor, model.num_Elem, model.num_DoF, {C}, {1}, 1, 1, ' ...
-    'material_elset, 0, 0, {0}, 1);']);
 end
 
 function [K, M] = assembleClassical(model, C)
