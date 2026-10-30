@@ -5,7 +5,7 @@
 literature/*.pdf
 *.pdf
 # ... except the reports of the studies (own work)
-!studies/*/report/report.pdf
+!studies/*/report/*-report.pdf
 !studies/manuscript_metric/manuscript.pdf
 
 # --- Simulation output -----------------------------------------------------
