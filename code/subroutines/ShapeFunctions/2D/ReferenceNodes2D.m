@@ -13,7 +13,6 @@
 % p:            Polynomial degree template
 % p.pxi:     	Polynomial degree in xi
 % p.peta:     	Polynomial degree in eta
-% p.ndist:      Nodal distribution
 %-------------------------------------------------------------------------%
 %% Output
 %
@@ -21,8 +20,8 @@
 %-------------------------------------------------------------------------%
 function [xi,eta] = ReferenceNodes2D(p)
 
-x = nodal_distribution(p.pxi,p.ndist);
-e = nodal_distribution(p.peta,p.ndist);
+x = nodal_distribution(p.pxi);
+e = nodal_distribution(p.peta);
 x = x(:);
 e = e(:);
 

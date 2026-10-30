@@ -3,7 +3,6 @@ classdef ShapeFunctionsTest < matlab.unittest.TestCase
 
     properties (TestParameter)
         p = {1, 2, 3, 4, 6};
-        ndist = struct('equidistant', 1, 'GLL', 2, 'GLC', 3);
     end
 
     methods (TestClassSetup)
@@ -18,18 +17,18 @@ classdef ShapeFunctionsTest < matlab.unittest.TestCase
 
     methods (Test)
         %% 1D
-        function lagrange1DHasKroneckerProperty(tc, p, ndist)
-            xn = nodal_distribution(p, ndist);
-            N = ShapeFunctions1D_SEM(p, xn, ndist);
+        function lagrange1DHasKroneckerProperty(tc, p)
+            xn = nodal_distribution(p);
+            N = ShapeFunctions1D_SEM(p, xn);
             % Order of the 1D shape functions: [xi=-1, xi=+1, interior]
             order = [1, p+1, 2:p];
             tc.verifyEqual(N(:, order), eye(p+1), 'AbsTol', 1e-12);
         end
 
-        function lagrange1DReproducesPolynomials(tc, p, ndist)
-            xn = nodal_distribution(p, ndist);
+        function lagrange1DReproducesPolynomials(tc, p)
+            xn = nodal_distribution(p);
             xq = linspace(-1, 1, 23)';
-            [N, dN] = ShapeFunctions1D_SEM(p, xq, ndist);
+            [N, dN] = ShapeFunctions1D_SEM(p, xq);
             order = [1, p+1, 2:p];
             for k = 0:p
                 f  = xn(order).^k;
@@ -40,15 +39,15 @@ classdef ShapeFunctionsTest < matlab.unittest.TestCase
         end
 
         %% 2D spectral element
-        function sem2DHasKroneckerProperty(tc, p, ndist)
-            P.pxi = p; P.peta = p; P.ndist = ndist;
+        function sem2DHasKroneckerProperty(tc, p)
+            P.pxi = p; P.peta = p;
             [xi, eta] = referenceNodes(P);
             N = ShapeFunctions2D_SEM(xi, eta, P);
             tc.verifyEqual(N, eye((p+1)^2), 'AbsTol', 1e-12);
         end
 
-        function sem2DIsPartitionOfUnity(tc, p, ndist)
-            P.pxi = p; P.peta = p; P.ndist = ndist;
+        function sem2DIsPartitionOfUnity(tc, p)
+            P.pxi = p; P.peta = p;
             [xq, eq] = randomPoints(40);
             [N, dNxi, dNeta] = ShapeFunctions2D_SEM(xq, eq, P);
             tc.verifyEqual(sum(N, 1), ones(1, 40), 'AbsTol', 1e-12);
@@ -57,7 +56,7 @@ classdef ShapeFunctionsTest < matlab.unittest.TestCase
         end
 
         function sem2DReproducesTensorProductPolynomials(tc, p)
-            P.pxi = p; P.peta = p; P.ndist = 2;
+            P.pxi = p; P.peta = p;
             [xi, eta] = referenceNodes(P);
             [xq, eq] = randomPoints(30);
             [N, dNxi, dNeta] = ShapeFunctions2D_SEM(xq, eq, P);
@@ -72,7 +71,7 @@ classdef ShapeFunctionsTest < matlab.unittest.TestCase
         end
 
         function sem2DSupportsAnisotropicDegrees(tc)
-            P.pxi = 3; P.peta = 1; P.ndist = 2;
+            P.pxi = 3; P.peta = 1;
             [xi, eta] = referenceNodes(P);
             N = ShapeFunctions2D_SEM(xi, eta, P);
             tc.verifyEqual(N, eye(8), 'AbsTol', 1e-12);
@@ -113,8 +112,8 @@ end
 function [xi, eta] = referenceNodes(P)
 % Local coordinates of the element nodes in the order used by
 % ShapeFunctions2D_SEM: corners, edges 1-4, interior (row by row)
-x = nodal_distribution(P.pxi, P.ndist);
-e = nodal_distribution(P.peta, P.ndist);
+x = nodal_distribution(P.pxi);
+e = nodal_distribution(P.peta);
 xi  = [-1; 1; 1; -1];
 eta = [-1; -1; 1; 1];
 xi  = [xi;  x(2:end-1);             ones(P.peta-1,1); x(2:end-1);             -ones(P.peta-1,1)];

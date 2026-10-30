@@ -85,32 +85,10 @@ classdef TopologyTest < matlab.unittest.TestCase
             % 8-node element whose mid-side nodes are numbered between
             % the corner nodes
             x = [0 1 2 2 2 1 0 0]'; y = [0 0 0 1 2 2 2 1]';
-            P.pxi = 2; P.peta = 2; P.ndist = 2;
+            P.pxi = 2; P.peta = 2;
             tc.verifyError(@() pSpectralElement_NodesTopology( ...
                 [1 3 5 7 2 4 6 8], x, y, P, 2), ...
                 'pSpectralElement_NodesTopology:cornerNodes');
-        end
-
-        function coincidentNodesAreRejected(tc)
-            % 8-node element of Mesh b of Rajendran (2010), Fig. 9: the
-            % mid-side nodes of edges 2 and 3 are rotated by 90 deg about
-            % corner 3. The serendipity map sends the interior reference
-            % point (0,0) onto the mid-side node of edge 3, (1,-0.5), so
-            % every even degree produces two coincident nodes.
-            x = [0 1 1 0 0.5 1.5 1 0]';
-            y = [-1 -1 0 0 -1 0 -0.5 -0.5]';
-            P.ndist = 2;
-            for pdeg = [2 4]
-                P.pxi = pdeg; P.peta = pdeg;
-                tc.verifyError(@() pSpectralElement_NodesTopology( ...
-                    1:8, x, y, P, 2), ...
-                    'pSpectralElement_NodesTopology:coincidentNodes');
-            end
-            % odd degree: no interior node on xi = 0 or eta = 0
-            P.pxi = 3; P.peta = 3;
-            [T, xp] = pSpectralElement_NodesTopology(1:8, x, y, P, 2);
-            tc.verifyEqual(size(T), [1 16]);
-            tc.verifyEqual(numel(xp), 16);
         end
 
         function linearMeshIsUnchangedForPOne(tc)
@@ -124,8 +102,8 @@ classdef TopologyTest < matlab.unittest.TestCase
 end
 
 function [xi, eta] = referenceNodes(P)
-x = nodal_distribution(P.pxi, P.ndist);
-e = nodal_distribution(P.peta, P.ndist);
+x = nodal_distribution(P.pxi);
+e = nodal_distribution(P.peta);
 xi  = [-1; 1; 1; -1; x(2:end-1); ones(P.peta-1,1); x(2:end-1); -ones(P.peta-1,1)];
 eta = [-1; -1; 1; 1; -ones(P.pxi-1,1); e(2:end-1); ones(P.pxi-1,1); e(2:end-1)];
 [XI, ETA] = meshgrid(x(2:end-1), e(2:end-1));

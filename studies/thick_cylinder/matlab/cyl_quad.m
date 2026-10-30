@@ -4,10 +4,10 @@ function Qd = cyl_quad(p, nq)
 %   rule (column vectors), Qd.N, Qd.dNxi, Qd.dNeta : ShapeFunctions2D_SEM
 %   at the tensor points; Qd.edge{k}.N, .dNxi, .dNeta at the Gauss points
 %   of edge k (1: eta = -1, 2: xi = 1, 3: eta = 1, 4: xi = -1). Evaluating ShapeFunctions2D_SEM is expensive for
-%   high p, so the results are cached per (p, ndist, nq).
+%   high p, so the results are cached per (p, nq).
 persistent cache
 if isempty(cache), cache = containers.Map(); end
-key = sprintf('%d_%d_%d_%d', p.pxi, p.peta, p.ndist, nq);
+key = sprintf('%d_%d_%d', p.pxi, p.peta, nq);
 if isKey(cache, key)
     Qd = cache(key);
     return

@@ -1,7 +1,7 @@
-function model = cyl_model(inpFile, pdeg, ndist)
+function model = cyl_model(inpFile, pdeg)
 %CYL_MODEL Spectral element model of the thick cylinder from a gmsh mesh.
 %
-%   model = cyl_model(inpFile, pdeg, ndist) reads the ABAQUS input file
+%   model = cyl_model(inpFile, pdeg) reads the ABAQUS input file
 %   (8-node elements) and lifts it to spectral elements of degree pdeg with
 %   the routines of the code base (Read_mesh_ABAQUS -> usemBuildModel). The lifted edges on the circular arcs
 %   r = a and r = b are parabolas through the three CPS8 nodes; they are
@@ -13,11 +13,10 @@ function model = cyl_model(inpFile, pdeg, ndist)
 %   set.xsym / ysym / inner / outer (node numbers), minDetJ, negDetJ (number
 %   of elements with det J <= 0 somewhere), area (signed, should be 2*pi).
 
-if nargin < 3, ndist = 2; end
 A_IN = 1;  B_OUT = 3;
 
 [nodes, topo] = Read_mesh_ABAQUS(inpFile);
-S = usemBuildModel(nodes, topo, pdeg, ndist);
+S = usemBuildModel(nodes, topo, pdeg);
 p = S.p;
 
 model = S;

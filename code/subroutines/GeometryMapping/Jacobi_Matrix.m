@@ -12,7 +12,6 @@
 % p:      	Polynomial degree structure
 % p.pxi:  	Polynomial degree in xi
 % p.peta: 	Polynomial degree in eta
-% p.ndist: 	Nodal distribution
 % GaussP:   Coordinates of the integration points
 % xCoor:    x-coordinates of the nodes
 % yCoor:    y-coordinates of the nodes

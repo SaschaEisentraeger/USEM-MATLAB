@@ -11,7 +11,6 @@
 %
 % n:        Polynomial degree (integer value)
 % xi:       Local coordinate(s) of the evaluation point
-% ndist:    Nodal distribution; 1: GLL, 2: CGL, 3: Equidistant
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Output
@@ -20,21 +19,16 @@
 % dN:       Function value of the derivatives of the shape functions at xi
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [N,dN] = ShapeFunctions1D_SEM(n,xi,ndist)
+function [N,dN] = ShapeFunctions1D_SEM(n,xi)
 
-% Determine whether input is column vector or a matrix and convert to a row
-% vector
-if iscolumn(xi)
-    xi  = xi';
-elseif ismatrix(xi)
-    xi = reshape(xi,1,[]);
-end
+% Convert the input to a row vector
+xi = reshape(xi,1,[]);
 
 % Number of evaluation points
 NP = numel(xi);
 
 % Nodal distribution - equidistant
-xii = nodal_distribution(n,ndist);
+xii = nodal_distribution(n);
 [Naux,dNaux] = LagrangePolynomials(xii);
 
 % Ordering of the nodes --> the first to shape functions correspond to the
@@ -56,34 +50,5 @@ end
 % Delete small values
 N(abs(N) < eps)   = 0;
 dN(abs(dN) < eps) = 0;
-
-%-------------------------------------------------------------------------%
-% [N,dN] = ShapeFunctions1D_SEM(n,(-1:0.001:1),ndist);
-% % Visualization of the shape functions
-% figure('Name','Shape functions')
-% plot((-1:0.001:1),N)
-% % Axis labels
-% xlabel('x','FontName','Times','FontSize',24,'FontWeight','bold','Color','k')
-% ylabel('N','FontName','Times','FontSize',24,'FontWeight','bold','Color','k')
-% % Get handle to current axis
-% hAxes = gca;
-% set(hAxes,'FontName','Times','FontSize',24);
-% % Get handle to current figure
-% hFig =  gcf;
-% set(hFig,'Units','normalized','Position',[0 0 1 1]);
-% 
-% % Visualization of the derivatives of the shape functions
-% figure('Name','Derivatives')
-% plot((-1:0.001:1),dN)
-% % Axis labels
-% xlabel('x','FontName','Times','FontSize',24,'FontWeight','bold','Color','k')
-% ylabel('dN/dxi','FontName','Times','FontSize',24,'FontWeight','bold','Color','k')
-% % Get handle to current axis
-% hAxes = gca;
-% set(hAxes,'FontName','Times','FontSize',24);
-% % Get handle to current figure
-% hFig =  gcf;
-% set(hFig,'Units','normalized','Position',[0 0 1 1]);
-%-------------------------------------------------------------------------%
 
 end

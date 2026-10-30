@@ -30,11 +30,7 @@ for f = 1:numel(fam)
             x = model.xCoor(model.Topology_Node(1,:));
             y = model.yCoor(model.Topology_Node(1,:));
             [xiN, etaN] = ReferenceNodes2D(P);
-            try
-                [LN, LQ, LT] = ms_lebesgue(x, y, P);
-            catch
-                LN = NaN; LQ = NaN; LT = NaN;
-            end
+            [LN, LQ, LT] = ms_lebesgue(x, y, P);
             P.metricBasis = 'lagrange';
             try
                 [~, ~, ~, V] = ShapeFunctions2D_Metric(x, y, x, y, P, 1);

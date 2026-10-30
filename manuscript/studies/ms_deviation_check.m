@@ -9,7 +9,7 @@ function ms_deviation_check(pvec)
 %   Writes manuscript/data/quadrature/deviation-check.dat.
 if nargin < 1, pvec = [4 8 12]; end
 [~, dataDir] = ms_setup();
-C = HookeMatrix2d(1, 0.3, 1);
+C = HookeMatrix2d(1, 0.3);
 shapes = {'trapezoid', 'curved', 'general'};
 rows = [];
 for s = 1:numel(shapes)

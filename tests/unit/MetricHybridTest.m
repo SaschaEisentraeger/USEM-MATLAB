@@ -6,14 +6,13 @@ classdef MetricHybridTest < matlab.unittest.TestCase
     %   the parametric space on straight-edged (bilinearly mapped) elements,
     %   Lebesgue constant close to that of the parametric interpolation
     %   (docs/chapters/metric-basis.tex). Also covers the helpers
-    %   ReferenceNodes2D and Global2LocalNewton.
+    %   ReferenceNodes2D.
 
     properties (TestParameter)
         p = {1, 2, 3, 4, 6};
         shape = {'parallelogram', 'trapezoid', 'curved', 'general'};
         straight = {'square', 'parallelogram', 'trapezoid'};
         curved = {'curved', 'general'};
-        ndist = struct('equidistant', 1, 'GLL', 2, 'GLC', 3);
     end
 
     properties
@@ -30,37 +29,30 @@ classdef MetricHybridTest < matlab.unittest.TestCase
         end
 
         function setMaterial(tc)
-            tc.C = HookeMatrix2d(1, 0.3, 1);
+            tc.C = HookeMatrix2d(1, 0.3);
         end
     end
 
     methods (Test)
         %% Helpers
-        function referenceNodesAreTheSEMNodes(tc, p, ndist)
-            P.pxi = p; P.peta = p; P.ndist = ndist;
+        function referenceNodesAreTheSEMNodes(tc, p)
+            P.pxi = p; P.peta = p;
             [xi, eta] = ReferenceNodes2D(P);
             N = ShapeFunctions2D_SEM(xi, eta, P);
             tc.verifyEqual(N, eye((p+1)^2), 'AbsTol', 1e-12);
         end
 
         function referenceNodesForAnisotropicDegrees(tc)
-            P.pxi = 4; P.peta = 2; P.ndist = 2;
+            P.pxi = 4; P.peta = 2;
             [xi, eta] = ReferenceNodes2D(P);
             tc.verifyEqual(ShapeFunctions2D_SEM(xi, eta, P), eye(15), 'AbsTol', 1e-12);
-        end
-
-        function newtonInvertsTheGeometryMapping(tc, shape)
-            [x, y, P] = usemTestElement(shape, 3);
-            [xi, eta] = refGrid(6, 0.98);
-            Xg = Local2GlobalCoordinatesQuad(P, [xi, eta], [x, y]);
-            loc = Global2LocalNewton(Xg(:,1), Xg(:,2), x, y, P);
-            tc.verifyEqual(loc, [xi, eta], 'AbsTol', 1e-12);
         end
 
         %% Shape functions
         function hybridFunctionsHaveKroneckerProperty(tc, p, shape)
             [x, y, P] = usemTestElement(shape, p);
-            N = ShapeFunctions2D_Metric(x, y, x, y, P, 2);
+            [xiN, etaN] = ReferenceNodes2D(P);
+            N = ShapeFunctions2D_Metric(x, y, x, y, P, 2, [xiN(:), etaN(:)]);
             tc.verifyEqual(N, eye(numel(x)), 'AbsTol', 1e-12);
         end
 
@@ -81,26 +73,18 @@ classdef MetricHybridTest < matlab.unittest.TestCase
 
         function derivativesMatchFiniteDifferences(tc, shape)
             [x, y, P] = usemTestElement(shape, 3);
-            [xq, yq] = interiorPoints(P, x, y);
-            [~, dNx, dNy] = ShapeFunctions2D_Metric(xq, yq, x, y, P, 2);
-            h = 1e-6;
-            Np = ShapeFunctions2D_Metric(xq+h, yq, x, y, P, 2);
-            Nm = ShapeFunctions2D_Metric(xq-h, yq, x, y, P, 2);
-            tc.verifyEqual(dNx, (Np-Nm)/(2*h), 'AbsTol', 1e-6);
-            Np = ShapeFunctions2D_Metric(xq, yq+h, x, y, P, 2);
-            Nm = ShapeFunctions2D_Metric(xq, yq-h, x, y, P, 2);
-            tc.verifyEqual(dNy, (Np-Nm)/(2*h), 'AbsTol', 1e-6);
-        end
-
-        function localCoordinatesAreOptional(tc, shape)
-            % Without xiQ the local coordinates come from Global2LocalNewton
-            [x, y, P] = usemTestElement(shape, 4);
             [xq, yq, IP] = interiorPoints(P, x, y);
-            [N0, dNx0, dNy0] = ShapeFunctions2D_Metric(xq, yq, x, y, P, 2, IP);
-            [N1, dNx1, dNy1] = ShapeFunctions2D_Metric(xq, yq, x, y, P, 2);
-            tc.verifyEqual(N1, N0, 'AbsTol', 1e-12);
-            tc.verifyEqual(dNx1, dNx0, 'AbsTol', 1e-11);
-            tc.verifyEqual(dNy1, dNy0, 'AbsTol', 1e-11);
+            [~, dNx, dNy] = ShapeFunctions2D_Metric(xq, yq, x, y, P, 2, IP);
+            % Central differences along xi and eta, chain rule in (x,y)
+            h = 1e-6;
+            for d = [1 0; 0 1]'
+                Xp = Local2GlobalCoordinatesQuad(P, IP + h*d', [x, y]);
+                Xm = Local2GlobalCoordinatesQuad(P, IP - h*d', [x, y]);
+                Np = ShapeFunctions2D_Metric(Xp(:,1), Xp(:,2), x, y, P, 2, IP + h*d');
+                Nm = ShapeFunctions2D_Metric(Xm(:,1), Xm(:,2), x, y, P, 2, IP - h*d');
+                dX = (Xp - Xm)/(2*h);
+                tc.verifyEqual(dNx.*dX(:,1)' + dNy.*dX(:,2)', (Np-Nm)/(2*h), 'AbsTol', 1e-6);
+            end
         end
 
         function methodIsSelectedByTheDegreeStructure(tc)

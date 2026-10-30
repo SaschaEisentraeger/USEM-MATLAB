@@ -45,13 +45,9 @@ classdef MaterialTest < matlab.unittest.TestCase
 
         function planeStressReductionMatchesClosedForm(tc, nu)
             Cps = PlaneStressConstitutiveMatrices(HookeMatrix3d(tc.E, nu));
-            tc.verifyEqual(Cps, HookeMatrix2d(tc.E, nu, 1), 'RelTol', 1e-12);
+            tc.verifyEqual(Cps, HookeMatrix2d(tc.E, nu), 'RelTol', 1e-12);
             ref = tc.E/(1-nu^2)*[1 nu 0; nu 1 0; 0 0 (1-nu)/2];
             tc.verifyEqual(Cps, ref, 'AbsTol', 1e-12*tc.E);
-        end
-
-        function hookeMatrix2dRejectsInvalidAnalysisType(tc)
-            tc.verifyError(@() HookeMatrix2d(tc.E, 0.3, 3), ?MException);
         end
 
     end

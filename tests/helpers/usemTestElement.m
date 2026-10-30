@@ -1,7 +1,7 @@
-function [x, y, p] = usemTestElement(shape, pdeg, ndist)
+function [x, y, p] = usemTestElement(shape, pdeg)
 %USEMTESTELEMENT Nodal coordinates of a single spectral element.
 %
-%   [x, y, p] = usemTestElement(shape, pdeg, ndist) returns the node
+%   [x, y, p] = usemTestElement(shape, pdeg) returns the node
 %   coordinates (in the order expected by ShapeFunctions2D_SEM) of one
 %   element of degree pdeg, generated with pSpectralElement_NodesTopology.
 %
@@ -10,10 +10,6 @@ function [x, y, p] = usemTestElement(shape, pdeg, ndist)
 %           'trapezoid'     : straight edges, angular distortion
 %           'curved'        : 8-node input with two curved edges
 %           'general'       : angular plus curved-edge distortion
-
-if nargin < 3
-    ndist = 2;
-end
 
 switch shape
     case 'square'
@@ -32,7 +28,7 @@ switch shape
 end
 
 topo = 1:size(nodes, 1);
-model = usemBuildModel(nodes, topo, pdeg, ndist);
+model = usemBuildModel(nodes, topo, pdeg);
 x = model.xCoor(model.Topology_Node(1,:));
 y = model.yCoor(model.Topology_Node(1,:));
 p = model.p;

@@ -3,14 +3,9 @@ function [K, M] = ms_assemble_KM(model, C, form, family)
 %classical (PP), Q_p(s,t) (PM) and hybrid (PH) spectral element.
 %   [K, M] = ms_assemble_KM(model, C, form, family) integrates the element
 %   matrices with the calibrated Gauss rule of the mesh family
-%   (ms_rule/ms_quadrature_calibration). Without family, the former
-%   default rule with 2p x 2p points is used.
+%   (ms_rule/ms_quadrature_calibration).
 P = model.p;
-if nargin < 4 || isempty(family)
-    nq = 2*P.pxi;
-else
-    nq = ms_rule(family, form, P.pxi);
-end
+nq = ms_rule(family, form, P.pxi);
 T = Topology_DoF_2D(model.Topology_Node);
 n = model.num_DoF;
 K = zeros(n); M = zeros(n);

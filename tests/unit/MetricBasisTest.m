@@ -13,7 +13,6 @@ classdef MetricBasisTest < matlab.unittest.TestCase
         p = {1, 2, 3, 4, 6};
         pHigh = {8, 12, 16};
         shape = {'parallelogram', 'trapezoid', 'curved', 'general'};
-        ndist = struct('equidistant', 1, 'GLL', 2, 'GLC', 3);
     end
 
     methods (TestClassSetup)
@@ -31,18 +30,18 @@ classdef MetricBasisTest < matlab.unittest.TestCase
         function basis1DDerivativesMatchFiniteDifferences(tc, basis, p)
             s = linspace(-1.2, 1.2, 17);
             h = 1e-6;
-            [~, dPhi] = PolynomialBasis1D(s, p, basis, 2);
-            Pp = PolynomialBasis1D(s + h, p, basis, 2);
-            Pm = PolynomialBasis1D(s - h, p, basis, 2);
+            [~, dPhi] = PolynomialBasis1D(s, p, basis);
+            Pp = PolynomialBasis1D(s + h, p, basis);
+            Pm = PolynomialBasis1D(s - h, p, basis);
             tc.verifyEqual(dPhi, (Pp - Pm)/(2*h), 'AbsTol', 1e-6);
         end
 
         function basis1DSpansPolynomialsOfDegreeP(tc, basis, p)
             % Interpolation of s^k, k <= p, in the basis is exact
-            sn = nodal_distribution(p, 2);
-            V = PolynomialBasis1D(sn, p, basis, 2);
+            sn = nodal_distribution(p);
+            V = PolynomialBasis1D(sn, p, basis);
             sq = linspace(-1, 1, 11);
-            Q = PolynomialBasis1D(sq, p, basis, 2);
+            Q = PolynomialBasis1D(sq, p, basis);
             for k = 0:p
                 c = V'\(sn.^k);
                 tc.verifyEqual(Q'*c, sq'.^k, 'AbsTol', 1e-12);
@@ -51,24 +50,24 @@ classdef MetricBasisTest < matlab.unittest.TestCase
 
         function legendreAndChebyshevValues(tc)
             s = linspace(-1, 1, 9);
-            L = PolynomialBasis1D(s, 3, 'legendre', 2);
+            L = PolynomialBasis1D(s, 3, 'legendre');
             tc.verifyEqual(L(3,:), (3*s.^2 - 1)/2, 'AbsTol', 1e-15);
             tc.verifyEqual(L(4,:), (5*s.^3 - 3*s)/2, 'AbsTol', 1e-15);
-            T = PolynomialBasis1D(s, 8, 'chebyshev', 2);
+            T = PolynomialBasis1D(s, 8, 'chebyshev');
             tc.verifyEqual(T, cos((0:8)'*acos(s)), 'AbsTol', 1e-13);
         end
 
-        function lagrange1DMatchesParametricShapeFunctions(tc, p, ndist)
-            xq = [linspace(-1, 1, 13)'; nodal_distribution(p, ndist)];
-            [L, dL] = PolynomialBasis1D(xq, p, 'lagrange', ndist);
-            [N, dN] = ShapeFunctions1D_SEM(p, xq, ndist);
+        function lagrange1DMatchesParametricShapeFunctions(tc, p)
+            xq = [linspace(-1, 1, 13)'; nodal_distribution(p)];
+            [L, dL] = PolynomialBasis1D(xq, p, 'lagrange');
+            [N, dN] = ShapeFunctions1D_SEM(p, xq);
             order = [1, p+1, 2:p];
             tc.verifyEqual(L(order,:), N, 'AbsTol', 1e-12);
             tc.verifyEqual(dL(order,:), dN, 'AbsTol', 1e-10);
         end
 
         function unknownBasisIsRejected(tc)
-            tc.verifyError(@() PolynomialBasis1D(0, 2, 'bernstein', 2), ...
+            tc.verifyError(@() PolynomialBasis1D(0, 2, 'bernstein'), ...
                 'PolynomialBasis1D:basis');
         end
 
@@ -110,16 +109,6 @@ classdef MetricBasisTest < matlab.unittest.TestCase
             tc.verifyEqual(V0, V1);
         end
 
-        function globalCoordinateVariantAlwaysUsesMonomials(tc)
-            [x, y, P] = usemTestElement('general', 3);
-            [xq, yq] = interiorPoints(P, x, y);
-            P.metricBasis = 'monomial';
-            N0 = ShapeFunctions2D_Metric(xq, yq, x, y, P, 0);
-            P.metricBasis = 'lagrange';
-            N1 = ShapeFunctions2D_Metric(xq, yq, x, y, P, 0);
-            tc.verifyEqual(N1, N0);
-        end
-
         %% Conditioning at high polynomial degree
         function lagrangeVandermondeIsPermutationOnAffineElements(tc, pHigh)
             % The basis is ordered by reference nodes, the columns by the
@@ -151,7 +140,7 @@ classdef MetricBasisTest < matlab.unittest.TestCase
 
         function highOrderStiffnessIsSymmetricOnParallelogram(tc)
             [x, y, P] = usemTestElement('parallelogram', 10);
-            K = Ke_2D(P, HookeMatrix2d(1, 0.3, 1), x, y);
+            K = Ke_2D(P, HookeMatrix2d(1, 0.3), x, y);
             tc.verifyLessThan(norm(K - K', 'fro')/norm(K, 'fro'), 1e-13);
         end
 

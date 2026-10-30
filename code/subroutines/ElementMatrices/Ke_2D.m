@@ -18,7 +18,6 @@
 % p:            Polynomial degree structure
 % p.pxi:      	Polynomial degree in xi
 % p.peta:      	Polynomial degree in eta
-% p.ndist:   	Nodal distribution
 % C:            Elasticity matrix
 % xCoor:        x coordinates of the nodes
 % yCoor:        y coordinates of the nodes
@@ -39,10 +38,6 @@ if nargin == 4
     d = 2;
     nIPxi = d*pxi;
     nIPeta = d*peta;
-    % nIPxi = pxi + 1;
-    % nIPeta = peta + 1;
-    % nIPxi = 6;
-    % nIPeta = 6;
 end
 
 % Number of degrees of freedom per element

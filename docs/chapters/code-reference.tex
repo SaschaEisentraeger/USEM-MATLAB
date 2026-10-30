@@ -1,62 +1,12 @@
 \chapter{Code reference}
-\label{ch:code}
+\label{ch:reference}
 
-All routines are functions in \code{code/subroutines}; \code{code/SetupPaths}
-adds this folder with all subfolders to the path (\code{genpath}). Apart from
-\code{Start_Sim.m}, which only sets parameters, there are no scripts: data are
-passed as arguments and returned as outputs, never through the base workspace or
-global variables. \code{help}~\code{<name>} shows the interface of every routine.
-
-\section{Program flow}
-
-\begin{figure}[htbp]
-  \centering
-  \input{figures/program-flow}
-  \caption{Program flow of \texttt{Start\_Sim.m} and \texttt{RunSimulation}. The
-    three structs \texttt{settings}, \texttt{model} and \texttt{results} carry all
-    data between the steps.}
-  \label{fig:flow}
-\end{figure}
-
-\section{Driver and analyses}
-
-\begin{xltabular}{\linewidth}{@{}P{6.4cm}L@{}}
-  \toprule
-  routine & purpose \\
-  \midrule
-  \endhead
-  \code{Start_Sim.m} & script: parameters of one simulation, then
-    \code{RunSimulation} \\
-  \code{SetupPaths} & adds \code{code/subroutines} and \code{code/InputFilesAbaqus}
-    to the path \\
-  \code{Driver/DefaultSettings} & all parameters with their defaults and
-    documentation (\cref{sec:parameters}) \\
-  \code{Driver/RunSimulation(settings)} & reads the model, sets up materials and
-    damping, runs the analysis, saves and plots; returns \code{[model, results,
-    settings]} \\
-  \code{Driver/ReadModel(file, p [, verbose])} & \texttt{ABAQUS} input file $\to$
-    \code{model} struct: set renaming in a temporary copy, readers, alignment of
-    the degrees, lifting to degree $p$ \\
-  \code{Driver/AssembleSystem(model, settings, flag_comp)} & \code{AssemblyFEM}
-    for the \code{model} struct \\
-  \code{Driver/LoadVectors(model [, flag_mRHS])} & \code{NeumannBCs} for the
-    \code{model} struct \\
-  \code{Driver/SaveResults(model, settings, results)} & MAT file of a simulation
-    (\cref{ch:start}) \\
-  \code{Driver/PrintStep(verbose, msg)} & progress messages \\
-  \code{AnalysisType/StaticAnalysis(model, settings)} & $\matr K\vect u = \vect F$ \\
-  \code{AnalysisType/DynamicAnalysis(model, settings)} & transient analysis,
-    \code{Solver_Transient} \\
-  \code{AnalysisType/ModalAnalysis(model, settings)} & eigenfrequencies and mode
-    shapes \\
-  \code{AnalysisType/FrequencyDomainAnalysis(model, settings)} & harmonic
-    steady state \\
-  \code{TimeIntegration/Solver_Transient(S)} & time integration with the method
-    of \code{TimeIntegrationMethods} \\
-  \code{TimeIntegration/TimeIntegrationMethods} & table: method code $\to$
-    routine and its extra arguments (\cref{tab:methods}) \\
-  \bottomrule
-\end{xltabular}
+Paths are relative to \code{code/subroutines}. Each routine has a help text
+(\code{help <name>}) that documents its input and output. The call graph is short:
+the studies of the paper lift a mesh to degree $p$ (\code{usemBuildModel},
+\code{pSpectralElement_NodesTopology}), compute element matrices (\code{Ke_2D} or its
+vectorized form \code{cyl_Ke_PM}) from the shape functions, and solve with
+\texttt{MATLAB}'s direct solver.
 
 \section{Element technology}
 
@@ -70,51 +20,47 @@ global variables. \code{help}~\code{<name>} shows the interface of every routine
     with $\tilde{\matr B}_\mathrm{L}=\det(\matr J)\,\matr B_\mathrm{L}$, built
     with $\adj(\matr J)$ (default $2p$ Gauss
     points per direction) \\
-  \code{ElementMatrices/Me_2D(p, rho, x, y, lumping [, nIPxi, nIPeta])} &
-    unsymmetric element mass, lumping 1--4 \\
-  \code{ElementMatrices/KMe_2D(p, C, rho, x, y, lumping)} & stiffness and mass in
-    one loop (dynamic, modal and frequency-domain analyses) \\
   \code{ShapeFunctions/2D/ShapeFunctions2D_SEM(xi, eta, p)} & parametric (test)
     shape functions and $\partial/\partial\xi$, $\partial/\partial\eta$;
     \texttt{[nNodes x nPoints]} arrays \\
   \code{ShapeFunctions/2D/ShapeFunctions2D_Metric(xQ, yQ, xN, yN, p [, method, xiQ])} &
     metric (trial) shape functions and $\partial/\partial x$, $\partial/\partial y$;
-    \code{method} 1 = $\mathcal Q_p$ in skew coordinates (default), 0 = global coordinates,
+    \code{method} 1 = $\mathcal Q_p$ in skew coordinates (default),
     2 = hybrid space (\cref{sec:metric-hybrid}; \code{xiQ}: local coordinates of the
     query points); empty \code{method}: \code{p.metricMethod}; basis of the
     Vandermonde matrix from \code{p.metricBasis} (default \code{'lagrange'},
     \cref{ch:metric-basis}); optional 4th output $\matr V$ \\
+  \code{ShapeFunctions/2D/ShapeFunctions2D_MetricHybrid} & hybrid space \\
+  \code{ShapeFunctions/2D/CheckUnisolvent(V, px, py)} & error if $\matr V$ is singular
+    to working precision \\
+  \code{ShapeFunctions/2D/KronRows(A, B)} & column-wise Kronecker product \\
   \code{ShapeFunctions/2D/ReferenceNodes2D(p)} & local coordinates of the element
     nodes in the order of \code{ShapeFunctions2D_SEM} \\
   \code{ShapeFunctions/2D/CorotationalSkewCoordinates(xQ, yQ, xN, yN, p)} & skew
     coordinates $(s,t)$ and $\matr J_0$ \\
   \code{ShapeFunctions/2D/ShapeFunctions2D_4nodes}, \code{_8nodes} & bilinear and
     Serendipity functions (geometry of the input mesh) \\
-  \code{ShapeFunctions/2D/ShapeFunctions2D_Metric_Tria} & unfinished metric
-    functions for triangles ($p\le2$, not used) \\
   \code{ShapeFunctions/1D/LagrangePolynomials(x)} & 1D Lagrange polynomials
-    (barycentric form) as function handles \\
+    (barycentric form) as function handles; with the helpers
+    \code{LagrangeBarycentric}, \code{LagrangeBarycentricDerivative},
+    \code{LagrangeNodePolynomial}, \code{LagrangeNodeDerivative} \\
   \code{ShapeFunctions/1D/ShapeFunctions1D_SEM(p, xi, ndist)} & 1D shape
     functions, order \code{[xi=-1, xi=+1, interior]} \\
   \code{ShapeFunctions/1D/PolynomialBasis1D(s, n, basis, ndist)} & 1D bases
     (monomial, Legendre, Chebyshev, Lagrange on the reference nodes) and their
     derivatives, vectorized \\
   \code{GeometryMapping/Global2LocalNewton(xQ, yQ, xN, yN, p)} & inverse mapping
-    $\vect x\mapsto(\xi,\eta)$ by Newton's method, vectorized, no toolbox \\
+    $\vect x\mapsto(\xi,\eta)$ by Newton's method, vectorized \\
   \code{GeometryMapping/Jacobi_Matrix(p, [xi, eta], x, y)} &
     $\matr J = [x_{,\xi}\ y_{,\xi};\ x_{,\eta}\ y_{,\eta}]$ \\
   \code{GeometryMapping/Local2GlobalCoordinatesQuad(p, P, [x, y])} &
     $\vect x(\xi,\eta)$ \\
-  \code{GeometryMapping/Global2LocalCoordinatesQuad} & inverse map with
-    \code{fsolve} (Optimization Toolbox) \\
   \code{Quadrature/lgwt(n, a, b)} & Gauss-Legendre points and weights
     (G.~von Winckel) \\
   \code{Quadrature/lglnodes(N)} & $N+1$ Gauss-Lobatto-Legendre points and
     weights (G.~von Winckel) \\
   \code{NodalDistribution/nodal_distribution(p, ndist)} & supporting points on
-    $[-1,1]$ \\
-  \code{Lumping/RowSum_Method}, \code{HRZ_Method} & lumping of an element mass
-    matrix \\
+    $[-1,1]$ (\code{equispaced_nodes}, \code{lglnodes}, \code{cgl_nodes}) \\
   \bottomrule
 \end{xltabular}
 
@@ -125,143 +71,57 @@ global variables. \code{help}~\code{<name>} shows the interface of every routine
   routine & purpose \\
   \midrule
   \endhead
+  \code{ReadInputFileAbaqus/Read_mesh_ABAQUS(file)} & nodes and 8-node elements of an
+    \texttt{ABAQUS} input file \\
   \code{Topology/pSpectralElement_NodesTopology(T, x, y, p, p_org)} & creates the
     edge and interior nodes of degree $p$ from the 4-node ($p_\mathrm{org}=1$) or
     8-node ($p_\mathrm{org}=2$) mesh; shared edges get the same nodes, in flipped
     order for opposite orientation \\
+  \code{Topology/CheckCoincidentNodes} & error if an element has coincident nodes \\
   \code{Topology/Topology_Edge_2D(T)} & global edge numbers \texttt{[nElem x 4]}
     (edges 1-2, 2-3, 3-4, 4-1) \\
   \code{Topology/ConnectivityEdgeElement(TE)} & elements and local edge numbers of
     every edge \\
-  \code{Topology/ConnectivityNodeElement(T)} & elements of every node \\
-  \code{Topology/Boundary_Edges(TE)} & boundary edges
-    \texttt{[element, local edge, edge]} \\
   \code{Topology/Topology_DoF_2D(T)} & DOF connectivity, node $n\mapsto$ DOFs
     $2n-1$, $2n$ \\
-  \code{Topology/AlignPolynomialDegrees(T, p)} & $p_\upxi = p_\upeta$ if the local
-    axes of two neighbouring elements are not aligned \\
-  \code{MeshDistortion/distort_mesh(X, T, type, ...)} & random distortion of
-    interior nodes with a $\det(\matr J)$ safeguard (\code{type} \code{'Q4'} or
-    \code{'Q8'}; stand-alone) \\
-  \code{MeshDistortion/distort_single_element} & distortion of the element
-    closest to the centre \\
   \bottomrule
 \end{xltabular}
 
 \section{Material}
 
-Voigt notation \texttt{[11 22 33 12 23 13]} with engineering shear strains.
-
 \begin{xltabular}{\linewidth}{@{}P{6.4cm}L@{}}
   \toprule
   routine & purpose \\
   \midrule
-  \code{HookeMatrix3d(E, nu)} & isotropic $6\times6$ stiffness \\
-  \code{HookeMatrix3d_ortho(E, G, nu)} & orthotropic $6\times6$ stiffness \\
-  \code{HookeMatrix3d_transiso(EL, ET, GLT, nuLT, nuTT)} & transversely isotropic
-    (fibre direction 1) \\
-  \code{RotationHooke(C, phi, axis)} & rotation of a $6\times6$ stiffness about
-    \code{'x'}, \code{'y'} or \code{'z'} (angle in rad) \\
-  \code{PlaneStressConstitutiveMatrices(C)} & static condensation of
+  \code{Material/HookeMatrix3d(E, nu)} & isotropic $6\times6$ stiffness \\
+  \code{Material/PlaneStressConstitutiveMatrices(C)} & static condensation of
     $\sigma_{33}=0$, $3\times3$ matrix \\
-  \code{PlaneStrainConstitutiveMatrices(C)} & in-plane sub-matrix, $3\times3$ \\
-  \code{HookeMatrix2d(E, nu, antype)} & closed-form $3\times3$ matrices
+  \code{Material/HookeMatrix2d(E, nu, antype)} & closed-form $3\times3$ matrices
     (1 plane stress, 2 plane strain) \\
-  \code{MaterialMatrices(props, antype)} & plane matrices, densities and damping
-    entries of all materials of an input file (isotropic or orthotropic) \\
   \bottomrule
 \end{xltabular}
 
-\section{Assembly, boundary conditions and loads}
+\section{Routines of the studies}
 
 \begin{xltabular}{\linewidth}{@{}P{6.4cm}L@{}}
   \toprule
   routine & purpose \\
   \midrule
   \endhead
-  \code{Assembly/AssemblyFEM(T, p, x, y, nElem, nDoF, C, rho, nMat, mass_matrix, elsets, alpha, beta, zeta, flag_comp)} &
-    sparse global $\matr K$, $\matr M$, $\matr R = \alpha\matr M + \beta\matr K$
-    (only elements with damping). \code{flag_comp}: 0 = $\matr K$; 1 = $\matr K$,
-    $\matr M$; 2 = $\matr K$, $\matr M$ and the critical time step
-    $\Delta t = 0.99\cdot 2/\omega_{\max}$ from element eigenvalues. Optional
-    6th output \code{ElemData}: element matrices and DOF connectivity (adaptive
-    hybrid explicit method) \\
-  \code{BoundaryConditions/Dirichlet/DirichletBCs_homogeneous(bc)} & constrained
-    DOFs \code{[DOF_C, NOI]} (\code{fixed}, \texttt{UxUy 0}, \code{XSYMM}/\texttt{Ux 0},
-    \code{YSYMM}/\texttt{Uy 0}; \code{noi} gives the nodes of interest) \\
-  \code{BoundaryConditions/Dirichlet/DirichletBCs_nonhomogeneous(K, F, nDoF, bc, x, y)} &
-    prescribed values by elimination: $\vect F \leftarrow \vect F - \matr
-    K_{:,b}\bar{\vect u}_b$, rows and columns $b$ set to zero, diagonal kept,
-    $F_b = K_{bb}\bar u_b$ \\
-  \code{BoundaryConditions/Dirichlet/DirichletBCs_nonhomogeneous_dynamic(K, C, M, ...)} &
-    lifting of constant and time-dependent prescribed displacements; load parts
-    multiplied by $s(t)$, $\dot s(t)$, $\ddot s(t)$ \\
-  \code{BoundaryConditions/Dirichlet/SpatialDisplacementFunction} & polynomial
-    equilibrium fields for higher-order patch tests ($p$ and $\nu = 0.3$
-    hard-coded) \\
-  \code{BoundaryConditions/Dirichlet/HigherOrderDisplacementField.m} & script
-    (Symbolic Math Toolbox) that generates those fields \\
-  \code{BoundaryConditions/Neumann/NeumannBCs(p, cload, dsload, body_force, gravity, MAT, nDoF, T, x, y, nNodes [, flag_mRHS])} &
-    load vectors \code{[F, F_dt]} (constant and time-dependent part); with
-    \code{flag_mRHS} one column per load \\
-  \code{CreateForce}, \code{CreatePress}, \code{CreateTraction},
-    \code{CreateBload}, \code{CreateGravity} & individual loads (edge integrals
-    with $p+1$ Gauss points, area integrals with $(p+1)^2$) \\
-  \code{BoundaryConditions/Neumann/SpatialLoadingFunction} & spatially varying
-    edge loads (Lee-Bathe cubic patch test) \\
-  \code{BoundaryConditions/pSpectralElement_BCs(dsload, bc, T, p, p_org)} & adds
-    the high-order edge nodes to the node sets of loads and boundary conditions
-    that have an element set \\
-  \bottomrule
-\end{xltabular}
-
-The analyses and time integrators are described in \cref{ch:analyses}.
-
-\section{Post-processing and utilities}
-
-\begin{xltabular}{\linewidth}{@{}P{6.4cm}L@{}}
-  \toprule
-  routine & purpose \\
-  \midrule
-  \code{Visualization/PlotResults(model, settings, u)} & the plots selected in the
-    settings, with an automatic scale of the deformation \\
-  \code{Visualization/Contour_plot(p, x, y, U, scale, fields, T, C, elsets, flag_ave, alpha)} &
-    contour plots on the deformed mesh (\code{'ux'}, \code{'uy'}, \code{'mag'},
-    \code{'Mises'}, \code{'sigma_x'}, \code{'sigma_y'}, \code{'tau_xy'},
-    \code{'epsilon_x'}, \code{'epsilon_y'}, \code{'gamma_xy'}), evaluated with the
-    metric functions on $(20p+1)^2$ points per element \\
-  \code{Calc_results}, \code{Results_Stress_Strain}, \code{stress_averaging} &
-    field evaluation and nodal averaging \\
-  \code{Visualization/Discretization/FE_Mesh} & mesh plot with loads and
-    boundary conditions \\
-  \code{Visualization/Colormap} & diverging colour map (Moreland),
-    \code{maxdistcolor} (S.~Cobeldick, BSD licence) \\
-  \code{Misc/strain_energy(K, u)} & $\tfrac12\vect u^{\T}\matr K\vect u$ \\
-  \code{Misc/RotateFeMatrix}, \code{Misc/quadmesh} & utilities \\
-  \code{MMS_2D/} & method of manufactured solutions (Symbolic Math Toolbox):
-    displacement and body-load functions for convergence studies; not connected
-    to \code{Start_Sim} \\
+  \code{manuscript/studies/ms_Ke}, \code{ms_Me}, \code{ms_assemble_KM} & element stiffness
+    and consistent mass of \PP, \PM\ and \PH, global $\matr K$, $\matr M$ with the
+    calibrated rules \\
+  \code{manuscript/studies/ms_lebesgue} & Lebesgue constants of one element \\
+  \code{manuscript/studies/ms_write_table} & writes a table file \\
+  \code{studies/thick_cylinder/matlab/cyl_*} & model with exact arcs, element
+    stiffness (\code{cyl_Ke_PM}, \code{cyl_Ke_PP}), assembly, loads, Dirichlet
+    conditions, errors and diagnostics of the thick cylinder \\
+  \code{studies/rajendran_panel/matlab/rp_*} & model, exact solutions, loads and
+    supports of the panel \\
   \bottomrule
 \end{xltabular}
 
 \section{Third-party code}
 
-\begin{xltabular}{\linewidth}{@{}P{6.0cm}P{4.6cm}L@{}}
-  \toprule
-  code & author & licence \\
-  \midrule
-  \code{Quadrature/lgwt.m}, \code{Quadrature/lglnodes.m} & Greg von Winckel
-    (\texttt{MATLAB} File Exchange) & BSD (File Exchange); no licence file in the
-    repository \\
-  \code{Visualization/Colormap/MaxDistColor/*} & Stephen Cobeldick & BSD-3,
-    \code{license.txt} \\
-  \code{Visualization/Colormap/Diverging/diverging_map.m} & after Kenneth
-    Moreland, by Andy Stein & none given \\
-  \code{Misc/quadmesh.m} & Allan P.~Engsig-Karup (based on MathWorks'
-    \code{trimesh}) & none given \\
-  \code{.../Pade/MatrixExponential/expm2.m}, \code{expm3.m} & I.~Kuprov (\texttt{Spinach});
-    Bader, Blanes \& Casas (with MathWorks code) & see file headers \\
-  \bottomrule
-\end{xltabular}
-
-The project itself is published under the MIT licence (\code{LICENSE}).
+\code{lgwt} and \code{lglnodes} are by G.~von Winckel (File Exchange); they keep the
+notices in their file headers.

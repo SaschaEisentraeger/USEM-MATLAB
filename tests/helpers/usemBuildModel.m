@@ -1,22 +1,16 @@
-function model = usemBuildModel(nodes, topo, pdeg, ndist)
+function model = usemBuildModel(nodes, topo, pdeg)
 %USEMBUILDMODEL Lift a linear/quadratic mesh to spectral elements.
 %
-%   model = usemBuildModel(nodes, topo, pdeg, ndist) runs
-%   pSpectralElement_NodesTopology in the same way as Start_Sim.m does and
-%   returns a struct with the fields
-%       p              polynomial degree structure (pxi, peta, ndist)
+%   model = usemBuildModel(nodes, topo, pdeg) runs
+%   pSpectralElement_NodesTopology and returns a struct with the fields
+%       p              polynomial degree structure (pxi, peta)
 %       p_org          degree of the input mesh (1: 4-node, 2: 8-node)
 %       Topology_Node  connectivity of the spectral elements
 %       xCoor, yCoor   nodal coordinates
 %       num_Elem, num_Nodes, num_DoF
 
-if nargin < 4
-    ndist = 2;                      % GLL nodes (the default in Start_Sim)
-end
-
 p.pxi   = pdeg;
 p.peta  = pdeg;
-p.ndist = ndist;
 
 if size(topo, 2) == 4
     p_org = 1;

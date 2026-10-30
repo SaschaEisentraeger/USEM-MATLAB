@@ -1,0 +1,95 @@
+\chapter{Reproducing the results of the paper}
+\label{ch:reproducing}
+
+The code on this branch is the minimal code base of the paper \enquote{Unsymmetric
+spectral elements with hybrid trial space} (\code{manuscript/}). It contains only
+the routines that are needed to reproduce the numbers, tables and figures of the
+paper. The general-purpose code (analysis driver, time integration, modal and
+frequency-domain analyses, \texttt{ABAQUS} readers for loads and boundary conditions,
+visualization) is available on the branch \code{main}.
+
+\section{Requirements}
+
+All studies were computed with \texttt{MATLAB} R2026a. The thick-cylinder study
+needs the Symbolic Math Toolbox (\code{cyl_problem}, derivation of the manufactured
+fields); all other studies and the tests need base \texttt{MATLAB} only. The run
+scripts need \code{bash}, the post-processing Python 3 without further packages, and
+the manuscript a \LaTeX\ distribution with \code{pgfplots}. The meshes in
+\code{studies/*/mesh} are under version control; regenerating them needs
+\code{gmsh} and its Python interface.
+
+\section{Running the studies}
+
+The scripts in \code{manuscript/studies} run several batch sessions side by side and
+write their logs to \code{manuscript/studies/logs}:
+\begin{lstlisting}[style=shell]
+cd manuscript/studies
+bash run_calibration.sh   # Gauss rules of all studies (data/quadrature)
+bash run_reruns.sh        # mesh-level studies, thick cylinder
+bash run_element.sh       # element-level studies, panel, timing
+bash run_postprocess.sh   # plot data and tables (data/, generated/)
+\end{lstlisting}
+The order of the first two scripts matters, because the studies read the calibrated
+rules. \code{run_element.sh} runs the timing study last and alone; its numbers
+depend on the machine.
+
+\section{Which study produces which result}
+
+\begin{xltabular}{\linewidth}{@{}P{5.6cm}L@{}}
+  \toprule
+  script & result in the paper \\
+  \midrule
+  \endhead
+  \code{ms_quadrature_calibration}, \code{ms_calibrate}, \code{ms_rule},
+    \code{quadrature_table.py} & calibrated Gauss rules (\code{data/quadrature},
+    \code{generated/tab_quadrule.tex}) \\
+  \code{ms_deviation_check} & deviation $d_\mathrm{K}$ with calibrated rules \\
+  \code{ms_element_study} & conditioning, Kronecker property, asymmetry and Lebesgue
+    constants on the single elements (\code{data/element-*.dat}) \\
+  \code{ms_distortion_sweep} & Lebesgue constants versus the distortion
+    (\code{data/sweep-*.dat}) \\
+  \code{ms_perturbation}, \code{ms_scaling_split} & deviation from the conventional
+    element, effect of the scaling (\code{data/perturbation-*.dat},
+    \code{data/scaling-split.dat}) \\
+  \code{ms_mesh_figures} & element and mesh plots (\code{data/shape-*.dat},
+    \code{data/mesh32-*.dat}, \code{data/square-*.dat}) \\
+  \code{ms_spectrum} & patch tests and eigenvalues on the $3\times2$ meshes
+    (\code{data/spectrum-*.dat}, \code{generated/patch.tex},
+    \code{generated/spectrum.tex}) \\
+  \code{ms_growth} & growth exponents (\code{data/growth-*.dat},
+    \code{generated/growth.tex}) \\
+  \code{ms_transient} & free vibration with the trapezoidal rule
+    (\code{data/transient-*.dat}) \\
+  \code{ms_convergence} & convergence on the unit square (\code{data/conv-*.dat},
+    \code{generated/rates-*.tex}) \\
+  \code{ms_timing} & run times (\code{data/timing.dat}) \\
+  \code{studies/rajendran_panel/matlab/rp_run} & patch tests on the folded panel meshes
+    (\code{data/panel/patch.csv}, \code{generated/panel.tex}) \\
+  \code{ms_cylinder} (\code{run_study}, \code{run_interpolation_study}) & thick
+    cylinder with the calibrated rules
+    (\code{studies/thick_cylinder/results/raw_calibrated}, \code{data/cyl*},
+    \code{generated/cyl-lame.tex}, \code{tab_cylpoly.tex}, \code{tab_lebesgue.tex},
+    \code{tab_quasiopt.tex}, \code{tab_rates.tex}) \\
+  \code{run_study(90, 8, 6, ...)} & thick cylinder with the $2p$ rule, values quoted in
+    the text (\code{results/raw/study_a090.csv}) \\
+  \code{cyl_smin}, \code{cyl_spectrum_check} & singular values of the global stiffness
+    matrices quoted in the text (\code{results/smin.txt},
+    \code{results/spectrum_smooth.txt}) \\
+  \code{unisolvence_check} & Vandermonde matrices on the thick-cylinder meshes
+    (\code{data/unisolvence.txt}, \code{generated/tab_unisolvence.tex}) \\
+  \code{frame_check} & coordinates of the complete polynomials, Appendix B
+    (\code{data/frames.txt}) \\
+  \bottomrule
+\end{xltabular}
+
+The values obtained with the former $2p$ rule on the folded square meshes in the
+section on convergence are not recomputed by these scripts; they are taken from the
+git history of \code{data/conv-d030.dat}, as a comment in \code{numerics.tex} states.
+
+\section{Eigenvalue and transient studies}
+
+The paper examines the spectrum and the free vibration of the discrete system, since
+they reveal the loss of stability of the unsymmetric system. The consistent mass
+matrix (\code{ms_Me}), the assembly of $\matr K$ and $\matr M$ (\code{ms_assemble_KM})
+and the trapezoidal rule (\code{ms_transient}) are therefore part of
+\code{manuscript/studies}. The code base in \code{code/} itself contains no dynamics.

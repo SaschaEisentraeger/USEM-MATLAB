@@ -49,7 +49,7 @@ for alpha = alphas
     fname = fullfile(outdir, sprintf('study_a%03d.csv', alpha));
     fid = fopen(fname, 'w');
     fprintf(fid, ['problem,form,alpha,N,p,ndof,energy,L2,nodal,energySigned,' ...
-                  'minDetJ,negDetJ,area,lebesgue,lebesgueGLL,condV,condKe,condK\n']);
+                  'minDetJ,negDetJ,area,lebesgue,lebesgueGLL,condV\n']);
     fclose(fid);
     for N = Ns
         inp = fullfile(inpDir, sprintf('ThickCylinder_N%d_a%03d.inp', N, alpha));
@@ -57,7 +57,7 @@ for alpha = alphas
             t0 = tic;
             model = cyl_model(inp, pdeg);
             rows = {};
-            dg = cyl_diagnostics(model, C);
+            dg = cyl_diagnostics(model);
             leb = struct('PM', dg.lebesgue, 'PH', dg.lebesguePH, 'PP', dg.lebesgueGLL);
             cV = struct('PM', dg.condV, 'PH', dg.condVPH, 'PP', NaN);
             for f = 1:numel(forms)
@@ -68,7 +68,7 @@ for alpha = alphas
                     % trial space rejected by the code base on this mesh
                     if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
                     for k = 1:numel(kinds)
-                        rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,NaN,NaN,NaN,NaN,%.6e,%d,%.15e,NaN,NaN,NaN,NaN,NaN\n', ...
+                        rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,NaN,NaN,NaN,NaN,%.6e,%d,%.15e,NaN,NaN,NaN\n', ...
                             kinds{k}, forms{f}, alpha, N, pdeg, model.num_DoF, ...
                             model.minDetJ, model.negDetJ, model.area); %#ok<AGROW>
                     end
@@ -76,19 +76,13 @@ for alpha = alphas
                 end
                 for k = 1:numel(kinds)
                     F = cyl_loads(model, prob{k}, max(3*pdeg + 2, nqK));
-                    [u, uEx, act] = cyl_solve(model, K, F, prob{k});
-                    if k == 1
-                        % 1-norm condition estimate (symmetry BCs); costly,
-                        % therefore only for the coarse meshes
-                        if N <= 2, condK = condest(K(act, act)); else, condK = NaN; end
-                    end
+                    [u, uEx] = cyl_solve(model, K, F, prob{k});
                     er = cyl_errors(model, u, uEx, prob{k}, C, forms{f}, max(3*pdeg + 2, nqK + 4), ref{k});
-                    rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,%.6e,%.6e,%.6e,%.6e,%.6e,%d,%.15e,%.6e,%.6e,%.6e,%.6e,%.6e\n', ...
+                    rows{end+1} = sprintf('%s,%s,%d,%d,%d,%d,%.6e,%.6e,%.6e,%.6e,%.6e,%d,%.15e,%.6e,%.6e,%.6e\n', ...
                         kinds{k}, forms{f}, alpha, N, pdeg, model.num_DoF, ...
                         er.energy, er.L2, er.nodal, er.energySigned, ...
                         model.minDetJ, model.negDetJ, model.area, ...
-                        leb.(forms{f}), dg.lebesgueGLL, cV.(forms{f}), ...
-                        dg.(['condKe' forms{f}]), condK);
+                        leb.(forms{f}), dg.lebesgueGLL, cV.(forms{f}));
                 end
             end
             fid = fopen(fname, 'a');

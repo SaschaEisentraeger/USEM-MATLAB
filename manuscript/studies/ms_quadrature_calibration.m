@@ -32,7 +32,7 @@ outDir = fullfile(dataDir, 'quadrature');
 if ~exist(outDir, 'dir'), mkdir(outDir); end
 forms = {'PP', 'PM', 'PH'};
 withMass = false;
-C = HookeMatrix2d(1, 0.3, 1);
+C = HookeMatrix2d(1, 0.3);
 
 if startsWith(family, 'conv')
     delta = str2double(family(5:end))/100;

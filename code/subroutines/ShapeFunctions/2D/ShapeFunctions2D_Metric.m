@@ -34,18 +34,15 @@
 % p:            Polynomial degree template
 % p.pxi:     	Polynomial degree in x
 % p.peta:     	Polynomial degree in y
-% p.ndist:      Nodal distribution (reference nodes of the 'lagrange' basis)
 % p.metricBasis:Optional, basis of the generalized Vandermonde matrix in
 %               skew coordinates (method = 1): 'lagrange' (default),
 %               'legendre', 'chebyshev' or 'monomial' (see PolynomialBasis1D)
 % p.metricMethod: Optional, default for method (1 if absent)
-% method:       Optional, 0: centroid-shifted global coordinates (always
-%               monomials), 1: corotational skew coordinates (default),
+% method:       Optional, 1: corotational skew coordinates (default),
 %               2: hybrid space P_m(x,y) + {L_a(xi)L_b(eta): a+b > m},
 %               m = min(pxi,peta)
-%               (see metricHybrid below); empty: p.metricMethod
-% xiQ:          Optional (method = 2), local coordinates [xi, eta] of the
-%               query points; computed by Newton's method if absent
+%               (ShapeFunctions2D_MetricHybrid); empty: p.metricMethod
+% xiQ:          Local coordinates [xi, eta] of the query points (method = 2)
 %-------------------------------------------------------------------------%
 %% Output
 %
@@ -59,8 +56,7 @@
 function [N,dNx,dNy,V] = ShapeFunctions2D_Metric(xQ,yQ,xN,yN,p,method,xiQ)
 
 if nargin < 6 || isempty(method)
-    % Global (Cartesian) coordinates: 0
-    % Corotational skew coordinates:  1
+    % Corotational skew coordinates: 1
     % Hybrid space:                   2
     if isfield(p,'metricMethod')
         method = p.metricMethod;
@@ -70,9 +66,6 @@ if nargin < 6 || isempty(method)
 end
 
 if method == 2
-    if nargin < 7 || isempty(xiQ)
-        xiQ = Global2LocalNewton(xQ,yQ,xN,yN,p);
-    end
     [N,dNx,dNy,V] = ShapeFunctions2D_MetricHybrid(xQ(:),yQ(:),xN(:),yN(:),p,xiQ);
     return
 end
@@ -87,47 +80,21 @@ nN = (px+1)*(py+1);
 % Number of query points
 nQ = numel(xQ);
 
-if method == 1
-    % Non-dimensional skew coordinates (query points)
-    [xQ,yQ,J] = CorotationalSkewCoordinates(xQ,yQ,xN,yN,p);
+% Non-dimensional skew coordinates (query points)
+[xQ,yQ,J] = CorotationalSkewCoordinates(xQ,yQ,xN,yN,p);
 
-    % Non-dimensional skew coordinates (nodes)
-    [xN,yN] = CorotationalSkewCoordinates(xN,yN,xN,yN,p);
-else
-	% Standard definition according to Refs. [1,2]
-	% Centroid of the element
-	xC = mean(xN);
-	yC = mean(yN);
-
-	% Nodal coordinates relative to centroid
-	xN = xN - repmat(xC,nN,1);
-	yN = yN - repmat(yC,nN,1);
-
-	% Query point coordinates relative to centroid
-	xQ = xQ - repmat(xC,nQ,1);
-	yQ = yQ - repmat(yC,nQ,1);
-end
+% Non-dimensional skew coordinates (nodes)
+[xN,yN] = CorotationalSkewCoordinates(xN,yN,xN,yN,p);
 
 % Polynomial basis of the metric space Q_p. The shape functions do not
 % depend on this choice (in exact arithmetic), but the condition number of
 % the generalized Vandermonde matrix does: it grows exponentially with p for
 % monomials and is 1 for the Lagrange basis of the reference element on
 % affine elements (see PolynomialBasis1D)
-if method == 1
-    if isfield(p,'metricBasis')
-        basis = p.metricBasis;
-    else
-        basis = 'lagrange';
-    end
+if isfield(p,'metricBasis')
+    basis = p.metricBasis;
 else
-    % Dimensional global coordinates: the reference interval [-1,1] has
-    % no meaning, keep the monomials of Refs. [1,2]
-    basis = 'monomial';
-end
-if isfield(p,'ndist')
-    ndist = p.ndist;
-else
-    ndist = 2;
+    basis = 'lagrange';
 end
 
 % The Legendre, Chebyshev and Lagrange bases are defined on [-1,1]. On
@@ -149,10 +116,10 @@ if ~strcmpi(basis,'monomial')
 end
 
 % One-dimensional bases at the nodes and at the query points
-[Vx,~]    = PolynomialBasis1D(xN,px,basis,ndist);
-[Vy,~]    = PolynomialBasis1D(yN,py,basis,ndist);
-[Qx,dQx]  = PolynomialBasis1D(xQ,px,basis,ndist);
-[Qy,dQy]  = PolynomialBasis1D(yQ,py,basis,ndist);
+[Vx,~]    = PolynomialBasis1D(xN,px,basis);
+[Vy,~]    = PolynomialBasis1D(yN,py,basis);
+[Qx,dQx]  = PolynomialBasis1D(xQ,px,basis);
+[Qy,dQy]  = PolynomialBasis1D(yQ,py,basis);
 
 % Generalized Vandermonde matrix (transpose): V(c,k) = phi_c(x_k), with
 % phi_c(x,y) = phi_j(x)*phi_i(y), c = i*(px+1) + j + 1
@@ -170,18 +137,12 @@ CheckUnisolvent(V,px,py);
 dV = decomposition(V);
 N  = dV\P;
 
-if method == 1
-    % Derivatives w.r.t. to the skew corotational coordinates
-    dNxi = (dV\Px)/sx;
-    dNeta = (dV\Py)/sy;
-    % Derivatives w.r.t. to the global coordinates
-    gradN = J\[reshape(dNxi,1,[]);reshape(dNeta,1,[])];
-    dNx = reshape(gradN(1,:),nN,nQ);
-    dNy = reshape(gradN(2,:),nN,nQ);
-else
-    % Derivatives w.r.t. to the global coordinates
-    dNx = dV\Px;
-    dNy = dV\Py;
-end
+% Derivatives w.r.t. to the skew corotational coordinates
+dNxi = (dV\Px)/sx;
+dNeta = (dV\Py)/sy;
+% Derivatives w.r.t. to the global coordinates
+gradN = J\[reshape(dNxi,1,[]);reshape(dNeta,1,[])];
+dNx = reshape(gradN(1,:),nN,nQ);
+dNy = reshape(gradN(2,:),nN,nQ);
 
 end

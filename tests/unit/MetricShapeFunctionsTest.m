@@ -86,22 +86,6 @@ classdef MetricShapeFunctionsTest < matlab.unittest.TestCase
             tc.verifyEqual(dNy1(:)', G0(2,:), 'AbsTol', 1e-8);
         end
 
-        function globalCoordinateVariantIsFrameDependent(tc)
-            % method = 0 (centroid-based Cartesian monomials, Rajendran &
-            % Liew 2003) is NOT rotation invariant for p >= 2. This is the
-            % reason why the code uses skew coordinates by default.
-            [x, y, P] = usemTestElement('general', 2);
-            [xq, yq] = interiorPoints(P, x, y);
-            N0 = ShapeFunctions2D_Metric(xq, yq, x, y, P, 0);
-            th = 0.7; R = [cos(th) -sin(th); sin(th) cos(th)];
-            XY = [x y]*R'; XYq = [xq yq]*R';
-            N1 = ShapeFunctions2D_Metric(XYq(:,1), XYq(:,2), XY(:,1), XY(:,2), P, 0);
-            tc.verifyGreaterThan(max(abs(N1(:) - N0(:))), 1e-4);
-            % ... but it is still complete in (x, y)
-            f = x.^2 + 3*x.*y - y.^2;
-            tc.verifyEqual(N0'*f, xq.^2 + 3*xq.*yq - yq.^2, 'AbsTol', 1e-9);
-        end
-
         function singularInterpolationIsRejected(tc)
             % interior node moved onto the mid-side node of edge 3: the
             % metric shape functions are undefined

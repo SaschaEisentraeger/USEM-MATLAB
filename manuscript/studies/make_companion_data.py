@@ -57,30 +57,24 @@ def read_interp(alpha):
                 for r in csv.DictReader(f)}
 
 
-def write_convergence_tables(pr, fo, a):
-    """data/cyl_h_* (rows: N) and data/cyl_p_* (rows: p), NaN: case rejected."""
+def write_convergence_table(pr, fo, a):
+    """data/cyl_h_* (rows: N), NaN: case rejected."""
     Ns, ps = (1, 2, 4, 8), range(2, 9)
     D = read_cyl(a)
-    get = lambda N, p, k: float(D[(pr, fo, N, p)][k])
-    line = lambda vals: " ".join("nan" if math.isnan(v) else f"{v:.6e}" for v in vals) + "\n"
     with open(os.path.join(DATA, f"cyl_h_{pr}_{fo}_a{a:03d}.dat"), "w") as f:
         f.write(" ".join(["N", "h"] + [f"{k}{p}" for k in ("eE", "eL", "eN") for p in ps]) + "\n")
         for N in Ns:
-            f.write(line([N, 1.0 / N] + [get(N, p, k) for k in ("energy", "L2", "nodal") for p in ps]))
-    with open(os.path.join(DATA, f"cyl_p_{pr}_{fo}_a{a:03d}.dat"), "w") as f:
-        f.write(" ".join(["p"] + [f"{k}N{N}" for k in ("eE", "eL", "eN", "dof") for N in Ns]) + "\n")
-        for p in ps:
-            f.write(line([p] + [get(N, p, k) for k in ("energy", "L2", "nodal", "ndof") for N in Ns]))
+            vals = [N, 1.0 / N] + [float(D[(pr, fo, N, p)][k]) for k in ("energy", "L2", "nodal") for p in ps]
+            f.write(" ".join("nan" if math.isnan(v) else f"{v:.6e}" for v in vals) + "\n")
 
 
 def main():
     os.makedirs(DATA, exist_ok=True)
     os.makedirs(GEN, exist_ok=True)
-    # thick cylinder: h- and p-convergence tables
+    # thick cylinder: h-convergence tables
     for pr in ("smooth", "lame"):
         for fo in FORMS:
-            for a in (0, 15, 30, 45):
-                write_convergence_tables(pr, fo, a)
+            write_convergence_table(pr, fo, 30)
 
     # mesh plots (gmsh meshes of the two studies)
     for a in (0, 15, 30, 45, 60, 90):

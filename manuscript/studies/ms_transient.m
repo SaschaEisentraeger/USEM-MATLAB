@@ -21,7 +21,7 @@ if nargin < 3 || isempty(nPeriods), nPeriods = 50; end
 if nargin < 4 || isempty(stepsPerPeriod), stepsPerPeriod = 20; end
 [~, dataDir] = ms_setup();
 
-C = HookeMatrix2d(1, 0.3, 1);
+C = HookeMatrix2d(1, 0.3);
 [nodes, topo] = usemTestMesh(3, 2, 3, 2, 2);
 switch meshName
     case 'curved15',   nodes = usemDistortMesh(nodes, topo, 'curved', 0.15);

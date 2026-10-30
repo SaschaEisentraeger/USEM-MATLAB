@@ -71,6 +71,8 @@ def convergence(tag):
             r = [math.log2(e[i] / e[i + 1]) if e[i] > 0 and e[i + 1] > 0 else float('nan')
                  for i in range(len(e) - 1)]
             rates[(p, f)] = (r, e[-1])
+    if tag == 'd030':  # folded meshes: convergence plot only
+        return
     with open(os.path.join(GEN, 'rates-%s.tex' % tag), 'w') as f:
         f.write('\\begin{tabular}{@{}c' + 'rrr' * 3 + '@{}}\n\\toprule\n')
         f.write('& \\multicolumn{3}{c}{\\PP} & \\multicolumn{3}{c}{\\PM} '
@@ -195,7 +197,7 @@ def cylinder(raw=CYL, problem='lame'):
                     and r['form'] == form and r['problem'] == prob):
                 return val(r, key)
         return float('nan')
-    for p in range(2, 9):
+    for p in (4, 6, 8):
         cols = {'alpha': [], 'PP': [], 'PM': [], 'PH': [], 'nPP': [], 'nPM': [], 'nPH': [],
                 'lebPM': [], 'lebPH': []}
         for a in alphas:

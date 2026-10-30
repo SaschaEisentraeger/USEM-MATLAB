@@ -14,7 +14,6 @@
 % p:            Polynomial degree structure
 % p.pxi:      	Polynomial degree in xi
 % p.peta:      	Polynomial degree in eta
-% p.ndist:   	Nodal distribution
 % P:            Local coordinates of the point (that is mapped)
 % NodalCoor:    Global coordinates of the element nodes (geometry
 %               description)

@@ -1,81 +1,18 @@
 \chapter{Known limitations}
 \label{ch:issues}
 
-Tests that document an open bug get the tag \code{KnownIssue}. They are excluded
-from the default run and fail until the bug is fixed
-(\code{run_tests('KnownIssues', true)} includes them). There are currently no
-open \code{KnownIssue} tests.
-
 \begin{itemize}
-  \item \textbf{Default route of the dynamic analysis.} With
-    \code{flag_mRHS = true}, \code{Solver_Transient} ignores the method code and
-    runs the central difference method (codes below 300) or HHT-$\alpha$ (300 and
-    above), see \cref{sec:dynamic}.
-  \item \textbf{\texttt{ABAQUS} readers} expect the structure written by \texttt{ABAQUS/CAE}:
-    boundary-condition data lines must contain \code{Set}; sets must be defined in
-    the assembly; node labels must be consecutive from 1; in 8-node meshes the
-    corner nodes must be numbered first. Violations of the last three raise errors
-    instead of producing wrong data or endless loops (\cref{ch:input}).
+  \item \textbf{Mesh reader.} \code{Read_mesh_ABAQUS} reads the \code{*Node} block and
+    the first \code{*Element} block of the 8-node meshes of the two studies; node
+    labels are used as row numbers, and the corner nodes must be numbered first
+    (\code{pSpectralElement_NodesTopology} checks this).
   \item \textbf{Geometry.} The element geometry is that of the 4-node or 8-node
     input mesh, whatever the polynomial degree: the elements are subparametric for
     $p>2$, and curved boundaries do not become more accurate under
-    $p$-refinement. Placing the nodes on the exact geometry is not implemented
-    (\cref{ch:theory}).
+    $p$-refinement. Only the thick-cylinder study places the nodes of the arcs on the
+    exact geometry (\cref{ch:theory}).
   \item \textbf{Numerical integration.} $2p$ Gauss points per direction do not
     integrate the element matrices of curved elements exactly
-    (\cref{sec:quadrature}, subsection \enquote{\nameref{sec:quadrature}}); the patch tests are not affected.
-  \item \textbf{Modal and frequency-domain analyses} only honour homogeneous
-    Dirichlet conditions; the frequency-domain analysis ignores damping.
-  \item \textbf{Padé-based method (403)} integrates one load vector times one
-    amplitude history: the constant load \code{F} without a signal
-    (\code{SignalType = 0}), otherwise \code{F_dt.Neumann}$\,s(t)$. A constant
-    load combined with a signal and the lifting terms of time-dependent
-    prescribed displacements (\code{F_dt.K}, \code{.C}, \code{.M}) are not taken
-    into account; the other methods include all of them.
-  \item \textbf{HPTIM (501)} does not run. \code{HPTIM_Newmark} reads the signal
-    parameters from \code{ExciteParam(6)} and \code{ExciteParam(7)}, which no
-    signal type provides (harmonic signal 4: \code{[a, b, f0, f1]}), and fails
-    with a dimension error even when such parameters are given. The method is
-    kept in \code{TimeIntegrationMethods}, but not tested.
-  \item \code{ShapeFunctions2D_Metric_Tria} (triangles) is unfinished ($p\le2$) and
-    not used.
-  \item The result workspaces in \code{subroutines/Results/Static} (not under
-    version control), from which the reference fixtures are extracted, do not
-    agree with the current load routines: the load sign of the quadratic
-    Lee-Bathe cases is opposite. The regression tests therefore compare with the
-    analytical solution (\code{LeeBathePatchTest}).
-  \item \textbf{Unsymmetric matrices in dynamics.} Eigenvalues are not
-    guaranteed to be real and positive, and energy is not conserved, see
-    \cref{sec:unsymmetric}.
-  \item \textbf{Mirbagheri method (104)} converges with first order. This is by
-    design: the factor $\eta = 1.025$ on the acceleration term of the Noh-Bathe
-    predictor adds dissipation against spurious oscillations, and any
-    $\eta \ne 1$ makes the scheme first-order accurate.
-  \item \textbf{Open points in individual time integrators.} The following
-    observations come from a line-by-line review of the integrators. They are
-    not covered by the tests and have not been changed, since a change would
-    alter the numerical results:
-    \begin{itemize}
-      \item \code{KimMethod2Stage}: the weights of the stage velocity
-        \code{xmd1} add up to $(p-1)/p$ ($=-2$ for $p=1/3$) instead of 1, while
-        those of the stage displacement \code{xm1} add up to 1. Probably a sign
-        error in the \code{xdd13} term. The stage velocity enters only through
-        the damping term, so undamped results are not affected.
-      \item \code{KimMethodImplicit}: the first sub-step ends at
-        $t+\theta_{11}\Delta t$, but its load is evaluated at the beginning of
-        the step, $t$.
-      \item \code{KimLagrange_ho}: a prescribed time step (\code{dtmax(3)}) is
-        multiplied by the square of the integration order like the computed one,
-        so it is never used as given. The coefficients for order 5 are given
-        with 8 to 10 digits, which limits the attainable accuracy to about
-        $10^{-9}$.
-      \item \code{KimMethodExplicit}: the stability factor 1.8725 on the
-        critical time step of the central difference method is the value of the
-        Noh-Bathe method ($p=0.54$); it is used for all three parameter sets
-        of the method.
-      \item \code{SoaresMethodImplicit}: the parameters $\delta_1$ and
-        $\alpha_1$ are computed with the time step before it is adjusted to an
-        integer number of steps, and the frequency estimate uses only the
-        diagonals of $\matr K$ and $\matr M$.
-    \end{itemize}
+    (\cref{sec:quadrature}); the patch tests are not affected. The mesh-level studies
+    use calibrated rules.
 \end{itemize}

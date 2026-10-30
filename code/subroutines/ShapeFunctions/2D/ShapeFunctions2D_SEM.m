@@ -14,7 +14,6 @@
 % p:            Polynomial degree template
 % p.pxi:     	Polynomial degree in xi
 % p.peta:     	Polynomial degree in eta
-% p.ndist:   	Nodal distribution
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Output
@@ -53,24 +52,17 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [N,dNxi,dNeta] = ShapeFunctions2D_SEM(xiIP,etaIP,p)
 
-% Determine whether input is column vector or a matrix and convert to a row
-% vector
-if iscolumn(xiIP)
-    xiIP  = xiIP';
-    etaIP = etaIP';
-elseif ismatrix(xiIP)
-    xiIP  = reshape(xiIP,1,[]);
-    etaIP = reshape(etaIP,1,[]);
-end
+% Convert the input to row vectors
+xiIP  = reshape(xiIP,1,[]);
+etaIP = reshape(etaIP,1,[]);
 
 % Polynomial degree
 pxi = p.pxi;
 peta = p.peta;
-ndist = p.ndist;
 
 % Nodal distribution --> supporting points of the Lagrange polynomials
-xi  = nodal_distribution(pxi,ndist);
-eta = nodal_distribution(peta,ndist);
+xi  = nodal_distribution(pxi);
+eta = nodal_distribution(peta);
 
 % The shape functions are stored as Matlab's anonymous functions in 
 % Phi_mat_xi and Phi_mat_eta. See LagrangePolynomials.m for more 

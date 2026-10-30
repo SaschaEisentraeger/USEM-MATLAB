@@ -1,69 +1,51 @@
-# USEM: unsymmetric spectral element method (2D elasticity)
+# USEM: unsymmetric spectral elements with hybrid trial space (paper code)
 
-[![tests](https://github.com/SaschaEisentraeger/USEM-MATLAB/actions/workflows/tests.yml/badge.svg)](https://github.com/SaschaEisentraeger/USEM-MATLAB/actions/workflows/tests.yml)
+[![tests](https://github.com/SaschaEisentraeger/USEM-MATLAB/actions/workflows/tests.yml/badge.svg?branch=Minimal_Code_Paper)](https://github.com/SaschaEisentraeger/USEM-MATLAB/actions/workflows/tests.yml)
 
-MATLAB code for **high-order unsymmetric (Petrov-Galerkin) spectral elements** for linear
-plane elasticity: static, transient, modal and frequency-domain analysis.
+Minimal MATLAB code to reproduce all results of the paper *Unsymmetric spectral elements
+with hybrid trial space* (`manuscript/`). This branch contains only what the studies of the
+paper use. The general-purpose code (analysis driver, time integration, modal and
+frequency-domain analyses, ABAQUS input with loads and boundary conditions, visualization)
+is on the branch `main`.
 
-The element combines two sets of shape functions:
+The unsymmetric element combines two sets of shape functions:
 
 - **parametric test functions:** Lagrange polynomials of degree $p$ on Gauss-Lobatto-Legendre
   nodes, which keep the mesh conforming;
-- **metric trial functions:** Lagrange polynomials in corotational **skew coordinates**, which
-  are complete in Cartesian coordinates and frame-invariant.
+- **metric trial functions:** Lagrange polynomials in corotational **skew coordinates**
+  (trial space $Q_p(s,t)$), or the **hybrid trial space** $T_p$ of the paper: complete
+  polynomials of degree $p$ in skew coordinates, complemented by Legendre products in the
+  reference coordinates.
 
-The result reproduces every displacement field of total degree $\le p$ **exactly on
-arbitrarily distorted meshes** (angular and curved-edge distortion). It generalizes the
-unsymmetric 8-node element of Rajendran & Liew (2003) and Rajendran (2010) to arbitrary
-polynomial degree.
+The result reproduces every displacement field of total degree $\le p$ exactly on
+arbitrarily distorted meshes.
 
-## Features
+## Requirements
 
-- Quadrilateral spectral elements of arbitrary degree $p_\xi$, $p_\eta$ (GLL, equidistant or
-  Chebyshev nodes), lifted from 4-node or 8-node ABAQUS meshes.
-- Unsymmetric stiffness and mass matrices: consistent, GLL nodal quadrature (diagonal),
-  row-sum and HRZ lumping.
-- Isotropic and orthotropic materials, plane stress and plane strain.
-- Loads: nodal forces, pressure and traction (also spatially varying), body forces, gravity.
-  Dirichlet conditions: homogeneous, prescribed, time-dependent.
-- Analyses: static, transient (more than 20 explicit, implicit and higher-order time
-  integrators, including the adaptive hybrid explicit method of Soares 2020), modal,
-  harmonic frequency domain.
-- Contour plots of displacements, strains and stresses.
+MATLAB R2026a was used for all results. The thick-cylinder study needs the Symbolic Math
+Toolbox; all other studies and the tests need base MATLAB only. The run scripts need `bash`,
+the post-processing Python 3 (standard library), and the manuscript a LaTeX distribution
+with `pgfplots`.
 
-## Installation
+## Reproducing the paper
 
-Requirements: MATLAB R2018b or newer (developed with R2026a). The program and the tests
-need base MATLAB only; the Parallel Computing Toolbox is optional (parallel element
-assembly). Nothing has to be compiled: clone the repository and put the code on the path,
-
-```matlab
-addpath('path/to/USEM/code');
-SetupPaths         % adds code/subroutines (with subfolders) and the example input files
+```bash
+cd manuscript/studies
+bash run_calibration.sh   # Gauss rules of all studies (data/quadrature)
+bash run_reruns.sh        # mesh-level studies, thick cylinder
+bash run_element.sh       # element-level studies, panel, timing
+bash run_postprocess.sh   # plot data and tables (data/, generated/)
 ```
 
-## Quick start
+Then build the paper:
 
-```matlab
-run('path/to/USEM/code/Start_Sim.m')   % static Lee & Bathe cubic patch test, distorted mesh, p = 3
+```bash
+cd manuscript
+latexmk -pdf "Unsymmetric Spectral Elements with Hybrid Trial Space.tex"
 ```
 
-The model is defined in an ABAQUS input file (`code/InputFilesAbaqus`). `Start_Sim.m` sets
-the parameters (degree, analysis type, mass matrix, time integration, …) and calls
-`RunSimulation`; `DefaultSettings` documents every parameter. The same call works from any
-script, e.g. for a parameter study:
-
-```matlab
-settings = DefaultSettings();
-settings.filename      = 'PatchTestLeeCubic_angular.inp';
-settings.analysis_type = 'Modal_analysis';   % or Static_, Dynamic_, FrequencyDomain_analysis
-settings.p.pxi = 4;  settings.p.peta = 4;
-[model, results] = RunSimulation(settings);
-results.EF(1:5)                              % lowest eigenfrequencies [Hz]
-```
-
-`model` holds the mesh, materials, loads and boundary conditions, `results` the solution
-(see `help StaticAnalysis`, `help ModalAnalysis`, ...).
+Chapter "Reproducing the results of the paper" of the documentation lists which script
+produces which result.
 
 ## Documentation
 
@@ -71,18 +53,13 @@ The documentation is written in LaTeX with TikZ figures (`docs/`):
 
 | Chapter | Content |
 |---|---|
-| Theory | Petrov-Galerkin weak form, test and trial spaces, skew coordinates, element matrices |
-| Metric basis | basis of the metric Vandermonde matrix: conditioning, Lagrange basis (default), Lebesgue constant of $Q_p(s,t)$ |
-| Getting started | installation, running a simulation, parameters, output |
-| ABAQUS input files | supported keywords, conventions, data structures, Lee & Bathe example |
-| Code reference | program flow, all routines by module, third-party code |
-| Analyses | static, dynamic (time integrators), modal, frequency domain |
-| Test suite | unit and integration tests, helpers, fixtures |
-| Developer guide | architecture, data structures, conventions; adding time integrators, analyses, loads, materials |
+| Theory | Petrov-Galerkin weak form, test and trial spaces, skew coordinates, stiffness matrix |
+| Metric basis | bases of the metric Vandermonde matrix, hybrid trial space |
+| Reproducing the paper | requirements, run scripts, scripts and results |
+| Code reference | all routines by module |
+| Test suite | unit and integration tests, helpers |
 | Known limitations | open limitations of the code |
 | Literature | annotated bibliography (`literature/references.bib`) |
-
-Build the PDF (TeX Live or MiKTeX with biber):
 
 ```bash
 cd docs
@@ -93,55 +70,23 @@ latexmk -pdf usem-documentation.tex
 
 ```matlab
 cd tests
-run_tests          % about 1000 tests, roughly 2 minutes, base MATLAB only
+run_tests          % base MATLAB only
 ```
 
-The suite checks, among other things, the completeness and frame invariance of the metric
-trial functions, rigid-body modes and rank of the unsymmetric element matrices, exact patch
-tests on distorted meshes for $p = 1,\dots,4$, the Lee & Bathe benchmarks against the
-analytical solution, the ABAQUS readers, and the accuracy and convergence order of the time
-integrators. GitHub Actions runs it on every push.
-
-## Studies
-
-- `studies/thick_cylinder/`: distortion sensitivity and convergence of the unsymmetric
-  spectral element for non-polynomial fields (thick cylinder of Rajendran 2010, Sec. 5.9,
-  $p=2,\dots,8$, gmsh meshes, manufactured solutions). Report:
-  `studies/thick_cylinder/report/thick-cylinder-report.pdf`.
-- `studies/rajendran_panel/`: reproduction of the nodal rotation patch test and the
-  convergence test of Rajendran (2010), Secs. 5.5-5.7 ($\theta\ge90^\circ$, folded elements),
-  9-node and $p\le8$. Report: `studies/rajendran_panel/report/rajendran-panel-report.pdf`.
-- `studies/metric_basis/`: basis of the metric Vandermonde matrix (monomial, Legendre,
-  Chebyshev, Lagrange: conditioning, Kronecker property, completeness, Lebesgue constant)
-  and comparison of the trial space $Q_p(s,t)$ with the hybrid metric-parametric space.
-  Results: chapter "Metric basis" of the documentation.
-
-## Manuscript
-
-`manuscript/`: draft paper on well-conditioned bases and the hybrid metric-parametric trial
-space of the metric shape functions (LaTeX, `latexmk -pdf "Unsymmetric Spectral Elements with Hybrid Trial Space.tex"`); the scripts that produce
-all numbers and figures are in `manuscript/studies/`, the data in `manuscript/data/`.
+The suite checks the completeness and frame invariance of the metric trial functions,
+rigid-body modes and rank of the unsymmetric stiffness matrices, and exact patch tests on
+distorted meshes for $p = 1,\dots,4$. GitHub Actions runs it on every push.
 
 ## Repository layout
 
 ```
-code/
-  Start_Sim.m              main script: parameters of one simulation → RunSimulation
-  SetupPaths.m             puts the code on the MATLAB path
-  InputFilesAbaqus/        example ABAQUS input files (Lee & Bathe patch tests)
-  subroutines/
-    Driver/                settings, RunSimulation, model input, saving
-    AnalysisType/          static, dynamic, modal and frequency-domain analysis
-    ElementMatrices/, ShapeFunctions/, Quadrature/, ...   element technology
-    Assembly/, BoundaryConditions/, Material/, Topology/  global system
-    TimeIntegration/       Solver_Transient, method table, integrators, shared helpers
-    ReadInputFileAbaqus/   ABAQUS readers
-    Visualization/         contour and mesh plots
+code/subroutines/          element technology: shape functions, stiffness matrix, topology
+tests/                     test suite (matlab.unittest) and helpers, also used by the studies
+studies/thick_cylinder/    thick cylinder of Rajendran (2010): scripts, meshes, raw results
+studies/rajendran_panel/   panel of Rajendran (2010): scripts and meshes
+manuscript/                paper, study scripts (studies/), data (data/) and tables (generated/)
 docs/                      documentation (LaTeX, TikZ figures)
-tests/                     test suite (matlab.unittest)
-studies/                   studies with their own scripts, results and reports
-manuscript/                paper draft and the scripts that produce its data
-literature/references.bib  bibliography (the PDFs are not distributed)
+literature/references.bib  bibliography of the documentation
 ```
 
 ## Key references
@@ -153,9 +98,6 @@ literature/references.bib  bibliography (the PDFs are not distributed)
   *CMAME* 199:1044–1063. [doi:10.1016/j.cma.2009.11.017](https://doi.org/10.1016/j.cma.2009.11.017)
 - Q. Xie, K. Y. Sze, Y. X. Zhou (2016). Modified and Trefftz unsymmetric finite element
   models. *IJMMD* 12(1):53–70. [doi:10.1007/s10999-014-9289-3](https://doi.org/10.1007/s10999-014-9289-3)
-- N.-S. Lee, K.-J. Bathe (1993). Effects of element distortions on the performance of
-  isoparametric elements. *IJNME* 36(20):3553–3576.
-  [doi:10.1002/nme.1620362009](https://doi.org/10.1002/nme.1620362009)
 
 ## Contact
 

@@ -14,7 +14,7 @@
 %               recurrence)
 % 'chebyshev':  phi_k(s) = T_k(s), Chebyshev polynomials of the first kind
 % 'lagrange':   phi_k(s) = l_k(s), Lagrange polynomials through the nodes
-%               of the reference element (nodal_distribution(n,ndist)),
+%               of the reference element (nodal_distribution(n)),
 %               evaluated with the product formula. In skew coordinates the
 %               Vandermonde matrix of an affine element is then the
 %               identity.
@@ -30,14 +30,13 @@
 % s:        Evaluation points (vector)
 % n:        Polynomial degree
 % basis:    'monomial', 'legendre', 'chebyshev' or 'lagrange'
-% ndist:    Nodal distribution of the reference element (only 'lagrange')
 %-------------------------------------------------------------------------%
 %% Output
 %
 % Phi:      Basis functions at s, (n+1) x numel(s)
 % dPhi:     Derivatives of the basis functions at s, (n+1) x numel(s)
 %-------------------------------------------------------------------------%
-function [Phi,dPhi] = PolynomialBasis1D(s,n,basis,ndist)
+function [Phi,dPhi] = PolynomialBasis1D(s,n,basis)
 
 % Evaluation points as a row vector
 s = reshape(s,1,[]);
@@ -82,7 +81,7 @@ switch lower(basis)
 
     case 'lagrange'
         % Supporting points of the reference element
-        xn = nodal_distribution(n,ndist);
+        xn = nodal_distribution(n);
         xn = reshape(xn,[],1);
         for j = 1:n+1
             others = [1:j-1, j+1:n+1];

@@ -28,7 +28,7 @@ if nargin < 1, pvec = 1:16; end
 bases  = {'monomial', 'legendre', 'chebyshev', 'lagrange'};
 tags   = {'mon', 'leg', 'che', 'lag'};
 if nargin < 2, shapes = {'parallelogram', 'trapezoid', 'curved', 'general'}; end
-C = HookeMatrix2d(1, 0.3, 1);
+C = HookeMatrix2d(1, 0.3);
 
 for s = 1:numel(shapes)
     T = struct('p', pvec(:));
@@ -92,8 +92,8 @@ P.metricBasis = 'lagrange';
 [sN, tN, J0] = CorotationalSkewCoordinates(x, y, x, y, P);
 cs = (max(sN) + min(sN))/2; rs = (max(sN) - min(sN))/2;
 ct = (max(tN) + min(tN))/2; rt = (max(tN) - min(tN))/2;
-r = nodal_distribution(P.pxi, P.ndist); r = r(:);
-q = nodal_distribution(P.peta, P.ndist); q = q(:);
+r = nodal_distribution(P.pxi); r = r(:);
+q = nodal_distribution(P.peta); q = q(:);
 [S, Tt] = meshgrid(r, q);              % c = i*(px+1) + j + 1: s fastest
 S = S'; Tt = Tt';
 st = [cs + rs*S(:), ct + rt*Tt(:)]';

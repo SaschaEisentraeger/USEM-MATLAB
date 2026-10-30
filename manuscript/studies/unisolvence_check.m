@@ -69,8 +69,8 @@ function [N, dNx, dNy, V] = ShapeFunctions2D_Metric_noCheck(x, y, p)
 [sN, tN] = CorotationalSkewCoordinates(x, y, x, y, p);
 sN = (sN - (max(sN)+min(sN))/2)/((max(sN)-min(sN))/2);
 tN = (tN - (max(tN)+min(tN))/2)/((max(tN)-min(tN))/2);
-[Ps, ~] = PolynomialBasis1D(sN, p.pxi, 'lagrange', p.ndist);
-[Pt, ~] = PolynomialBasis1D(tN, p.peta, 'lagrange', p.ndist);
+[Ps, ~] = PolynomialBasis1D(sN, p.pxi, 'lagrange');
+[Pt, ~] = PolynomialBasis1D(tN, p.peta, 'lagrange');
 n = (p.pxi+1)*(p.peta+1);  V = zeros(n);  c = 0;
 for b = 0:p.peta
     for a = 0:p.pxi

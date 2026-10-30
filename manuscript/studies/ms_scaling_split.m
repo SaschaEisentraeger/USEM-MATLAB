@@ -20,8 +20,8 @@ for s = 1:numel(shapes)
         B = {'monomial', 'lagrange'}; tag = {'mon', 'lag'};
         for b = 1:2
             for k = 1:2
-                Vs = PolynomialBasis1D(S{k,1}, P.pxi, B{b}, P.ndist);
-                Vt = PolynomialBasis1D(S{k,2}, P.peta, B{b}, P.ndist);
+                Vs = PolynomialBasis1D(S{k,1}, P.pxi, B{b});
+                Vt = PolynomialBasis1D(S{k,2}, P.peta, B{b});
                 V = zeros(size(Vs,1)*size(Vt,1), numel(sN)); c = 0;
                 for bb = 1:size(Vt,1)
                     for aa = 1:size(Vs,1)

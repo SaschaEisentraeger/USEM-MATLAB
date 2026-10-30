@@ -10,7 +10,6 @@ function S = cyl_smin(cases, outfile)
 here = fileparts(mfilename('fullpath'));
 cyl_setup_paths();
 C = PlaneStressConstitutiveMatrices(HookeMatrix3d(1000, 0.25));
-prob = cyl_problem('lame', 1000, 0.25);
 S = zeros(size(cases, 1), 10);
 for i = 1:size(cases, 1)
     a = cases(i, 1);  N = cases(i, 2);  pdeg = cases(i, 3);
@@ -20,13 +19,7 @@ for i = 1:size(cases, 1)
     out = zeros(1, 6);  loc = [NaN NaN];
     for f = 1:3
         forms = {'PM', 'PP', 'PH'};
-        try
-            K = cyl_assemble(m, C, forms{f});
-        catch err
-            if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
-            out(2*f-1:2*f) = NaN;
-            continue
-        end
+        K = cyl_assemble(m, C, forms{f});
         A = K(act, act);
         [~, smin, V] = svds(A, 1, 0);
         smax = svds(A, 1);

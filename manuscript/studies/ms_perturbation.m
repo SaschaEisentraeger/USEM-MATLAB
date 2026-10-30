@@ -1,6 +1,6 @@
 function R = ms_perturbation(pvec)
 %MS_PERTURBATION Deviation of the metric element from the classical one,
-%effect of the bounding-box scaling, and cost (manuscript, Secs. 5.1, 4).
+%and effect of the bounding-box scaling (manuscript, Secs. 5.1, 4).
 %
 %   For the distorted test elements of usemTestElement and p in pvec:
 %     dN_PM, dN_PH  max_k max_q |M_k(x_q) - N_k(x_q)| at the (2p)^2 Gauss
@@ -9,19 +9,16 @@ function R = ms_perturbation(pvec)
 %     kNoBox_lag, kBox_lag, kNoBox_leg, kBox_leg
 %                   2-norm condition number of V for Q_p(s,t) without and
 %                   with the bounding-box scaling (Lagrange, Legendre)
-%     tSF_PM, tSF_PH, tKe_PP, tKe_PM, tKe_PH
-%                   run times (s, median of 5) of ShapeFunctions2D_Metric
-%                   at the (2p)^2 Gauss points and of the element stiffness
 %   Writes manuscript/data/perturbation-<shape>.dat.
 
 if nargin < 1, pvec = 1:12; end
 [~, dataDir] = ms_setup();
 shapes = {'trapezoid', 'curved', 'general'};
-C = HookeMatrix2d(1, 0.3, 1);
+C = HookeMatrix2d(1, 0.3);
 for s = 1:numel(shapes)
     T = struct('p', pvec(:));
     for q = {'dN_PM', 'dN_PH', 'dK_PM', 'dK_PH', 'kNoBox_lag', 'kBox_lag', ...
-             'kNoBox_leg', 'kBox_leg', 'tSF_PM', 'tSF_PH', 'tKe_PP', 'tKe_PM', 'tKe_PH'}
+             'kNoBox_leg', 'kBox_leg'}
         T.(q{1}) = nan(numel(pvec), 1);
     end
     for i = 1:numel(pvec)
@@ -45,16 +42,10 @@ for s = 1:numel(shapes)
         T.dK_PH(i) = norm(KT - KP, 'fro')/norm(KP, 'fro');
         [T.kNoBox_lag(i), T.kBox_lag(i)] = scalingEffect(x, y, P, 'lagrange');
         [T.kNoBox_leg(i), T.kBox_leg(i)] = scalingEffect(x, y, P, 'legendre');
-        T.tSF_PM(i) = runTime(@() ShapeFunctions2D_Metric(Xg(:,1), Xg(:,2), x, y, P, 1));
-        T.tSF_PH(i) = runTime(@() ShapeFunctions2D_Metric(Xg(:,1), Xg(:,2), x, y, P, 2, IP));
-        T.tKe_PP(i) = runTime(@() usemKeSymmetric(P, C, x, y));
-        T.tKe_PM(i) = runTime(@() Ke_2D(P1, C, x, y));
-        T.tKe_PH(i) = runTime(@() Ke_2D(P2, C, x, y));
         fprintf(['%-9s p=%2d  dN: PM %8.2e PH %8.2e | dK: PM %8.2e PH %8.2e | ' ...
-                 'k lag %8.2e -> %8.2e  leg %8.2e -> %8.2e | t SF %6.3f %6.3f Ke %6.3f %6.3f %6.3f\n'], ...
+                 'k lag %8.2e -> %8.2e  leg %8.2e -> %8.2e\n'], ...
                 shapes{s}, p, T.dN_PM(i), T.dN_PH(i), T.dK_PM(i), T.dK_PH(i), ...
-                T.kNoBox_lag(i), T.kBox_lag(i), T.kNoBox_leg(i), T.kBox_leg(i), ...
-                T.tSF_PM(i), T.tSF_PH(i), T.tKe_PP(i), T.tKe_PM(i), T.tKe_PH(i));
+                T.kNoBox_lag(i), T.kBox_lag(i), T.kNoBox_leg(i), T.kBox_leg(i));
     end
     ms_write_table(fullfile(dataDir, ['perturbation-' shapes{s} '.dat']), T);
     R.(shapes{s}) = T;
@@ -74,8 +65,8 @@ k1 = cond(V1);
 end
 
 function V = vdm(s, t, P, basis)
-Vs = PolynomialBasis1D(s, P.pxi, basis, P.ndist);
-Vt = PolynomialBasis1D(t, P.peta, basis, P.ndist);
+Vs = PolynomialBasis1D(s, P.pxi, basis);
+Vt = PolynomialBasis1D(t, P.peta, basis);
 V = zeros(size(Vs, 1)*size(Vt, 1), numel(s));
 c = 0;
 for b = 1:size(Vt, 1)
@@ -84,14 +75,4 @@ for b = 1:size(Vt, 1)
         V(c, :) = Vs(a, :).*Vt(b, :);
     end
 end
-end
-
-function t = runTime(fun)
-tt = zeros(5, 1);
-for k = 1:5
-    t0 = tic;
-    fun();
-    tt(k) = toc(t0);
-end
-t = median(tt);
 end

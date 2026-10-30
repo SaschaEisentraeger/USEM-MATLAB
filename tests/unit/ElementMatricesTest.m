@@ -22,7 +22,7 @@ classdef ElementMatricesTest < matlab.unittest.TestCase
         end
 
         function setMaterial(tc)
-            tc.C = HookeMatrix2d(1, 0.3, 1);
+            tc.C = HookeMatrix2d(1, 0.3);
         end
     end
 

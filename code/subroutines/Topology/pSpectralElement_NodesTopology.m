@@ -14,11 +14,7 @@
 % as accurate as in the input mesh; to obtain isoparametric elements, the
 % new nodes would have to be placed on the exact geometry, which is not
 % done here (see studies/thick_cylinder/matlab/cyl_model.m for a
-% Gordon-Hall correction of circular boundary edges). For strongly
-% distorted 8-node elements this map can send an interior node onto an edge
-% node of the same element; such a mesh cannot be represented by distinct
-% nodes and an error is raised (identifier
-% pSpectralElement_NodesTopology:coincidentNodes).
+% Gordon-Hall correction of circular boundary edges).
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Input
@@ -30,11 +26,6 @@
 %                       pxi and peta
 % p.pxi:                Polynomial degree in xi
 % p.peta:               Polynomial degree in eta
-% p.ndist:              Nodal distribution
-% p.nodeShift:          Optional; if > 0, single nodes of elements with a
-%                       singular metric interpolation matrix (e.g.
-%                       coincident nodes) are moved by p.nodeShift times
-%                       the element size (ShiftSingularNodes)
 % p_org:              	Polynomial degree (original mesh/discretization)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,9 +44,6 @@ function [Topology_Node_p,xCoor_p,yCoor_p] = ...
 % Polynomial degrees in xi and eta
 pxi  = p.pxi;
 peta = p.peta;
-
-% Nodal distribution
-ndist = p.ndist;
 
 % Number of finite elements
 NumElem = size(Topology_Node,1);
@@ -117,8 +105,8 @@ if pxi == 1 && peta == 1
 end
 
 % Local coordinates of the (p-1) new edge nodes
-xi  = nodal_distribution(pxi,ndist);
-eta = nodal_distribution(peta,ndist);
+xi  = nodal_distribution(pxi);
+eta = nodal_distribution(peta);
 % Only interior nodes are needed
 xi  = xi(2:end-1);
 eta = eta(2:end-1);
@@ -155,7 +143,7 @@ for i = 1:NumEdges
     % Compute global coordinates of the nodes
     % Linear or quadratic geometry description of the original edge of
 	% the finite element
-	[N,~] = ShapeFunctions1D_SEM(p_org,xie,ndist);
+	[N,~] = ShapeFunctions1D_SEM(p_org,xie);
 	xnew = N'*xCoorElem;
  	ynew = N'*yCoorElem;
 	% Assign the new edge nodes
@@ -212,8 +200,8 @@ if pxi >= 2 && peta >= 2
         xi  = zeros(1,nNodesInterior);
         eta = zeros(1,nNodesInterior);
       	% Nodal distribution (1d)
-    	Nodes_xi  = nodal_distribution(pxi,ndist);
-        Nodes_eta = nodal_distribution(peta,ndist);
+    	Nodes_xi  = nodal_distribution(pxi);
+        Nodes_eta = nodal_distribution(peta);
 		% Interior nodes
      	counter_int = 0;
         for j = 2:peta
@@ -243,16 +231,5 @@ if pxi >= 2 && peta >= 2
         counter = counter + nNodesInterior;
     end
 end
-
-% Optional (p.nodeShift > 0): move single nodes of elements whose metric
-% interpolation matrix is singular, e.g. because of coincident nodes
-if isfield(p,'nodeShift') && p.nodeShift > 0
-    [xCoor_p,yCoor_p] = ShiftSingularNodes(Topology_Node_p,xCoor_p,...
-                        yCoor_p,p);
-end
-
-% Coincident nodes make the element (and its metric shape functions)
-% degenerate; stop instead of continuing with a singular element
-CheckCoincidentNodes(Topology_Node_p,xCoor_p,yCoor_p,pxi,peta);
 
 end

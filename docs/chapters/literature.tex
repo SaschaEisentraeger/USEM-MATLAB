@@ -18,19 +18,12 @@ metric / metric; ATF = analytical trial functions.
   code & references \\
   \midrule
   unsymmetric (Petrov-Galerkin) element, adjugate form of $\matr B_\mathrm{L}$
-    (\code{Ke_2D}, \code{Me_2D}, \code{KMe_2D}) &
+    (\code{Ke_2D}) &
     \textcite{Rajendran2010technique}; \textcite{Rajendran2003novel} \\
   metric trial functions in corotational skew coordinates
     (\code{ShapeFunctions2D_Metric}, \code{CorotationalSkewCoordinates}) &
     \textcite{Xie2016Modified}; \textcite{Yuan1993New};
     \textcite{Ooi2008Remedies} \\
-  Lee-Bathe patch tests (\code{code/InputFilesAbaqus},
-    \code{SpatialLoadingFunction}) &
-    \textcite{Lee1993effects}; \textcite{Rajendran2003novel} \\
-  adaptive hybrid explicit method (\code{AdaptiveHybridExplicitMethod}) &
-    \textcite{Soares2020novel} \\
-  stability of time integration with unsymmetric matrices &
-    \textcite{Wang2022Temporal}; \textcite{Zaehringer2026On} \\
   \bottomrule
 \end{xltabular}
 
@@ -138,18 +131,6 @@ metric / metric; ATF = analytical trial functions.
   \textcite{Wu2026unsymmetric} & UHS11, hyperelastic. \\
 }
 
-\subsection{Dynamics and time integration}
-\littable{
-  \textcite{Wang2022Temporal} & with non-symmetric $\matr M$/$\matr K$ energy is not
-    conserved and Newmark can be unconditionally unstable; energy-conserving
-    scheme. \\
-  \textcite{Zaehringer2026On} & UQ8* in elastodynamics: standard Newmark is
-    unstable, Wang-Hillman can drift, a mixed velocity-strain formulation
-    conserves energy and stays distortion-insensitive. \\
-  \textcite{Kumar2011Use} & transient (impact) application of PM20 with Newmark. \\
-  \textcite{Soares2020novel} & adaptive hybrid explicit method (method 109). \\
-}
-
 \subsection{Plates, beams and shells}
 \littable{
   \textcite{Ju2025unsymmetric} & UQP4-RPIM Reissner-Mindlin plate. \\
@@ -216,15 +197,6 @@ metric / metric; ATF = analytical trial functions.
     space the unsymmetric element can be slightly less accurate than the classical
     one on coarse meshes \parencite{Zaehringer2024finite}, but it keeps the optimal
     convergence rate on distorted meshes.
-  \item \textbf{Dynamics.} Unsymmetric $\matr K$ (and $\matr M$) break the
-    equivalence of energy and momentum conservation; standard Newmark can become
-    unstable \parencite{Wang2022Temporal,Zaehringer2026On}, and the generalized
-    eigenvalues can be negative \parencite{Wang2022Temporal}. Complex eigenvalues
-    are a further possible problem of the unsymmetric element in free vibration,
-    which \textcite[Ch.~8]{Ooi2006unsymmetric} names as an open question. With GLL nodes
-    and nodal quadrature the unsymmetric mass matrix is nevertheless diagonal,
-    because both the parametric and the metric functions are interpolatory at the
-    quadrature points.
   \item \textbf{Conditioning of the metric Vandermonde matrix}
     (\cref{ch:metric-basis}). Monomials make $\matr V$ exponentially
     ill-conditioned already on affine elements \parencite{Gautschi1988Lower}; the
@@ -238,8 +210,7 @@ metric / metric; ATF = analytical trial functions.
     element on straight-edged quadrilaterals, where full tensor-product Lagrange
     elements already contain $\mathcal P_p(x,y)$ \parencite{Arnold2002Approximation}.
   \item \textbf{Open questions.} Element-level stability (discrete inf-sup
-    constant) on strongly distorted high-order elements, for both trial spaces; energy-consistent time integration for unsymmetric spectral elements;
+    constant) on strongly distorted high-order elements, for both trial spaces;
     a convergence theory for these variationally inconsistent schemes; extension to
-    triangles (\code{ShapeFunctions2D_Metric_Tria} is an unfinished start), 3D and
-    axisymmetry.
+    triangles, 3D and axisymmetry.
 \end{enumerate}

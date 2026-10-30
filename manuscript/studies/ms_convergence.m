@@ -26,7 +26,7 @@ if nargin < 3 || isempty(Nvec), Nvec = [1 2 4 8 16]; end
 if nargin < 4 || isempty(tag), tag = sprintf('d%03d', round(100*delta)); end
 [~, dataDir] = ms_setup();
 
-C = HookeMatrix2d(1, 0.3, 1);
+C = HookeMatrix2d(1, 0.3);
 forms = {'PP', 'PM', 'PH'};
 rows = [];
 for p = pvec

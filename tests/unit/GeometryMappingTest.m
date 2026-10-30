@@ -40,7 +40,7 @@ classdef GeometryMappingTest < matlab.unittest.TestCase
 
         function localToGlobalInterpolatesNodes(tc, shape, p)
             [x, y, P] = usemTestElement(shape, p);
-            xi = nodal_distribution(P.pxi, P.ndist);
+            xi = nodal_distribution(P.pxi);
             Xc = Local2GlobalCoordinatesQuad(P, [-1 -1; 1 -1; 1 1; -1 1], [x y]);
             tc.verifyEqual(Xc, [x(1:4) y(1:4)], 'AbsTol', 1e-13);
             if p > 1

@@ -19,13 +19,7 @@ for i = 1:size(cases, 1)
     F = cyl_loads(m, prob);
     forms = {'PM', 'PP', 'PH'};  s = cell(1, 3);  info = cell(1, 3);
     for f = 1:3
-        try
-            K = cyl_assemble(m, C, forms{f});
-        catch err
-            if ~startsWith(err.identifier, 'ShapeFunctions2D_Metric:'), rethrow(err); end
-            s{f} = NaN(60, 1);  info{f} = NaN(1, 4);
-            continue
-        end
+        K = cyl_assemble(m, C, forms{f});
         [~, uEx, act] = cyl_solve(m, K, F, prob);
         fix = setdiff((1:m.num_DoF).', act);
         r = K(act, act)*uEx(act) + K(act, fix)*uEx(fix) - F(act);
