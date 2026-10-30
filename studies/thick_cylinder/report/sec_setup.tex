@@ -2,8 +2,9 @@
 
 \subsection{Elements}\label{sec:elements}
 The three elements use the same geometry, the same nodes and the same test functions:
-Lagrange polynomials $N_i(\bxi)\in Q_p$ on the $(p+1)^2$ Gauss-Lobatto-Legendre
-(GLL) nodes of the reference square, mapped isoparametrically, $\bx(\bxi)=\sum\limits_{i}
+Lagrange polynomials $N_i(\bxi)\in Q_p$ (polynomials of degree $\le p$ in each coordinate) on
+the $(p+1)^2$ Gauss-Lobatto-Legendre (GLL) nodes of the reference square $\hat\Omega=[-1,1]^2$,
+mapped isoparametrically, $\bx(\bxi)=\sum\limits_{i}
 N_i(\bxi)\,\bx_i$. They differ in the trial functions.
 \begin{itemize}
 \item \PM\ (unsymmetric spectral element of the code base, \texttt{Ke\_2D.m}):
@@ -13,8 +14,9 @@ N_i(\bxi)\,\bx_i$. They differ in the trial functions.
   J_0^{-\top}(\bx-\bx_0)$ ($\bm J_0$, $\bx_0$: Jacobian and image of the element
   centre)~\cite{Xie2016Modified}. As $(\hat x,\hat y)$ is affine in $\bx$, the
   span of $\{M_i^e\}$ contains $P_p(\bx)$ (all polynomials of total degree $\le p$
-  in Cartesian coordinates) for \emph{every} element shape. With
-  $\bm B_{\mathrm L}^\ast=\bm B_{\mathrm L}\det(\bm J)$ (built from
+  in Cartesian coordinates) for \emph{every} element shape. With the strain-displacement
+  matrices $\bm B_{\mathrm L}$ of the test and $\bm B_{\mathrm R}$ of the trial functions, the
+  elasticity matrix $\bm D$ and $\bm B_{\mathrm L}^\ast=\bm B_{\mathrm L}\det(\bm J)$ (built from
   $\operatorname{adj}(\bm J)\,\nabla_{\bxi}N_i$),
   \begin{equation}
     \bm K^e=\int\limits^{1}_{-1}\int\limits^{1}_{-1}(\bm B_{\mathrm L}^\ast)^\top\bm D\,\bm B_{\mathrm R}\dd\xi\dd\eta ,
@@ -39,7 +41,7 @@ N_i(\bxi)\,\bx_i$. They differ in the trial functions.
   ($L_a$: Legendre polynomials), i.e., metric polynomials only for the complete space
   $P_p(\bx)$, which guarantees completeness and polynomial exactness, and parametric
   functions for the remaining $(p+1)^2-\tfrac12(p+1)(p+2)$ functions. $\dim(T_p^e)=(p+1)^2$; on
-  bilinear elements $T_p^e=Q_p(\bxi)$, and on affine elements $T_p^e=Q_p(\bx)$
+  bilinear elements $T_p^e=Q_p(\bxi)$, and on affine elements $T_p^e=Q_p(\hat x,\hat y)$
   (\texttt{docs}, chapter on the metric basis). The strains of the complement need
   $\bm J^{-1}$, so \PH\ is undefined where $\det(\bm J)=0$ at a quadrature point (not encountered
   here).
@@ -48,20 +50,24 @@ N_i(\bxi)\,\bx_i$. They differ in the trial functions.
   J)\dd\xi\dd\eta$ (\texttt{tests/helpers/usemKeSymmetric.m}).
 \end{itemize}
 The load vectors are identical for the three elements (parametric test functions),
-$\bm f^e=\int\limits_{\hat\Omega}N_i\,\bm b\det(\bm J)\dd\xi\dd\eta
-+\int\limits_{\Gamma_{\mathrm N}}N_i\,\bar{\bm t}\dd s$.
+$\bm f_i^e=\int\limits_{\hat\Omega}N_i\,\bm b\det(\bm J)\dd\xi\dd\eta
++\int\limits_{\Gamma_{\mathrm N}\cap\partial\Omega^e}N_i\,\bar{\bm t}\dd s$, with the body force
+$\bm b$, the traction $\bar{\bm t}$ prescribed on the Neumann boundary $\Gamma_{\mathrm N}$ (the
+arcs) and the element domain $\Omega^e$.
 The stiffness matrices use the default rule of \texttt{Ke\_2D.m}, $2p\times2p$
 Gauss points; loads and error integrals use $(3p+2)^2$ points. The element
 matrices of the study (\texttt{cyl\_Ke\_PM.m}, \texttt{cyl\_Ke\_PP.m}) are
 vectorised versions of \texttt{Ke\_2D.m} and \texttt{usemKeSymmetric.m}; they agree
 with them to round-off (\cref{tab:verification}). \texttt{ShapeFunctions2D\_Metric} stops with an
 error when the interpolation matrix of an element is singular to working precision
-($\mathrm{rcond}<\varepsilon$, both unsymmetric elements); such cases are marked ``rej.''.
+(reciprocal condition number $\mathrm{rcond}<\varepsilon_{\mathrm{mach}}$, where
+$\varepsilon_{\mathrm{mach}}\approx2.2\cdot10^{-16}$ is the machine epsilon of double precision;
+both unsymmetric elements); such cases are marked ``rej.''.
 
 \subsection{Model and mesh}\label{sec:mesh}
 Thick cylinder under internal pressure (Section~5.9 of
 \citep{Rajendran2010technique}, \cref{fig:setup}a): quarter annulus $a=1\le r\le b=3$,
-$E=1000$, $\nu=0.25$, plane stress, internal pressure $p_{\mathrm i}=1000$, symmetry conditions
+Young's modulus $E=1000$, Poisson's ratio $\nu=0.25$, plane stress, internal pressure $p_{\mathrm i}=1000$, symmetry conditions
 $u_x=0$ on $x=0$ and $u_y=0$ on $y=0$. The geometry (exact circular arcs, built-in
 kernel) and the structured mesh are generated with \texttt{Gmsh}~\cite{Geuzaine2009Gmsh}
 (\texttt{mesh/gen\_cylinder\_meshes.py}): a transfinite mesh of $2N\times2N$
@@ -98,7 +104,7 @@ therefore replaced by the exact arcs in the study code (Gordon-Hall
 blending~\cite{Gordon1973Transfinite}); interior edges remain the parabolas of the
 8-node mesh, which are the exact element edges of the distorted mesh. The degree-$p$ geometry
 thus interpolates the circle at the GLL points;
-the signed area converges to $2\pi$ spectrally ($|A_h-2\pi|\le2.0\cdot10^{-14}$ for $p=8$) and is
+the signed area $A_h$ of the discrete domain converges to the exact area $2\pi$ spectrally ($|A_h-2\pi|\le2.0\cdot10^{-14}$ for $p=8$) and is
 independent of $\alpha$ because folded parts cancel (\cref{tab:verification}).
 
 \begin{figure}[t]
@@ -121,7 +127,7 @@ independent of $\alpha$ because folded parts cancel (\cref{tab:verification}).
 \item \emph{Manufactured smooth non-polynomial} (entire) field:
   $u_x=\tfrac1{10}\bigl(\sin(3X)\cos(2Y)+e^{XY}\bigr)$, $u_y=\tfrac1{10}\bigl(\cos(2X)\sin(3Y)+Ye^{-X}\bigr)$.
 \end{enumerate}
-For the manufactured solutions (MMS) both displacement components are prescribed on
+For the two manufactured fields (method of manufactured solutions, MMS) both displacement components are prescribed on
 $x=0$ and $y=0$ (nodal values) and the tractions $\bm\sigma(\bm u)\bm n_h$ on the
 arcs. Strains, stresses and the body force $\bm b=-\operatorname{div}(\bm\sigma(\bm u))$
 are derived symbolically with the operators of the MMS module of the code base

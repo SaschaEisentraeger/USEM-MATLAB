@@ -43,14 +43,15 @@ avoids it.
   strictly ($\alpha=30^\circ$, $p=6$: $\Lambda_{\mathrm M}=6.2\cdot10^3$, yet \PM\ is $620$ times more accurate than
   \PP\ at $N=8$, smooth), so $\Lambda_{\mathrm M}$ is a necessary rather than a sufficient indicator.
 \item \emph{Hybrid space.} \PH\ uses metric functions only for the complete polynomials
-  $P_p(\bx)$, the remaining functions are parametric. Its Lebesgue constant is the GLL value up
+  $P_p(\bx)$, the remaining functions are parametric. Its Lebesgue constant $\Lambda_{\mathrm H}$, defined as
+  $\Lambda_{\mathrm M}$ with the hybrid trial functions in place of the $M_i^e$, is the GLL value up
   to $15^\circ$ ($\le4.5$), $\le95$ at $30^\circ$ and $\le546$ at $45^\circ$ (\cref{tab:leb}), its
   element condition numbers are those of \PP\ within a factor $1.8$ for $\alpha\le30^\circ$, $p\ge3$
   (\cref{tab:cond}), and the conditioning of its interpolation matrix is much
   better than that of \PM\ at $30^\circ$, $p\ge6$ (factors $10^2$--$10^5$; $\kappa(\bm V)=2.7\cdot10^3$ against
   $2.6\cdot10^8$ at $p=7$). The large Lebesgue constants of \PM\ are therefore caused by the high-degree terms
   of $Q_p(\hat x,\hat y)$ beyond $P_p$, which are not needed for completeness. On folded
-  elements (\cref{tab:leb}, $\alpha=90^\circ$: $\Lambda\le4.8\cdot10^3$) and for $p=2$ at
+  elements (\cref{tab:leb}, $\alpha=90^\circ$: $\Lambda_{\mathrm H}\le4.8\cdot10^3$) and for $p=2$ at
   $\alpha\ge30^\circ$ (\cref{tab:cond}: $23$--$117$) also \PH\ is degraded, and for some folded
   elements with $p\ge7$ its interpolation matrix is singular (\cref{sec:poly}): there the nodes
   are not unisolvent for $T_p^e$ either.
@@ -65,7 +66,9 @@ avoids it.
   \end{minipage}\hfill
   \begin{minipage}[t]{0.48\linewidth}\centering
     \captionof{table}{Ratio of the maximum element condition numbers
-      $\sigma_{\max}/\sigma_{2n-3}$ to that of \PP, $N=8$.}\label{tab:cond}
+      $\sigma_{\max}/\sigma_4$ to those of \PP, $N=8$ (largest over fourth smallest singular value
+      of $\bm K^e$, i.e., the three rigid-body modes $\sigma_1,\sigma_2,\sigma_3$ excluded; maximum
+      over the elements).}\label{tab:cond}
     \resizebox{\linewidth}{!}{\input{generated/diag_cond}}
   \end{minipage}
 \end{table}

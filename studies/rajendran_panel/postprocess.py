@@ -23,7 +23,18 @@ def f4(v):
     (coincident nodes or singular metric interpolation, error of the code
     base)."""
     v = float(v)
-    return "err." if math.isnan(v) else f"{v:.4f}"
+    return "err." if math.isnan(v) else f"${v:.4f}$"
+
+
+def sci(v):
+    """Error in the form m.10^k (one significant digit), typeset in math
+    mode; NaN = error of the code base."""
+    v = float(v)
+    if math.isnan(v):
+        return "err."
+    m, k = f"{v:.0e}".split("e")
+    k = int(k)
+    return f"${m}$" if k == 0 else f"${m}\\cdot10^{{{k}}}$"
 
 
 def read(name):
@@ -53,8 +64,8 @@ def main():
             for v, key in (("PP9", "PP9"), ("MM9", "MM9"), ("PM9", "PM9")):
                 ours = float(P[(v, t, load)][comp])
                 ref = float(pv[key])
-                mark = "" if abs(ours - ref) <= 1.5e-4 else "$^\\ast$"
-                cells += [f"{ours:.4f}", f"{pv[key]}{mark}"]
+                mark = "" if abs(ours - ref) <= 1.5e-4 else "^\\ast"
+                cells += [f"${ours:.4f}$", f"${pv[key]}{mark}$"]
             cells += [f4(P[('PM9skew', t, load)][comp]), f4(P[('PMusem', t, load)][comp]),
                       f4(P[('PH9', t, load)][comp]), f4(P[('PHusem', t, load)][comp])]
             L.append(f"{MESH[t]} ({t}$^\\circ$) & " + " & ".join(cells) + "\\\\")
@@ -69,10 +80,7 @@ def main():
         for v, name in ((f"PP{p}", f"\\PP, $p={p}$"), (f"PM{p}", f"\\PM, $p={p}$"),
                         (f"PM{p}usem", f"\\PM$_\\mathrm{{code}}$, $p={p}$"),
                         (f"PH{p}", f"\\PH, $p={p}$"), (f"PH{p}usem", f"\\PH$_\\mathrm{{code}}$, $p={p}$")):
-            cells = []
-            for t in THETAS:
-                e = float(P[(v, t, "shear")]["nodal"])
-                cells.append("err." if math.isnan(e) else f"{e:.0e}".replace("e-0", "e-").replace("e+0", "e"))
+            cells = [sci(P[(v, t, "shear")]["nodal"]) for t in THETAS]
             L.append(name + " & " + " & ".join(cells) + "\\\\")
         if p < 8:
             L.append("\\addlinespace[2pt]")
@@ -95,8 +103,8 @@ def main():
             for v in ("PP9", "MM9", "PM9"):
                 ours = float(C[(v, t, N)]["uyA"])
                 ref = float(pv[v])
-                mark = "" if abs(ours - ref) <= 1.5e-4 else "$^\\ast$"
-                cells += [f"{ours:.4f}", f"{pv[v]}{mark}"]
+                mark = "" if abs(ours - ref) <= 1.5e-4 else "^\\ast"
+                cells += [f"${ours:.4f}$", f"${pv[v]}{mark}$"]
             cells += [f4(C[('PM9skew', t, N)]['uyA']), f4(C[('PMusem', t, N)]['uyA']),
                       f4(C[('PH9', t, N)]['uyA']), f4(C[('PHusem', t, N)]['uyA'])]
             L.append((seq if N == 1 else "") + f" & ${N}\\times{N}$ & " + " & ".join(cells) + "\\\\")
@@ -110,9 +118,9 @@ def main():
             elif min(e) <= 0 or min(e) < 1e-12:
                 row.append("--")
             else:
-                row.append(f"{np.polyfit(np.log([1, .5, .25]), np.log(e), 1)[0]:.2f}")
-        row.insert(2, rates[seq]["PP9"])
-        row.insert(4, rates[seq]["PM9"])
+                row.append(f"${np.polyfit(np.log([1, .5, .25]), np.log(e), 1)[0]:.2f}$")
+        row.insert(2, f"${rates[seq]['PP9']}$")
+        row.insert(4, f"${rates[seq]['PM9']}$")
         R.append(row)
     L.append("\\end{tabular}")
     with open(os.path.join(GEN, "convergence.tex"), "w") as f:

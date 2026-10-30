@@ -25,10 +25,10 @@ on other platforms and releases.
 
 An element of degree $(p_\upxi,p_\upeta)$ has $n=(p_\upxi+1)(p_\upeta+1)$ nodes
 $\vect x_k$ with skew coordinates $(s_k,t_k)$. Its metric shape functions $M_l$,
-$l=1,\dots,n$, are polynomials of the space $Q_p(s,t)$ (degree $p_\upxi$ in $s$
+$l=1,\dots,n$, are polynomials of the space $\mathcal Q_p(s,t)$ (degree $p_\upxi$ in $s$
 and $p_\upeta$ in $t$, \cref{ch:theory}) and are interpolatory,
 $M_l(\vect x_k)=\delta_{lk}$. To compute them, the code takes $n$ basis
-polynomials $\phi_c$ of $Q_p(s,t)$, evaluates them at the nodes,
+polynomials $\phi_c$ of $\mathcal Q_p(s,t)$, evaluates them at the nodes,
 $V_{ck}=\phi_c(\vect x_k)$, and at the query points (Gauss or plot points),
 $P_{cq}=\phi_c(\vect x_q)$, and solves
 \[
@@ -36,7 +36,7 @@ $P_{cq}=\phi_c(\vect x_q)$, and solves
 \]
 
 \paragraph{The basis does not change the shape functions.} If $\matr V$ is
-non-singular, $Q_p(s,t)$ contains exactly one set of functions with the
+non-singular, $\mathcal Q_p(s,t)$ contains exactly one set of functions with the
 Kronecker property $M_l(\vect x_k)=\delta_{lk}$, so every basis leads to the same
 $M_l$. (A change of basis multiplies $\matr V$ and $\matr P$ from the left with
 the same non-singular matrix, which cancels in $\matr V^{-1}\matr P$.)
@@ -54,26 +54,27 @@ digit, so $\kappa(\matr V)$ is the quantity a good basis has to keep small.
 
 \section{Candidate bases}
 
-\code{PolynomialBasis1D(s, n, basis, ndist)} provides, with values and first
-derivatives,
+\code{PolynomialBasis1D(s, n, basis, ndist)} provides, for the polynomial
+degree $p$ (argument \code{n}), with values and first derivatives,
 \begin{center}
   \begin{tabularx}{\linewidth}{@{}lL@{}}
     \toprule
-    \code{basis} & $\phi_a(s)$, $a=0,\dots,n$ \\
+    \code{basis} & $\phi_a(s)$, $a=0,\dots,p$ \\
     \midrule
     \code{'monomial'} & $s^a$ (used without scaling) \\
-    \code{'legendre'} & Legendre polynomials $P_a(s)$, three-term recurrence \\
+    \code{'legendre'} & Legendre polynomials $L_a(s)$, three-term recurrence \\
     \code{'chebyshev'} & Chebyshev polynomials $T_a(s)$, three-term recurrence \\
     \code{'lagrange'} & Lagrange polynomials $\ell_a(s)$ through the 1D reference
       nodes \code{nodal_distribution(n, ndist)}, product formula (no division by
-      $s-s_m$, so query points may coincide with nodes) \\
+      the differences $s-s_m$ to the nodes $s_m$, so query points may coincide
+      with nodes) \\
     \bottomrule
   \end{tabularx}
 \end{center}
 The 2D basis is the tensor product $\phi_a(\tilde s)\,\phi_b(\tilde t)$. The
 Legendre, Chebyshev and Lagrange bases are defined on $[-1,1]$, but on distorted
 elements the skew coordinates of the nodes leave $[-1,1]^2$ (up to $|s|=1.27$ for
-the trapezoid of \cref{fig:test-elements}). Outside $[-1,1]$ these polynomials
+the quadrilateral of \cref{fig:test-elements}). Outside $[-1,1]$ these polynomials
 grow quickly, e.g.\ $|T_p(s)|=\cosh(p\,\operatorname{arcosh}(|s|))$ for $|s|>1$,
 which gives $T_{16}(1.27)\approx5\times10^4$. For these three bases
 \code{ShapeFunctions2D_Metric} therefore maps the bounding box of the nodes in
@@ -84,7 +85,7 @@ $(s,t)$ onto $[-1,1]^2$,
 \end{equation}
 where $(c_\mathrm{s},c_\mathrm{t})$ is the centre and $(r_\mathrm{s},r_\mathrm{t})$
 are the half widths of the box. The map is affine and computed from
-frame-invariant quantities, so the space $Q_p$ and the frame invariance are
+frame-invariant quantities, so the space $\mathcal Q_p$ and the frame invariance are
 preserved; on a parallelogram it is the identity. The monomial basis is used
 without this scaling.
 
@@ -109,7 +110,9 @@ point; its maximum over the element, the Lebesgue constant, is the factor by
 which the interpolation can amplify errors in the nodal values. Let
 $\lambda_\mathrm{M}(\vect s)=\sum\limits^{n}_{l=1}|M_l(\vect s)|$ and
 $\lambda_\mathrm{ref}(\vect s)=\sum\limits^{n}_{c=1}|\phi_c(\vect s)|$ be the
-Lebesgue functions of the metric and of the reference interpolation, and let
+Lebesgue functions of the metric and of the reference interpolation at a point
+$\vect s=(\tilde s,\tilde t)$ given in the scaled skew coordinates, let
+$\tilde{\vect s}_k$ be the element nodes $\vect x_k$ in these coordinates, and let
 $\hat{\vect s}_d$ be the reference nodes in the scaled skew coordinates (the
 points where the Lagrange basis function $\phi_d$ is $1$). Then
 \begin{equation}
@@ -127,14 +130,15 @@ so the first factor is bounded by the Lebesgue constant of the reference tensor
 grid ($\le6.1$ for Gauss-Lobatto-Legendre (GLL) nodes and $p\le16$). Hence
 $\kappa_1(\matr V)$ is essentially the Lebesgue function of the metric
 interpolation at the reference nodes. The Lebesgue constant
-$\Lambda_\mathrm{M}=\max_{\vect x\in\Omega_e}\lambda_\mathrm{M}(\vect x)$ is a
+$\Lambda_\mathrm{M}=\max_{\vect x\in\Omega^{(e)}}\lambda_\mathrm{M}(\vect x)$, the
+maximum over the element domain $\Omega^{(e)}$, is a
 property of the space and the node set, not of the basis: it is the factor by
 which the metric interpolation amplifies perturbations of nodal values (e.g.\ the
-round-off of a computed displacement field), and it enters the interpolation
-error,
+round-off of a computed displacement field), and it enters the error of the
+metric interpolant $\mathcal I_\mathrm{M}u$ of a function $u$,
 $\|u-\mathcal I_\mathrm{M}u\|_\infty\le(1+\Lambda_\mathrm{M})
-\inf_{q\in Q_p}\|u-q\|_\infty$, i.e.\ the interpolation error is at most
-$1+\Lambda_\mathrm{M}$ times the best approximation error in $Q_p$.
+\inf_{q\in \mathcal Q_p}\|u-q\|_\infty$, i.e.\ the interpolation error is at most
+$1+\Lambda_\mathrm{M}$ times the best approximation error in $\mathcal Q_p$.
 \Cref{eq:kappa-lagrange} therefore states that the Lagrange basis adds no
 ill-conditioning beyond that of the interpolation problem itself (up to the
 factor $\lambda_\mathrm{ref}$ and the difference between $\lambda_\mathrm{M}$ at
@@ -146,8 +150,9 @@ them $\kappa(\matr V)>1$ also on affine elements.
 \label{sec:metric-basis-results}
 
 \paragraph{Test cases.} Four of the single test elements of
-\cref{fig:test-elements} (\code{usemTestElement}): parallelogram, trapezoid with
-straight edges, 8-node element with two curved edges (\enquote{curved}), and
+\cref{fig:test-elements} (\code{usemTestElement}): parallelogram, quadrilateral
+with straight, non-parallel edges (\enquote{quadrilateral}, \code{'trapezoid'}),
+8-node element with two curved edges (\enquote{curved}), and
 angular and curved-edge distortion combined (\enquote{general}); GLL nodes,
 $p=1$--$16$. Measured quantities (\code{study_metric_basis.m}):
 \begin{itemize}
@@ -184,7 +189,7 @@ $p=1$--$16$. Measured quantities (\code{study_metric_basis.m}):
       \addplot+[mark=triangle*] table[x=p, y=kappa_che]{figures/data/metric-basis-parallelogram.dat};
       \addplot+[mark=diamond*] table[x=p, y=kappa_lag]{figures/data/metric-basis-parallelogram.dat};
       \legend{monomial, Legendre, Chebyshev, Lagrange}
-      \nextgroupplot[title={trapezoid}]
+      \nextgroupplot[title={quadrilateral}]
       \addplot+[mark=*] table[x=p, y=kappa_mon]{figures/data/metric-basis-trapezoid.dat};
       \addplot+[mark=square*] table[x=p, y=kappa_leg]{figures/data/metric-basis-trapezoid.dat};
       \addplot+[mark=triangle*] table[x=p, y=kappa_che]{figures/data/metric-basis-trapezoid.dat};
@@ -222,7 +227,7 @@ $p=1$--$16$. Measured quantities (\code{study_metric_basis.m}):
       \addplot+[mark=square*] table[x=p, y=eKron_leg]{figures/data/metric-basis-parallelogram.dat};
       \addplot+[mark=triangle*] table[x=p, y=eKron_che]{figures/data/metric-basis-parallelogram.dat};
       \addplot+[mark=diamond*] table[x=p, y=eKron_lag]{figures/data/metric-basis-parallelogram.dat};
-      \nextgroupplot[title={trapezoid}]
+      \nextgroupplot[title={quadrilateral}]
       \addplot+[mark=*] table[x=p, y=eKron_mon]{figures/data/metric-basis-trapezoid.dat};
       \addplot+[mark=square*] table[x=p, y=eKron_leg]{figures/data/metric-basis-trapezoid.dat};
       \addplot+[mark=triangle*] table[x=p, y=eKron_che]{figures/data/metric-basis-trapezoid.dat};
@@ -260,10 +265,10 @@ $p=1$--$16$. Measured quantities (\code{study_metric_basis.m}):
       \addplot+[mark=triangle*] table[x=p, y=LebM]{figures/data/metric-basis-curved.dat};
       \addplot+[mark=diamond*] table[x=p, y=LebM]{figures/data/metric-basis-parallelogram.dat};
       \addplot+[black, dashed, mark=none] table[x=p, y=LebN]{figures/data/metric-basis-general.dat};
-      \legend{$\Lambda_\mathrm{M}$ trapezoid, $\Lambda_\mathrm{M}$ general,
+      \legend{$\Lambda_\mathrm{M}$ quadrilateral, $\Lambda_\mathrm{M}$ general,
               $\Lambda_\mathrm{M}$ curved, $\Lambda_\mathrm{M}$ parallelogram,
               $\Lambda_\mathrm{N}$}
-      \nextgroupplot[ylabel={$e_\mathrm{P}$ (trapezoid)}, ymin=1e-17,
+      \nextgroupplot[ylabel={$e_\mathrm{P}$ (quadrilateral)}, ymin=1e-17,
         legend cell align=left, legend style={font=\scriptsize, at={(0.98,0.02)}, anchor=south east}]
       \addplot+[mark=*] table[x=p, y=eRep_mon]{figures/data/metric-basis-trapezoid.dat};
       \addplot+[mark=square*] table[x=p, y=eRep_leg]{figures/data/metric-basis-trapezoid.dat};
@@ -277,7 +282,7 @@ $p=1$--$16$. Measured quantities (\code{study_metric_basis.m}):
     the parametric ($\Lambda_\mathrm{N}$) interpolation;
     $\Lambda_\mathrm{M}=\Lambda_\mathrm{N}$ on the parallelogram. Right:
     reproduction error of the polynomials of total degree $\le p$ on the
-    trapezoid; it is independent of the basis and follows
+    quadrilateral; it is independent of the basis and follows
     $\epsilon\,\Lambda_\mathrm{M}$ ($\epsilon$: unit round-off).}
   \label{fig:metric-basis-leb}
 \end{figure}
@@ -293,12 +298,12 @@ $p$, the Chebyshev basis $\approx2.6$, and the Legendre basis grows linearly
 factor of $3$ of one another; the best of them improves on the monomials by a
 factor $6$--$13$ at $p=4$ and $1$--$5\times10^4$ at $p=16$ (curved:
 $1.4\times10^{13}$ for monomials, $3.1$--$4.8\times10^{8}$ for the alternatives;
-general: $9.0\times10^{14}$ and $0.9$--$2.0\times10^{11}$). On the trapezoid the
+general: $9.0\times10^{14}$ and $0.9$--$2.0\times10^{11}$). On the quadrilateral the
 monomial matrix at $p=16$ is rejected by the unisolvence check of
 \code{ShapeFunctions2D_Metric} ($\operatorname{rcond}(\matr V)=1.9\times10^{-17}$,
 below machine epsilon); at $p=15$ it gives $3.5\times10^{14}$, the alternatives
 $0.5$--$1.1\times10^{11}$. Without the bounding-box scaling the alternatives
-would lose more than three orders of magnitude on the trapezoid
+would lose more than three orders of magnitude on the quadrilateral
 ($\kappa_2=2.2\times10^{15}$ instead of $8.6\times10^{11}$ for the Lagrange basis
 at $p=16$).
 
@@ -308,28 +313,29 @@ bound above. On the parallelogram the monomials give
 $e_\updelta=2.0\times10^{-12}$ ($p=8$), $2.0\times10^{-9}$ ($p=12$) and
 $1.2\times10^{-6}$ ($p=16$); with the Lagrange basis $e_\updelta\le10^{-28}$. On
 the distorted elements at $p=16$ the monomials give $4.6\times10^{-5}$ (curved)
-and $6.7\times10^{-4}$ (general) and are rejected on the trapezoid
+and $6.7\times10^{-4}$ (general) and are rejected on the quadrilateral
 ($1.8\times10^{-3}$ at $p=15$); the Lagrange basis gives $6.8\times10^{-6}$
-(trapezoid), $5.3\times10^{-9}$ (curved) and $1.8\times10^{-6}$ (general), and
+(quadrilateral), $5.3\times10^{-9}$ (curved) and $1.8\times10^{-6}$ (general), and
 the Legendre basis is equally good. For $p\le6$ all bases give
 $e_\updelta<5\times10^{-13}$.
 
 \paragraph{Polynomial reproduction (\cref{fig:metric-basis-leb}, right).} The
 reproduction errors $e_\mathrm{P}$ and $e_{\nabla\mathrm{P}}$ are practically the
 same for all bases, including the monomials, and follow
-$\epsilon\,\Lambda_\mathrm{M}$ (trapezoid, $p=16$, Legendre, Chebyshev and
+$\epsilon\,\Lambda_\mathrm{M}$ (quadrilateral, $p=16$, Legendre, Chebyshev and
 Lagrange basis: $e_\mathrm{P}=2$--$5\times10^{-9}$,
 $e_{\nabla\mathrm{P}}=0.8$--$8\times10^{-8}$; at $p=15$ all four bases give
 $e_\mathrm{P}=2$--$4\times10^{-10}$). The reason is the following. A polynomial
-$g=\sum\limits^{n}_{c=1}c_c\,\phi_c$ of the space has the nodal values
-$\vect f=\matr V^{\T}\vect c$. Its interpolant, computed with the LU factors of
-$\matr V$, differs from $g$ by about $\vect c^{\T}\delta\matr V\,\matr N$, where
+$g=\sum\limits^{n}_{c=1}a_c\,\phi_c$ of the space, with the coefficient vector
+$\vect a$, has the nodal values
+$\vect f=\matr V^{\T}\vect a$. Its interpolant, computed with the LU factors of
+$\matr V$, differs from $g$ by about $\vect a^{\T}\delta\matr V\,\matr N$, where
 $\delta\matr V$ is the backward error of the LU decomposition; this is bounded by
-$\epsilon\,\|\vect c\|\,\|\matr V\|\,\Lambda_\mathrm{M}$. For low-degree
-polynomials the coefficients $\vect c$ and $\|\vect c\|\,\|\matr V\|$ are moderate
+$\epsilon\,\|\vect a\|\,\|\matr V\|\,\Lambda_\mathrm{M}$. For low-degree
+polynomials the coefficients $\vect a$ and $\|\vect a\|\,\|\matr V\|$ are moderate
 in every basis, so the error is of order $\epsilon\,\Lambda_\mathrm{M}$, whatever
 $\kappa(\matr V)$ is. For generic nodal data (unit vectors as in $e_\updelta$,
-round-off-contaminated or oscillatory fields), $\|\vect c\|$ can be as large as
+round-off-contaminated or oscillatory fields), $\|\vect a\|$ can be as large as
 $\|\matr V^{-1}\|\,\|\vect f\|$, and the error becomes of order
 $\kappa(\matr V)\,\epsilon$. The element matrices are built from the individual
 functions $M_l$ and $\nabla M_l$, not from reproduced polynomials. This is why the
@@ -383,7 +389,7 @@ the individual shape functions and element matrices (symmetry on affine elements
 the Kronecker property used by the GLL nodal-quadrature mass matrix, generic
 nodal data such as eigenvectors or wave fields), and it becomes decisive for
 $p\gtrsim12$ ($e_\updelta$ of the monomials $\ge2\times10^{-9}$ on every test
-element, up to $1.8\times10^{-3}$ at $p=15$; at $p=16$ the trapezoid is
+element, up to $1.8\times10^{-3}$ at $p=15$; at $p=16$ the quadrilateral is
 rejected).
 
 \paragraph{Cost.} All bases are evaluated with vectorized recurrences or
@@ -421,21 +427,21 @@ dominate the element routines.
 \end{itemize}
 
 \section{Limitation: The Lebesgue constant of
-\texorpdfstring{$Q_p(s,t)$}{Qp(s,t)}}
+\texorpdfstring{$\mathcal Q_p(s,t)$}{Qp(s,t)}}
 \label{sec:metric-basis-outlook}
 
 \Cref{fig:metric-basis-leb} shows that the Lebesgue constant
 $\Lambda_\mathrm{M}$ of the metric interpolation grows exponentially with $p$ on
 distorted elements, while that of the parametric interpolation,
 $\Lambda_\mathrm{N}$, grows only logarithmically ($\Lambda_\mathrm{N}\approx6.0$
-at $p=16$). This is a property of the space $Q_p(s,t)$ on the mapped node set;
+at $p=16$). This is a property of the space $\mathcal Q_p(s,t)$ on the mapped node set;
 since the shape functions do not depend on the basis, no basis can remove it.
 Its consequences:
 \begin{itemize}
   \item \textbf{Round-off floor.} Perturbations of nodal values are amplified by
     up to $\Lambda_\mathrm{M}$, and by \cref{eq:kappa-lagrange} the shape
     functions carry errors of order $\epsilon\,\Lambda_\mathrm{M}$ even with the
-    best basis. On the trapezoid of \cref{fig:test-elements} ($|s|\le1.27$),
+    best basis. On the quadrilateral of \cref{fig:test-elements} ($|s|\le1.27$),
     $\Lambda_\mathrm{M}\approx8\times10^2$ at $p=8$ and $4\times10^7$ at $p=16$.
   \item \textbf{Approximation.} For fields outside the trial space the bound of
     the interpolation error contains the factor $1+\Lambda_\mathrm{M}$. Whether
@@ -454,17 +460,17 @@ differently. This leads to the hybrid trial space of the next section.
 \paragraph{Definition.} With $m=\min(p_\upxi,p_\upeta)$ and the Legendre
 polynomials $L_a$, the hybrid trial space is
 \begin{equation}
-  T_p = P_m(\tilde s,\tilde t)\;\oplus\;\operatorname{span}\{L_a(\xi)L_b(\eta):\
+  \mathcal T_p = \mathcal P_m(\tilde s,\tilde t)\;\oplus\;\operatorname{span}\{L_a(\xi)L_b(\eta):\
   a\le p_\upxi,\ b\le p_\upeta,\ a+b>m\}.
   \label{eq:hybrid-space}
 \end{equation}
-The first part, $P_m(\tilde s,\tilde t)$, consists of all polynomials of total
+The first part, $\mathcal P_m(\tilde s,\tilde t)$, consists of all polynomials of total
 degree $\le m$ in the bounding-box scaled skew coordinates $(\tilde s,\tilde t)$;
 the code spans it with the products $L_a(\tilde s)L_b(\tilde t)$, $a+b\le m$.
 Because $\tilde s$ and $\tilde t$ are affine (linear plus constant) functions of
 $x$ and $y$, and vice versa, a polynomial of total degree $m$ in
 $(\tilde s,\tilde t)$ is a polynomial of total degree $m$ in $(x,y)$ and vice
-versa: $P_m(\tilde s,\tilde t)=P_m(x,y)$. The hybrid space therefore contains all
+versa: $\mathcal P_m(\tilde s,\tilde t)=\mathcal P_m(x,y)$. The hybrid space therefore contains all
 complete polynomials of degree $m$ in $x$ and $y$ (completeness, hence distortion
 immunity and exact patch tests), and, since $(\tilde s,\tilde t)$ move and rotate
 with the element, it is frame invariant. The second part, the complement, is
@@ -472,23 +478,23 @@ written in the parametric coordinates $(\xi,\eta)$, in which the element nodes
 form a tensor grid.
 
 A metric trial space must have the dimension $(p_\upxi+1)(p_\upeta+1)$, contain
-$P_m(\tilde s,\tilde t)$, be frame invariant and be unisolvent. Beyond these
-requirements it can be chosen freely: $Q_p(s,t)$ is one choice,
+$\mathcal P_m(\tilde s,\tilde t)$, be frame invariant and be unisolvent. Beyond these
+requirements it can be chosen freely: $\mathcal Q_p(s,t)$ is one choice,
 \cref{eq:hybrid-space} another. On non-affine elements the complement depends on
 the polynomials used: $\operatorname{span}\{L_a(\xi)L_b(\eta): a+b>m\}$ and
 $\operatorname{span}\{\xi^a\eta^b: a+b>m\}$ give different spaces when added to
-$P_m(\tilde s,\tilde t)$. The Legendre basis is therefore part of the definition,
+$\mathcal P_m(\tilde s,\tilde t)$. The Legendre basis is therefore part of the definition,
 and \code{p.metricBasis} is ignored for \code{method=2}.
 
 \paragraph{Straight-edged elements.} If the geometry map is bilinear and the
 hybrid Vandermonde matrix is non-singular, the hybrid space equals the
-parametric space, $T_p=Q_p(\xi,\eta)$: the metric functions coincide with the
+parametric space, $\mathcal T_p=\mathcal Q_p(\xi,\eta)$: the metric functions coincide with the
 parametric ones, and the element is the classical (symmetric) spectral element.
 The reason is that $x$ and $y$ are bilinear in $(\xi,\eta)$ for such a map, so a
 polynomial of total degree $\le m$ in $x$ and $y$, i.e.\ every function of
-$P_m(\tilde s,\tilde t)$, has degree $\le m$ in $\xi$ and in $\eta$
+$\mathcal P_m(\tilde s,\tilde t)$, has degree $\le m$ in $\xi$ and in $\eta$
 \parencite[cf.][]{Arnold2002Approximation}. The complement lies in
-$Q_p(\xi,\eta)$ by construction, and both spaces have the same dimension.
+$\mathcal Q_p(\xi,\eta)$ by construction, and both spaces have the same dimension.
 
 The same argument shows that the classical Lagrange spectral element on
 straight-edged quadrilaterals already contains all polynomials of total degree
@@ -500,12 +506,12 @@ elements. For full tensor-product spectral elements the unsymmetric formulation
 is needed only for curved edges, and the hybrid element is unsymmetric only
 there.
 
-\paragraph{Other properties.} $T_p$ is frame invariant (both
+\paragraph{Other properties.} $\mathcal T_p$ is frame invariant (both
 $(\tilde s,\tilde t)$ and $(\xi,\eta)$ are), interpolatory at the nodes (so the
 GLL nodal-quadrature mass matrix stays diagonal) and contains the rigid-body
 modes. On the distorted test elements the Lebesgue constant stays at the
 parametric level (\cref{fig:metric-basis-hybrid}): at $p=16$ it is $6.0$ instead
-of $4.0\times10^7$ (trapezoid), $6.1$ instead of $5.5\times10^4$ (curved) and
+of $4.0\times10^7$ (quadrilateral), $6.1$ instead of $5.5\times10^4$ (curved) and
 $8.5$ instead of $6.7\times10^6$ (general). On curved elements the trial
 functions are no longer polynomials in $(x,y)$.
 
@@ -518,12 +524,12 @@ complement contain $\matr J^{-1}$ (error
 \code{ShapeFunctions2D_Metric:singularJacobian}). On the Rajendran panel meshes
 with $\theta=90^\circ,\dots,270^\circ$ (all elements with $\det(\matr J)\le0$
 somewhere, \code{studies/rajendran_panel}), the hybrid element passes the
-tension, bending and shear patch tests for $p=3,\dots,8$, as $Q_p(s,t)$ does; the
+tension, bending and shear patch tests for $p=3,\dots,8$, as $\mathcal Q_p(s,t)$ does; the
 round-off at $p=8$ is smaller ($\theta=135^\circ$: $1\times10^{-8}$ vs.\
 $3\times10^{-6}$; $\theta=225^\circ$: $8\times10^{-8}$ vs.\ $2\times10^{-5}$).
 Where $\det(\matr J)$ changes sign, the complement part of $\matr K_e$ has an
 integrand proportional to $1/\det(\matr J)$. This does not affect the patch tests
-(the complement coefficients of a field in $P_m(\tilde s,\tilde t)$ vanish), but
+(the complement coefficients of a field in $\mathcal P_m(\tilde s,\tilde t)$ vanish), but
 its effect on non-polynomial fields has not been studied.
 
 \paragraph{Implementation.} The hybrid space is selected for a single call with
@@ -533,19 +539,20 @@ nodes are the reference nodes (\code{ReferenceNodes2D}). Those of the query
 points are passed by all callers, which evaluate at mapped quadrature or plot
 points (\code{Ke_2D}, \code{Me_2D}, \code{KMe_2D}, \code{Calc_results},
 \code{Results_Stress_Strain}); otherwise they are computed by Newton's method
-(\code{Global2LocalNewton}). The gradients of $P_m(\tilde s,\tilde t)$ follow
+(\code{Global2LocalNewton}). The gradients of $\mathcal P_m(\tilde s,\tilde t)$ follow
 from the constant matrix $\matr J_0^{-1}$ of the skew coordinates, those of the
 complement from the Jacobian at the query point,
 $\nabla_{\vect x}\phi=\matr J^{-1}\nabla_{\xi}\phi$. The corresponding entries of
 $\matr K_e$ therefore have rational integrands, as for curved isoparametric
 elements. This does not affect the patch tests: for
-$\vect u\in P_m(\tilde s,\tilde t)$ the interpolant is exact,
-$\matr B_\mathrm{R}\hat{\vect u}=\bm\varepsilon(\vect u)$, and the integrand
+$\vect u\in\mathcal P_m(\tilde s,\tilde t)$ the interpolant is exact,
+$\matr B_\mathrm{R}\vect u_e=\bm\varepsilon(\vect u)$ with the vector $\vect u_e$
+of the nodal values of $\vect u$, and the integrand
 $\det(\matr J)\,\matr B_\mathrm{L}^{\T}\matr C\,\bm\varepsilon(\vect u)$ is the
 same polynomial as for \code{method=1}.
 
 \paragraph{Mesh-level comparison} (\code{study_hybrid_space.m}). The classical
-element, $Q_p(s,t)$ and the hybrid element are compared on the $3\times2$ mesh of
+element, $\mathcal Q_p(s,t)$ and the hybrid element are compared on the $3\times2$ mesh of
 \cref{fig:test-meshes} (\code{PatchTest.m}) with curved-edge distortion $0.15$
 and $0.20$ (minimum of $\det(\matr J)$: $0.16$ and $0.09$) and with angular plus
 curved-edge distortion $0.3$ (minimum of $\det(\matr J)$: $0.014$), $p=1$--$10$
@@ -554,19 +561,19 @@ curved-edge distortion $0.3$ (minimum of $\det(\matr J)$: $0.014$), $p=1$--$10$
 \begin{itemize}
   \item \textbf{Patch test} (harmonic field of degree $p$). The classical element
     fails on all three meshes ($10^{-2}$--$10^{-7}$). Both unsymmetric elements are
-    exact; the error of $Q_p(s,t)$ grows with $p$ to $10^{-13}$--$10^{-12}$, that of
+    exact; the error of $\mathcal Q_p(s,t)$ grows with $p$ to $10^{-13}$--$10^{-12}$, that of
     the hybrid element stays at $\le10^{-14}$.
   \item \textbf{Smooth field} $e^x\cos(y)$. All three elements converge
-    exponentially. Up to $p\approx8$, $Q_p(s,t)$ is the most accurate (by a factor
+    exponentially. Up to $p\approx8$, $\mathcal Q_p(s,t)$ is the most accurate (by a factor
     $2$--$20$ over the hybrid element, e.g.\ curved $0.15$, $p=7$:
     $6.0\times10^{-10}$ vs.\ $1.0\times10^{-8}$); the hybrid element is
     $2$--$50$ times more accurate than the classical one. At $p=9,10$ the hybrid
-    element is as accurate as or more accurate than $Q_p(s,t)$ (curved $0.20$,
+    element is as accurate as or more accurate than $\mathcal Q_p(s,t)$ (curved $0.20$,
     $p=10$: $3.9\times10^{-12}$ vs.\ $4.1\times10^{-10}$).
   \item \textbf{Eigenvalues} ($\vect u=\vect0$ on the boundary, consistent mass).
     The errors of the 8 eigenvalues of smallest modulus of the hybrid element
     agree with those of the classical element to two digits for every $p$
-    ($4.5\times10^{-7}$ at $p=10$). $Q_p(s,t)$ produces spurious eigenvalues: from
+    ($4.5\times10^{-7}$ at $p=10$). $\mathcal Q_p(s,t)$ produces spurious eigenvalues: from
     $p=5$--$7$ on, $2$--$25$ eigenvalues $\lambda=\omega^2$ with
     $\operatorname{Re}(\lambda)<0$ and
     $|\operatorname{Im}(\lambda)|/|\lambda|\to1$. They reach the low end of the
@@ -575,14 +582,14 @@ curved-edge distortion $0.3$ (minimum of $\det(\matr J)$: $0.014$), $p=1$--$10$
     element has no eigenvalue with negative real part and
     $|\operatorname{Im}(\lambda)|/|\lambda|\le1.7\times10^{-2}$ over the whole
     spectrum. The same holds for single elements: on the curved test elements
-    $Q_p(s,t)$ gives $|\operatorname{Im}(\lambda)|/|\lambda|=0.1$--$0.47$ for
+    $\mathcal Q_p(s,t)$ gives $|\operatorname{Im}(\lambda)|/|\lambda|=0.1$--$0.47$ for
     $p\ge4$ and an indefinite consistent mass matrix at $p=8$, the hybrid element
     $\le7\times10^{-3}$ and a positive mass spectrum.
 \end{itemize}
 An eigenvalue $\omega^2$ with negative real part is an exponentially growing mode
 for any time integrator. For transient, modal and frequency-domain analyses
 with $p\gtrsim5$ on curved meshes the hybrid element should therefore be used. For
-static analyses at moderate $p$, $Q_p(s,t)$ is slightly more accurate. Both
+static analyses at moderate $p$, $\mathcal Q_p(s,t)$ is slightly more accurate. Both
 elements are distortion immune; neither result is covered by a stability theory
 (discrete inf-sup constant), which remains open.
 
@@ -601,7 +608,7 @@ elements are distortion immune; neither result is covered by a stability theory
       \addplot+[mark=*] table[x=p, y=smooth_cla]{figures/data/metric-hybrid-curved15.dat};
       \addplot+[mark=square*] table[x=p, y=smooth_skew]{figures/data/metric-hybrid-curved15.dat};
       \addplot+[mark=triangle*] table[x=p, y=smooth_hyb]{figures/data/metric-hybrid-curved15.dat};
-      \legend{classical, {$Q_p(s,t)$ (\texttt{method=1})}, {hybrid $T_p$ (\texttt{method=2})}}
+      \legend{classical, {$\mathcal Q_p(s,t)$ (\texttt{method=1})}, {hybrid $\mathcal T_p$ (\texttt{method=2})}}
       \nextgroupplot[title={curved 0.20}]
       \addplot+[mark=*] table[x=p, y=smooth_cla]{figures/data/metric-hybrid-curved20.dat};
       \addplot+[mark=square*] table[x=p, y=smooth_skew]{figures/data/metric-hybrid-curved20.dat};
@@ -647,12 +654,12 @@ elements are distortion immune; neither result is covered by a stability theory
       \addplot+[mark=square, dashed] table[x=p, y=LebH_trapezoid]{figures/data/metric-basis-hybrid.dat};
       \addplot+[mark=triangle, dashed] table[x=p, y=LebH_general]{figures/data/metric-basis-hybrid.dat};
       \addplot+[mark=x, dashed] table[x=p, y=LebH_curved]{figures/data/metric-basis-hybrid.dat};
-      \legend{{$Q_p(s,t)$ trapezoid}, {$Q_p(s,t)$ general}, {$Q_p(s,t)$ curved},
-              $T_p$ trapezoid, $T_p$ general, $T_p$ curved}
+      \legend{{$\mathcal Q_p(s,t)$ quadrilateral}, {$\mathcal Q_p(s,t)$ general}, {$\mathcal Q_p(s,t)$ curved},
+              $\mathcal T_p$ quadrilateral, $\mathcal T_p$ general, $\mathcal T_p$ curved}
     \end{semilogyaxis}
   \end{tikzpicture}
-  \caption{Lebesgue constant of the metric interpolation in $Q_p(s,t)$
-    (\texttt{method=1}) and in the hybrid space $T_p$ (\texttt{method=2}) on
+  \caption{Lebesgue constant of the metric interpolation in $\mathcal Q_p(s,t)$
+    (\texttt{method=1}) and in the hybrid space $\mathcal T_p$ (\texttt{method=2}) on
     the distorted test elements of \cref{fig:test-elements}
     (\texttt{probe\_hybrid\_space.m}).}
   \label{fig:metric-basis-hybrid}

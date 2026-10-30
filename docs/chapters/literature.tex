@@ -230,13 +230,13 @@ metric / metric; ATF = analytical trial functions.
     ill-conditioned already on affine elements \parencite{Gautschi1988Lower}; the
     Lagrange basis of the reference element removes this part. The remaining,
     basis-independent growth on distorted elements is that of the Lebesgue constant
-    of $Q_p(s,t)$-interpolation on the mapped nodes.
+    of $\mathcal Q_p(s,t)$-interpolation on the mapped nodes.
   \item \textbf{Hybrid trial space} (\cref{sec:metric-hybrid},
-    \code{method = 2}): $P_m(\tilde s,\tilde t)\oplus$ high-order parametric
+    \code{method = 2}): $\mathcal P_m(\tilde s,\tilde t)\oplus$ high-order parametric
     complement, $m=\min(p_\upxi,p_\upeta)$. It keeps
     the Lebesgue constant at the parametric level and reduces to the classical
     element on straight-edged quadrilaterals, where full tensor-product Lagrange
-    elements already contain $P_p(x,y)$ \parencite{Arnold2002Approximation}.
+    elements already contain $\mathcal P_p(x,y)$ \parencite{Arnold2002Approximation}.
   \item \textbf{Open questions.} Element-level stability (discrete inf-sup
     constant) on strongly distorted high-order elements, for both trial spaces; energy-consistent time integration for unsymmetric spectral elements;
     a convergence theory for these variationally inconsistent schemes; extension to

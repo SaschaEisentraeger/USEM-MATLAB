@@ -12,7 +12,7 @@ lists the number of folded elements.
 
 \begin{table}[h]
   \centering\small
-  \caption{Verification against the code base (relative differences).}
+  \caption{Verification against the code base (relative differences unless marked absolute).}
   \label{tab:verification}
   \begin{tabular}{@{}p{0.52\linewidth}p{0.42\linewidth}@{}}
     \toprule
@@ -32,7 +32,7 @@ lists the number of folded elements.
       \texttt{NeumannBCs}, boundary conditions of the \texttt{ABAQUS} file) vs study routines
       & $\le4.4\cdot10^{-11}$ ($\alpha=0^\circ$), $\le4.0\cdot10^{-7}$ ($\alpha=60^\circ$,
         round-off amplified by the conditioning)\\
-    signed area $-2\pi$ ($p=8$, all meshes) & $\le2.0\cdot10^{-14}$\\
+    signed area, $|A_h-2\pi|$ ($p=8$, all meshes) & $\le2.0\cdot10^{-14}$ (absolute)\\
     exact fields (Lam\'e): $\bm b=\bm0$, $\sigma_r(a)=-p_{\mathrm i}$, $\sigma_\theta(a)=1250$,
       $\sigma_r(b)=0$, $u_r(a)=1.5$ & exact\\
     polynomial patch test, $p\ge5$ (\cref{tab:poly}): \PM, $\alpha\le30^\circ$; \PH, all

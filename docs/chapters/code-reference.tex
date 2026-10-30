@@ -66,7 +66,9 @@ global variables. \code{help}~\code{<name>} shows the interface of every routine
   \midrule
   \endhead
   \code{ElementMatrices/Ke_2D(p, C, x, y [, nIPxi, nIPeta])} & unsymmetric element
-    stiffness $\int\limits \tilde{\matr B}_\mathrm{L}^{\T}\matr C\matr B_\mathrm{R}$ (default $2p$ Gauss
+    stiffness $\int\limits \tilde{\matr B}_\mathrm{L}^{\T}\matr C\matr B_\mathrm{R}$
+    with $\tilde{\matr B}_\mathrm{L}=\det(\matr J)\,\matr B_\mathrm{L}$, built
+    with $\adj(\matr J)$ (default $2p$ Gauss
     points per direction) \\
   \code{ElementMatrices/Me_2D(p, rho, x, y, lumping [, nIPxi, nIPeta])} &
     unsymmetric element mass, lumping 1--4 \\
@@ -77,7 +79,7 @@ global variables. \code{help}~\code{<name>} shows the interface of every routine
     \texttt{[nNodes x nPoints]} arrays \\
   \code{ShapeFunctions/2D/ShapeFunctions2D_Metric(xQ, yQ, xN, yN, p [, method, xiQ])} &
     metric (trial) shape functions and $\partial/\partial x$, $\partial/\partial y$;
-    \code{method} 1 = $Q_p$ in skew coordinates (default), 0 = global coordinates,
+    \code{method} 1 = $\mathcal Q_p$ in skew coordinates (default), 0 = global coordinates,
     2 = hybrid space (\cref{sec:metric-hybrid}; \code{xiQ}: local coordinates of the
     query points); empty \code{method}: \code{p.metricMethod}; basis of the
     Vandermonde matrix from \code{p.metricBasis} (default \code{'lagrange'},

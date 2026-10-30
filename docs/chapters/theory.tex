@@ -18,6 +18,9 @@ Hooke's law and the strains read
   \matr L = \begin{bmatrix}\partial_x & 0\\ 0 & \partial_y\\
                            \partial_y & \partial_x\end{bmatrix},
 \end{equation}
+where $\vect u$ is the displacement vector, $\bm\sigma$ and $\bm\varepsilon$ are
+the stress and strain vectors, $\vect b$ is the body force per unit volume,
+$\rho$ is the mass density and $\matr L$ is the differential operator,
 with prescribed displacements $\bar{\vect u}$ on the Dirichlet boundary
 $\Gamma_\mathrm{u}$ and prescribed tractions $\bar{\vect t}$ on the Neumann
 boundary $\Gamma_\mathrm{t}$. $\matr C$ is the $3\times3$ plane stress or plane
@@ -76,13 +79,14 @@ matrices are \emph{unsymmetric}.
 \subsection*{Why the element is insensitive to mesh distortion}
 
 If the exact displacement field is a polynomial of total degree $\le p$ in
-$(x,y)$, the metric functions reproduce it exactly on every element, whatever
+$(x,y)$, where $p$ is the polynomial degree of the element, the metric functions reproduce it exactly on every element, whatever
 its shape, so the strains and stresses are exact as well. The parametric test
 functions are continuous across the element edges, so the exact stresses
 satisfy the weak form \eqref{eq:weakform} with these test functions (this is the
 principle of virtual work for the exact solution). Hence the exact nodal values
 solve the discrete equations: the solution is exact on any mesh, provided the
-integrals are evaluated exactly (\cref{sec:quadrature}). This is the distortion
+integrals are evaluated exactly (\cref{sec:quadrature},
+subsection \enquote{\nameref{sec:quadrature}}). This is the distortion
 immunity of Rajendran's unsymmetric elements
 \parencite{Rajendran2003novel,Rajendran2010technique}, here for arbitrary $p$.
 The classical isoparametric element loses this property as soon as the element
@@ -159,7 +163,7 @@ steps:
     coincide with $(\xi,\eta)$ on a parallelogram.
   \item \textbf{Polynomial space.} The shape functions are polynomials of degree
     $p_\upxi$ in $s$ and $p_\upeta$ in $t$ (all products $s^a t^b$ with $a\le
-    p_\upxi$, $b\le p_\upeta$, the space $Q_p(s,t)$). For good conditioning they
+    p_\upxi$, $b\le p_\upeta$, the space $\mathcal Q_p(s,t)$). For good conditioning they
     are written in a Lagrange basis $\ell_a(\tilde s)\,\ell_b(\tilde t)$, where
     $\tilde s$, $\tilde t$ are the skew coordinates scaled to the interval
     $[-1,1]$ of the nodes; the shape functions themselves do not depend on the
@@ -188,7 +192,7 @@ Properties (all covered by \code{tests/unit/MetricShapeFunctionsTest.m}):
     special node positions on strongly distorted elements, e.g.\ when two nodes
     coincide \parencite{Ooi2008Remedies}. The code stops with an error in this
     case; with \code{p.nodeShift}~$>0$ it moves one node of such an element
-    slightly instead (\cref{sec:node-shift}).
+    slightly instead (subsection \enquote{\nameref{sec:node-shift}} below).
 \end{itemize}
 
 \subsection*{Singular interpolation matrices}
@@ -209,18 +213,18 @@ element and the node. This is a pragmatic remedy: the geometry changes by about
 the shift near the moved node, while completeness and frame invariance are
 kept. A slight perturbation of the nodal coordinates is one of the remedies for
 singular interpolation matrices that \textcite{Ooi2008Remedies} discuss (after
-Liu and Gu, for meshless point interpolation); their own remedy, a random
+\textcite{Liu2001point}, for meshless point interpolation); their own remedy, a random
 rotation of the coordinate system, does not help here, because the metric
 functions in skew coordinates are frame invariant.
 
 \code{method=2} (\code{p.metricMethod=2}) uses the hybrid space instead of
-$Q_p(s,t)$: all polynomials of total degree $\le m=\min(p_\upxi,p_\upeta)$ in
-the scaled skew coordinates $(\tilde s,\tilde t)$, $P_m(\tilde s,\tilde t)$,
+$\mathcal Q_p(s,t)$: all polynomials of total degree $\le m=\min(p_\upxi,p_\upeta)$ in
+the scaled skew coordinates $(\tilde s,\tilde t)$, $\mathcal P_m(\tilde s,\tilde t)$,
 complemented by parametric functions of $(\xi,\eta)$
 (\cref{sec:metric-hybrid}). It has the same
 completeness and invariance, equals the parametric space on all straight-edged
 elements and avoids the exponential growth of the Lebesgue constant of
-$Q_p(s,t)$ on distorted elements.
+$\mathcal Q_p(s,t)$ on distorted elements.
 
 \section{Element matrices}
 
@@ -245,16 +249,18 @@ rule assumes $\det(\matr J) > 0$ (no inverted elements). $\matr B_\mathrm{R}$ is
 evaluated at the physical positions of the Gauss points. Consequences:
 \begin{itemize}
   \item Rigid-body modes lie in both the right and the left null space of
-    $\matr K_e$, and $\operatorname{rank}(\matr K_e) = n_\mathrm{dof}-3$.
+    $\matr K_e$, and $\operatorname{rank}(\matr K_e) = n_\mathrm{dof}-3$, where
+    $n_\mathrm{dof}$ is the number of DOFs of the element.
   \item $\matr K_e$ is unsymmetric unless the element is a parallelogram.
 \end{itemize}
 
 \paragraph{Mass} (\code{Me_2D}, and \code{KMe_2D} together with the stiffness):
 \begin{equation}
-  \matr M_e = \int\limits^{1}_{-1}\int\limits^{1}_{-1}\rho\,\matr N^{\T}\matr M\,
-  \det(\matr J)\dd\xi\dd\eta ,
+  \matr M_e = \int\limits^{1}_{-1}\int\limits^{1}_{-1}\rho\,\matr N_\mathrm{N}^{\T}
+  \matr N_\mathrm{M}\,\det(\matr J)\dd\xi\dd\eta ,
 \end{equation}
-where $\matr N$ holds the parametric and $\matr M$ the metric functions.
+where $\matr N_\mathrm{N}$ holds the parametric and $\matr N_\mathrm{M}$ the
+metric functions.
 \begin{center}
   \begin{tabularx}{\linewidth}{@{}lL@{}}
     \toprule
@@ -277,7 +283,7 @@ Gauss-Legendre points (other numbers can be passed to \code{Ke_2D} and
 \code{Me_2D}). Whether this integrates the element matrices exactly depends on
 the element shape, because the metric functions are polynomials in $(x,y)$, and
 $x$, $y$ and $\det(\matr J)$ are polynomials in $(\xi,\eta)$ whose degree grows
-with the distortion. The integrands of the default trial space $Q_p(s,t)$ are
+with the distortion. The integrands of the default trial space $\mathcal Q_p(s,t)$ are
 polynomials in $(\xi,\eta)$, so a finite Gauss rule is exact; its size was
 determined numerically (smallest rule that reproduces the matrices of a
 40-point rule to $10^{-12}$, single elements of \cref{fig:test-elements}):
@@ -300,8 +306,10 @@ determined numerically (smallest rule that reproduces the matrices of a
   \input{figures/test-elements}
   \caption{Single test elements of the element tests, of the study of the metric
     basis (\cref{ch:metric-basis}) and of the table on numerical integration
-    (\texttt{usemTestElement}): the square $[0,2]\times[0,1]$, a parallelogram, a
-    trapezoid with straight edges, and two 8-node elements with curved edges.
+    (\texttt{usemTestElement}): the rectangle $[0,2]\times[0,1]$
+    (\texttt{'square'}), a parallelogram, a quadrilateral with straight,
+    non-parallel edges (\texttt{'trapezoid'}), and two 8-node elements with
+    curved edges.
     The dots are the nodes of the input element; the spectral element of degree
     $p$ is generated from them.}
   \label{fig:test-elements}

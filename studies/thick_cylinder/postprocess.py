@@ -72,12 +72,20 @@ def rate(e1, e2, key, f1=0.0, f2=0.0):
 
 
 def sci(v, small=1e3):
-    """Compact number for tables: 3 significant digits below small, else
-    mantissa with one digit and exponent (e.g. 1.4e4)."""
-    if v < small and v >= 1e-2:
-        return f"{v:.3g}"
+    """Compact number for tables, typeset in math mode: 3 significant digits
+    (trailing zeros kept) for 1e-2 <= |v| < small, else a mantissa with one
+    decimal and a power of ten (e.g. $1.4\\cdot10^{4}$)."""
+    if small > abs(v) >= 1e-2:
+        r = float(f"{v:.3g}")
+        nd = max(0, 2 - math.floor(math.log10(abs(r))))
+        return f"${r:.{nd}f}$"
     m, e = f"{v:.1e}".split("e")
-    return f"{m}e{int(e)}"
+    return f"${m}\\cdot10^{{{int(e)}}}$"
+
+
+def fix(v, nd=2):
+    """Fixed-point number for tables, typeset in math mode (true minus)."""
+    return f"${v:.{nd}f}$"
 
 
 def fmt(v, nd=2):
@@ -196,7 +204,7 @@ def main():
                         elif x is None:
                             cells.append("--")
                         else:
-                            cells.append(f"{x:.2f}")
+                            cells.append(fix(x))
                     lines.append(alabel(a, Ns[-2:]) + " & " + " & ".join(cells) + "\\\\")
                 lines.append("\\midrule" if fo != "PP" else "\\bottomrule")
             lines.append("\\end{tabular}")
@@ -261,7 +269,7 @@ def main():
                 lines.append(alabel(a, [Nf]) + " & " + " & ".join(cells) + "\\\\")
             lines.append("\\midrule")
         if key == "lebesgue":
-            lines.append("GLL & " + " & ".join(f"{get('lame', 'PP', 0, Nf, p, 'lebesgueGLL'):.3g}" for p in ps) + "\\\\")
+            lines.append("GLL & " + " & ".join(sci(get('lame', 'PP', 0, Nf, p, 'lebesgueGLL')) for p in ps) + "\\\\")
         else:
             lines.pop()
         lines += ["\\bottomrule", "\\end{tabular}"]
@@ -312,7 +320,7 @@ def interp_table(problem="smooth", N=8, alphas=(15, 30), ps=range(2, 9)):
                 elif ei < floor:
                     cells.append("--")
                 else:
-                    cells.append(f"{ed / ei:.2f}" if ed / ei < 100 else sci(ed / ei))
+                    cells.append(fix(ed / ei) if ed / ei < 100 else sci(ed / ei))
             dag = "$^\\dagger$" if a >= 45 else ""
             L.append(f"$\\alpha={a}^\\circ${dag} & " + " & ".join(cells) + "\\\\")
         L.append("\\midrule" if fo != "PP" else "\\bottomrule")
@@ -443,12 +451,12 @@ def write_figures():
         "fig_h_smooth_eN.tex": fig_hconv("smooth", "eN", "$\\en$"),
         "fig_h_poly_eN.tex": fig_hconv("poly", "eN", "$\\en$"),
         "fig_h_eE.tex": fig_hconv(None, "eE", "$\\eE$",
-                                  alphas=[("smooth", a, "MMS ") for a in (0, 15, 30)] +
-                                         [("lame", a, "Lam\\'e ") for a in (0, 15, 30)]),
-        "fig_alpha_N4.tex": fig_alpha(["lame", "smooth"], 4, ["Lam\\'e, $N=4$", "smooth MMS, $N=4$"]),
-        "fig_alpha_N8.tex": fig_alpha(["lame", "smooth"], 8, ["Lam\\'e, $N=8$", "smooth MMS, $N=8$"]),
-        "fig_p_N2.tex": fig_pconv(["lame", "smooth"], ["Lam\\'e, $N=2$", "smooth MMS, $N=2$"], 2),
-        "fig_p_N8.tex": fig_pconv(["lame", "smooth"], ["Lam\\'e, $N=8$", "smooth MMS, $N=8$"], 8),
+                                  alphas=[("smooth", a, "smooth, ") for a in (0, 15, 30)] +
+                                         [("lame", a, "Lam\\'e, ") for a in (0, 15, 30)]),
+        "fig_alpha_N4.tex": fig_alpha(["lame", "smooth"], 4, ["Lam\\'e, $N=4$", "smooth, $N=4$"]),
+        "fig_alpha_N8.tex": fig_alpha(["lame", "smooth"], 8, ["Lam\\'e, $N=8$", "smooth, $N=8$"]),
+        "fig_p_N2.tex": fig_pconv(["lame", "smooth"], ["Lam\\'e, $N=2$", "smooth, $N=2$"], 2),
+        "fig_p_N8.tex": fig_pconv(["lame", "smooth"], ["Lam\\'e, $N=8$", "smooth, $N=8$"], 8),
     }
     for k, v in out.items():
         with open(os.path.join(GEN, k), "w") as f:

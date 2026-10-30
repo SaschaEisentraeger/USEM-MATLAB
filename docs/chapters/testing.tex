@@ -32,10 +32,12 @@ also be run with \code{runtests}. GitHub Actions runs the suite on every push
   class & what is checked \\
   \midrule
   \endhead
-  \code{QuadratureTest} & Gauss-Legendre and Gauss-Lobatto rules integrate
+  \code{QuadratureTest} & Gauss-Legendre rules with $n$ points (\code{lgwt(n, a, b)})
+    and Gauss-Lobatto rules with $n+1$ points (\code{lglnodes(n)}) integrate
     polynomials of degree $2n-1$ exactly; interval mapping; symmetry \\
   \code{NodalDistributionTest} & node distributions: ascending, symmetric,
-    endpoints; GLL nodes are roots of $P_p'$; GLC nodes are Chebyshev extrema;
+    endpoints; the interior GLL nodes are the roots of $L_p'$, the derivative of
+    the Legendre polynomial of degree $p$; GLC nodes are Chebyshev extrema;
     unknown distributions are rejected \\
   \code{ShapeFunctionsTest} & 1D/2D Lagrange functions: Kronecker property,
     partition of unity, reproduction of polynomials and their derivatives,
@@ -50,7 +52,8 @@ also be run with \code{runtests}. GitHub Actions runs the suite on every push
     derivatives, frame invariance, Newton inversion when no local coordinates are
     given, equality with the parametric functions (and the classical $\matr K_e$) on
     straight-edged elements, unsymmetry on curved ones, Lebesgue constant $<7$ at
-    $p=12$; element matrices: rigid-body modes, rank $n_\mathrm{dof}-3$, \code{KMe_2D} =
+    $p=12$; element matrices: rigid-body modes, rank $n_\mathrm{dof}-3$
+    ($n_\mathrm{dof}$: number of DOFs of the element), \code{KMe_2D} =
     \code{Ke_2D}/\code{Me_2D}, diagonal nodal-quadrature mass, total mass;
     \code{ReferenceNodes2D}, \code{Global2LocalNewton} \\
   \code{MetricBasisTest} & bases of the metric Vandermonde matrix: derivatives,
@@ -118,7 +121,7 @@ at all boundary nodes, and no other loads act.
   \code{PatchTest} & displacement patch tests on regular, angular, curved and
     combined distorted meshes for $p = 1,\dots,4$, plane stress and plane strain:
     linear fields, all harmonic fields $(\operatorname{Re}(z^k), -\operatorname{Im}
-    (z^k))$ with $k\le p$, and pure bending are reproduced to machine precision.
+    (z^k))$ with $z=x+\mathrm{i}\,y$ and $k\le p$, and pure bending are reproduced to machine precision.
     Control experiment: the classical symmetric element fails on the same curved
     mesh. Fields of higher degree are not exact; exponential $p$-convergence for
     $(e^x\cos(y), -e^x\sin(y))$. All exactness and convergence tests run for both
@@ -170,8 +173,9 @@ at all boundary nodes, and no other loads act.
   \code{helpers/usemTestMesh} & structured 4- or 8-node mesh in \texttt{ABAQUS} node order \\
   \code{helpers/usemDistortMesh} & deterministic angular, curved-edge or combined
     distortion of interior nodes \\
-  \code{helpers/usemTestElement} & single test elements (square, parallelogram,
-    trapezoid, curved, general) \\
+  \code{helpers/usemTestElement} & single test elements of
+    \cref{fig:test-elements} (rectangle, parallelogram, quadrilateral, curved,
+    general) \\
   \code{helpers/usemBuildModel} & wrapper of \code{pSpectralElement_NodesTopology} \\
   \code{helpers/usemAssemble} & quiet wrapper of \code{AssemblyFEM} \\
   \code{helpers/usemDirichletSolve} & displacement-driven patch test \\

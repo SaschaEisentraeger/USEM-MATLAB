@@ -22,10 +22,11 @@ Tables~15--19 are reproduced to four digits, for the unsymmetric (PM-QUAD9$^\ast
 the conventional (PP-QUAD9) and the metric (MM-QUAD9) elements, except for entries that are
 inconsistent within the paper itself (\cref{sec:paper}). The energy-norm convergence rates of
 PM-QUAD9$^\ast$ (Fig.~15 of the paper) are reproduced as well ($2.00$ and $1.98$ against
-$2.11$ and $1.97$). For $p\ge3$ the unsymmetric spectral element reproduces the cubic field of
-the shear test on every mesh, including fully folded ones, up to round-off. The hybrid trial
-space of the code base (\PH: metric polynomials only for $P_p(\bx)$, parametric functions for the
-remainder) passes the constant and linear strain patch tests at $p=2$ on all meshes, converges
+$2.11$ and $1.97$). For polynomial degrees $p\ge3$ the unsymmetric spectral element (\PM)
+reproduces the cubic field of the shear test on every mesh, including fully folded ones, up to
+round-off. The hybrid trial space of the code base (\PH: metric polynomials only for the
+polynomials $P_p(\bx)$ of total degree $\le p$ in the Cartesian coordinates $\bx$, parametric
+functions for the remainder) passes the constant and linear strain patch tests at $p=2$ on all meshes, converges
 with rates $2.02$ and $2.21$ on sequences B and C, and reproduces the cubic field for $p\ge3$; at $p=8$
 its round-off level on Meshes c and e is $220$--$260$ times lower than that of \PM. The code base
 places all new nodes with the map of the 8-node (Serendipity) element, so the geometry stays
@@ -36,19 +37,22 @@ the metric interpolation is singular, instead of returning a wrong (zero) soluti
 \end{abstract}
 
 \section{Set-up}\label{sec:setup}
-Panel $[0,2]\times[-1,1]$, plane stress, $\nu=0.25$, three point supports ($u_x=0$ at
-$(0,\pm1)$, $u_x=u_y=0$ at $(0,0)$), equilibrated loads on $x=0$ and $x=2$ (tension
+Panel $[0,2]\times[-1,1]$, plane stress, Poisson's ratio $\nu=0.25$, three point supports
+(displacements $u_x=0$ at $(0,\pm1)$, $u_x=u_y=0$ at $(0,0)$), equilibrated loads on $x=0$ and
+$x=2$, given by the normal stress $\sigma_x$ and the shear stress $\tau_{xy}$ (tension
 $\sigma_x=1000$; moment $\sigma_x=-1500y$; shear $\sigma_x=-1500(2-x)y$,
 $\tau_{xy}=750(1-y^2)$), displacement at $A=(2,0)$ (\cref{fig:setup}a--d). The meshes
 (\cref{fig:meshes}) are generated with \texttt{Gmsh} (\texttt{mesh/gen\_panel\_meshes.py}):
-$2\times2$ super-elements of $2\times2$ eight-node elements. In every super-element, the
+$N\times N$ super-elements of $2\times2$ 8-node elements each. In every super-element, the
 mid-side nodes of the four internal edges are rotated counter-clockwise about the centre node
 of the super-element by the \emph{distortion angle} $\theta$, i.e., they move on the circle
 through their original positions (\cref{fig:setup}e); $\theta=0^\circ$ is the undistorted
-mesh, and the internal edges become parabolas through the rotated nodes. Meshes a--f use
+mesh, and the internal edges become parabolas through the rotated nodes. Meshes a--f consist of
+a single super-element ($N=1$) with
 $\theta=0^\circ,90^\circ,135^\circ,175^\circ,225^\circ,270^\circ$; the sequences A, B, C use
-$\theta=0^\circ,90^\circ,135^\circ$ with $1\times1$, $2\times2$, $4\times4$ super-elements.
-For $\theta\ge90^\circ$ every element of every mesh has $\det(\bm J)\le0$ somewhere.
+$\theta=0^\circ,90^\circ,135^\circ$ with $N=1,2,4$, i.e., $1\times1$, $2\times2$, $4\times4$
+super-elements. For $\theta\ge90^\circ$ every element of every mesh has $\det(\bm J)\le0$
+somewhere, where $\bm J$ is the Jacobian matrix of the element map.
 
 \begin{figure}[t]
   \centering
@@ -62,7 +66,7 @@ For $\theta\ge90^\circ$ every element of every mesh has $\det(\bm J)\le0$ somewh
   \label{fig:setup}
 \end{figure}
 
-\paragraph{Material constant.} The paper states $E=1500$, but its exact solutions ($1.0$,
+\paragraph{Material constant.} The paper states Young's modulus $E=1500$, but its exact solutions ($1.0$,
 $1.5$, $3.3125$) are those of $E=2000$ (elasticity solutions with the supports above: $1.333$,
 $2.0$, $4.4167$ for $E=1500$; $1.0$, $1.5$, $3.3125$ for $E=2000$). $E=2000$ is used here; all
 displacements scale with $1/E$.
@@ -74,11 +78,17 @@ antisymmetric values are $-500$, $-250$ (and $500$, $250$). The listed values wo
 moment of $1125$ instead of $1000$; since the paper's PM9 results equal the exact $1.5$, the
 consistent values were evidently used.
 
-\paragraph{Elements.} With $p=2$ (9 nodes):
-PP9 = conventional element; MM9 = metric functions on both sides,
-$\int\bm B_{\mathrm R}^\top\bm D\bm B_{\mathrm R}\det(\bm J)$; PM9 = PM-QUAD9$^\ast$,
-$\int(\bm B_{\mathrm L}^\ast)^\top\bm D\bm B_{\mathrm R}$. As in the
-paper: metric functions $Q_2$ in Cartesian coordinates relative to the element centroid
+\paragraph{Elements.} With the polynomial degree $p=2$ (9 nodes):
+PP9 = conventional element; MM9 = metric functions on both sides, element stiffness matrix
+$\int\limits_{\hat\Omega}\bm B_{\mathrm R}^\top\bm D\bm B_{\mathrm R}\det(\bm J)\dd\xi\dd\eta$;
+PM9 = PM-QUAD9$^\ast$, element stiffness matrix
+$\int\limits_{\hat\Omega}(\bm B_{\mathrm L}^\ast)^\top\bm D\bm B_{\mathrm R}\dd\xi\dd\eta$. Here
+$\hat\Omega=[-1,1]^2$ is the reference square with the coordinates $(\xi,\eta)$, $\bm D$ the
+elasticity matrix, $\bm B_{\mathrm R}$ and $\bm B_{\mathrm L}$ the strain-displacement matrices of
+the metric trial functions and the parametric test functions, and
+$\bm B_{\mathrm L}^\ast=\bm B_{\mathrm L}\det(\bm J)$. As in the
+paper: metric functions from $Q_2$ (polynomials of degree $\le2$ in each coordinate) in Cartesian
+coordinates relative to the element centroid
 (\texttt{ShapeFunctions2D\_Metric}, method 0), 9th node at the centroid of the corners,
 $5\times5$ Gauss points. In addition: ``\PM, skew'' = the code-base metric functions (skew
 coordinates, method 1) with the same nodes; ``\PM, code'' = \texttt{Ke\_2D} with the nodes of
@@ -108,13 +118,14 @@ centroid and $5\times5$ points, ``\PH, code'' as ``\PM, code''; for $p\ge3$ \PH\
   \resizebox{\linewidth}{!}{\input{generated/patch_moment}}
 
   \vspace{3mm}
-  \caption{Shear loading, $u_y(A)$ (paper: Table~16; exact $3.3125$). $^\ast$: differs from the
-    present result, see \cref{sec:paper}.}
+  \caption{Shear loading, $u_y(A)$ (paper: Table~16; exact $3.3125$). $^\ast$ after a paper value:
+    differs from the present result, see \cref{sec:paper}.}
   \label{tab:shear}
   \resizebox{\linewidth}{!}{\input{generated/patch_shear}}
 
   \vspace{3mm}
-  \caption{Tension, $u_x(A)$ (paper: Table~14; exact $1.0$). In
+  \caption{Tension, $u_x(A)$ (paper: Table~14; exact $1.0$). $^\ast$ after a paper value: differs
+    from the present result, see \cref{sec:paper}. In
     \cref{tab:moment,tab:shear,tab:tension,tab:conv}, ``err.'' marks cases in which the code base
     stops because interior and edge nodes coincide (\cref{sec:code}).}
   \label{tab:tension}
@@ -127,20 +138,23 @@ lies outside $Q_2$, its results are within $1.7\,\%$ of the exact value on all m
 digits, except for the entries marked $^\ast$. The metric functions of the code base (skew coordinates) give the same results for the
 constant and linear strain tests and comparable ones for the shear test ($3.15$--$3.41$). \PH\
 ($p=2$, corner centroid) passes the constant and linear strain tests on all meshes as well, since
-$P_2(\bx)$ is contained in its trial space; for the shear test it is less accurate than PM9
+the polynomials $P_2(\bx)$ of total degree $\le2$ in the Cartesian coordinates $\bx$ are contained
+in its trial space; for the shear test it is less accurate than PM9
 ($3.37$--$3.61$, i.e., $1.8$--$8.9\,\%$ error), because its quadratic complement is parametric.
 
 \section{Convergence test (shear loading, $p=2$)}\label{sec:conv}
 \begin{table}[h]
   \centering\small
-  \caption{$u_y(A)$ for the sequences A, B, C (paper: Tables~17--19; exact $3.3125$).}
+  \caption{$u_y(A)$ for the sequences A, B, C (paper: Tables~17--19; exact $3.3125$). $^\ast$
+    after a paper value: differs from the present result, see \cref{sec:paper}.}
   \label{tab:conv}
   \resizebox{\linewidth}{!}{\input{generated/convergence}}
 
   \vspace{3mm}
   \caption{Least-squares rates of the energy-norm strain error, Eq.~(24) of the paper (paper:
-    Fig.~15). \PP\ on folded meshes: the parametric strain is singular where $\det(\bm J)=0$, so the
-    energy error of \PP\ is not well defined for B and C (here: signed $\det(\bm J)$).
+    Fig.~15). PP9 ($p=2$) and \PP\ ($p=3$) on folded meshes: the parametric strain is singular
+    where $\det(\bm J)=0$, so the energy error of PP9 and \PP\ is not well defined for B and C
+    (here: signed $\det(\bm J)$).
     ``--'': error at round-off level (field reproduced).}
   \label{tab:rates}
   \input{generated/rates}
@@ -164,7 +178,7 @@ energy-norm errors of $9$--$80\,\%$.
   \input{generated/patch_highp}
 \end{table}
 With interior nodes from the bilinear corner map, both unsymmetric elements are
-Jacobian-unlimited immune for $p=3,\dots,8$ (\cref{tab:highp}): the cubic field is reproduced on
+distortion-immune for $p=3,\dots,8$ (\cref{tab:highp}): the cubic field is reproduced on
 all meshes with overlapping and folded elements. The round-off level grows with $p$ and
 distortion, for \PM\ from $10^{-13}$ to $10^{-5}$ ($p=8$, Meshes c and e), for \PH\ to $8\cdot10^{-8}$,
 in line with the thick-cylinder study. With the interior nodes of the code base, \PH\ is
@@ -194,11 +208,12 @@ element with the corners $\bx_1=(0,-1)$, $\bx_2=(1,-1)$, $\bx_3=(1,0)$, $\bx_4=(
 $-\tfrac14\sum\limits^{4}_{i=1}\bx_i+\tfrac12\sum\limits^{8}_{i=5}\bx_i=(1,-0.5)$, with the mid-side
 nodes $\bx_5,\dots,\bx_8$), for every even $p$. No set of distinct nodes represents this element
 geometry; the 9th node of the paper (corner centroid) defines a different geometry. Before commit
-\texttt{da84a58} the metric Vandermonde matrix was then singular
-($\kappa(\bm V)\approx10^{18}$--$10^{20}$) and the computed displacements were silently zero.
+\texttt{da84a58} the metric Vandermonde matrix $\bm V$ was then singular
+(condition number $\kappa(\bm V)\approx10^{18}$--$10^{20}$) and the computed displacements were silently zero.
 Since then the code base keeps this node placement but stops with an error:
 \texttt{pSpectralElement\_NodesTopology} on coincident nodes, and \texttt{ShapeFunctions2D\_Metric}
-when its interpolation matrix is singular to working precision ($\mathrm{rcond}<\varepsilon$),
+when its interpolation matrix is singular to working precision (reciprocal condition number
+$\mathrm{rcond}$ below the machine epsilon, $\mathrm{rcond}<\varepsilon_{\mathrm{mach}}$),
 which also covers the nearly non-unisolvent node sets of Meshes c--e for high $p$, where the
 accuracy had been destroyed (\cref{tab:highp}). The ``code'' columns and
 \PM$_\mathrm{code}$, \PH$_\mathrm{code}$ rows show these cases as ``err.''. With the Lagrange basis

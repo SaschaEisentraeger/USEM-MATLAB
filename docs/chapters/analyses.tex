@@ -194,7 +194,8 @@ The implementation follows Table~1 of \textcite{Soares2020novel}.
     so the stability limit is not reduced (\cref{fig:ahem}).
   \item \textbf{Damping.} Rayleigh damping is supported; the damping ratio of
     Eqs.~(8b) and (12b) is computed from the mass-proportional part,
-    $\zeta_e = \alpha_\mathrm{R}\,\Delta t/2$.
+    $\zeta_e = \alpha\,\Delta t/2$, with the coefficient $\alpha$ of
+    $\matr R = \alpha\matr M + \beta\matr K$.
   \item \textbf{Requirements.} For method 109 \code{DynamicAnalysis} requests
     the element matrices from \code{AssemblyFEM} (6th output \code{ElemData}) and
     passes them to the solver (field \code{S.ElemData}). Set
