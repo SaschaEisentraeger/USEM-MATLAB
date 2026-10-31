@@ -1,8 +1,8 @@
-function R = ms_convergence(delta, pvec, Nvec, tag)
+function R = ms_convergence(delta, pvec, Nvec, tag, rule)
 %MS_CONVERGENCE h-convergence on meshes with persistent curved-edge
 %distortion (manuscript, Sec. 5.3).
 %
-%   R = ms_convergence(delta, pvec, Nvec, tag)
+%   R = ms_convergence(delta, pvec, Nvec, tag, rule)
 %
 %   Unit square, N x N 8-node elements lifted to degree p (GLL). Every
 %   interior mid-side node is moved normal to its edge by delta*h (h = 1/N),
@@ -17,13 +17,15 @@ function R = ms_convergence(delta, pvec, Nvec, tag)
 %   of the trial functions of each formulation, maximum nodal error.
 %   The stiffness matrices are integrated with the calibrated Gauss rule of
 %   the mesh family conv<100*delta> (ms_rule), the errors with nG + 4
-%   points per direction (as in the companion paper).
+%   points per direction (as in the companion paper). With rule = '2p', the
+%   stiffness matrices use the former 2p rule instead.
 %   Writes manuscript/data/conv-<tag>.dat (one row per (p, N)).
 
 if nargin < 1 || isempty(delta), delta = 0.2; end
 if nargin < 2 || isempty(pvec), pvec = 2:6; end
 if nargin < 3 || isempty(Nvec), Nvec = [1 2 4 8 16]; end
 if nargin < 4 || isempty(tag), tag = sprintf('d%03d', round(100*delta)); end
+if nargin < 5, rule = 'calibrated'; end
 [~, dataDir] = ms_setup();
 
 C = HookeMatrix2d(1, 0.3);
@@ -39,7 +41,11 @@ for p = pvec
         row = [p, N, model.num_DoF, minDetJ(model)];
         for f = 1:numel(forms)
             t0 = tic;
-            nG = ms_rule(sprintf('conv%03d', round(100*delta)), forms{f}, p);
+            if strcmp(rule, '2p')
+                nG = 2*p;
+            else
+                nG = ms_rule(sprintf('conv%03d', round(100*delta)), forms{f}, p);
+            end
             K = assemble(model, C, forms{f}, nG);
             u = dirichletSolve(K, model);
             [eE, eL, en] = errors(model, u, C, forms{f}, nG + 4);

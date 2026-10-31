@@ -8,8 +8,7 @@ function ms_cylinder(alphas)
 %   cyl_aAAA_NN); loads use max(3p+2, nG) and the error integrals
 %   max(3p+2, nG+4) points. The results are written to
 %   studies/thick_cylinder/results/raw_calibrated (study_aXXX.csv,
-%   interp_aXXX.csv); the original results of the study report (2p rule)
-%   in results/raw are not touched.
+%   interp_aXXX.csv).
 if nargin < 1 || isempty(alphas), alphas = [0 15 30 45 60 90]; end
 root = ms_setup();
 cyl = fullfile(root, 'studies', 'thick_cylinder', 'matlab');

@@ -33,6 +33,19 @@ The order of the first two scripts matters, because the studies read the calibra
 rules. \code{run_element.sh} runs the timing study last and alone; its numbers
 depend on the machine.
 
+The results of the paper are computed with the meshes in \code{studies/*/mesh/inp}.
+A rerun with these meshes and \texttt{MATLAB} R2026a on the same machine reproduces
+all files except \code{timing.dat} byte for byte. The generators
+\code{gen_panel_meshes.py} and \code{gen_cylinder_meshes.py} document how the meshes
+were made. With \code{gmsh} 4.15.2, they reproduce the panel meshes exactly. The
+cylinder meshes have the same topology and differ in the node coordinates by up to
+$7\cdot10^{-10}$. Results with these regenerated meshes agree except for values
+dominated by round-off, which is amplified by the Vandermonde matrix: the errors of
+\PM\ at high degree and on folded meshes, e.g., $7.5\cdot10^{-8}$ instead of
+$9.3\cdot10^{-8}$ at $\alpha=30^\circ$, $N=8$ and $p=8$, and the reciprocal condition
+numbers of singular matrices. The same kind of change has to be expected on another
+machine or \texttt{MATLAB} version.
+
 \section{Which study produces which result}
 
 \begin{xltabular}{\linewidth}{@{}P{5.6cm}L@{}}
@@ -61,7 +74,8 @@ depend on the machine.
   \code{ms_transient} & free vibration with the trapezoidal rule
     (\code{data/transient-*.dat}) \\
   \code{ms_convergence} & convergence on the unit square (\code{data/conv-*.dat},
-    \code{generated/rates-*.tex}) \\
+    \code{generated/rates-*.tex}); folded meshes with the $2p$ rule, values quoted in
+    the text (\code{data/conv-d030-2p.dat}) \\
   \code{ms_timing} & run times (\code{data/timing.dat}) \\
   \code{studies/rajendran_panel/matlab/rp_run} & patch tests on the folded panel meshes
     (\code{data/panel/patch.csv}, \code{generated/panel.tex}) \\
@@ -79,12 +93,12 @@ depend on the machine.
     (\code{data/unisolvence.txt}, \code{generated/tab_unisolvence.tex}) \\
   \code{frame_check} & coordinates of the complete polynomials, Appendix B
     (\code{data/frames.txt}) \\
+  \code{frame_cylinder_check} & thick cylinder with \PH\ in the principal axes,
+    Appendix B (\code{data/frames-cylinder.txt}); takes the routine in
+    \code{manuscript/studies/principal_axes} in place of
+    \code{CorotationalSkewCoordinates} \\
   \bottomrule
 \end{xltabular}
-
-The values obtained with the former $2p$ rule on the folded square meshes in the
-section on convergence are not recomputed by these scripts; they are taken from the
-git history of \code{data/conv-d030.dat}, as a comment in \code{numerics.tex} states.
 
 \section{Eigenvalue and transient studies}
 

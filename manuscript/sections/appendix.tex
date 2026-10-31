@@ -51,5 +51,6 @@ Since all affine coordinates span the same space $\Pp_p(x,y)$, the coordinates o
 % data: data/frames.txt (studies/frame_check.m)
 
 As shown in \cref{tab:frames}, both alternatives remove all singular matrices on the thick-cylinder meshes. The principal axes, however, do not preserve the tensor-product grid of the nodes on affine elements, which degrades the conditioning on regular elements. On the parallelogram at $p=16$, e.g., the error of the Kronecker property increases from $1.1\cdot10^{-14}$ to $2.1\cdot10^{-10}$. The least-squares fit reproduces the reference coordinates exactly on affine elements and therefore does not have this drawback. With the principal axes, we repeated the studies of \cref{sec:num-cylinder}: on the meshes without folded elements, the errors of \PH\ changed only at the round-off level. The least-squares fit has only been evaluated in terms of the Vandermonde matrix.
+% data: data/frames.txt (studies/frame_check.m), data/frames-cylinder.txt (studies/frame_cylinder_check.m)
 
 The benefit of both alternatives is thus limited to folded elements. There, the shape functions exist, but the stiffness integrals of \PH\ still do not (\cref{sec:hybrid-gradients}), so that its errors continue to depend on the quadrature rule. We therefore retain the skew coordinates, which \PH\ shares with \PM.

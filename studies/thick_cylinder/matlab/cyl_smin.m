@@ -10,7 +10,7 @@ function S = cyl_smin(cases, outfile)
 here = fileparts(mfilename('fullpath'));
 cyl_setup_paths();
 C = PlaneStressConstitutiveMatrices(HookeMatrix3d(1000, 0.25));
-S = zeros(size(cases, 1), 10);
+S = zeros(size(cases, 1), 13);
 for i = 1:size(cases, 1)
     a = cases(i, 1);  N = cases(i, 2);  pdeg = cases(i, 3);
     m = cyl_model(fullfile(here, '..', 'mesh', 'inp', sprintf('ThickCylinder_N%d_a%03d.inp', N, a)), pdeg);
@@ -22,7 +22,7 @@ for i = 1:size(cases, 1)
         K = cyl_assemble(m, C, forms{f});
         A = K(act, act);
         [~, smin, V] = svds(A, 1, 0);
-        smax = svds(A, 1);
+        smax = normest(A, 1e-6);   % svds(A, 1) returns NaN on some meshes
         out(2*f-1:2*f) = [smin, smax];
         if f == 1
             v = zeros(m.num_DoF, 1);  v(act) = V(:, 1);
@@ -30,14 +30,14 @@ for i = 1:size(cases, 1)
             loc = [hypot(m.xCoor(j), m.yCoor(j)), atan2(m.yCoor(j), m.xCoor(j))*180/pi];
         end
     end
-    S(i, :) = [a, N, pdeg, out(1), out(3), out(1)/out(3), loc, out(5), out(5)/out(3)];
+    S(i, :) = [a, N, pdeg, out(1), out(3), out(1)/out(3), loc, out(5), out(5)/out(3), out(2), out(4), out(6)];
     fprintf('alpha=%2d N=%d p=%d: smin PM %.3e  PP %.3e  ratio %.3e | smax PM %.3e PP %.3e | PM mode max at r=%.3f theta=%.1f | PH smin %.3e ratio %.3e smax %.3e\n', ...
             a, N, pdeg, out(1), out(3), out(1)/out(3), out(2), out(4), loc, out(5), out(5)/out(3), out(6));
 end
 if nargin >= 2
     fid = fopen(outfile, 'w');
-    fprintf(fid, 'alpha N p sminPM sminPP ratio r_mode theta_mode sminPH ratioPH\n');
-    fprintf(fid, '%d %d %d %.4e %.4e %.4e %.3f %.2f %.4e %.4e\n', S.');
+    fprintf(fid, 'alpha N p sminPM sminPP ratio r_mode theta_mode sminPH ratioPH smaxPM smaxPP smaxPH\n');
+    fprintf(fid, '%d %d %d %.4e %.4e %.4e %.3f %.2f %.4e %.4e %.4e %.4e %.4e\n', S.');
     fclose(fid);
 end
 end

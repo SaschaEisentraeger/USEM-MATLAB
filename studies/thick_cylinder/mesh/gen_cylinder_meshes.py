@@ -192,9 +192,6 @@ def write_inp(fname, nodes, topo, N, alpha):
         f.write("** Section: Section-1\n*Solid Section, elset=Set-all, material=Material-1\n,\n")
         f.write("*End Part\n**\n**\n** ASSEMBLY\n**\n*Assembly, name=Assembly\n**\n")
         f.write("*Instance, name=Cylinder-1, part=Cylinder\n*End Instance\n**\n")
-        # Read_boundary_condition_ABAQUS expects set names containing "Set"
-        # (and an element set of the same name, from which
-        # pSpectralElement_BCs adds the high-order edge nodes)
         for key, name in (("XSYM", "Set-XSYM"), ("YSYM", "Set-YSYM"),
                           ("OUTER", "Set-OUTER"), ("INNER", "Pressure")):
             f.write(f"*Nset, nset={name}, instance=Cylinder-1\n")

@@ -13,8 +13,8 @@ function run_study(alphas, Ns, ps, outdir, nqfun)
 %   element (PP). The stiffness matrices use the default quadrature of
 %   Ke_2D (2p x 2p Gauss points). Cases the code base rejects (singular
 %   metric interpolation, det J = 0 for the hybrid space) are written as
-%   NaN. The columns lebesgue, condV, condKe and condK refer to the trial
-%   space of the row (PP: lebesgue = GLL value, condV = NaN).
+%   NaN. The columns lebesgue and condV refer to the trial space of the row
+%   (PP: lebesgue = GLL value, condV = NaN).
 %   One CSV file per angle is written to outdir:  study_aXXX.csv
 %
 %   nqfun (optional): handle nq = nqfun(alpha, N, form, p) with the number of

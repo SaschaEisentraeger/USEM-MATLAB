@@ -152,6 +152,25 @@ def main():
     with open(os.path.join(GEN, "quasiopt_stats.txt"), "w") as f:
         for fo, (n, lo, hi) in stats.items():
             f.write(f"{fo}: {n} cases, ratio {lo:.3f} .. {hi:.3g}\n")
+        # the only other mesh without folded elements
+        for fo in FORMS:
+            rs = [g(45, pr, fo, 1, p) / I[45][(pr, fo, 1, p)] for p in range(2, 9) for pr in ("smooth", "lame")]
+            f.write(f"{fo}, alpha = 45, N = 1: {len(rs)} cases, ratio {min(rs):.3f} .. {max(rs):.3g}\n")
+
+    # polynomial field: largest nodal error over N and p = 5..8, in parentheses
+    # the number of rejected cases
+    alphas = (0, 15, 30, 45, 60, 90)
+    L = ["\\begin{tabular}{@{}l" + "r" * 6 + "@{}}", "\\toprule",
+         " & " + " & ".join(f"$\\alpha={a}^\\circ$" for a in alphas) + "\\\\", "\\midrule"]
+    for fo in ("PM", "PH"):
+        cells = []
+        for a in alphas:
+            e = [g(a, "poly", fo, N, p, "nodal") for N in (1, 2, 4, 8) for p in range(5, 9)]
+            nrej = sum(math.isnan(x) for x in e)
+            cells.append(sci(max(x for x in e if not math.isnan(x))) + (f" ({nrej})" if nrej else ""))
+        L.append("\\" + fo + " & " + " & ".join(cells) + "\\\\")
+    L += ["\\bottomrule", "\\end{tabular}"]
+    write("tab_cylpoly.tex", L)
 
     # Lebesgue constants and kappa(V), N = 8 (max over the elements)
     L = ["\\begin{tabular}{@{}ll" + "r" * 7 + "@{}}", "\\toprule",

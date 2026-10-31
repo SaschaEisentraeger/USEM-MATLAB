@@ -1,3 +1,6 @@
 PM: 151 cases, ratio 0.075 .. 9.91e+04
 PH: 158 cases, ratio 0.778 .. 1
 PP: 165 cases, ratio 0.839 .. 1
+PM, alpha = 45, N = 1: 14 cases, ratio 0.010 .. 0.821
+PH, alpha = 45, N = 1: 14 cases, ratio 0.709 .. 1.6
+PP, alpha = 45, N = 1: 14 cases, ratio 0.701 .. 0.929
